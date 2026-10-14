@@ -1,0 +1,367 @@
+pragma Singleton
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import qs.modules.common
+
+// The Settings Panel's own options, in one place.
+//
+// Most of what the panel changes already has an owner (ThemeService,
+// BarStyleService, ClockService, ShellScale, ...) and the panel just calls
+// that owner. This singleton holds the rest: switches and numbers that used
+// to be fixed values inside some file (is the weather pill on the bar? how
+// long does the Quick Panel's hot edge wait?) and so had nowhere to live.
+//
+// Reading is a plain function call, so a binding stays live:
+//
+//     visible: SettingsService.flag("bar.weather")
+//     interval: SettingsService.get("panel.hotDwell")
+//
+// Only what differs from `defaults` is saved (scripts/state/settings-state.sh,
+// ~/.local/state/pjsekai/settings.json), so adding a new key later never
+// disturbs an old file, and removing a key from `defaults` just ignores it.
+//
+// From a keybind or a script:
+//   qs -c pjsekai ipc call options get bar.weather
+//   qs -c pjsekai ipc call options set bar.weather false
+//   qs -c pjsekai ipc call options reset            (everything back to default)
+// (`settings` is the panel itself: `ipc call settings toggle`, see QuickPanel.qml.)
+Singleton {
+    id: root
+
+    // Every option, with the value it has when nothing is saved. The key is
+    // `group.name`; the type of the default is the type of the option.
+    readonly property var defaults: ({
+        // ===== Bar =====
+        "bar.visible": true,
+        "bar.compactWindow": true,     // the bar window is the strip (+ room) instead of the whole screen; off = whole screen
+        "bar.perMonitor": false,        // each monitor keeps its own bar layout (off = one layout on all of them)
+        "bar.workspaces": true,
+        "bar.activeWindow": true,
+        "bar.media": true,
+        "bar.utilButtons": true,
+        "bar.resources": false,         // CPU & RAM pill: off in the default bar (switch it on here)
+        "bar.battery": true,
+        "bar.keyboardLayout": true,
+        "bar.notifications": true,
+        "bar.tray": true,
+        "bar.weather": true,
+        "bar.date": true,
+        "bar.clock": true,
+        // Two newer modules: who is using the mic / screen, and pending Arch updates.
+        "bar.privacy": true,
+        "bar.updates": false,           // pending-updates badge: off in the default bar (switch it on here)
+        // The Discord voice call you are in (needs the Discord bridge, see scripts/discordVoice).
+        "bar.discord": true,
+        // What a left click on the Discord pill does: "panel" opens the call panel
+        // (middle = mute, right = deafen), "mute" is the old behaviour (no panel).
+        "discord.leftClick": "panel",
+        // Wi-Fi / Bluetooth / speaker icons in one pill.
+        "bar.status": true,
+        // The eight keys of the utility strip.
+        "util.screenshot": true,
+        "util.colorPicker": true,
+        "util.keyboard": true,
+        "util.mic": true,
+        "util.darkMode": true,
+        "util.profile": true,
+        "util.record": true,
+        "util.wallpapers": true,
+        // ===== General =====
+        "time.use24h": false,
+        "weather.fahrenheit": false,
+        // How a new notification announces itself: phone (the Quick Panel's phone rises and buzzes; the default) | popups (a stack of cards in the corner).
+        "notify.style": "phone",
+        "notify.buzz": true,
+        "panel.hotEdge": true,
+        "panel.hotDwell": 140,
+        "panel.peek": 76,
+        // The Quick Panel phone drawn flat (2D: no tilt, no side wall, buttons cast their shadow straight down like the bar's pills) instead of the 2.5D pose.
+        "quick.flat": false,
+        // A plain letter typed while the phone is up on Quick starts a search on the Apps screen.
+        "panel.typeToSearch": true,
+        // Which window opens when you pick the avatar or banner: auto (kdialog, else zenity, else yad) | kdialog | zenity (the desktop portal's dialog) | yad.
+        "files.chooser": "auto",
+        "launcher.webSuggestions": true,
+        "launcher.clipboard": true,
+        "lock.blur": false,
+        // ===== System updates =====
+        "updates.nudgeAt": 30,          // from this many updates the badge asks for attention
+        "updates.aur": true,            // count AUR updates too (yay / paru, when installed)
+        "updates.showZero": false,      // keep the badge on the bar when nothing is pending
+        "updates.intervalMin": 30,      // how often to look (minutes)
+        "updates.terminal": "kitty",    // what a click on the badge opens: kitty | foot | alacritty
+        // ===== Media pill =====
+        "media.leftClick": "panel",
+        // ===== Region selector =====
+        "region.own": true,             // the bar's screenshot / record keys use the shell's own picker
+        "region.audio": "system",       // "record with sound" records: system | mic
+        "region.preview": true,         // a preview card (annotate / copy / save) after a Copy or Save
+        "region.previewSeconds": 6,     // how long the preview card stays (not while the pointer is on it)
+        // ===== Bar and tray =====
+        "bar.workspaceCount": 5,        // how many workspace badges the bar shows, 1-10
+        "bar.scrollHints": true,        // a small marker on modules that react to the scroll wheel
+        "tray.scroll": true,            // the wheel over a tray icon is sent to the app
+        // ===== Weather =====
+        "weather.location": "",         // "" = wttr.in's guess from your IP; else a place name or lat,lon
+        "weather.view": "days",         // the popup's second row: days | hourly
+        // Stars stuck on days in the calendar popup: "2026-10-09:2,..." (date : attribute colour 1-5).
+        "calendar.marks": "",
+        // ===== Desktop =====
+        // Desktop Focus Mode (services/FocusService.qml): the desktop widgets go away while
+        // applications are on the workspace, and what they were doing pauses.
+        "focus.enabled": true,          // master switch
+        "focus.hideTiled": true,        // a tiled window hides the widgets
+        "focus.hideFloating": false,    // a floating window hides them too
+        "focus.visualizerBackground": false, // the visualizer keeps listening while hidden
+        "focus.suspend": true,          // hidden widgets pause their clocks, fetches and effects
+        "focus.unload": false,          // aggressive: hidden widgets are destroyed (memory back) and rebuilt on return
+        "focus.reduceEffects": false,   // costly effects (a video wallpaper) pause while a window is open
+        // Which overview `ipc call overview ...` opens: "board" (this shell's cork board)
+        // or "scroll" (the ScrollOverview Hyprland plugin, niri-style; see ScrollOverviewService.qml).
+        "overview.style": "board",
+        // The cork board (Overview.qml): a vertical column of workspace cards.
+        "overview.position": "center",  // which side of the screen it sits on: left | center | right
+        "overview.workspaces": 5,       // how many workspace cards it shows, 1-10 (scrolls when they do not fit)
+        // The ScrollOverview plugin's options as set from the panel. The default of
+        // each means "not set here": the plugin's own config (hyprland.lua) is then
+        // left alone. They are applied live by ScrollOverviewService, never written
+        // to the Hyprland override file (the plugin is not loaded yet when that file
+        // runs, and Hyprland reports an unknown key then).
+        "overview.layout": "",
+        "overview.scale": 0,
+        "overview.gap": -1,
+        "dock.visible": true,
+        "dock.perMonitor": false,       // one dock on every monitor (off = one dock, on the first monitor)
+        "dock.position": "bottom",      // the edge the dock sits on: bottom | top | left | right
+        "dock.autoHide": false,         // (old switch, still counts as hideMode "auto")
+        "dock.hideMode": "off",         // off | auto (always away until the pointer hits the edge) | smart (away only while a window is in the way)
+        "dock.iconSize": 35,            // size of a key, design pixels
+        "dock.magnify": true,           // keys grow under the pointer
+        "dock.magnifyAmount": 160,      // how big the key under the pointer gets, percent
+        "dock.indicators": true,        // the dot under a running app
+        "dock.badges": true,            // notification counts on keys
+        "dock.clickMinimizes": true,    // clicking the app you are in minimizes its window
+        "dock.media": true,             // the small media player at the end of the dock
+        "dock.filesCommand": "xdg-open \"$HOME\"",   // what the dock's Files key runs (through sh -c)
+        "timer.pomWork": 25,            // Pomodoro: minutes of focus
+        "timer.pomShort": 5,            // minutes of short break
+        "timer.pomLong": 15,            // minutes of long break
+        "timer.pomRounds": 4,           // focus rounds before the long break
+        "dock.pinOnStartup": false,     // start every session with the dock pinned (kept shown)
+        "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
+        "wallpaper.separateLock": false, // the lockscreen has a wallpaper of its own (off = it shows the desktop's)
+        "wallpaper.transition": "sekaiRing",
+        "wallpaper.duration": 1300,
+        "wallpaper.themedTransition": true, // the transitions wear the theme's colours (off = the classic white / pink / cyan)
+        "wallpaper.thumbs": true,       // cache small thumbnails for the picker
+        "wallpaper.video": true,        // play video wallpapers (off = their first frame)
+        "wallpaper.mpvpaper": true,
+        "wallpaper.videoPause": "fullscreen",
+        "wallpaper.videoResume": "pause",
+        "wallpaper.randomMinutes": 0,   // change to a random wallpaper every N minutes (0 = never)
+        "wallpaper.parallax": false,    // the wallpaper drifts with the workspace
+        "wallpaper.parallaxAmount": 8,  // how much bigger than the screen it is (%)
+        "wallpaper.parallaxWorkspaces": 5, // how many workspaces the drift is spread over
+        // ===== App colours =====
+        "appTheme.kitty": false,
+        "appTheme.foot": false,
+        "appTheme.vscode": false,
+        "appTheme.fish": false,
+        "appTheme.prompt": false,      // the fish prompt: capsule pills with a hard shadow, in the theme's colours
+        "appTheme.launcher": false,
+        "appTheme.hyprland": false,     // Hyprland's window border colours follow the theme
+        // ===== System colours (GTK / Qt / KDE) =====
+        "systemTheme.sync": true,
+        "systemTheme.gtk": true,
+        "systemTheme.qt": true,
+        "systemTheme.kde": true,
+        "systemTheme.live": true,
+        "systemTheme.bounceDark": true,
+        // ===== Icons & cursor (empty = leave whatever the system has) =====
+        "appearance.iconTheme": "",
+        "appearance.cursorTheme": "",
+        "appearance.cursorSize": 24
+    })
+
+    // What has been changed from the defaults.
+    property var values: ({})
+
+    // True once the saved file has been read (or there is none).
+    property bool loaded: false
+    // Set once something was changed this session, so the startup load below
+    // can't land late and undo it.
+    property bool touched: false
+
+    function get(key) {
+        const v = root.values
+        return (key in v) ? v[key] : root.defaults[key]
+    }
+
+    function flag(key) {
+        return !!root.get(key)
+    }
+
+    // Which bar modules are on, by the names Status_Bar.qml uses. The utility
+    // strip counts as off when every one of its keys is.
+    readonly property var barModules: {
+        const anyKey = ["screenshot", "colorPicker", "keyboard", "mic", "darkMode", "profile", "record", "wallpapers"]
+            .some(k => root.flag("util." + k))
+        return {
+            workspaces: root.flag("bar.workspaces"),
+            activeWindow: root.flag("bar.activeWindow"),
+            media: root.flag("bar.media"),
+            utilButtons: root.flag("bar.utilButtons") && anyKey,
+            resources: root.flag("bar.resources"),
+            battery: root.flag("bar.battery"),
+            keyboardLayout: root.flag("bar.keyboardLayout"),
+            notifications: root.flag("bar.notifications"),
+            tray: root.flag("bar.tray"),
+            weather: root.flag("bar.weather"),
+            date: root.flag("bar.date"),
+            clock: root.flag("bar.clock"),
+            privacy: root.flag("bar.privacy"),
+            updates: root.flag("bar.updates"),
+            discord: root.flag("bar.discord"),
+            status: root.flag("bar.status")
+        }
+    }
+
+    // Number of keys that differ from the defaults (shown on About).
+    readonly property int changedCount: Object.keys(root.values).length
+
+    function set(key, value) {
+        if (!(key in root.defaults))
+            return
+        root.touched = true
+        // Nothing to do when the option already has this value. Sliders (SettingSlider.qml)
+        // call this on every mouse-move event, and most of those land on the value the
+        // slider already snapped to; each call used to replace `values`, which re-runs
+        // every binding that reads an option (about 190 of them across the shell), and to
+        // start a save of the settings file. Only once the saved file has been read, so a
+        // change made before that still gets written.
+        if (root.loaded && root.get(key) === value)
+            return
+        const next = Object.assign({}, root.values)
+        if (value === root.defaults[key])
+            delete next[key]
+        else
+            next[key] = value
+        root.values = next
+        saver.save(JSON.stringify(next))
+    }
+
+    function toggle(key) {
+        root.set(key, !root.flag(key))
+    }
+
+    // Wears a preset's switches (DesktopPresetService.qml): every key the
+    // preset is allowed to touch becomes what the preset says, or its default
+    // if the preset doesn't mention it (a preset only stores what differs
+    // from the defaults); the keys `keeps(key)` is true for stay as they are.
+    // One write for the whole lot. Unknown keys and values of the wrong type
+    // are dropped, the same way restore() does.
+    function applyPreset(incoming, keeps) {
+        root.touched = true
+        const next = {}
+        for (const k in root.values) {
+            if (keeps(k))
+                next[k] = root.values[k]
+        }
+        for (const k in incoming) {
+            if (keeps(k) || !(k in root.defaults))
+                continue
+            if (typeof incoming[k] === typeof root.defaults[k] && incoming[k] !== root.defaults[k])
+                next[k] = incoming[k]
+        }
+        root.values = next
+        saver.save(JSON.stringify(next))
+    }
+
+    function reset() {
+        root.touched = true
+        root.values = ({})
+        saver.save("{}")
+    }
+
+    // ===== persistence =====
+    readonly property string script: Directories.script("state/settings-state.sh")
+
+    function restore(text) {
+        try {
+            const j = JSON.parse(text)
+            const next = {}
+            for (const k in j) {
+                // Only keys we know, of the type we expect.
+                if (k in root.defaults && typeof j[k] === typeof root.defaults[k] && j[k] !== root.defaults[k])
+                    next[k] = j[k]
+            }
+            root.values = next
+        } catch (e) {
+            console.warn("SettingsService: couldn't read settings.json (" + e + ") — using the defaults")
+        }
+    }
+
+    Process {
+        running: true
+        command: ["sh", root.script, "load"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (!root.touched && text.trim() !== "")
+                    root.restore(text)
+                root.loaded = true
+            }
+        }
+        onExited: root.loaded = true
+    }
+
+    Process {
+        id: saver
+
+        property string pending: ""
+
+        function save(json) {
+            if (saver.running) {
+                saver.pending = json
+                return
+            }
+            saver.pending = ""
+            saver.exec(["sh", root.script, "save", json])
+        }
+
+        onExited: {
+            if (saver.pending !== "") {
+                const json = saver.pending
+                saver.pending = ""
+                saver.exec(["sh", root.script, "save", json])
+            }
+        }
+    }
+
+    IpcHandler {
+        target: "options"
+
+        function get(key: string): string {
+            return key + " = " + JSON.stringify(root.get(key))
+        }
+
+        function set(key: string, value: string): void {
+            if (!(key in root.defaults))
+                return
+            const d = root.defaults[key]
+            if (typeof d === "boolean")
+                root.set(key, value === "true" || value === "1" || value === "on")
+            else if (typeof d === "number") {
+                const n = Number(value)
+                if (isFinite(n))
+                    root.set(key, n)
+            }
+            else
+                root.set(key, value)
+        }
+
+        function reset(): void {
+            root.reset()
+        }
+    }
+}
