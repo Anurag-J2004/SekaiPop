@@ -48,35 +48,73 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -t 1 ]; then B=$'\e[1m'; C=$'\e[36m'; Y=$'\e[33m'; R=$'\e[31m'; D=$'\e[2m'; Z=$'\e[0m'; else B=; C=; Y=; R=; D=; Z=; fi
-step() { printf '\n%s==> %s%s\n' "$B$C" "$1" "$Z"; }
-info() { printf '    %s\n' "$1"; }
-warn() { printf '    %s! %s%s\n' "$Y" "$1" "$Z"; }
+# ---- look: the same style in install.sh, install-deps.sh, check-deps.sh and get.sh -------------
+# Colours only on a terminal (NO_COLOR turns them off). On the bare Linux console (TERM=linux) or a
+# non-UTF-8 locale the symbols fall back to plain ASCII, because a TTY font often can't draw them.
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+    B=$'\e[1m'; D=$'\e[2m'; Z=$'\e[0m'
+    C=$'\e[38;5;80m'; PK=$'\e[38;5;211m'; Y=$'\e[38;5;221m'; R=$'\e[38;5;203m'; GR=$'\e[38;5;114m'
+else B=; D=; Z=; C=; PK=; Y=; R=; GR=; fi
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in *[Uu][Tt][Ff]-8*|*[Uu][Tt][Ff]8*) UI_UTF=1 ;; *) UI_UTF=0 ;; esac
+[ "${TERM:-}" = linux ] && UI_UTF=0
+if [ "$UI_UTF" = 1 ]; then
+    G_OK='✔'; G_BAD='✘'; G_DOT='•'; G_ARR='›'; G_HR='─'; G_TL='╭'; G_TR='╮'; G_BL='╰'; G_BR='╯'; G_V='│'; G_NOTE='♪'
+else
+    G_OK='+'; G_BAD='x'; G_DOT='-'; G_ARR='>'; G_HR='-'; G_TL='+'; G_TR='+'; G_BL='+'; G_BR='+'; G_V='|'; G_NOTE='*'
+fi
+UI_W=$(tput cols 2>/dev/null || echo 72); case "$UI_W" in ''|*[!0-9]*) UI_W=72 ;; esac
+[ "$UI_W" -gt 76 ] && UI_W=76; [ "$UI_W" -lt 56 ] && UI_W=56
+UI_BW=50
+rep() { local i s=""; for ((i = 0; i < $2; i++)); do s+=$1; done; printf '%s' "$s"; }
+step() { local n=$((UI_W - ${#1} - 5)); [ "$n" -lt 3 ] && n=3
+    printf '\n%s%s%s %s%s%s %s%s%s\n' "$C" "$G_HR$G_HR" "$Z" "$B" "$1" "$Z" "$D" "$(rep "$G_HR" "$n")" "$Z"; }
+info() { printf '  %s%s%s %s\n' "$D" "$G_DOT" "$Z" "$1"; }
+ok()   { printf '  %s%s%s %s\n' "$GR" "$G_OK" "$Z" "$1"; }
+warn() { printf '  %s!%s %s%s%s\n' "$Y" "$Z" "$Y" "$1" "$Z"; }
 FAILED=()
-fail() { printf '    %sx %s%s\n' "$R" "$1" "$Z"; FAILED+=("$1"); }
+fail() { printf '  %s%s%s %s%s%s\n' "$R" "$G_BAD" "$Z" "$R" "$1" "$Z"; FAILED+=("$1"); }
+boxrow() { local t=$1 col=${2:-} plain=${1//"$G_NOTE"/x} pad; pad=$((UI_BW - ${#plain})); [ "$pad" -lt 0 ] && pad=0
+    printf '  %s%s%s%s%s%s%*s%s%s%s\n' "$PK" "$G_V" "$Z" "$col" "$t" "$Z" "$pad" "" "$PK" "$G_V" "$Z"; }
+banner() { # banner <title> <subtitle>
+    printf '\n  %s%s%s%s\n' "$PK" "$G_TL" "$(rep "$G_HR" "$UI_BW")" "$G_TR$Z"
+    boxrow "  $G_NOTE  $1" "$B"
+    boxrow "     $2" "$D"
+    printf '  %s%s%s%s\n' "$PK" "$G_BL" "$(rep "$G_HR" "$UI_BW")" "$G_BR$Z"
+}
+result() { # result ok|bad <text>
+    local col=$GR sym=$G_OK; [ "$1" = bad ] && { col=$R; sym=$G_BAD; }
+    printf '\n  %s%s %s%s\n' "$col$B" "$sym" "$2" "$Z"
+}
+nx() { printf '  %s%s%s %s\n' "$PK" "$G_ARR" "$Z" "$1"; }
+
+# when install.sh runs this, its steps are shown one level down so the numbering doesn't clash
+if [ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ]; then
+    step() { printf '\n  %s%s%s %s%s%s\n' "$C" "$G_ARR" "$Z" "$B" "$1" "$Z"; }
+fi
 
 # run <command...>: execute, or just print in --dry-run
 run() {
-    if [ "$DRY" = 1 ]; then printf '    %swould run:%s' "$D" "$Z"; printf ' %q' "$@"; printf '\n'; return 0; fi
+    if [ "$DRY" = 1 ]; then printf '  %s%s%s %swould run%s' "$PK" "$G_ARR" "$Z" "$D" "$Z"; printf ' %q' "$@"; printf '\n'; return 0; fi
     "$@"
 }
 run_sh() { # run a shell snippet (needed for pipes / redirects)
-    if [ "$DRY" = 1 ]; then printf '    would run: %s\n' "$1"; return 0; fi
+    if [ "$DRY" = 1 ]; then printf '  %s%s%s %swould run%s %s\n' "$PK" "$G_ARR" "$Z" "$D" "$Z" "$1"; return 0; fi
     bash -c "$1"
 }
 ask() { # ask <question>: default yes in --yes and --dry-run
     [ "$YES" = 1 ] || [ "$DRY" = 1 ] && return 0
-    local a; read -r -p "    $1 [Y/n] " a; case "$a" in n|N|no|No) return 1 ;; *) return 0 ;; esac
+    local a; read -r -p "  ${PK}?${Z} $1 ${D}[Y/n]${Z} " a; case "$a" in n|N|no|No) return 1 ;; *) return 0 ;; esac
 }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # ---------------------------------------------------------------- preconditions
+[ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ] || banner "SekaiPop dependencies" "packages, fonts, services, groups"
 step "Checking the system"
 [ "$(id -u)" = 0 ] && { echo "Run this as your normal user, not root (it calls sudo itself)." >&2; exit 1; }
 have pacman || { echo "pacman not found: this installer is for Arch-based systems. Read DEPENDENCIES.md for the package list." >&2; exit 1; }
 have sudo   || { echo "sudo not found: install it first (pacman -S sudo) and add yourself to the wheel group." >&2; exit 1; }
 [ "$DRY" = 1 ] && info "DRY RUN: nothing will be changed."
-info "distro: $(. /etc/os-release 2>/dev/null; echo "${PRETTY_NAME:-unknown}")"
+ok "distro: $(. /etc/os-release 2>/dev/null; echo "${PRETTY_NAME:-unknown}")"
 
 # ---------------------------------------------------------------- package lists
 # "a|b" = try a in the repos, else b (b is then taken from the AUR). Plain names not in the repos go to the AUR.
@@ -345,20 +383,18 @@ fi
 # ---------------------------------------------------------------- done
 [ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ] || step "Done"
 if [ "${#FAILED[@]}" -gt 0 ]; then
-    printf '%s%d problem(s):%s\n' "$R" "${#FAILED[@]}" "$Z"
-    for m in "${FAILED[@]}"; do printf '  - %s\n' "$m"; done
+    printf '  %s%d problem(s):%s\n' "$R" "${#FAILED[@]}" "$Z"
+    for m in "${FAILED[@]}"; do printf '    %s%s%s %s\n' "$R" "$G_BAD" "$Z" "$m"; done
 fi
 # when install.sh runs this, it prints its own "Next" and runs the check itself
 [ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ] && exit "${#FAILED[@]}"
-cat <<EOF
-
-Next:
-  1. Log out and back in (group membership and user services need a fresh session).
-     Start Hyprland as the plain Hyprland session, not the uwsm one.
-  2. Copy the rice folder to ~/.config/quickshell/sekaipop
-     and run shaders/compile-shaders.sh once if your Qt is not 6.12.
-  3. Run ./check-deps.sh, it should end with "core missing: 0".
-  4. Start the shell:  qs -c sekaipop
-EOF
+if [ "${#FAILED[@]}" -eq 0 ]; then result ok "Dependencies are in place"; else result bad "Finished with ${#FAILED[@]} problem(s), see above"; fi
+printf '\n  %sNext%s\n' "$B" "$Z"
+nx "Log out and back in (group membership and user services need a fresh session)."
+printf '      %sStart Hyprland as the plain Hyprland session, not the uwsm one.%s\n' "$D" "$Z"
+nx "Copy the rice folder to ${B}~/.config/quickshell/sekaipop${Z}"
+printf '      %sand run shaders/compile-shaders.sh once if your Qt is not 6.12.%s\n' "$D" "$Z"
+nx "Run ${B}./check-deps.sh${Z}, it should end with \"core missing: 0\"."
+nx "Start the shell:  ${B}qs -c sekaipop${Z}"
 [ "$DRY" = 1 ] || { here=$(cd "$(dirname "$0")" && pwd); [ -f "$here/check-deps.sh" ] && { printf '\n'; bash "$here/check-deps.sh" --core; }; }
 [ "${#FAILED[@]}" -eq 0 ]

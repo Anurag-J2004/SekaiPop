@@ -26,9 +26,13 @@ REPO=${SEKAIPOP_REPO:-https://github.com/Blapples/SekaiPop.git}
 REF=${SEKAIPOP_REF:-main}
 KEEP=${SEKAIPOP_DIR:-}
 
-if [ -t 1 ]; then B=$'\e[1m'; C=$'\e[36m'; R=$'\e[31m'; Z=$'\e[0m'; else B=; C=; R=; Z=; fi
-say() { printf '\n%s==> %s%s\n' "$B$C" "$*" "$Z"; }
-die() { printf '%sx %s%s\n' "$R" "$*" "$Z" >&2; exit 1; }
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then B=$'\e[1m'; D=$'\e[2m'; C=$'\e[38;5;80m'; R=$'\e[38;5;203m'; Z=$'\e[0m'; else B=; D=; C=; R=; Z=; fi
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in *[Uu][Tt][Ff]-8*|*[Uu][Tt][Ff]8*) U=1 ;; *) U=0 ;; esac
+[ "${TERM:-}" = linux ] && U=0
+if [ "$U" = 1 ]; then HR='─'; BAD='✘'; else HR='-'; BAD='x'; fi
+say() { local n=$(( 60 - ${#1} - 5 )); [ "$n" -lt 3 ] && n=3; local l=""; local i; for ((i = 0; i < n; i++)); do l+=$HR; done
+    printf '\n%s%s%s %s%s%s %s%s%s\n' "$C" "$HR$HR" "$Z" "$B" "$*" "$Z" "$D" "$l" "$Z"; }
+die() { printf '  %s%s %s%s\n' "$R" "$BAD" "$*" "$Z" >&2; exit 1; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 [ "$(id -u)" = 0 ] && die "Run this as your normal user, not root (it calls sudo itself)."

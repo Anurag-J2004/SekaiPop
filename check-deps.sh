@@ -28,15 +28,22 @@ done
 [ -t 1 ] || COLOR=0
 
 if [ "$COLOR" = 1 ]; then
-    R=$'\e[31m'; G=$'\e[32m'; Y=$'\e[33m'; D=$'\e[2m'; B=$'\e[1m'; C=$'\e[36m'; Z=$'\e[0m'
+    R=$'\e[38;5;203m'; G=$'\e[38;5;114m'; Y=$'\e[38;5;221m'; D=$'\e[2m'; B=$'\e[1m'; C=$'\e[38;5;80m'; PK=$'\e[38;5;211m'; Z=$'\e[0m'
 else
-    R=; G=; Y=; D=; B=; C=; Z=
+    R=; G=; Y=; D=; B=; C=; PK=; Z=
 fi
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in *[Uu][Tt][Ff]-8*|*[Uu][Tt][Ff]8*) UTF=1 ;; *) UTF=0 ;; esac
+[ "${TERM:-}" = linux ] && UTF=0
+if [ "$UTF" = 1 ]; then G_HR='─'; G_NOTE='♪'; G_OK='✔'; G_BAD='✘'; else G_HR='-'; G_NOTE='*'; G_OK='+'; G_BAD='x'; fi
+UI_W=$(tput cols 2>/dev/null || echo 72); case "$UI_W" in ''|*[!0-9]*) UI_W=72 ;; esac
+[ "$UI_W" -gt 76 ] && UI_W=76; [ "$UI_W" -lt 56 ] && UI_W=56
+rep() { local i s=""; for ((i = 0; i < $2; i++)); do s+=$1; done; printf '%s' "$s"; }
 
 n_ok=0; n_t1=0; n_t2=0; n_t3=0
 declare -A MISS   # key "<tier>:<repo>" -> names joined with |
 
-section() { printf '\n%s== %s ==%s\n' "$B$C" "$1" "$Z"; }
+section() { local n=$((UI_W - ${#1} - 5)); [ "$n" -lt 3 ] && n=3
+    printf '\n%s%s%s %s%s%s %s%s%s\n' "$C" "$G_HR$G_HR" "$Z" "$B" "$1" "$Z" "$D" "$(rep "$G_HR" "$n")" "$Z"; }
 
 # record <tier> <label> <found 0/1> <pkg> <repo: pac|aur|manual> [note]
 record() {
@@ -118,7 +125,7 @@ qtplugin() {
     record "$tier" "$label" "$found" "$pkg" pac "$note"
 }
 
-printf '%sSekaiPop (pjsekai) dependency check%s   %s(read-only, nothing is installed)%s\n' "$B" "$Z" "$D" "$Z"
+printf '\n  %s%s %sSekaiPop dependency check%s   %s(read-only, nothing is installed)%s\n' "$PK" "$G_NOTE" "$B" "$Z" "$D" "$Z"
 
 # --------------------------------------------------------------------------
 section "System"
@@ -452,6 +459,8 @@ section "Summary"
 # --------------------------------------------------------------------------
 printf '  ok: %s%d%s   core missing: %s%d%s   features missing: %s%d%s   optional missing: %s%d%s\n' \
     "$G" "$n_ok" "$Z" "$R" "$n_t1" "$Z" "$Y" "$n_t2" "$Z" "$D" "$n_t3" "$Z"
+if [ "$n_t1" -eq 0 ]; then printf '  %s%s %sCore is complete: the shell can start.%s\n' "$G" "$G_OK" "$B" "$Z"
+else printf '  %s%s %s%d core item(s) missing: install them first.%s\n' "$R" "$G_BAD" "$B" "$n_t1" "$Z"; fi
 
 show_tier() { # <tier> <title>
     local t=$1 title=$2 pac="${MISS[$1:pac]:-}" aur="${MISS[$1:aur]:-}" man="${MISS[$1:manual]:-}" m

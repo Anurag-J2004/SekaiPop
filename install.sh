@@ -44,20 +44,52 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -t 1 ]; then B=$'\e[1m'; C=$'\e[36m'; Y=$'\e[33m'; R=$'\e[31m'; D=$'\e[2m'; Z=$'\e[0m'; else B=; C=; Y=; R=; D=; Z=; fi
-step() { printf '\n%s==> %s%s\n' "$B$C" "$1" "$Z"; }
-info() { printf '    %s\n' "$1"; }
-warn() { printf '    %s! %s%s\n' "$Y" "$1" "$Z"; }
+# ---- look: the same style in install.sh, install-deps.sh, check-deps.sh and get.sh -------------
+# Colours only on a terminal (NO_COLOR turns them off). On the bare Linux console (TERM=linux) or a
+# non-UTF-8 locale the symbols fall back to plain ASCII, because a TTY font often can't draw them.
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+    B=$'\e[1m'; D=$'\e[2m'; Z=$'\e[0m'
+    C=$'\e[38;5;80m'; PK=$'\e[38;5;211m'; Y=$'\e[38;5;221m'; R=$'\e[38;5;203m'; GR=$'\e[38;5;114m'
+else B=; D=; Z=; C=; PK=; Y=; R=; GR=; fi
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in *[Uu][Tt][Ff]-8*|*[Uu][Tt][Ff]8*) UI_UTF=1 ;; *) UI_UTF=0 ;; esac
+[ "${TERM:-}" = linux ] && UI_UTF=0
+if [ "$UI_UTF" = 1 ]; then
+    G_OK='✔'; G_BAD='✘'; G_DOT='•'; G_ARR='›'; G_HR='─'; G_TL='╭'; G_TR='╮'; G_BL='╰'; G_BR='╯'; G_V='│'; G_NOTE='♪'
+else
+    G_OK='+'; G_BAD='x'; G_DOT='-'; G_ARR='>'; G_HR='-'; G_TL='+'; G_TR='+'; G_BL='+'; G_BR='+'; G_V='|'; G_NOTE='*'
+fi
+UI_W=$(tput cols 2>/dev/null || echo 72); case "$UI_W" in ''|*[!0-9]*) UI_W=72 ;; esac
+[ "$UI_W" -gt 76 ] && UI_W=76; [ "$UI_W" -lt 56 ] && UI_W=56
+UI_BW=50
+rep() { local i s=""; for ((i = 0; i < $2; i++)); do s+=$1; done; printf '%s' "$s"; }
+step() { local n=$((UI_W - ${#1} - 5)); [ "$n" -lt 3 ] && n=3
+    printf '\n%s%s%s %s%s%s %s%s%s\n' "$C" "$G_HR$G_HR" "$Z" "$B" "$1" "$Z" "$D" "$(rep "$G_HR" "$n")" "$Z"; }
+info() { printf '  %s%s%s %s\n' "$D" "$G_DOT" "$Z" "$1"; }
+ok()   { printf '  %s%s%s %s\n' "$GR" "$G_OK" "$Z" "$1"; }
+warn() { printf '  %s!%s %s%s%s\n' "$Y" "$Z" "$Y" "$1" "$Z"; }
 FAILED=()
-fail() { printf '    %sx %s%s\n' "$R" "$1" "$Z"; FAILED+=("$1"); }
+fail() { printf '  %s%s%s %s%s%s\n' "$R" "$G_BAD" "$Z" "$R" "$1" "$Z"; FAILED+=("$1"); }
+boxrow() { local t=$1 col=${2:-} plain=${1//"$G_NOTE"/x} pad; pad=$((UI_BW - ${#plain})); [ "$pad" -lt 0 ] && pad=0
+    printf '  %s%s%s%s%s%s%*s%s%s%s\n' "$PK" "$G_V" "$Z" "$col" "$t" "$Z" "$pad" "" "$PK" "$G_V" "$Z"; }
+banner() { # banner <title> <subtitle>
+    printf '\n  %s%s%s%s\n' "$PK" "$G_TL" "$(rep "$G_HR" "$UI_BW")" "$G_TR$Z"
+    boxrow "  $G_NOTE  $1" "$B"
+    boxrow "     $2" "$D"
+    printf '  %s%s%s%s\n' "$PK" "$G_BL" "$(rep "$G_HR" "$UI_BW")" "$G_BR$Z"
+}
+result() { # result ok|bad <text>
+    local col=$GR sym=$G_OK; [ "$1" = bad ] && { col=$R; sym=$G_BAD; }
+    printf '\n  %s%s %s%s\n' "$col$B" "$sym" "$2" "$Z"
+}
+nx() { printf '  %s%s%s %s\n' "$PK" "$G_ARR" "$Z" "$1"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 run() {
-    if [ "$DRY" = 1 ]; then printf '    %swould run:%s' "$D" "$Z"; printf ' %q' "$@"; printf '\n'; return 0; fi
+    if [ "$DRY" = 1 ]; then printf '  %s%s%s %swould run%s' "$PK" "$G_ARR" "$Z" "$D" "$Z"; printf ' %q' "$@"; printf '\n'; return 0; fi
     "$@"
 }
 ask() { # ask <question>: yes by default; always yes with --yes / --dry-run
     { [ "$YES" = 1 ] || [ "$DRY" = 1 ]; } && return 0
-    local a; read -r -p "    $1 [Y/n] " a; case "$a" in n|N|no|No) return 1 ;; *) return 0 ;; esac
+    local a; read -r -p "  ${PK}?${Z} $1 ${D}[Y/n]${Z} " a; case "$a" in n|N|no|No) return 1 ;; *) return 0 ;; esac
 }
 ver_ge() { [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -1)" = "$2" ]; }   # ver_ge A B: A >= B
 
@@ -66,6 +98,8 @@ HYPR_DEST="$CFG/hypr"
 QS_DEST="$CFG/quickshell/sekaipop"
 TS=$(date +%Y%m%d-%H%M%S)
 hypr_running() { [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && have hyprctl && hyprctl version >/dev/null 2>&1; }
+
+banner "SekaiPop installer" "Quickshell + Hyprland desktop"
 
 # ------------------------------------------------------------------ --restore
 if [ "$RESTORE" = 1 ]; then
@@ -78,7 +112,7 @@ if [ "$RESTORE" = 1 ]; then
     ask "Put it back as $HYPR_DEST (the current one is kept as hypr.pjsekai-replaced-$TS)?" || exit 0
     [ -e "$HYPR_DEST" ] && run mv "$HYPR_DEST" "$CFG/hypr.pjsekai-replaced-$TS"
     run cp -a "$last" "$HYPR_DEST"
-    info "done. Reload Hyprland (or log out and in) to use it."
+    ok "done. Reload Hyprland (or log out and in) to use it."
     exit 0
 fi
 
@@ -100,13 +134,13 @@ if [ -z "$RICE" ] || [ ! -f "$RICE/shell.qml" ]; then
 fi
 RICE=$(cd "$RICE" && pwd)
 VERSION=$(cat "$RICE/VERSION" 2>/dev/null || echo unknown)
-info "rice:    $RICE (version $VERSION)"
+ok "rice: $RICE ${D}(version $VERSION)${Z}"
 
 # Hyprland config: Lua needs Hyprland 0.55+
 HV=""
 if have hyprctl && hypr_running; then HV=$(hyprctl version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
 elif have Hyprland; then HV=$(Hyprland --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1); fi
-if [ -n "$HV" ]; then info "Hyprland: $HV"; else info "Hyprland: not found / version unknown"; fi
+if [ -n "$HV" ]; then ok "Hyprland $HV"; else info "Hyprland: not found / version unknown"; fi
 HAVE_CFG=0; [ -f "$HYPR_DEST/hyprland.lua" ] || [ -f "$HYPR_DEST/hyprland.conf" ] && HAVE_CFG=1
 SRC_HYPR="$HERE/hypr"
 [ -d "$SRC_HYPR" ] || { [ "$HYPR" = skip ] || [ "$HYPR" = merge ] || { echo "The preconfigured Hyprland files are missing ($SRC_HYPR)." >&2; exit 1; }; }
@@ -129,7 +163,7 @@ if [ "$HYPR" = full ] && [ -n "$HV" ] && ! ver_ge "$HV" 0.55; then
     warn "Falling back to 'merge' (your hyprlang config stays; a small pjsekai_session.conf is added)."
     HYPR=merge
 fi
-info "Hyprland config: $HYPR"
+info "Hyprland config mode: $HYPR"
 
 # ------------------------------------------------------------------ 1. dependencies
 if [ "$NODEPS" = 0 ]; then
@@ -157,9 +191,9 @@ fi
 # ------------------------------------------------------------------ 2. the rice
 step "2. The rice -> $QS_DEST"
 if [ -d "$QS_DEST" ] && [ "$(realpath "$QS_DEST")" = "$RICE" ]; then
-    info "the rice is already in place (installing from the same folder)"
+    ok "the rice is already in place (installing from the same folder)"
 elif [ -d "$QS_DEST" ] && diff -rq --exclude=tests --exclude=.git "$RICE" "$QS_DEST" >/dev/null 2>&1; then
-    info "the installed copy is already identical to this one"
+    ok "the installed copy is already identical to this one"
 else
     if [ -e "$QS_DEST" ]; then
         info "an existing copy is there: it is kept as $QS_DEST.bak-$TS"
@@ -170,7 +204,7 @@ else
     run cp -a "$RICE" "$QS_DEST" || fail "could not copy the rice"
     run rm -rf "$QS_DEST/.git"
     [ "$WITH_TESTS" = 1 ] || run rm -rf "$QS_DEST/tests"
-    [ "$DRY" = 1 ] || info "copied (tests folder $([ "$WITH_TESTS" = 1 ] && echo kept || echo left out))"
+    [ "$DRY" = 1 ] || ok "copied (tests folder $([ "$WITH_TESTS" = 1 ] && echo kept || echo left out))"
 fi
 
 # shaders: .qsb files are built with Qt 6.12 and older Qt cannot read them
@@ -181,7 +215,7 @@ if [ -n "$QTV" ] && ! ver_ge "$QTV" 6.12; then
         run bash "$QS_DEST/shaders/compile-shaders.sh" || fail "shader build failed (needs qt6-shadertools)"
     fi
 elif [ -n "$QTV" ]; then
-    info "Qt $QTV: the shipped shaders work as they are"
+    ok "Qt $QTV: the shipped shaders work as they are"
 fi
 
 # monitors.lua is made for THIS machine, never shipped: a file written for someone else's screens
@@ -266,7 +300,7 @@ case "$HYPR" in
             if [ -d "$HYPR_DEST/custom" ]; then mkdir -p "$NEW/custom"; cp -a "$HYPR_DEST/custom/." "$NEW/custom/"; fi
             if [ ! -f "$NEW/monitors.lua" ]; then
                 if gen_monitors_lua "$NEW/monitors.lua"; then
-                    info "monitors.lua made for the screens connected now: $(grep -o 'output = "[^"]*"' "$NEW/monitors.lua" | cut -d'"' -f2 | paste -sd' ' -)"
+                    ok "monitors.lua made for the screens connected now: $(grep -o 'output = "[^"]*"' "$NEW/monitors.lua" | cut -d'"' -f2 | paste -sd' ' -)"
                 else
                     rm -f "$NEW/monitors.lua"; warn "could not make monitors.lua: Hyprland will use its defaults"
                 fi
@@ -278,7 +312,7 @@ case "$HYPR" in
                 info "old config kept as $BACKUP_TO"
             fi
             if mv "$NEW" "$HYPR_DEST"; then
-                info "installed $HYPR_DEST (put your own changes in $HYPR_DEST/custom/)"
+                ok "installed $HYPR_DEST ${D}(put your own changes in $HYPR_DEST/custom/)${Z}"
             else
                 fail "could not move the new config into place"
                 [ -e "$BACKUP_TO" ] && [ ! -e "$HYPR_DEST" ] && mv "$BACKUP_TO" "$HYPR_DEST"
@@ -290,7 +324,7 @@ esac
 
 # login session
 if [ -f /usr/share/wayland-sessions/hyprland.desktop ]; then
-    info "login session 'Hyprland' is installed (pick it, not the 'uwsm' one, in your login screen)"
+    ok "login session 'Hyprland' is installed (pick it, not the 'uwsm' one, in your login screen)"
 else
     warn "no Hyprland session file found in /usr/share/wayland-sessions: is the hyprland package installed?"
 fi
@@ -298,8 +332,8 @@ fi
 # ------------------------------------------------------------------ done
 step "Done"
 if [ "${#FAILED[@]}" -gt 0 ]; then
-    printf '%s%d problem(s):%s\n' "$R" "${#FAILED[@]}" "$Z"
-    for m in "${FAILED[@]}"; do printf '  - %s\n' "$m"; done
+    printf '  %s%d problem(s):%s\n' "$R" "${#FAILED[@]}" "$Z"
+    for m in "${FAILED[@]}"; do printf '    %s%s%s %s\n' "$R" "$G_BAD" "$Z" "$m"; done
 fi
 if [ "$DRY" = 0 ] && [ -f "$HERE/check-deps.sh" ]; then
     printf '\n'; PJSEKAI_DIR="$QS_DEST" bash "$HERE/check-deps.sh" --core
@@ -310,19 +344,22 @@ if [ "$DRY" = 0 ] && [ "$HYPR" = full ] && hypr_running; then
     if ask "You are inside Hyprland now. Reload it and start the shell right away?"; then
         hyprctl reload >/dev/null 2>&1
         if ! pgrep -x qs >/dev/null && ! pgrep -x quickshell >/dev/null; then
-            setsid -f qs -c sekaipop >/dev/null 2>&1 && info "shell started"
+            setsid -f qs -c sekaipop >/dev/null 2>&1 && ok "shell started"
         else
             info "the shell is already running; it reloads its files by itself"
         fi
     fi
 fi
-cat <<MSG
-
-Next:
-  - If you did not reload above: log out and back in (pick the plain Hyprland session).
-    The shell starts by itself. By hand:  qs -c sekaipop
-  - Keybinds: Super + /  opens the cheat sheet.  Super (tap) = apps.  Super + I = settings.
-  - Config mistakes are written to  ~/.cache/pjsekai/hypr-errors.log  (the rest still loads).
-  - Undo the Hyprland part:  ./install.sh --restore
-MSG
+if [ "${#FAILED[@]}" -eq 0 ]; then
+    [ "$DRY" = 1 ] && result ok "Dry run finished, nothing was changed" || result ok "SekaiPop is installed"
+else
+    result bad "Finished with ${#FAILED[@]} problem(s), see above"
+fi
+printf '\n  %sNext%s\n' "$B" "$Z"
+nx "If you did not reload above: log out and back in (pick the plain Hyprland session)."
+printf '      %sThe shell starts by itself. By hand:%s  %sqs -c sekaipop%s\n' "$D" "$Z" "$B" "$Z"
+nx "Keybinds: ${B}Super + /${Z} opens the cheat sheet.  ${B}Super${Z} (tap) = apps.  ${B}Super + I${Z} = settings."
+nx "Config mistakes are written to ${B}~/.cache/pjsekai/hypr-errors.log${Z} (the rest still loads)."
+nx "Undo the Hyprland part:  ${B}./install.sh --restore${Z}"
+printf '\n'
 [ "${#FAILED[@]}" -eq 0 ]
