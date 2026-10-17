@@ -1,8 +1,8 @@
 import QtQuick
 
-// The base of the phone versions of the launcher's cards (Calc, Clip, Web).
-// Unlike ExtraFrame (the white paper card with tape that Colour and Emoji still
-// use) it has no frame at all: it is just the page, with the room the Apps
+// The base of the phone versions of the launcher's cards (Calc, Clip, Emoji, Web).
+// Unlike ExtraFrame (the white paper card with tape that Colour still uses) it
+// has no frame at all: it is just the page, with the room the Apps
 // screen gives it, and each card lays plates straight onto the phone's face.
 //
 // LauncherExtras.qml hands it the page's size (`pageW` x `pageH`, design

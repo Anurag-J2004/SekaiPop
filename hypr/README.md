@@ -79,6 +79,6 @@ wtype, hyprpicker, jq, libnotify, brightnessctl, wireplumber).
 2. Super tap, SUPER+N, SUPER+Tab, SUPER+/ (the cheatsheet should list them), SUPER+I.
 3. Volume / brightness keys show the shell's OSD.
 4. SUPER+SHIFT+S: picker opens with no zoom; SUPER+L locks; SUPER+ALT+F11 / F12 send test notifications.
-5. SUPER+V and SUPER+. open Apps and type `clip ` / `emoji ` with wtype. This is the one timing-dependent
-   bind. If it is flaky, delete the two lines.
+5. SUPER+V and SUPER+. open Apps with the Clip / Emoji card already up (`ipc call launcherphone toggleMode clip|emoji`),
+   and pressing the same key again puts the phone away. No wtype and no timing involved any more.
 6. Open the quick panel and the phone a few times: no flash or lifted edge (that is what the layer rule is for).

@@ -278,10 +278,10 @@ Item {
     }
 
     // ===== the card =====
-    // Calc, Clip and Web are phone cards (PhoneCard.qml): they are handed the page's
-    // size and laid out for it, so they are never shrunk. Colour and Emoji are still
-    // the old paper cards (ExtraFrame.qml) drawn at their own size and shrunk to fit
-    // the page when they are bigger. Never enlarged.
+    // Calc, Clip, Emoji and Web are phone cards (PhoneCard.qml): they are handed the
+    // page's size and laid out for it, so they are never shrunk. Colour is still the
+    // old paper card (ExtraFrame.qml) drawn at its own size and shrunk to fit the page
+    // when it is bigger. Never enlarged.
     Loader {
         id: cardLoader
 

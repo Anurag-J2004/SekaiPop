@@ -75,12 +75,13 @@ hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd(ipcCall .. "region recordSoun
 --# Color picker
 hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a"),
     { description = "Utilities: Pick color #RRGGBB >> clipboard" })
---# Clipboard history and emoji live in the phone's Apps search ("clip", "emoji"). These two open
---# Apps and type the trigger for you with wtype (EXPERIMENTAL: if the timing is off on your
---# machine, delete them and type `clip ` / `emoji ` yourself).
-hl.bind("SUPER + V", hl.dsp.exec_cmd(ipcCall .. "launcherphone show && sleep 0.4 && wtype 'clip '"),
+--# Clipboard history and emoji are cards of the phone's Apps screen (the same ones you get by typing
+--# "clip " / "emoji " in its search). These open Apps with the card already up, over IPC, so there is
+--# no typing and no timing involved; press the key again to put the phone away.
+--# Also available: `launcherphone mode calc|color|web` (open) and `toggleMode ...` (open / close).
+hl.bind("SUPER + V", hl.dsp.exec_cmd(ipcCall .. "launcherphone toggleMode clip"),
     { description = "Utilities: Clipboard history" })
-hl.bind("SUPER + Period", hl.dsp.exec_cmd(ipcCall .. "launcherphone show && sleep 0.4 && wtype 'emoji '"),
+hl.bind("SUPER + Period", hl.dsp.exec_cmd(ipcCall .. "launcherphone toggleMode emoji"),
     { description = "Utilities: Emoji >> clipboard" })
 --# Fullscreen screenshot
 local grimhyprctl = "grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\""

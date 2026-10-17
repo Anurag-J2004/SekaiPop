@@ -622,6 +622,32 @@ Scope {
             openAppsOn(screen)
     }
 
+    // Apps with one of the extras' triggers already typed, so its card is up at once:
+    // calc, clip, color, emoji or web (`ipc call launcherphone mode emoji`). Any other
+    // name just opens Apps. With `toggle`, asking for the card that is already up puts
+    // the phone away again (a key that opens the emoji picker closes it as well).
+    readonly property var appsModes: ({
+        calc: "calc ", clip: "clip ", color: "color ", emoji: "emoji ", web: "web "
+    })
+
+    function openAppsMode(screen, name, toggle) {
+        const key = String(name || "").trim().toLowerCase()
+        const seed = appsModes[key] || ""
+        const here = open && !settingsShown && faceScreen === "apps" && (!screen || screen === targetScreen)
+        if (here) {
+            if (toggle && seed !== "" && appsFace.query.toLowerCase().indexOf(key) === 0) {
+                close()
+                return
+            }
+            appsFace.setText(seed)
+            return
+        }
+        openAppsOn(screen)
+        // reset() has run by now, so the box is empty and the seed is all it holds.
+        if (seed !== "")
+            appsFace.appendText(seed)
+    }
+
     // Home always means Quick, with nothing under it.
     function homeNow() {
         if (!open)
@@ -924,6 +950,16 @@ Scope {
         function hide(): void {
             if (root.open && root.faceScreen === "apps")
                 root.close()
+        }
+
+        // Apps with a card's trigger typed: calc, clip, color, emoji, web.
+        function mode(name: string): void {
+            root.openAppsMode(root.focusedScreen(), name, false)
+        }
+
+        // The same, but the key that opened it also closes it.
+        function toggleMode(name: string): void {
+            root.openAppsMode(root.focusedScreen(), name, true)
         }
     }
 
