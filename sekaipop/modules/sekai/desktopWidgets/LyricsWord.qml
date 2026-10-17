@@ -31,19 +31,10 @@ Item {
     readonly property real shadowDy: Math.max(3, root.pixelSize * 0.09)
     readonly property real edge: Math.ceil(root.outline) + 1
 
-    implicitWidth: Math.ceil(probe.implicitWidth + 2 * root.edge + root.shadowDx)
-    implicitHeight: Math.ceil(probe.implicitHeight + 2 * root.edge + root.shadowDy)
-
-    // Only used to measure the string.
-    Text {
-        id: probe
-        visible: false
-        text: root.text
-        font.family: Theme.fontFamily
-        font.pixelSize: root.pixelSize
-        font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
-    }
+    // The string is measured by the colour layer below (`ink`): it is the same string in the
+    // same font, so it is the same size, and no extra text item is kept just to measure it.
+    implicitWidth: Math.ceil(ink.implicitWidth + 2 * root.edge + root.shadowDx)
+    implicitHeight: Math.ceil(ink.implicitHeight + 2 * root.edge + root.shadowDy)
 
     component Glyphs: Text {
         text: root.text
@@ -57,8 +48,8 @@ Item {
         id: box
         x: root.edge
         y: root.edge
-        width: probe.implicitWidth
-        height: probe.implicitHeight
+        width: ink.implicitWidth
+        height: ink.implicitHeight
 
         // the hard shadow
         Repeater {
@@ -86,6 +77,7 @@ Item {
 
         // the colour
         Glyphs {
+            id: ink
             color: root.fillColor
         }
 

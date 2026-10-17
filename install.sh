@@ -192,7 +192,7 @@ fi
 step "2. The rice -> $QS_DEST"
 if [ -d "$QS_DEST" ] && [ "$(realpath "$QS_DEST")" = "$RICE" ]; then
     ok "the rice is already in place (installing from the same folder)"
-elif [ -d "$QS_DEST" ] && diff -rq --exclude=tests --exclude=.git "$RICE" "$QS_DEST" >/dev/null 2>&1; then
+elif [ -d "$QS_DEST" ] && diff -rq --exclude=tests --exclude=.git --exclude=.source "$RICE" "$QS_DEST" >/dev/null 2>&1; then
     ok "the installed copy is already identical to this one"
 else
     if [ -e "$QS_DEST" ]; then
@@ -205,6 +205,16 @@ else
     run rm -rf "$QS_DEST/.git"
     [ "$WITH_TESTS" = 1 ] || run rm -rf "$QS_DEST/tests"
     [ "$DRY" = 1 ] || ok "copied (tests folder $([ "$WITH_TESTS" = 1 ] && echo kept || echo left out))"
+fi
+
+# Remember which commit these files came from, so About / Update -> "Update now" can tell what is newer.
+# (Only when installing from a git checkout, which is what get.sh does; a zip has no commit to record.)
+if [ "$DRY" != 1 ] && [ -d "$HERE/.git" ] && have git && [ -d "$QS_DEST" ] && [ "$(realpath "$QS_DEST")" != "$RICE" ]; then
+    {
+        echo "commit=$(git -C "$HERE" rev-parse HEAD)"
+        echo "repo=$(git -C "$HERE" config --get remote.origin.url)"
+        echo "ref=$(git -C "$HERE" rev-parse --abbrev-ref HEAD)"
+    } > "$QS_DEST/.source" 2>/dev/null || true
 fi
 
 # shaders: .qsb files are built with Qt 6.12 and older Qt cannot read them

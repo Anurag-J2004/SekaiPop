@@ -33,8 +33,12 @@ SettingsPage {
         case "behind":
             if (UpdateService.isGit)
                 return UpdateService.behind + (UpdateService.behind === 1 ? " new commit" : " new commits") + " upstream"
+            if (UpdateService.managed)
+                return UpdateService.unknown
+                    ? "These files carry no version mark yet, so Update now installs the latest from GitHub (" + UpdateService.latest + ")."
+                    : "A newer commit is on GitHub (" + UpdateService.latest + ")."
             return "Version " + UpdateService.latest + " is out"
-        case "nosource": return "Clone the shell with git, or put a link to a VERSION file in ~/.config/pjsekai/update-url."
+        case "nosource": return "Install git to update from GitHub, or put a link to a VERSION file in ~/.config/pjsekai/update-url."
         case "error": return UpdateService.reason
         default: return ""
         }
@@ -133,7 +137,7 @@ SettingsPage {
                 }
 
                 SettingChip {
-                    visible: UpdateService.isGit
+                    visible: UpdateService.commit !== ""
                     label: UpdateService.branch + " @ " + UpdateService.commit
                     icon: "commit"
                 }
@@ -217,10 +221,12 @@ SettingsPage {
         }
 
         SettingAction {
-            visible: UpdateService.status === "behind" && UpdateService.isGit
+            visible: UpdateService.status === "behind" && UpdateService.canApply
             icon: "download"
             label: "Update now"
-            detail: UpdateService.updating ? "Pulling…" : (UpdateService.updateMessage !== "" ? UpdateService.updateMessage : "Pull, then reload")
+            detail: UpdateService.updating ? (UpdateService.isGit ? "Pulling…" : "Downloading…")
+                : (UpdateService.updateMessage !== "" ? UpdateService.updateMessage
+                    : (UpdateService.isGit ? "Pull, then reload" : "Download, then reload"))
             busy: UpdateService.updating
             onActivated: UpdateService.update()
         }

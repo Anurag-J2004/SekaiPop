@@ -98,8 +98,11 @@ PanelWindow {
 
     // ===== a small window while nothing needs the whole screen =====
     // See PaletteWidget.qml: at rest the window is just the card plus some room around it.
+    // On for the lyrics whatever `EditMode.compactWindows` says (that switch is still the
+    // others' and stays off by default): this is the widget that redraws every frame, so a
+    // full-screen layer costs the most here.
     readonly property bool compact: !EditMode.active && !win.gliding && EditMode.screenName === ""
-        && EditMode.compactWindows && !EditMode.desktopDragAllowed && win.fullW > 0 && win.placed
+        && !EditMode.desktopDragAllowed && win.fullW > 0 && win.placed
     readonly property real boxPad: Math.ceil((0.16 * Math.max(card.width, card.height) + 24) * win.uiScale)
     readonly property real boxX: win.compact ? Math.max(0, Math.floor(card.x * win.uiScale - win.boxPad)) : 0
     readonly property real boxY: win.compact ? Math.max(0, Math.floor(card.y * win.uiScale - win.boxPad)) : 0
@@ -345,8 +348,29 @@ PanelWindow {
         onTriggered: win.poll()
     }
 
+    // Redraw every frame only while something on screen can still move. With no lyrics (a
+    // video, a track nobody has words for, "looking for the words...") or once the last line
+    // has been sung and has settled, nothing depends on the clock any more, so the window is
+    // left alone instead of being redrawn at the screen's refresh rate for the rest of the
+    // track. The 250 ms poll above still keeps `now` right, so a seek back, or the words
+    // arriving, starts the frames again at once.
+    readonly property real songEnd: {
+        const n = win.lines.length
+        if (n === 0)
+            return 0
+        // (an earlier line can be sung past a short last one, and the voice that sings along
+        // can outlast its line)
+        let e = Math.max(win.endOf(n - 1), win.bgEndOf(n - 1))
+        if (n > 1)
+            e = Math.max(e, win.endOf(n - 2))
+        return e
+    }
+    // 3 s covers what settles after the last word: a held line lets go over 0.7 s, the
+    // marker shrinks away in 0.26 s, the diamonds fly for 0.6 s.
+    readonly property bool animating: win.demo || (win.lines.length > 0 && win.clockT < win.songEnd + 3)
+
     FrameAnimation {
-        running: win.live && (win.demo || win.playing)
+        running: win.live && win.animating && (win.demo || win.playing)
         onTriggered: win.now = Date.now()
     }
 
@@ -718,10 +742,12 @@ PanelWindow {
                 readonly property bool keysOn: hover.hovered && !EditMode.active && cardMask.grab
                     && !win.demo
 
-                Row {
+                // Built only while pointed at (and while they fade out): four stickers are 56
+                // text items that would otherwise sit there, unseen, for the whole song.
+                Loader {
                     id: syncKeys
                     z: 3
-                    spacing: 16
+                    active: card.keysOn || syncKeys.opacity > 0.01
                     opacity: card.keysOn ? 1 : 0
                     visible: opacity > 0.01
                     x: Math.round((card.width - width) / 2)
@@ -731,29 +757,33 @@ PanelWindow {
                         NumberAnimation { duration: 180 }
                     }
 
-                    LyricsKey {
-                        label: "<< earlier"
-                        visible: win.lines.length > 0
-                        onClicked: LyricsService.nudge(100)
-                    }
+                    sourceComponent: Row {
+                        spacing: 16
 
-                    // This song's nudge; a click clears it.
-                    LyricsKey {
-                        label: (LyricsService.trackOffsetMs > 0 ? "+" : "") + (LyricsService.trackOffsetMs / 1000).toFixed(1) + " s"
-                        visible: win.lines.length > 0
-                        onClicked: LyricsService.setTrackOffset(0)
-                    }
+                        LyricsKey {
+                            label: "<< earlier"
+                            visible: win.lines.length > 0
+                            onClicked: LyricsService.nudge(100)
+                        }
 
-                    LyricsKey {
-                        label: "later >>"
-                        visible: win.lines.length > 0
-                        onClicked: LyricsService.nudge(-100)
-                    }
+                        // This song's nudge; a click clears it.
+                        LyricsKey {
+                            label: (LyricsService.trackOffsetMs > 0 ? "+" : "") + (LyricsService.trackOffsetMs / 1000).toFixed(1) + " s"
+                            visible: win.lines.length > 0
+                            onClicked: LyricsService.setTrackOffset(0)
+                        }
 
-                    // Where the words come from, and what each provider found (LyricsSources.qml).
-                    LyricsKey {
-                        label: "sources"
-                        onClicked: LyricsService.togglePicker(win.screen ? win.screen.name : "", card.x + card.width / 2, card.y + card.height - 40)
+                        LyricsKey {
+                            label: "later >>"
+                            visible: win.lines.length > 0
+                            onClicked: LyricsService.nudge(-100)
+                        }
+
+                        // Where the words come from, and what each provider found (LyricsSources.qml).
+                        LyricsKey {
+                            label: "sources"
+                            onClicked: LyricsService.togglePicker(win.screen ? win.screen.name : "", card.x + card.width / 2, card.y + card.height - 40)
+                        }
                     }
                 }
 

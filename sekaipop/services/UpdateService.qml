@@ -13,13 +13,20 @@ import qs.modules.common
 //            "checking"  asking
 //            "current"   up to date
 //            "behind"    a newer version exists (`behind` commits, or `latest`)
-//            "nosource"  nothing to compare with (not a git clone, no URL)
+//            "nosource"  nothing to compare with (no git, no URL)
 //            "error"     couldn't ask (`reason` says why)
 Singleton {
     id: root
 
     property string version: ""
+    // A git checkout (the shell folder is a clone, or the sekaipop/ folder of one).
     property bool isGit: false
+    // An installed copy (what install.sh makes): updated by downloading the
+    // newest commit from GitHub and swapping the folder. See update-check.sh.
+    property bool managed: false
+    // Installed copy with no commit mark yet: can't tell if it is current.
+    property bool unknown: false
+    readonly property bool canApply: isGit || managed
     property string branch: ""
     property string commit: ""
     property string remote: ""
@@ -74,6 +81,7 @@ Singleton {
                 const kv = root.parseKv(text)
                 root.version = kv.version || ""
                 root.isGit = kv.git === "yes"
+                root.managed = kv.managed === "yes"
                 root.branch = kv.branch || ""
                 root.commit = kv.commit || ""
                 root.remote = kv.remote || ""
@@ -90,6 +98,7 @@ Singleton {
                 const kv = root.parseKv(text)
                 root.behind = Number(kv.behind || 0)
                 root.latest = kv.latest || ""
+                root.unknown = kv.unknown === "yes"
                 root.reason = kv.reason || ""
                 root.status = kv.status || "error"
                 root.checkedAt = Date.now()
