@@ -1,5 +1,6 @@
 <div align="center">
 
+<h1>SekaiPop</h1>
 
 <img src="docs/highlights.svg" alt="Phone control center, Sekai Pad equalizer, Edit Desktop, shader wallpaper transitions, two lockscreens, installs from a bare Arch" width="82%">
 
