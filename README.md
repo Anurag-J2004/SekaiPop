@@ -1,6 +1,6 @@
 <div align="center">
 
-# SekaiPop (`pjsekai`)
+# SekaiPop
 
 **A Quickshell + Hyprland desktop shell where your whole desktop is built out of chunky, outlined, sticker-and-keycap blocks, and your control center is a phone.**
 
