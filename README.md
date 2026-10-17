@@ -158,33 +158,13 @@ The portals are what make screen sharing work in Discord, browsers and OBS.
 
 <h2 id="installation"><img src="docs/tag-installation.svg" alt="Installation" height="80"></h2>
 
-### 1. Get it
+### 1. Install
 
 ```bash
-git clone https://github.com/Blapples/SekaiPop.git
-cd SekaiPop
-chmod +x install.sh install-deps.sh check-deps.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh)
 ```
 
-```
-install.sh        install-deps.sh        check-deps.sh
-hypr/             the preconfigured Hyprland (Lua) config
-sekaipop/         the shell itself (version in sekaipop/VERSION)
-```
-
-### 2. Look before you leap
-
-```bash
-./install.sh --dry-run      # prints everything it would do, changes nothing
-```
-
-### 3. Install
-
-```bash
-./install.sh
-```
-
-This does three jobs:
+That is the whole install. It downloads SekaiPop, then does three jobs:
 
 1. **Dependencies:** packages (repos and AUR), Google Sans Flex, services, groups.
 2. **The shell:** copied to `~/.config/quickshell/sekaipop` (an older copy is kept as `.bak-<time>`).
@@ -193,15 +173,43 @@ This does three jobs:
 > [!WARNING]
 > Run it as your normal user, not root. It calls `sudo` itself where needed.
 
-### 4. Start it
+Want to look first? Add `--dry-run`: it prints everything it would do and changes nothing.
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh) --dry-run
+```
+
+Options go after the command (see [Installer options](#installer-options)), for example `--yes` or `--hypr merge`.
+
+<details>
+<summary>Prefer to clone it yourself?</summary>
+
+```bash
+git clone https://github.com/Blapples/SekaiPop.git
+cd SekaiPop
+./install.sh --dry-run      # look first
+./install.sh                # install
+```
+
+```
+install.sh   install-deps.sh   check-deps.sh
+hypr/        Hyprland (Lua) config
+sekaipop/    the shell itself
+```
+
+</details>
+
+### 2. Start it
 
 Log out and back in, choosing the plain **Hyprland** session (**not** "uwsm"). The shell starts by itself. Inside an already running Hyprland the installer offers to reload and start it for you.
 
-### 5. Check everything
+### 3. Check everything
 
 ```bash
-./check-deps.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh) --check
 ```
+
+It is read-only: it lists what is installed and what is missing, and changes nothing.
 
 ### Installer options
 
@@ -234,7 +242,7 @@ Log out and back in, choosing the plain **Hyprland** session (**not** "uwsm"). T
 
 ### Updating
 
-Pull the repo and run `./install.sh` again. Settings and state live in `~/.local/state/pjsekai`, so your choices are kept.
+Run the install command again. Settings and state live in `~/.local/state/pjsekai`, so your choices are kept. If you cloned the repo instead, `git pull` and run `./install.sh` again.
 
 ### Your own changes
 
