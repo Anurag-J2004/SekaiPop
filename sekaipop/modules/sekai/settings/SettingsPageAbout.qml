@@ -338,12 +338,16 @@ SettingsPage {
 
         Repeater {
             model: [
+                { who: "end4 · dots-hyprland", what: "The foundation of this shell: the Hyprland config, the Anti-Flashbang shaders and how the pages are organised (GPL-3.0)" },
+                { who: "pCtrade · end4-pC", what: "Inspiration for the shell's customizability, his support, and the aurora, dots, mirror and ring visualizers" },
+                { who: "p3dro", what: "The Discord Voice service, ported from his fork of Illogical Impulse" },
                 { who: "Quickshell & Hyprland", what: "The toolkit and the compositor this runs on" },
-                { who: "end4", what: "The anti-flashbang screen shaders (GPL-3.0); how these pages are organised follows end4-pC" },
                 { who: "InioX · matugen", what: "Colours drawn from the wallpaper" },
-                { who: "CapnKitten · system24", what: "Material Discord and the system24 layout behind the Discord theme" },
+                { who: "CapnKitten · refact0r", what: "Material Discord and system24, the base of the Discord theme" },
                 { who: "Material Symbols & Google Sans Flex", what: "Every icon and every letter" },
-                { who: "emojibase", what: "The emoji data in the launcher (MIT)" }
+                { who: "emojibase", what: "The emoji data in the launcher (MIT)" },
+                { who: "yayuuu", what: "hyprland-scroll-overview, the optional scrolling Overview plugin" },
+                { who: "Open-Meteo & lyric providers", what: "Weather, and lyrics from LRCLIB, LyricsPlus, NetEase, QQ Music and Kugou" }
             ]
 
             delegate: Column {

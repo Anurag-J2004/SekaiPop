@@ -300,7 +300,25 @@ Volume and brightness keys go through the shell's on-screen display.
 > [!CAUTION]
 > The region selector's **search** action uploads the cropped screenshot to `uguu.se` before opening Google Lens. Don't use it on anything private.
 
-The Hyprland configuration in `hypr/` is adapted from [end-4's dots-hyprland](https://github.com/end-4/dots-hyprland) (GPL-3.0), and the installer follows the idea of end-4's `./setup install`. Because of that, **this repository is distributed under GPL-3.0**. Add a `LICENSE` file to match.
+SekaiPop is built on other people's work, and I'm grateful to all of them.
+
+**The foundation**
+
+- **[end4](https://github.com/end-4)** and [dots-hyprland](https://github.com/end-4/dots-hyprland) (Illogical Impulse): the foundation of this whole shell. The Hyprland configuration in `hypr/` is adapted from it, the installer follows the idea of `./setup install`, and the Anti-Flashbang shaders are copied unchanged (GPL-3.0). The cheat sheet, the Overview and the way Settings is organised also take after it.
+- **pCtrade** (end4-pC): the inspiration for how customizable this shell is, and for his support along the way. The `aurora`, `dots`, `mirror` and `ring` audio visualizers are ported from his work.
+- **p3dro**'s fork of Illogical Impulse: the Discord Voice service the bar pill and popup are ported from.
+
+**Projects it uses**
+
+- [Quickshell](https://quickshell.org) and [Hyprland](https://hyprland.org), which it runs on.
+- [matugen](https://github.com/InioX/matugen) by InioX, for colours drawn from the wallpaper.
+- Material Discord by CapnKitten and system24 by refact0r, the base of the Discord theme.
+- [emojibase](https://github.com/milesj/emojibase) (MIT), for the launcher's emoji data.
+- Material Symbols (icons) and Google Sans Flex (text).
+- [hyprland-scroll-overview](https://github.com/yayuuu/hyprland-scroll-overview) by yayuuu, an optional plugin the shell can use.
+- [Open-Meteo](https://open-meteo.com) for the weather, and LRCLIB, LyricsPlus, NetEase Cloud Music, QQ Music and Kugou for lyrics.
+
+Because it includes GPL-3.0 code, **this repository is distributed under GPL-3.0**. See [LICENSE](LICENSE).
 
 Character themes and names are fan references to *Project SEKAI COLORFUL STAGE! feat. Hatsune Miku*. This is an unofficial fan project, not affiliated with SEGA, Colorful Palette or Crypton Future Media. Wallpapers shown in the screenshots belong to their original artists.
 
