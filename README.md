@@ -161,8 +161,8 @@ The portals are what make screen sharing work in Discord, browsers and OBS.
 ### 1. Get it
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/Blapples/SekaiPop.git
+cd SekaiPop
 chmod +x install.sh install-deps.sh check-deps.sh
 ```
 
