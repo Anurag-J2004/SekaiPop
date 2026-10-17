@@ -15,8 +15,8 @@ Item {
     property real ky: 0.34
     property real renderScale: 1
     property real dd: 56                  // diameter, design pixels
-    property color capColor: "#8EE3EF"
-    property color wallColor: "#2c9fb8"
+    property color capColor: PadPalette.domeAuto
+    property color wallColor: PadPalette.domeAutoWall
     property string glyph: ""
     property bool lit: false              // glowing (SAVE with something to save, AUTO on)
     property bool latched: false
@@ -63,6 +63,10 @@ Item {
         transformOrigin: Item.TopLeft
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
+        Connections {
+            target: PadPalette
+            function onPChanged() { foot.requestPaint() }
+        }
 
         onPaint: {
             var ctx = getContext("2d")
@@ -75,14 +79,14 @@ Item {
 
             // the socket it sits in
             var sg = ctx.createLinearGradient(0, -6, 0, d + 6)
-            sg.addColorStop(0, "#0c6074")
-            sg.addColorStop(1, "#1f9bb3")
+            sg.addColorStop(0, PM.css(PadPalette.socketTop))
+            sg.addColorStop(1, PM.css(PadPalette.socketBottom))
             ctx.beginPath()
             ctx.arc(r, r, r + 6 - 0.5, 0, TAU)
             ctx.fillStyle = sg
             ctx.fill()
             ctx.lineWidth = 1
-            ctx.strokeStyle = "#64d6e6"
+            ctx.strokeStyle = PM.css(PadPalette.socketEdge)
             ctx.stroke()
 
             // glow
@@ -173,7 +177,7 @@ Item {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -key.u
             text: key.glyph
-            color: Qt.rgba(0.08, 0.10, 0.27, 0.72)
+            color: PadPalette.alpha(PadPalette.stageTop, 0.72)
             font.family: Theme.fontFamily
             font.pixelSize: 22 * key.u
             font.weight: Font.Bold

@@ -227,10 +227,10 @@ SekaiPopup {
                 radius: root.d(32)
                 antialiasing: true
                 border.width: Math.max(1, root.u)
-                border.color: "#74dbea"
+                border.color: PadPalette.cavityEdge
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#0b5e72" }
-                    GradientStop { position: 1.0; color: "#1c92aa" }
+                    GradientStop { position: 0.0; color: PadPalette.cavityTop }
+                    GradientStop { position: 1.0; color: PadPalette.cavityBottom }
                 }
             }
             // the bezel stands a little proud: its shadow, then its face
@@ -244,7 +244,7 @@ SekaiPopup {
                     height: root.d(304 + index * 2)
                     radius: root.d(28 + index)
                     antialiasing: true
-                    color: Qt.rgba(0, 0.08, 0.16, 0.10)
+                    color: PadPalette.alpha(PadPalette.wallNear, 0.10)
                 }
             }
             Rectangle {
@@ -258,8 +258,8 @@ SekaiPopup {
                 border.width: Math.max(1, root.u)
                 border.color: Qt.rgba(1, 1, 1, 0.3)
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#2a3050" }
-                    GradientStop { position: 1.0; color: "#06071a" }
+                    GradientStop { position: 0.0; color: PadPalette.bezelTop }
+                    GradientStop { position: 1.0; color: PadPalette.bezelBottom }
                 }
             }
             Rectangle {
@@ -317,7 +317,7 @@ SekaiPopup {
                         height: mediaKey.height
                         radius: height / 2
                         antialiasing: true
-                        color: PM.mix(Qt.color("#0d1030"), Qt.color("#1b2048"), index / 2)
+                        color: PM.mix(PadPalette.keyWall, PadPalette.keyBottom, index / 2)
                     }
                 }
                 Rectangle {
@@ -327,15 +327,15 @@ SekaiPopup {
                     radius: height / 2
                     antialiasing: true
                     border.width: Math.max(1, root.u)
-                    border.color: Qt.rgba(0, 0, 0.1, 0.5)
+                    border.color: PadPalette.alpha(PadPalette.stageBottom, 0.5)
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: mediaArea.containsMouse ? "#5560a4" : "#4a5490" }
-                        GradientStop { position: 1.0; color: "#1b2048" }
+                        GradientStop { position: 0.0; color: mediaArea.containsMouse ? PadPalette.keyHover : PadPalette.keyTop }
+                        GradientStop { position: 1.0; color: PadPalette.keyBottom }
                     }
                     Text {
                         anchors.centerIn: parent
                         text: "\u25C9  MEDIA"
-                        color: "#dfe4ff"
+                        color: PadPalette.keyText
                         font.family: Theme.fontFamily
                         font.pixelSize: root.d(10)
                         font.weight: Font.Bold
@@ -368,10 +368,10 @@ SekaiPopup {
                 horizontalAlignment: Text.AlignHCenter
                 text: "\u25C0 \u25B6   SELECT BAND\n\u25B2 \u25BC   \u00B11 dB"
                 lineHeight: 1.1
-                color: "#06485f"
-                opacity: 0.65
+                color: PadPalette.label
+                opacity: PadPalette.labelOpacity
                 style: Text.Raised
-                styleColor: Qt.rgba(1, 1, 1, 0.5)
+                styleColor: PadPalette.labelEmboss
                 font.family: Theme.fontFamily
                 font.pixelSize: root.d(9)
                 font.weight: Font.Bold
@@ -386,8 +386,8 @@ SekaiPopup {
                 kx: root.kx
                 ky: root.ky
                 renderScale: pad.rs
-                capColor: "#8EE3EF"
-                wallColor: "#2c9fb8"
+                capColor: PadPalette.domeAuto
+                wallColor: PadPalette.domeAutoWall
                 glyph: "\u2726"
                 lit: root.eq.autoEnabled
                 onClicked: {
@@ -403,8 +403,8 @@ SekaiPopup {
                 kx: root.kx
                 ky: root.ky
                 renderScale: pad.rs
-                capColor: "#FF9ECB"
-                wallColor: "#c8558d"
+                capColor: PadPalette.domeSave
+                wallColor: PadPalette.domeSaveWall
                 glyph: "\u266A"
                 lit: root.eq.pending
                 enabledKey: root.eq.pending
@@ -417,8 +417,8 @@ SekaiPopup {
                 kx: root.kx
                 ky: root.ky
                 renderScale: pad.rs
-                capColor: "#FFE066"
-                wallColor: "#b99416"
+                capColor: PadPalette.domeUndo
+                wallColor: PadPalette.domeUndoWall
                 glyph: "\u21BA"
                 enabledKey: root.eq.pending
                 onClicked: root.eq.revert()
@@ -430,8 +430,8 @@ SekaiPopup {
                 kx: root.kx
                 ky: root.ky
                 renderScale: pad.rs
-                capColor: "#f4f6ff"
-                wallColor: "#8f98c0"
+                capColor: PadPalette.domeSaveAs
+                wallColor: PadPalette.domeSaveAsWall
                 glyph: "\u2606"
                 onClicked: screen.openSaveAs()
             }
@@ -442,10 +442,10 @@ SekaiPopup {
                 horizontalAlignment: Text.AlignHCenter
                 text: "\u2726 AUTO    \u266A SAVE\n\u21BA UNDO    \u2606 SAVE AS"
                 lineHeight: 1.1
-                color: "#06485f"
-                opacity: 0.65
+                color: PadPalette.label
+                opacity: PadPalette.labelOpacity
                 style: Text.Raised
-                styleColor: Qt.rgba(1, 1, 1, 0.5)
+                styleColor: PadPalette.labelEmboss
                 font.family: Theme.fontFamily
                 font.pixelSize: root.d(9)
                 font.weight: Font.Bold
@@ -467,7 +467,7 @@ SekaiPopup {
                         height: 2 * r
                         radius: r
                         antialiasing: true
-                        color: Qt.rgba(1, 0.4, 0.66, 0.14)
+                        color: PadPalette.alpha(PadPalette.ledOn, 0.14)
                     }
                 }
                 Rectangle {
@@ -477,9 +477,9 @@ SekaiPopup {
                     height: root.d(12)
                     radius: width / 2
                     antialiasing: true
-                    color: root.eq.pending ? "#ff5fa8" : "#7a5368"
+                    color: root.eq.pending ? PadPalette.ledOn : PadPalette.ledOff
                     border.width: 1
-                    border.color: Qt.rgba(0.5, 0, 0.25, 0.4)
+                    border.color: PadPalette.alpha(Qt.darker(PadPalette.ledOn, 2.2), 0.4)
                 }
             }
             Text {
@@ -489,10 +489,10 @@ SekaiPopup {
                 horizontalAlignment: Text.AlignHCenter
                 leftPadding: font.letterSpacing
                 text: "SEKAI\u00B7EQ"
-                color: "#06485f"
-                opacity: 0.7
+                color: PadPalette.label
+                opacity: PadPalette.titleOpacity
                 style: Text.Raised
-                styleColor: Qt.rgba(1, 1, 1, 0.5)
+                styleColor: PadPalette.labelEmboss
                 font.family: Theme.fontFamily
                 font.pixelSize: root.d(10)
                 font.weight: Font.Bold

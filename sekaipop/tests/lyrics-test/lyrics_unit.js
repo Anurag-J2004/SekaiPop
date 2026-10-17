@@ -834,3 +834,106 @@ console.log("word timing ok")
     assert.ok(!L.lyricsplusToLrc({ lyrics: [{ time: 1000, text: "only a line" }] }).word)
 }
 console.log("providers ok")
+
+// ---------- Boidu (TTML), SimpMusic, YouTube Music ----------
+{
+    const T = new Function(src.replace(/^\.pragma.*$/m, "") + "; return { ttmlToLrc, ttmlTime, parseLrc, foldEchoes, chooseLyrics, simpmusicPick, simpmusicSongs, richSyncToLrc, videoIdOf, ytmLyricsBrowseId, ytmTimedLyrics, ytmSongs, pickWordSong }")()
+    // times in both of the forms the API writes
+    assert.strictEqual(T.ttmlTime("00:01:30.500"), 90500)
+    assert.strictEqual(T.ttmlTime("1:16.656"), 76656)
+    assert.strictEqual(T.ttmlTime("12.5"), 12500)
+    assert.strictEqual(T.ttmlTime("12.5s"), 12500)
+    assert.strictEqual(T.ttmlTime(""), -1)
+    assert.strictEqual(T.ttmlTime("abc"), -1)
+    // word timing: the space between two spans is a space, syllables join, the backing voice
+    // is folded onto the line it is sung over, a translation is left out
+    const ttml = '<?xml version="1.0" encoding="UTF-8"?><tt xmlns="http://www.w3.org/ns/ttml" xmlns:ttm="http://www.w3.org/ns/ttml#metadata"><body><div>'
+        + '<p begin="00:00:18.234" end="00:00:21.891" ttm:agent="v1"><span begin="00:00:18.234" end="00:00:18.567">The </span><span begin="00:00:18.567" end="00:00:18.901">club </span><span begin="00:00:18.901" end="00:00:19.234">isn&apos;t</span> <span begin="00:00:19.234" end="00:00:19.568">the </span><span begin="00:00:19.568" end="00:00:21.891">best</span><span ttm:role="x-bg"><span begin="0:20.500" end="0:21.500">(ooh)</span></span></p>'
+        + '<p begin="1:16.656" end="1:20.000"><span begin="1:16.656" end="1:17.000">Ev</span><span begin="1:17.000" end="1:17.500">ery </span><span begin="1:17.500" end="1:20.000">day</span><span ttm:role="x-translation">hola</span></p>'
+        + '</div></body></tt>'
+    const got = T.ttmlToLrc(ttml)
+    assert.strictEqual(got.word, true)
+    let lines = T.foldEchoes(T.parseLrc(got.text))
+    assert.deepStrictEqual(lines.map(l => l.text), ["", "The club isn't the best", "Every day"])
+    near(lines[1].t, 18.234); near(lines[1].end, 21.891)
+    assert.deepStrictEqual(lines[1].marks.map(m => m.cs), [0, 3, 7, 12, 15], "a mark for each word")
+    assert.deepStrictEqual(lines[2].marks.map(m => m.cs), [0, 2, 5], "a word cut into syllables keeps one text")
+    assert.strictEqual(lines[2].text.indexOf("hola"), -1, "a translation is not a lyric")
+    assert.strictEqual(lines[1].bg.text, "(ooh)"); near(lines[1].bg.t, 20.5)
+    // line timing only
+    const plain = T.ttmlToLrc('<tt><body><div><p begin="0:05.000" end="0:08.000">Just a line</p><p begin="0:09.000" end="0:12.000">Another &amp; line</p></div></body></tt>')
+    assert.strictEqual(plain.word, false)
+    assert.deepStrictEqual(T.parseLrc(plain.text).filter(l => l.text).map(l => l.text), ["Just a line", "Another & line"])
+    assert.deepStrictEqual(T.ttmlToLrc("not xml at all"), { text: "", word: false })
+    assert.deepStrictEqual(T.ttmlToLrc(null), { text: "", word: false })
+
+    // chooseLyrics: Boidu is the first of the order, so it wins a tie; a trusted one is used where
+    // a synced text of another song-cut reads differently, an untrusted one is not
+    const synced = "[00:01.00]completely different words here\n[00:05.00]nothing alike at all\n[00:09.00]third line of other text\n[00:13.00]and one more"
+    const mk = (id, kind, text, extra) => Object.assign({ id, kind, text, lines: T.parseLrc(text), duration: 0 }, extra || {})
+    const order = ["boidu", "lyricsplus", "lrclib", "youtubemusic", "simpmusic", "netease", "qq", "kugou"]
+    let ch = T.chooseLyrics([mk("lrclib", "synced", synced), mk("boidu", "word", got.text, { trusted: true })], order, 0, "auto", true)
+    assert.strictEqual(ch.id, "boidu"); assert.strictEqual(ch.kind, "word", "trusted word timing is kept")
+    ch = T.chooseLyrics([mk("lrclib", "synced", synced), mk("boidu", "word", got.text)], order, 0, "auto", true)
+    assert.strictEqual(ch.id, "lrclib", "an untrusted word-timed text that disagrees with the synced one is not used")
+    ch = T.chooseLyrics([mk("boidu", "word", got.text, { trusted: true }), mk("lyricsplus", "word", got.text)], order, 0, "auto", true)
+    assert.strictEqual(ch.id, "boidu", "Boidu first when two are as good")
+    // a trusted one is NOT moved onto a synced text that agrees with it but sits 1 s later
+    const lateSynced = got.text.replace(/<[^>]*>/g, "").split("\n").filter(l => !/\[bg:/.test(l)).map(l => l.replace(/^\[(\d+):(\d+\.\d+)\]/, (m, a, b) => { const t = Number(a) * 60 + Number(b) + 1; return "[" + String(Math.floor(t / 60)).padStart(2, "0") + ":" + (t % 60).toFixed(3).padStart(6, "0") + "]" })).join("\n")
+    ch = T.chooseLyrics([mk("lrclib", "synced", lateSynced), mk("boidu", "word", got.text, { trusted: true })], order, 0, "auto", true)
+    assert.strictEqual(ch.id, "boidu"); assert.strictEqual(ch.text, got.text, "trusted timing is used as it came")
+    ch = T.chooseLyrics([mk("lrclib", "synced", lateSynced), mk("boidu", "word", got.text)], order, 0, "auto", true)
+    assert.notStrictEqual(ch.text, got.text, "an untrusted one is still moved onto the synced text")
+    ch = T.chooseLyrics([mk("boidu", "synced", "[00:01.00]aaa bbb ccc ddd\n[00:05.00]eee fff ggg hhh\n[00:09.00]iii jjj kkk lll"), mk("lyricsplus", "word", "[00:01.00]<00:01.00>aaa <00:01.50>bbb<00:02.00>\n[00:05.00]<00:05.00>eee <00:05.50>fff<00:06.00>")], order, 0, "auto", false)
+    assert.strictEqual(ch.id, "boidu", "with word timing off, the first of the order wins")
+
+    // SimpMusic: the entry cut closest to the track; rich sync when it has it
+    const sm = { type: "success", success: true, data: [
+        { videoId: "v1", songTitle: "Shape of You", artistName: "Ed Sheeran", durationSeconds: 300, syncedLyrics: "[00:01.00]long cut" },
+        { videoId: "v1", songTitle: "Shape of You", artistName: "Ed Sheeran", durationSeconds: 233, syncedLyrics: "[00:01.00]hi\n[00:05.00]there\n[00:09.00]you" }] }
+    let pick = T.simpmusicPick(sm, 233)
+    assert.strictEqual(pick.word, false); assert.strictEqual(pick.duration, 233); assert.ok(/hi/.test(pick.text))
+    assert.strictEqual(T.simpmusicPick(sm, 100), null, "nothing within 4 s of the track's length")
+    assert.strictEqual(T.simpmusicPick({ success: false }, 233), null)
+    assert.strictEqual(T.simpmusicPick(null, 233), null)
+    const rich = [{ ts: 1.0, te: 3.0, l: [{ c: "Hel", o: 0 }, { c: "lo ", o: 0.4 }, { c: "you", o: 1.2 }] }]
+    pick = T.simpmusicPick({ data: [{ durationSeconds: 233, syncedLyrics: "[00:01.00]hello you", richSyncLyrics: JSON.stringify(rich) }] }, 233)
+    assert.strictEqual(pick.word, true)
+    const rl = T.parseLrc(pick.text)[0]
+    assert.strictEqual(rl.text, "Hello you"); assert.deepStrictEqual(rl.marks.map(m => m.cs), [0, 3, 5])
+    assert.strictEqual(T.richSyncToLrc("not json"), ""); assert.strictEqual(T.richSyncToLrc([{ nope: 1 }]), "")
+    const songs = T.simpmusicSongs(sm)
+    assert.strictEqual(songs.length, 2); assert.strictEqual(songs[1].duration, 233000)
+    assert.strictEqual(T.pickWordSong(songs, "Ed Sheeran", "Shape of You", 233), "v1")
+
+    // the video id in an address
+    assert.strictEqual(T.videoIdOf("https://music.youtube.com/watch?v=dQw4w9WgXcQ&list=RDAMVM"), "dQw4w9WgXcQ")
+    assert.strictEqual(T.videoIdOf("https://www.youtube.com/watch?feature=share&v=dQw4w9WgXcQ"), "dQw4w9WgXcQ")
+    assert.strictEqual(T.videoIdOf("https://youtu.be/dQw4w9WgXcQ?t=3"), "dQw4w9WgXcQ")
+    assert.strictEqual(T.videoIdOf("https://www.youtube.com/shorts/dQw4w9WgXcQ"), "dQw4w9WgXcQ")
+    assert.strictEqual(T.videoIdOf("file:///home/me/music/a.mp3"), "")
+    assert.strictEqual(T.videoIdOf("https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT"), "")
+    assert.strictEqual(T.videoIdOf(undefined), "")
+
+    // YouTube Music's answers
+    const next = { contents: { tabs: [{ tabRenderer: { endpoint: { browseEndpoint: { browseId: "MPLYt_abc", browseEndpointContextSupportedConfigs: { browseEndpointContextMusicConfig: { pageType: "MUSIC_PAGE_TYPE_TRACK_LYRICS" } } } } } },
+        { tabRenderer: { endpoint: { browseEndpoint: { browseId: "MPTRt_xyz", browseEndpointContextSupportedConfigs: { browseEndpointContextMusicConfig: { pageType: "MUSIC_PAGE_TYPE_TRACK_RELATED" } } } } } }] } }
+    assert.strictEqual(T.ytmLyricsBrowseId(next), "MPLYt_abc")
+    assert.strictEqual(T.ytmLyricsBrowseId({ contents: {} }), "", "a video with no lyrics tab")
+    const cue = (t, e, l) => ({ lyricLine: l, cueRange: { startTimeMilliseconds: String(t), endTimeMilliseconds: String(e) } })
+    const browse = { contents: { elementRenderer: { newElement: { type: { componentType: { model: { timedLyricsModel: { lyricsData: { timedLyricsData: [cue(1000, 3000, "one"), cue(6000, 8000, "two"), cue(8000, 9000, "three")] } } } } } } } } }
+    const yl = T.parseLrc(T.ytmTimedLyrics(browse))
+    assert.deepStrictEqual(yl.filter(l => l.text).map(l => l.text), ["one", "two", "three"])
+    near(yl.find(l => l.text === "one").end, 3, 1e-6)
+    assert.strictEqual(T.ytmTimedLyrics({ contents: { plain: "just text" } }), "")
+    const run = t => ({ text: t })
+    const col = runs => ({ musicResponsiveListItemFlexColumnRenderer: { text: { runs } } })
+    const search = { contents: [{ musicResponsiveListItemRenderer: { playlistItemData: { videoId: "abcdefghijk" },
+        flexColumns: [col([run("Shape of You")]), col([run("Song"), run(" \u2022 "), run("Ed Sheeran"), run(" \u2022 "), run("\u00f7 (Deluxe)"), run(" \u2022 "), run("3:53")])] } }] }
+    const ys = T.ytmSongs(search)
+    assert.strictEqual(ys.length, 1); assert.strictEqual(ys[0].id, "abcdefghijk"); assert.strictEqual(ys[0].duration, 233000)
+    assert.strictEqual(T.pickWordSong(ys, "Ed Sheeran", "Shape of You", 233), "abcdefghijk")
+    assert.strictEqual(T.pickWordSong(ys, "Ed Sheeran", "Perfect", 263), null, "another title is not the song")
+    assert.deepStrictEqual(T.ytmSongs(null), [])
+    console.log("boidu / simpmusic / youtube music ok")
+}

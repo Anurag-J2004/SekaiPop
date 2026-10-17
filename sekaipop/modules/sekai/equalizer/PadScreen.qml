@@ -88,6 +88,11 @@ Item {
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
 
+        Connections {
+            target: PadPalette
+            function onPChanged() { chartBase.requestPaint() }
+        }
+
         onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
@@ -99,9 +104,9 @@ Item {
             var i
             // the stage
             var bg = ctx.createLinearGradient(0, 0, 0, 270)
-            bg.addColorStop(0, "#2b2272")
-            bg.addColorStop(0.55, "#171a52")
-            bg.addColorStop(1, "#0a0c2a")
+            bg.addColorStop(0, PM.css(PadPalette.stageTop))
+            bg.addColorStop(0.55, PM.css(PadPalette.stageMid))
+            bg.addColorStop(1, PM.css(PadPalette.stageBottom))
             ctx.fillStyle = bg
             ctx.fillRect(0, 0, 460, 270)
 
@@ -135,7 +140,7 @@ Item {
                 ctx.lineTo(PM.laneEdge(i + 1, BOT), BOT)
                 ctx.lineTo(PM.laneEdge(i, BOT), BOT)
                 ctx.closePath()
-                ctx.fillStyle = PM.rgba(PM.GROUPS[PM.group(i)], i === info ? 0.2 : 0.05)
+                ctx.fillStyle = PM.alpha(PadPalette.groups[PM.group(i)], i === info ? 0.2 : 0.05)
                 ctx.fill()
             }
             ctx.strokeStyle = "rgba(255,255,255,0.16)"
@@ -156,7 +161,7 @@ Item {
 
             // the judgement line
             ctx.save()
-            ctx.shadowColor = "rgba(77,208,225,0.9)"
+            ctx.shadowColor = PM.alpha(PadPalette.litB, 0.9)
             ctx.shadowBlur = 10
             ctx.fillStyle = "rgba(255,255,255,0.6)"
             ctx.fillRect(0, 232.5, 460, 2)
@@ -182,6 +187,11 @@ Item {
         transformOrigin: Item.TopLeft
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
+
+        Connections {
+            target: PadPalette
+            function onPChanged() { chartNotes.requestPaint() }
+        }
 
         onPaint: {
             var ctx = getContext("2d")
@@ -211,8 +221,8 @@ Item {
                     }
                     var sc = PM.s(ny), nw = 32 * sc, nh = 12 * sc, nx = PM.laneX(i, ny)
                     var ng = ctx.createLinearGradient(0, ny - nh / 2, 0, ny + nh / 2)
-                    ng.addColorStop(0, PM.LIGHT[grp])
-                    ng.addColorStop(1, PM.DARK[grp])
+                    ng.addColorStop(0, PM.css(PadPalette.groupsLight[grp]))
+                    ng.addColorStop(1, PM.css(PadPalette.groupsDark[grp]))
                     ctx.globalAlpha = na
                     ctx.beginPath()
                     PM.rr(ctx, nx - nw / 2, ny - nh / 2, nw, nh, 5 * sc)
@@ -239,6 +249,11 @@ Item {
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
 
+        Connections {
+            target: PadPalette
+            function onPChanged() { chartTop.requestPaint() }
+        }
+
         onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
@@ -259,9 +274,9 @@ Item {
                 var x0 = PM.laneX(i, ZERO), x1 = PM.laneX(i, yj[i])
                 ctx.beginPath()
                 ctx.moveTo(x0 - h0, ZERO); ctx.lineTo(x0 + h0, ZERO); ctx.lineTo(x1 + h1, yj[i]); ctx.lineTo(x1 - h1, yj[i]); ctx.closePath()
-                ctx.fillStyle = PM.rgba(PM.GROUPS[gi], 0.42)
+                ctx.fillStyle = PM.alpha(PadPalette.groups[gi], 0.42)
                 ctx.fill()
-                ctx.strokeStyle = PM.rgba(PM.LIGHT[gi], 0.9)
+                ctx.strokeStyle = PM.alpha(PadPalette.groupsLight[gi], 0.9)
                 ctx.lineWidth = 1.2
                 ctx.stroke()
                 ctx.strokeStyle = "rgba(255,255,255,0.6)"
@@ -275,16 +290,16 @@ Item {
             for (i = 0; i < 10; i++)
                 pts.push({ x: PM.laneX(i, yj[i]), y: yj[i] })
             ctx.save()
-            ctx.shadowColor = "rgba(77,208,225,0.9)"
+            ctx.shadowColor = PM.alpha(PadPalette.litB, 0.9)
             ctx.shadowBlur = 12
             ctx.lineCap = "round"
             ctx.lineWidth = 6
-            ctx.strokeStyle = "rgba(77,208,225,0.5)"
+            ctx.strokeStyle = PM.alpha(PadPalette.litB, 0.5)
             ctx.beginPath(); PM.smooth(ctx, pts); ctx.stroke()
             ctx.restore()
             var cg = ctx.createLinearGradient(0, 0, 460, 0)
-            cg.addColorStop(0, "#00ffcb")
-            cg.addColorStop(1, "#4dd0e1")
+            cg.addColorStop(0, PM.css(PadPalette.litA))
+            cg.addColorStop(1, PM.css(PadPalette.litB))
             ctx.lineWidth = 3.2
             ctx.strokeStyle = cg
             ctx.beginPath(); PM.smooth(ctx, pts); ctx.stroke()
@@ -306,8 +321,8 @@ Item {
                     ctx.restore()
                 }
                 var jg = ctx.createLinearGradient(0, jy - jh / 2, 0, jy + jh / 2)
-                jg.addColorStop(0, PM.LIGHT[isel ? 0 : gj])
-                jg.addColorStop(1, PM.DARK[isel ? 0 : gj])
+                jg.addColorStop(0, PM.css(PadPalette.groupsLight[isel ? 0 : gj]))
+                jg.addColorStop(1, PM.css(PadPalette.groupsDark[isel ? 0 : gj]))
                 ctx.beginPath()
                 PM.rr(ctx, jx - jw / 2, jy - jh / 2, jw, jh, jh * 0.38)
                 ctx.fillStyle = jg
@@ -330,7 +345,7 @@ Item {
                 ctx.stroke()
                 ctx.font = "700 11px '" + Theme.fontFamily + "'"
                 ctx.textAlign = "center"
-                ctx.fillStyle = PM.LIGHT[gj]
+                ctx.fillStyle = PM.css(PadPalette.groupsLight[gj])
                 ctx.fillText(PM.LABELS[i], tx, 255.5)
             }
 
@@ -346,7 +361,7 @@ Item {
             var gv = Math.round(gs[info] || 0)
             ctx.beginPath()
             PM.rr(ctx, bx - 56, by, 112, 24, 12)
-            ctx.fillStyle = "rgba(7,8,31,0.92)"
+            ctx.fillStyle = PM.css(PadPalette.bubbleBg)
             ctx.fill()
             ctx.strokeStyle = "rgba(255,255,255,0.4)"
             ctx.lineWidth = 1
@@ -418,7 +433,7 @@ Item {
         id: bar
         width: parent.width
         height: scr.d(31)
-        color: Qt.rgba(0.02, 0.02, 0.1, 0.62)
+        color: PadPalette.barBg
 
         // AUTO
         Rectangle {
@@ -435,13 +450,13 @@ Item {
             Gradient {
                 id: litGrad
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: "#00ffcb" }
-                GradientStop { position: 1.0; color: "#4dd0e1" }
+                GradientStop { position: 0.0; color: PadPalette.litA }
+                GradientStop { position: 1.0; color: PadPalette.litB }
             }
             Text {
                 anchors.centerIn: parent
                 text: "\u2605 AUTO"
-                color: scr.eq.autoEnabled ? "#0a2a3a" : "#ffffff"
+                color: scr.eq.autoEnabled ? PadPalette.ink : "#ffffff"
                 opacity: scr.eq.autoEnabled ? 1 : 0.75
                 font.family: Theme.fontFamily
                 font.pixelSize: scr.d(9.5)
@@ -532,8 +547,8 @@ Item {
                 antialiasing: true
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#00ffcb" }
-                    GradientStop { position: 1.0; color: "#4dd0e1" }
+                    GradientStop { position: 0.0; color: PadPalette.litA }
+                    GradientStop { position: 1.0; color: PadPalette.litB }
                 }
             }
         }
@@ -550,7 +565,7 @@ Item {
             x: scr.d(434)
             anchors.verticalCenter: parent.verticalCenter
             text: "\u2699"
-            color: scr.page === "setup" ? "#00ffcb" : "#ffffff"
+            color: scr.page === "setup" ? PadPalette.litA : "#ffffff"
             opacity: 0.9
             font.pixelSize: scr.d(15)
             MouseArea {
@@ -569,11 +584,11 @@ Item {
             height: width
             radius: width / 2
             antialiasing: true
-            color: "#FF9ECB"
+            color: PadPalette.warn
             Text {
                 anchors.centerIn: parent
                 text: "!"
-                color: "#0a2a3a"
+                color: PadPalette.ink
                 font.pixelSize: scr.d(11)
                 font.weight: Font.ExtraBold
             }
@@ -592,7 +607,7 @@ Item {
         y: bar.height
         width: parent.width
         height: parent.height - bar.height
-        color: Qt.rgba(0.03, 0.03, 0.14, 0.99)
+        color: PadPalette.sheetBg
 
         // swallow clicks so the chart under it is not touched
         MouseArea {
@@ -756,7 +771,7 @@ Item {
                 text: scr.eq.needsManualSave
                     ? "Save the \u201C" + scr.eq.activePreset + "\u201D preset once in EasyEffects first, or the equalizer would wipe the rest of your chain."
                     : "The equalizer is merged into the one you pick; a new preset replaces what is live in EasyEffects."
-                color: scr.eq.needsManualSave ? "#FF9ECB" : "#ffffff"
+                color: scr.eq.needsManualSave ? PadPalette.warn : "#ffffff"
                 opacity: scr.eq.needsManualSave ? 1 : 0.5
                 font.family: Theme.fontFamily
                 font.pixelSize: scr.d(10)

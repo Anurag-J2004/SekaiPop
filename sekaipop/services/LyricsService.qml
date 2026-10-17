@@ -16,12 +16,12 @@ import "../modules/common/functions/LyricsMath.js" as LM
 // Where the lyrics come from, in order, stopping at the first that has them:
 //   1. the cache (~/.cache/pjsekai/lyrics, what an earlier play found);
 //   2. a .lrc file beside the music file (same name, ".lrc"), for tracks that are files;
-//   3. LRCLIB (https://lrclib.net, a free, open lyrics database), asked with `curl` like every
-//      other network call of the shell (so curl and a network connection are needed): the
-//      exact lookup first, then a search by title and artist, then a free-text search, for
-//      the track as the player names it and then with the title cleaned up. The artist, the
-//      title, the album and the length of the track are sent to it, and nothing else. Only
-//      the synced ("[mm:ss.xx] words") lyrics are used. `ipc lyrics refresh` asks again.
+//   3. the providers (see `providers` below, in the order they are liked: Boidu / Better Lyrics,
+//      LyricsPlus, LRCLIB, YouTube Music, SimpMusic, NetEase, QQ Music, Kugou), all asked at
+//      once with `curl` like every other network call of the shell (so curl and a network
+//      connection are needed). What goes out is the artist, the title, the album and the length
+//      of the track (and, for the two that work by YouTube video, the video's id when the
+//      player gives its address), and nothing else. `ipc lyrics refresh` asks again.
 // What is found is kept in the cache, so a track is asked for once. A track with no lyrics
 // is not asked for again for ten minutes.
 //
@@ -79,6 +79,16 @@ Singleton {
     readonly property string cacheScript: Directories.script("state/lyrics-cache.sh")
     readonly property string base: "https://lrclib.net/api"
     readonly property string wordBase: "https://music.163.com/api"
+    // Better Lyrics ("Boidu"): the address its docs give now, then the one it used to have.
+    readonly property var boiduBases: ["https://api.betterlyrics.org", "https://lyrics-api.boidu.dev"]
+    readonly property string simpBase: "https://api-lyrics.simpmusic.org"
+    readonly property string ytmBase: "https://music.youtube.com/youtubei/v1"
+    // the public key YouTube Music's own web page uses
+    readonly property string ytmKey: "AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30"
+    readonly property var ytmHeaders: ["-H", "User-Agent: Mozilla/5.0", "-H", "Origin: https://music.youtube.com", "-H", "Referer: https://music.youtube.com/"]
+    // What is kept in the cache says which version of this list asked for it (see apply()):
+    // a song kept as line-synced before a provider was added is asked for once more.
+    readonly property int cacheRev: 2
     readonly property var wordHeaders: ["-H", "Referer: https://music.163.com/", "-H", "User-Agent: Mozilla/5.0"]
 
     // The widget calls this every time the track may have changed; asking for the same
@@ -190,8 +200,8 @@ Singleton {
 
     // `id`: a provider's, or "auto". Looks for the song again so it shows at once.
     function setPreferred(id) {
-        const v = String(id)
-        if (v !== "auto" && root.providerIds.indexOf(v) < 0)
+        const v = root.providerId(id)
+        if (v === "")
             return false
         root.preferred = v
         root.persist()
@@ -199,11 +209,12 @@ Singleton {
         return true
     }
 
+    // Either way the song on now is looked for again, so the switch shows at once (what is kept
+    // for a song keeps the timing it was chosen with).
     function setWords(on) {
         root.wordsOn = on === true
         root.persist()
-        if (root.wordsOn)
-            root.refresh()
+        root.refresh()
     }
     function setSync(ms) {
         root.syncMs = Math.max(-5000, Math.min(5000, Math.round(Number(ms) || 0)))
@@ -216,14 +227,40 @@ Singleton {
     // or eight seconds after the first) the best is chosen (LM.chooseLyrics): word by word over
     // synced, then the one cut to the track's length, then the one liked best (this order).
     // What was chosen is cached with the provider's name, so later plays do not ask at all.
+    // In the order they are liked: the first is the one whose lyrics win when two are as good
+    // (same kind of timing, same length). `hint` is the small line under the name in the picker.
     readonly property var providers: [
-        { id: "lyricsplus", name: "LyricsPlus" },
-        { id: "netease", name: "NetEase Cloud Music" },
-        { id: "lrclib", name: "LRCLIB" },
-        { id: "qq", name: "QQ Music" },
-        { id: "kugou", name: "Kugou" }
+        { id: "boidu", name: "Boidu", hint: "Better Lyrics: word by word, Apple Music's timing" },
+        { id: "lyricsplus", name: "LyricsPlus", hint: "word by word where it has it" },
+        { id: "lrclib", name: "LRCLIB", hint: "line synced, open database" },
+        { id: "youtubemusic", name: "YouTube Music", hint: "line synced, as YouTube Music shows it" },
+        { id: "simpmusic", name: "SimpMusic", hint: "community lyrics, found by YouTube video" },
+        { id: "netease", name: "NetEase Cloud Music", hint: "word by word where it has it" },
+        { id: "qq", name: "QQ Music", hint: "line synced" },
+        { id: "kugou", name: "Kugou", hint: "line synced" }
     ]
     readonly property var providerIds: root.providers.map(p => p.id)
+
+    // Other ways to write a provider's name (ipc lyrics source neteasecloudmusic).
+    readonly property var aliases: ({
+        betterlyrics: "boidu", better: "boidu",
+        ytmusic: "youtubemusic", youtube: "youtubemusic", ytm: "youtubemusic",
+        simp: "simpmusic",
+        neteasecloudmusic: "netease", neteasemusic: "netease", ne: "netease",
+        qqmusic: "qq", tencent: "qq",
+        kugoumusic: "kugou"
+    })
+
+    // A provider's id out of however it was written ("QQ Music", "YouTube-Music"); "auto"; or ""
+    // when it is none of them.
+    function providerId(x) {
+        const k = String(x).toLowerCase().replace(/[^a-z0-9]/g, "")
+        if (k === "auto")
+            return "auto"
+        if (root.providerIds.indexOf(k) >= 0)
+            return k
+        return root.aliases[k] !== undefined ? root.aliases[k] : ""
+    }
 
     // Where each stands for the track on now: "loading", "word", "synced", "none", "offline".
     property var sourceStates: ({})
@@ -265,6 +302,9 @@ Singleton {
         if (ctx.serial !== root.serial)
             return
         const got = root.parseStored(text)
+        // with "Word by word" off, a text kept with its word timing is shown line by line too
+        if (got !== null && !root.wordsOn && got.synced !== "")
+            got.synced = LM.stripWords(got.synced)
         if (got !== null && root.apply(ctx, got, "cache"))
             return
         if (ctx.url.indexOf("file://") === 0) {
@@ -295,12 +335,22 @@ Singleton {
         root.sourceStates = states
         for (const p of root.providers) {
             const id = p.id
-            root.ask(id, ctx, res => root.arrived(ctx, id, res))
+            root.ask(id, ctx, res => {
+                root.arrived(ctx, id, res)
+                if (id !== "boidu")
+                    root.boiduRelease(ctx, res)
+            })
         }
     }
 
     function ask(id, ctx, cb) {
-        if (id === "lrclib")
+        if (id === "boidu")
+            root.pBoidu(ctx, cb)
+        else if (id === "youtubemusic")
+            root.pYoutubeMusic(ctx, cb)
+        else if (id === "simpmusic")
+            root.pSimpmusic(ctx, cb)
+        else if (id === "lrclib")
             root.pLrclib(ctx, cb)
         else if (id === "netease")
             root.pNetease(ctx, cb)
@@ -325,7 +375,7 @@ Singleton {
                 usable = true
                 st[id] = res.kind === "word" ? "word" : "synced"
                 if (!ctx.done)
-                    ctx.results.push({ id: id, kind: res.kind === "word" ? "word" : "synced", text: res.text, lines: lines, duration: res.duration || 0 })
+                    ctx.results.push({ id: id, kind: res.kind === "word" ? "word" : "synced", text: res.text, lines: lines, duration: res.duration || 0, trusted: res.trusted === true })
             } else {
                 st[id] = "none"
                 if (res.instrumental === true)
@@ -384,7 +434,9 @@ Singleton {
         const kept = ctx.cached || null
         if (ch === null) {
             if (ctx.quiet === true && kept) {
-                root.keep(ctx, kept.synced, kept.duration, "no", kept.provider)
+                // stamped as asked only when somebody answered, or it would never be asked again
+                if (ctx.answered)
+                    root.keep(ctx, kept.synced, kept.duration, "no", kept.provider)
             } else if (ctx.shown !== true) {
                 if (ctx.instrumental === true)
                     root.apply(ctx, { instrumental: true }, "lrclib", true)
@@ -409,7 +461,7 @@ Singleton {
     }
 
     function keep(ctx, synced, duration, words, provider) {
-        const json = JSON.stringify({ synced: synced, duration: duration || 0, words: words, provider: provider || "" })
+        const json = JSON.stringify({ synced: synced, duration: duration || 0, words: words, provider: provider || "", rev: root.cacheRev })
         // one argument to a program is 128 kB at most
         if (json.length < 120000)
             root.runScript(["put", ctx.hash, json], () => {})
@@ -434,7 +486,8 @@ Singleton {
         return {
             synced: typeof o.syncedLyrics === "string" ? o.syncedLyrics : "",
             instrumental: o.instrumental === true,
-            duration: typeof o.duration === "number" ? o.duration : 0
+            duration: typeof o.duration === "number" ? o.duration : 0,
+            album: typeof o.albumName === "string" ? o.albumName : ""
         }
     }
 
@@ -462,7 +515,12 @@ Singleton {
             root.keep(ctx, got.synced, got.duration, got.words || "", got.provider || source)
         // Kept from before there were several providers (or before word timing): the lyrics are
         // on, and the others are asked in the background for a better one.
-        if (source === "cache" && got.words !== "yes" && got.words !== "no") {
+        // (and a song kept as line-synced by an older list of providers is asked once more:
+        // one that was added since may have it word by word)
+        // Here: every play of a song whose kept lyrics are not word by word asks again (the kept
+        // ones stay on screen meanwhile), so a source that has it word by word, Boidu above all,
+        // is found once it can answer. A kept word-by-word text is final.
+        if (source === "cache" && got.words !== "yes") {
             ctx.quiet = true
             ctx.cached = got
             root.gather(ctx)
@@ -525,7 +583,7 @@ Singleton {
                     return
                 }
                 if (a.synced && LM.parseLrc(a.synced).length > 0) {
-                    done({ state: "found", kind: "synced", text: a.synced, duration: a.duration })
+                    done({ state: "found", kind: "synced", text: a.synced, duration: a.duration, album: a.album })
                     return
                 }
             }
@@ -679,6 +737,248 @@ Singleton {
         next(0)
     }
 
+    // ----- Boidu (Better Lyrics): word by word, Apple Music's own timing -----
+    // GET /getLyrics?s=<title>&a=<artist>&al=<album>&d=<seconds> answers { ttml, score? }: TTML
+    // with a time for every syllable (LM.ttmlToLrc). Its docs ask for all four, because the key
+    // of its cache includes the album and the length. A song nobody has played through the
+    // Better Lyrics extension yet is not cached, and a fresh fetch needs a key (401, which
+    // keys are not being given out for now): that is "Not found" here, and the next provider
+    // is the one that shows. `score` (0..1) is how sure it is of its match; a word-timed answer
+    // that it is sure of (or that came from its cache, which sends no score) is `trusted`: it
+    // is used even where a synced text of another provider reads a little differently.
+    function pBoidu(ctx, cb) {
+        // `len` and `hint` (an album) are what Boidu is asked with. The player often gives no
+        // length (a replay LiMusic did not re-measure) and no album (a card play: LiMusic finds
+        // it out later), and Boidu's cache key has both in it. So it asks with what it has, and
+        // again whenever another source (LRCLIB ...) tells it more (boiduRelease), as LiMusic
+        // does with its own next().
+        ctx.bd = { cb: cb, len: ctx.length > 0 ? ctx.length : 0, hint: "", asked: ({}), busy: false, fin: false, st: { answered: false } }
+        root.boiduAttempt(ctx)
+    }
+
+    function boiduFinish(ctx, res) {
+        const bd = ctx.bd
+        if (!bd || bd.fin)
+            return
+        bd.fin = true
+        bd.busy = false
+        bd.cb(res)
+    }
+
+    // Called after every other source answers: it may have named the length or the album.
+    function boiduRelease(ctx, res) {
+        const bd = ctx.bd
+        if (!bd || bd.fin || ctx.serial !== root.serial)
+            return
+        if (res && res.state === "found") {
+            if (bd.len <= 0 && Number(res.duration) > 0)
+                bd.len = Number(res.duration)
+            if (bd.hint === "" && typeof res.album === "string")
+                bd.hint = res.album
+        }
+        root.boiduAttempt(ctx)
+    }
+
+    // Asks every form not asked yet. A song may be cached with its album or without one
+    // ("Spring Day" only with, "Ditto" only without), so each title is asked with the album first
+    // (the player's, then the one another source named), then bare. A miss (401) costs a request.
+    function boiduAttempt(ctx) {
+        const bd = ctx.bd
+        if (!bd || bd.fin || bd.busy || ctx.done === true || ctx.serial !== root.serial)
+            return
+        const tries = []
+        if (bd.len > 0) {
+            // The cache key has the length in whole seconds, and which way a player rounds
+            // 198.5 is its own business: the rounded one first, then the other whole second.
+            const lens = []
+            for (const n of [Math.round(bd.len), Math.floor(bd.len), Math.ceil(bd.len)])
+                if (n > 0 && lens.indexOf(n) < 0)
+                    lens.push(n)
+            const albums = []
+            for (const al of [ctx.album, bd.hint]) {
+                const a = String(al || "")
+                if (a !== "" && albums.indexOf(a) < 0)
+                    albums.push(a)
+            }
+            albums.push("")
+            for (const secs of lens) {
+                for (const c of ctx.cands.slice(0, 2)) {
+                    for (const al of albums) {
+                        const q = "/getLyrics?s=" + encodeURIComponent(c.title) + "&a=" + encodeURIComponent(c.artist)
+                                + (al !== "" ? "&al=" + encodeURIComponent(al) : "") + "&d=" + secs
+                        if (bd.asked[q] !== true) {
+                            bd.asked[q] = true
+                            tries.push(q)
+                        }
+                    }
+                }
+            }
+        }
+        if (tries.length === 0) {
+            // nothing new to ask: when every other source is in, that is the answer
+            if (ctx.pending <= 1)
+                root.boiduFinish(ctx, { state: (bd.st.answered || Object.keys(bd.asked).length === 0) ? "none" : "offline" })
+            return
+        }
+        bd.busy = true
+        const heads = ["-H", "User-Agent: Mozilla/5.0", "-H", "Accept: application/json"]
+        const next = i => {
+            if (ctx.serial !== root.serial || ctx.done === true)
+                return
+            if (i >= tries.length) {
+                bd.busy = false
+                root.boiduAttempt(ctx)
+                return
+            }
+            root.boiduGet(ctx, tries[i], bd.st, heads, 0, res => res ? root.boiduFinish(ctx, res) : next(i + 1))
+        }
+        next(0)
+    }
+
+    // One question, to the first address that answers (the next one when the service is down
+    // or says "slow down").
+    function boiduGet(ctx, query, st, heads, b, done) {
+        if (ctx.serial !== root.serial)
+            return
+        if (b >= root.boiduBases.length) {
+            done(null)
+            return
+        }
+        const url = root.boiduBases[b] + query
+        console.log("[lyrics] boidu " + url)
+        root.http(url, (status, body) => {
+            if (ctx.serial !== root.serial)
+                return
+            // 401 (not cached), 404 and 422 (no such song) are the service answering.
+            if (status === 200 || status === 401 || status === 404 || status === 422)
+                st.answered = true
+            if (status === 0 || status === 429 || status >= 500) {
+                root.boiduGet(ctx, query, st, heads, b + 1, done)
+                return
+            }
+            const o = status === 200 ? root.parseJson(body) : null
+            const got = o && typeof o.ttml === "string" ? LM.ttmlToLrc(o.ttml) : null
+            if (got && LM.parseLrc(got.text).length > 0) {
+                const score = typeof o.score === "number" ? o.score : -1
+                done({ state: "found", kind: got.word ? "word" : "synced", text: got.text, duration: 0, trusted: got.word && (score < 0 || score >= 0.6) })
+                return
+            }
+            // A miss at one address is tried at the other too: LiMusic asks lyrics-api.boidu.dev,
+            // the shell's first address is api.betterlyrics.org, and the two may not hold the same.
+            if (b + 1 < root.boiduBases.length)
+                root.boiduGet(ctx, query, st, heads, b + 1, done)
+            else
+                done(null)
+        }, heads)
+    }
+
+    // ----- SimpMusic: a community database, keyed by YouTube video id -----
+    // GET /v1/<videoId> (the id out of the player's address when it is a YouTube one), else a
+    // search by artist and title (/v1/search?q=). { success, data: [ { syncedLyrics,
+    // richSyncLyrics (word by word, when an entry has it), durationSeconds ... } ] }.
+    // The service allows 30 requests a minute from one address.
+    function pSimpmusic(ctx, cb) {
+        const st = { answered: false }
+        const heads = ["-H", "User-Agent: Mozilla/5.0", "-H", "Accept: application/json"]
+        const byId = (id, then) => {
+            const url = root.simpBase + "/v1/" + encodeURIComponent(id)
+            console.log("[lyrics] simpmusic " + url)
+            root.http(url, (status, body) => {
+                if (ctx.serial !== root.serial)
+                    return
+                if (status === 200 || status === 404)
+                    st.answered = true
+                const got = status === 200 ? LM.simpmusicPick(root.parseJson(body), ctx.length) : null
+                then(got ? { state: "found", kind: got.word ? "word" : "synced", text: got.text, duration: got.duration } : null)
+            }, heads)
+        }
+        const cs = ctx.cands.slice(0, 2)
+        const search = i => {
+            if (ctx.serial !== root.serial)
+                return
+            if (i >= cs.length) {
+                cb({ state: st.answered ? "none" : "offline" })
+                return
+            }
+            const url = root.simpBase + "/v1/search?limit=10&q=" + encodeURIComponent((cs[i].artist + " " + cs[i].title).trim())
+            console.log("[lyrics] simpmusic search " + url)
+            root.http(url, (status, body) => {
+                if (ctx.serial !== root.serial)
+                    return
+                if (status === 200 || status === 404)
+                    st.answered = true
+                const songs = status === 200 ? LM.simpmusicSongs(root.parseJson(body)) : []
+                const id = LM.pickWordSong(songs, cs[i].artist, cs[i].title, ctx.length)
+                if (id === null || id === undefined || id === "") {
+                    search(i + 1)
+                    return
+                }
+                byId(id, res => res ? cb(res) : search(i + 1))
+            }, heads)
+        }
+        const vid = LM.videoIdOf(ctx.url)
+        if (vid !== "")
+            byId(vid, res => res ? cb(res) : search(0))
+        else
+            search(0)
+    }
+
+    // ----- YouTube Music: the lyrics tab's own timed lines -----
+    // The video's id (out of the player's address, else the first search result that is this
+    // song) -> /next, which names the lyrics tab -> /browse of that tab, which has the timed
+    // lines (line by line only). YouTube's own page does the same; it is not given out in every
+    // country, and a video with no lyrics tab is "Not found".
+    function pYoutubeMusic(ctx, cb) {
+        const st = { answered: false }
+        const web = { clientName: "WEB_REMIX", clientVersion: "1.20240101.01.00" }
+        const ask = (path, body, then) => {
+            console.log("[lyrics] youtubemusic " + path)
+            root.post(root.ytmBase + "/" + path + "?alt=json&key=" + root.ytmKey, JSON.stringify(body), (status, text) => {
+                if (ctx.serial !== root.serial)
+                    return
+                if (status === 200)
+                    st.answered = true
+                then(status === 200 ? root.parseJson(text) : null)
+            }, root.ytmHeaders)
+        }
+        const fromVideo = (vid, done) => {
+            ask("next", { context: { client: web }, videoId: vid }, j => {
+                const tab = j ? LM.ytmLyricsBrowseId(j) : ""
+                if (tab === "") {
+                    done(null)
+                    return
+                }
+                ask("browse", { context: { client: { clientName: "ANDROID_MUSIC", clientVersion: "7.21.50" } }, browseId: tab }, j2 => {
+                    const text = j2 ? LM.ytmTimedLyrics(j2) : ""
+                    done(LM.parseLrc(text).length > 0 ? { state: "found", kind: "synced", text: text, duration: 0 } : null)
+                })
+            })
+        }
+        const cs = ctx.cands.slice(0, 2)
+        const search = i => {
+            if (ctx.serial !== root.serial)
+                return
+            if (i >= cs.length) {
+                cb({ state: st.answered ? "none" : "offline" })
+                return
+            }
+            // EgWK...: the "songs" filter of the search
+            ask("search", { context: { client: web }, query: (cs[i].artist + " " + cs[i].title).trim(), params: "EgWKAQIIAWoKEAkQBRAKEAMQBA%3D%3D" }, j => {
+                const id = j ? LM.pickWordSong(LM.ytmSongs(j), cs[i].artist, cs[i].title, ctx.length) : null
+                if (id === null || id === undefined || id === "") {
+                    search(i + 1)
+                    return
+                }
+                fromVideo(id, res => res ? cb(res) : search(i + 1))
+            })
+        }
+        const vid = LM.videoIdOf(ctx.url)
+        if (vid !== "")
+            fromVideo(vid, res => res ? cb(res) : search(0))
+        else
+            search(0)
+    }
+
     // The shape of the providers that find a song by search and then fetch its lyric by id:
     // search `base + query`, `pull(body)` the songs out of it, take the one that is this track
     // (LM.pickWordSong), `fetchOne(id, st, done)` its lyric; the next candidate when it has none.
@@ -733,7 +1033,8 @@ Singleton {
             instrumental: o.instrumental === true,
             duration: typeof o.duration === "number" ? o.duration : 0,
             words: o.words === "yes" || o.words === "no" ? o.words : "",
-            provider: typeof o.provider === "string" ? o.provider : ""
+            provider: typeof o.provider === "string" ? o.provider : "",
+            rev: typeof o.rev === "number" ? o.rev : 0
         }
     }
 
@@ -810,7 +1111,15 @@ Singleton {
     // GET `url` with curl: cb(status, body). Status 0 means it never got an answer (no curl,
     // no network, a timeout). `-w` puts the HTTP status on a last line.
     function http(url, cb, extra) {
-        const head = extra ? extra : ["-H", "Lrclib-Client: pjsekai-quickshell"]
+        root.curl(extra ? extra : ["-H", "Lrclib-Client: pjsekai-quickshell"], url, cb)
+    }
+
+    // POST a JSON `body`: cb(status, answer), the same as http().
+    function post(url, body, cb, extra) {
+        root.curl((extra ? extra : []).concat(["-X", "POST", "-H", "Content-Type: application/json", "--data-binary", body]), url, cb)
+    }
+
+    function curl(head, url, cb) {
         root.run(["curl", "-sS", "-m", "10"].concat(head).concat(["-w", "\n%{http_code}", url]), text => {
             const t = String(text)
             const cut = t.lastIndexOf("\n")

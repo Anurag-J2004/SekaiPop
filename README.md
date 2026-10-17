@@ -10,6 +10,19 @@
 
 <br>
 
+<div align="left">
+
+> [!WARNING]
+> **This is a passion project, and it is heavily vibe-coded.**
+>
+> I designed and directed SekaiPop myself: the visuals, the UI, how everything should animate and how everything should behave. Claude wrote most of the code to make that possible, so expect rough edges and bugs.
+>
+> Credit goes to [ilyamiro](https://github.com/ilyamiro), whose work this builds on. See [Credits](#credits).
+
+</div>
+
+<br>
+
 <img src="docs/shot-desktop-widgets.png" alt="SekaiPop desktop with clock, weather, calendar, to-do, palette, user card, sticky notes and lyrics widgets" width="100%">
 
 <sub>Clock, weather, calendar, to-do, palette, user card, sticky notes, lyrics and custom images. Every widget is draggable, resizable and optional.</sub>
@@ -307,7 +320,7 @@ SekaiPop is built on other people's work, and I'm grateful to all of them.
 - **[end4](https://github.com/end-4)** and [dots-hyprland](https://github.com/end-4/dots-hyprland) (Illogical Impulse): the foundation of this whole shell. The Hyprland configuration in `hypr/` is adapted from it, the installer follows the idea of `./setup install`, and the Anti-Flashbang shaders are copied unchanged (GPL-3.0). The cheat sheet, the Overview and the way Settings is organised also take after it.
 - **[pCtrade](https://github.com/pctrade)** (end4-pC): the inspiration for how customizable this shell is, and for his support along the way. The `aurora`, `dots`, `mirror` and `ring` audio visualizers are ported from his work.
 - **[p3dro](https://github.com/P3DROVFX)**'s fork of Illogical Impulse: the Discord Voice service the bar pill and popup are ported from.
-- **ilyaMiro** and his Serpentium shell: the equalizer engine behind the Sekai Pad. The 10-band EasyEffects backend (`equalizer.sh`) came to SekaiPop through the pC fork, and the welcome screen follows the structure of his `Start.qml`. The handheld-console design of the Sekai Pad is SekaiPop's own.
+- **[ilyamiro](https://github.com/ilyamiro)** and his Serpentium shell: the equalizer engine behind the Sekai Pad. The 10-band EasyEffects backend (`equalizer.sh`) came to SekaiPop through the pC fork, and the welcome screen follows the structure of his `Start.qml`. The handheld-console design of the Sekai Pad is SekaiPop's own.
 
 **Projects it uses**
 

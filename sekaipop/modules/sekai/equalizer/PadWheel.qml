@@ -1,5 +1,6 @@
 import QtQuick
 import "PadMath.js" as PM
+import qs.modules.common
 
 // The volume wheel on the right edge (preamp, -12 .. +12 dB). Ribbed dark metal,
 // shaded like a cylinder; the ribs scroll as the value changes. Drag it up or
@@ -34,6 +35,10 @@ Item {
         transformOrigin: Item.TopLeft
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
+        Connections {
+            target: PadPalette
+            function onPChanged() { art.requestPaint() }
+        }
 
         onPaint: {
             var ctx = getContext("2d")
@@ -42,7 +47,7 @@ Item {
             ctx.scale(k, k)
 
             // the wall, far end last (the same order the stacked rectangles had)
-            var wA = Qt.color("#6c7396"), wB = Qt.color("#2a3050")
+            var wA = PadPalette.wheelWallLight, wB = PadPalette.wheelWallDark
             for (var wi = 0; wi < 4; wi++) {
                 ctx.beginPath()
                 PM.rr(ctx, (wi + 1) * 2 * wheel.kx, (wi + 1) * 2 * wheel.ky, 32, 100, 12)
@@ -54,10 +59,10 @@ Item {
             ctx.beginPath()
             PM.rr(ctx, 0, 0, 32, 100, 12)
             ctx.clip()
-            ctx.fillStyle = "#4a5170"
+            ctx.fillStyle = PM.css(PadPalette.wheelBase)
             ctx.fillRect(0, 0, 32, 100)
             var off = (wheel.value * 5) % 6
-            ctx.fillStyle = "#b8c0da"
+            ctx.fillStyle = PM.css(PadPalette.wheelRib)
             for (var y = -6 + off; y < 106; y += 6)
                 ctx.fillRect(0, y, 32, 3)
             // cylinder shading

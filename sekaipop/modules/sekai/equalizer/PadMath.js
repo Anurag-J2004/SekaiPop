@@ -12,9 +12,8 @@ var PER_DB = 8      // pixels for one dB
 var LW = 46         // a lane's width at the bottom
 var CX = 230        // the middle of the screen
 
-var GROUPS = ["#FF9ECB", "#8EE3EF", "#B39DDB"]       // bass, mids, treble
-var LIGHT = ["#ffc2de", "#bdf1fa", "#d3c6fb"]
-var DARK = ["#ff7fb6", "#36c2dd", "#8a6fd8"]
+// (The colours of the three groups, bass / mids / treble, follow the theme now:
+// modules/common/PadPalette.qml has groups, groupsLight and groupsDark.)
 var HZ = ["32 Hz", "63 Hz", "125 Hz", "250 Hz", "500 Hz", "1 kHz", "2 kHz", "4 kHz", "8 kHz", "16 kHz"]
 var LABELS = ["32", "63", "125", "250", "500", "1k", "2k", "4k", "8k", "16k"]
 
@@ -82,6 +81,11 @@ function rgba(hex, a) {
 // A QML colour (r, g, b, a in 0..1) -> "rgba(r,g,b,a)" for canvas styles.
 function css(c) {
     return "rgba(" + Math.round(c.r * 255) + "," + Math.round(c.g * 255) + "," + Math.round(c.b * 255) + "," + c.a + ")"
+}
+
+// A QML colour with its alpha set to `a` (0..1), as a canvas style.
+function alpha(c, a) {
+    return "rgba(" + Math.round(c.r * 255) + "," + Math.round(c.g * 255) + "," + Math.round(c.b * 255) + "," + a + ")"
 }
 
 // mix() of two QML colours, as a canvas style.

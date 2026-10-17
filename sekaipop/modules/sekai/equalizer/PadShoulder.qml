@@ -41,13 +41,17 @@ Item {
         transformOrigin: Item.TopLeft
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
+        Connections {
+            target: PadPalette
+            function onPChanged() { wall.requestPaint() }
+        }
 
         onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
             var k = canvasSize.width / (214 + key.wallR)
             ctx.scale(k, k)
-            var cA = Qt.color("#b3bcd8"), cB = Qt.color("#6c779c")
+            var cA = PadPalette.pearlWallLight, cB = PadPalette.pearlWallDark
             for (var i = 0; i < 8; i++) {
                 var hgt = (8 - i) * key.thick / 8
                 ctx.beginPath()
@@ -66,11 +70,11 @@ Item {
         radius: height / 2
         antialiasing: true
         border.width: Math.max(1, key.u)
-        border.color: Qt.rgba(0.16, 0.2, 0.35, 0.3)
+        border.color: PadPalette.alpha(PadPalette.pearlText, 0.3)
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#ffffff" }
-            GradientStop { position: 0.55; color: "#e6ebf8" }
-            GradientStop { position: 1.0; color: "#c7d0e8" }
+            GradientStop { position: 0.0; color: PadPalette.pearl }
+            GradientStop { position: 0.55; color: PadPalette.pearlMid }
+            GradientStop { position: 1.0; color: PadPalette.pearlShade }
         }
 
         Rectangle {
@@ -88,7 +92,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: 8 * key.u
             text: key.label
-            color: "#2b3560"
+            color: PadPalette.pearlText
             font.family: Theme.fontFamily
             font.pixelSize: 10 * key.u
             font.weight: Font.Bold

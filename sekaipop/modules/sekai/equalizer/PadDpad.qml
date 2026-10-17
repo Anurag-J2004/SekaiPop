@@ -35,6 +35,10 @@ Item {
         transformOrigin: Item.TopLeft
         onCanvasSizeChanged: requestPaint()
         Component.onCompleted: requestPaint()
+        Connections {
+            target: PadPalette
+            function onPChanged() { art.requestPaint() }
+        }
 
         onPaint: {
             var ctx = getContext("2d")
@@ -52,12 +56,12 @@ Item {
 
             // soft shadow
             ctx.save()
-            ctx.shadowColor = "rgba(0,30,60,0.55)"
+            ctx.shadowColor = PM.alpha(PadPalette.deskShadow, 0.55)
             ctx.shadowBlur = 12
             ctx.shadowOffsetX = 5
             ctx.shadowOffsetY = 11
             cross(0, 0)
-            ctx.fillStyle = "rgba(0,30,60,0.5)"
+            ctx.fillStyle = PM.alpha(PadPalette.deskShadow, 0.5)
             ctx.fill()
             ctx.restore()
 
@@ -65,26 +69,26 @@ Item {
             cross(0, 1.5)
             ctx.lineJoin = "round"
             ctx.lineWidth = 12
-            ctx.strokeStyle = "rgba(139,233,242,0.5)"
+            ctx.strokeStyle = PM.alpha(PadPalette.dpadGlow, 0.5)
             ctx.stroke()
             cross(0, 0)
-            ctx.fillStyle = "#15788f"
+            ctx.fillStyle = PM.css(PadPalette.dpadSocket)
             ctx.fill()
-            ctx.strokeStyle = "#15788f"
+            ctx.strokeStyle = PM.css(PadPalette.dpadSocket)
             ctx.stroke()
 
             // the wall, back to front
             for (var j = pad.stand; j >= 1; j--) {
                 cross(px + j * pad.kx, py + j * pad.ky)
                 var t = j / pad.stand
-                ctx.fillStyle = "rgb(" + Math.round(15 + 26 * (1 - t)) + "," + Math.round(19 + 28 * (1 - t)) + "," + Math.round(44 + 43 * (1 - t)) + ")"
+                ctx.fillStyle = PM.mixCss(PadPalette.dpadWallLight, PadPalette.dpadWallDark, t)
                 ctx.fill()
             }
 
             // the cap
             var g = ctx.createLinearGradient(40 + px, 40 + py, 180 + px, 180 + py)
-            g.addColorStop(0, "#5560a4")
-            g.addColorStop(1, "#1b2048")
+            g.addColorStop(0, PM.css(PadPalette.keyHover))
+            g.addColorStop(1, PM.css(PadPalette.keyBottom))
             cross(px, py)
             ctx.fillStyle = g
             ctx.fill()
@@ -92,8 +96,8 @@ Item {
             // the dish in the middle
             var cx = 110 + px, cy = 110 + py
             var dg = ctx.createRadialGradient(cx + 5, cy + 6, 1, cx, cy, 24)
-            dg.addColorStop(0, "#5e69a8")
-            dg.addColorStop(1, "#10142e")
+            dg.addColorStop(0, PM.css(PadPalette.dishTop))
+            dg.addColorStop(1, PM.css(PadPalette.dishBottom))
             ctx.beginPath()
             ctx.arc(cx, cy, 22, 0, Math.PI * 2)
             ctx.fillStyle = dg
@@ -120,7 +124,7 @@ Item {
             x: (modelData.ax - pad.stand * pad.kx) * pad.u - width / 2
             y: (modelData.ay - pad.stand * pad.ky) * pad.u - height / 2 + (held ? 1.5 * pad.u : 0)
             text: modelData.g
-            color: held ? "#ffffff" : "#c9d2ff"
+            color: held ? "#ffffff" : PadPalette.arrow
             opacity: held ? 1 : 0.85
             font.family: Theme.fontFamily
             font.pixelSize: 13 * pad.u

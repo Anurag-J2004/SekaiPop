@@ -43,13 +43,17 @@ Item {
             transformOrigin: Item.TopLeft
             onCanvasSizeChanged: requestPaint()
             Component.onCompleted: requestPaint()
+            Connections {
+                target: PadPalette
+                function onPChanged() { wallArt.requestPaint() }
+            }
 
             onPaint: {
                 var ctx = getContext("2d")
                 ctx.reset()
                 var k = canvasSize.width / (160 + 4)
                 ctx.scale(k, k)
-                var cA = Qt.color("#aeb7d2"), cB = Qt.color("#6f7a9c")
+                var cA = PadPalette.cartWallLight, cB = PadPalette.cartWallDark
                 for (var i = 0; i < 5; i++) {
                     var hgt = (5 - i) * 2
                     ctx.beginPath()
@@ -66,13 +70,13 @@ Item {
             radius: 12 * cart.u
             antialiasing: true
             border.width: Math.max(1, cart.u)
-            border.color: Qt.rgba(0.16, 0.2, 0.35, 0.35)
+            border.color: PadPalette.alpha(PadPalette.pearlText, 0.35)
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: "#c9d0e4" }
-                GradientStop { position: 0.35; color: "#f6f8fd" }
-                GradientStop { position: 0.7; color: "#e3e8f6" }
-                GradientStop { position: 1.0; color: "#b9c1da" }
+                GradientStop { position: 0.0; color: PadPalette.cartEdgeLight }
+                GradientStop { position: 0.35; color: PadPalette.cartBright }
+                GradientStop { position: 0.7; color: PadPalette.cartSoft }
+                GradientStop { position: 1.0; color: PadPalette.cartEdgeDark }
             }
 
             // grip ridges
@@ -86,7 +90,7 @@ Item {
                     height: 2 * cart.u
                     radius: height / 2
                     antialiasing: true
-                    color: "#8e98b8"
+                    color: PadPalette.cartGrip
                     opacity: 0.6
                 }
             }
@@ -99,9 +103,9 @@ Item {
                 height: 58 * cart.u
                 radius: 7 * cart.u
                 antialiasing: true
-                color: "#f4fafb"
+                color: PadPalette.cartLabel
                 border.width: Math.max(1, cart.u)
-                border.color: Qt.rgba(0.16, 0.24, 0.4, 0.35)
+                border.color: PadPalette.alpha(PadPalette.pearlText, 0.35)
 
                 Rectangle {
                     width: parent.width - 2 * cart.u
@@ -112,15 +116,15 @@ Item {
                     antialiasing: true
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: "#00ffcb" }
-                        GradientStop { position: 1.0; color: "#4dd0e1" }
+                        GradientStop { position: 0.0; color: PadPalette.litA }
+                        GradientStop { position: 1.0; color: PadPalette.litB }
                     }
                 }
                 Text {
                     x: 8 * cart.u
                     y: 3 * cart.u
                     text: cart.name.toUpperCase()
-                    color: "#0a2a3a"
+                    color: PadPalette.ink
                     font.family: Theme.fontFamily
                     font.pixelSize: 12 * cart.u
                     font.weight: Font.ExtraBold
@@ -131,7 +135,7 @@ Item {
                     anchors.rightMargin: 8 * cart.u
                     y: 6 * cart.u
                     text: "10-BAND"
-                    color: "#0a2a3a"
+                    color: PadPalette.ink
                     opacity: 0.7
                     font.family: Theme.fontFamily
                     font.pixelSize: 7 * cart.u
@@ -149,6 +153,10 @@ Item {
                     transformOrigin: Item.TopLeft
                     onCanvasSizeChanged: requestPaint()
                     Component.onCompleted: requestPaint()
+                    Connections {
+                        target: PadPalette
+                        function onPChanged() { curve.requestPaint() }
+                    }
                     onPaint: {
                         var ctx = getContext("2d")
                         ctx.reset()
@@ -157,7 +165,7 @@ Item {
                         var pts = []
                         for (var i = 0; i < 10; i++)
                             pts.push({ x: 4 + i * 12, y: 14 - (cart.gains[i] || 0) * 1.0 })
-                        ctx.strokeStyle = "rgba(29,42,90,0.18)"
+                        ctx.strokeStyle = PM.alpha(PadPalette.cartInk, 0.18)
                         ctx.lineWidth = 1
                         ctx.beginPath()
                         ctx.moveTo(0, 14)
@@ -167,7 +175,7 @@ Item {
                         PM.smooth(ctx, pts)
                         ctx.lineWidth = 2.2
                         ctx.lineCap = "round"
-                        ctx.strokeStyle = "#1d2a5a"
+                        ctx.strokeStyle = PM.css(PadPalette.cartInk)
                         ctx.stroke()
                     }
                 }

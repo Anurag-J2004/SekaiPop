@@ -20,8 +20,8 @@ Item {
     Gradient {
         id: chipGrad
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.0; color: "#00ffcb" }
-        GradientStop { position: 1.0; color: "#4dd0e1" }
+        GradientStop { position: 0.0; color: PadPalette.litA }
+        GradientStop { position: 1.0; color: PadPalette.litB }
     }
 
     Rectangle {
@@ -37,7 +37,7 @@ Item {
         id: label
         anchors.centerIn: parent
         text: chip.text
-        color: chip.lit ? "#0a2a3a" : "#ffffff"
+        color: chip.lit ? PadPalette.ink : "#ffffff"
         font.family: Theme.fontFamily
         font.pixelSize: 10.5 * chip.u
         font.weight: Font.Bold

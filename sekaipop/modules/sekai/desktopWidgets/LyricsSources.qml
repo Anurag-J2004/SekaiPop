@@ -12,7 +12,9 @@ import qs.modules.common.widgets
 //               cut to the song's length). This is the way it starts.
 //   a provider  use that one whenever it has the song (the best of the others when it does
 //               not). Each row says what it found: WORD BY WORD, SYNCED, Not found, or
-//               Unreachable (a click on "Try again" asks them all again).
+//               Unreachable (a click on "Try again" asks them all again). The rows are in the
+//               order the providers are liked: Boidu first (see LyricsService.providers).
+//               The same choice is in Settings -> Desktop, under the Lyrics switch.
 //
 // Opened by the "sources" key that appears when you point at the lyrics (LyricsWidget.qml)
 // or `qs -c sekaipop ipc call lyrics picker`. It is the same card as the desktop's
@@ -341,6 +343,7 @@ PanelWindow {
 
                         width: col.width
                         name: line.modelData.name
+                        note: line.modelData.hint
                         selected: LyricsService.preferred === line.modelData.id
                         inUse: LyricsService.source === line.modelData.id && LyricsService.status === "ready"
                         kind: {

@@ -919,7 +919,8 @@ ShellRoot {
         // the words of a line spread by their syllables.
         function words(on: bool): void { LyricsService.setWords(on) }
         // Where lyrics come from: `auto` takes the best provider for each song (word by word over
-        // synced); or a provider's name (lyricsplus, netease, lrclib, qq, kugou) to use that one
+        // synced, Boidu first); or a provider's name (boidu, lyricsplus, lrclib, youtubemusic,
+        // simpmusic, netease, qq, kugou; "neteasecloudmusic", "qqmusic" and the like work too) to use that one
         // whenever it has the song.
         function source(id: string): string { return LyricsService.setPreferred(id) ? "source: " + id : "unknown source: " + id }
         // The providers and what each found for the song on now.

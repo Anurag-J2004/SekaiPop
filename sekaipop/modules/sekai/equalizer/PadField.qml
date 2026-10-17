@@ -25,7 +25,7 @@ Item {
         antialiasing: true
         color: Qt.rgba(1, 1, 1, 0.08)
         border.width: 1
-        border.color: input.activeFocus ? "#4dd0e1" : Qt.rgba(1, 1, 1, 0.3)
+        border.color: input.activeFocus ? PadPalette.litB : Qt.rgba(1, 1, 1, 0.3)
     }
     TextInput {
         id: input
@@ -36,8 +36,8 @@ Item {
         clip: true
         color: "#ffffff"
         selectByMouse: true
-        selectionColor: "#4dd0e1"
-        selectedTextColor: "#0a2a3a"
+        selectionColor: PadPalette.litB
+        selectedTextColor: PadPalette.ink
         font.family: Theme.fontFamily
         font.pixelSize: 11 * fld.u
         echoMode: fld.secret && !input.activeFocus ? TextInput.Password : TextInput.Normal

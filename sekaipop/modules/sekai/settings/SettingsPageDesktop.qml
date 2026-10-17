@@ -298,6 +298,22 @@ SettingsPage {
             onToggled: LyricsService.setShown(!LyricsService.shown)
         }
 
+        SettingChoice {
+            label: "Lyrics source"
+            sublabel: "Auto takes the best one for each song, Boidu first. Pick one to use it whenever it has the song"
+            current: LyricsService.preferred
+            options: [{ id: "auto", label: "Auto", icon: "auto_awesome" }].concat(LyricsService.providers.map(p => ({ id: p.id, label: p.name })))
+            onPicked: id => LyricsService.setPreferred(id)
+        }
+
+        SettingToggle {
+            icon: "text_fields"
+            label: "Word by word"
+            detail: "Light each word when it is sung, where a source has the timing"
+            checked: LyricsService.wordsOn
+            onToggled: LyricsService.setWords(!LyricsService.wordsOn)
+        }
+
         SettingToggle {
             icon: "task_alt"
             label: "To-Do"

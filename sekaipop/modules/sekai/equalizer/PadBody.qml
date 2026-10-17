@@ -1,5 +1,6 @@
 import QtQuick
 import "PadMath.js" as PM
+import qs.modules.common
 
 // The console's shell, drawn from its own pixels (design size 920 x 400; `u` is
 // how big one pixel is here). It is ONE canvas, painted once (and again only when
@@ -64,6 +65,11 @@ Item {
             function onKxChanged() { face.requestPaint() }
             function onKyChanged() { face.requestPaint() }
         }
+        // a new theme (or new matugen colours): paint the shell again
+        Connections {
+            target: PadPalette
+            function onPChanged() { face.requestPaint() }
+        }
 
         onPaint: {
             var ctx = getContext("2d")
@@ -73,7 +79,7 @@ Item {
             var W = body.bw, H = body.bh
 
             // the shadow on the desk, the biggest and faintest first
-            ctx.fillStyle = "rgba(5,26,51,0.045)"
+            ctx.fillStyle = PM.alpha(PadPalette.deskShadow, 0.045)
             for (var sl_i = 0; sl_i < body.shadowLayers; sl_i++) {
                 var grow = body.shadowSpread * (body.shadowLayers - sl_i) / body.shadowLayers
                 ctx.beginPath()
@@ -82,20 +88,20 @@ Item {
             }
 
             // the wall, back to front
-            var wFar = Qt.color("#2fbac8"), wNear = Qt.color("#082f46")
+            var wFar = PadPalette.wallFar, wNear = PadPalette.wallNear
             for (var j = body.steps; j >= 1; j--) {
                 var hgt = j * body.depth / body.steps
                 ctx.beginPath()
                 PM.rr(ctx, hgt * body.kx, hgt * body.ky, W, H, 64)
-                ctx.fillStyle = j === 1 ? "#c7fff8" : PM.mixCss(wFar, wNear, (j - 1) / (body.steps - 1))
+                ctx.fillStyle = j === 1 ? PM.css(PadPalette.rim) : PM.mixCss(wFar, wNear, (j - 1) / (body.steps - 1))
                 ctx.fill()
             }
 
             // the plastic
             var g = ctx.createLinearGradient(W * 0.08, 0, W * 0.92, H)
-            g.addColorStop(0, "#79ece2")
-            g.addColorStop(0.36, "#3ccbd2")
-            g.addColorStop(1, "#20a5ba")
+            g.addColorStop(0, PM.css(PadPalette.faceLight))
+            g.addColorStop(0.36, PM.css(PadPalette.faceMid))
+            g.addColorStop(1, PM.css(PadPalette.faceDark))
             ctx.beginPath()
             PM.rr(ctx, 0, 0, W, H, 64)
             ctx.fillStyle = g
@@ -121,8 +127,8 @@ Item {
 
             // shade along the bottom, light on the top rim
             var bs = ctx.createLinearGradient(0, H - 26, 0, H)
-            bs.addColorStop(0, "rgba(0,60,90,0)")
-            bs.addColorStop(1, "rgba(0,60,90,0.42)")
+            bs.addColorStop(0, PM.alpha(PadPalette.shadeBottom, 0))
+            bs.addColorStop(1, PM.alpha(PadPalette.shadeBottom, 0.42))
             ctx.fillStyle = bs
             ctx.fillRect(0, H - 26, W, 26)
             var tr = ctx.createLinearGradient(0, 0, 0, 14)
@@ -139,13 +145,13 @@ Item {
             ctx.stroke()
             ctx.beginPath()
             PM.rr(ctx, -0.5, -0.5, W + 1, H + 1, 64)
-            ctx.strokeStyle = "rgba(10,60,90,0.45)"
+            ctx.strokeStyle = PM.alpha(PadPalette.edgeDark, 0.45)
             ctx.stroke()
 
             // the cartridge slot
             var sl = ctx.createLinearGradient(0, 6, 0, 16)
-            sl.addColorStop(0, "#05061a")
-            sl.addColorStop(1, "#14183a")
+            sl.addColorStop(0, PM.css(PadPalette.slotTop))
+            sl.addColorStop(1, PM.css(PadPalette.slotBottom))
             ctx.beginPath()
             PM.rr(ctx, W / 2 - 70, 6, 140, 10, 5)
             ctx.fillStyle = sl
@@ -155,9 +161,9 @@ Item {
 
             // the pearl line
             var ln = ctx.createLinearGradient(90, 0, W - 90, 0)
-            ln.addColorStop(0, "#ff9ecb")
-            ln.addColorStop(0.5, "#ffe9a8")
-            ln.addColorStop(1, "#7ff5df")
+            ln.addColorStop(0, PM.css(PadPalette.bass))
+            ln.addColorStop(0.5, PM.css(PadPalette.lineMid))
+            ln.addColorStop(1, PM.css(PadPalette.lineEnd))
             ctx.beginPath()
             PM.rr(ctx, 90, 386, W - 180, 4, 2)
             ctx.fillStyle = ln
@@ -167,9 +173,9 @@ Item {
             var gx = W - 126, gy = 334
             ctx.beginPath()
             PM.rr(ctx, gx, gy, 80, 30, 12)
-            ctx.fillStyle = "rgba(0,50,80,0.18)"
+            ctx.fillStyle = PM.alpha(PadPalette.grille, 0.18)
             ctx.fill()
-            ctx.fillStyle = "rgba(0,40,70,0.75)"
+            ctx.fillStyle = PM.alpha(PadPalette.grilleHole, 0.75)
             for (var ix = 0; ix < 10; ix++) {
                 for (var iy = 0; iy < 4; iy++) {
                     ctx.beginPath()
@@ -183,8 +189,8 @@ Item {
             for (var s = 0; s < sc.length; s++) {
                 var rg = ctx.createRadialGradient(sc[s][0] - 2, sc[s][1] - 2, 0.5, sc[s][0], sc[s][1], 7)
                 rg.addColorStop(0, "#ffffff")
-                rg.addColorStop(0.6, "#9fb2c8")
-                rg.addColorStop(1, "#6e8399")
+                rg.addColorStop(0.6, PM.css(PadPalette.screwLight))
+                rg.addColorStop(1, PM.css(PadPalette.screwDark))
                 ctx.beginPath()
                 ctx.arc(sc[s][0], sc[s][1], 6, 0, Math.PI * 2)
                 ctx.fillStyle = rg

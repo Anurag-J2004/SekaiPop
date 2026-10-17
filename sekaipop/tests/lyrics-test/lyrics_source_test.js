@@ -135,3 +135,32 @@ console.log("lyrics_source_test: all checks passed")
     assert.ok(/function picker\(\): void/.test(sh), "ipc lyrics picker")
     assert.ok(/label: "sources"/.test(W) && /togglePicker/.test(W), "a key under the lyrics opens it")
 }
+
+// ---- Boidu first, then the rest in the order they were asked for; changeable from Settings ----
+{
+    const svc = fs.readFileSync(path.join(__dirname, "../../services/LyricsService.qml"), "utf8")
+    const sets = fs.readFileSync(path.join(__dirname, "../../modules/sekai/settings/SettingsPageDesktop.qml"), "utf8")
+    const P = fs.readFileSync(path.join(__dirname, "../../modules/sekai/desktopWidgets/LyricsSources.qml"), "utf8")
+    const list = svc.slice(svc.indexOf("readonly property var providers: ["), svc.indexOf("readonly property var providerIds"))
+    const ids = [...list.matchAll(/\{ id: "(\w+)"/g)].map(m => m[1])
+    assert.deepStrictEqual(ids, ["boidu", "lyricsplus", "lrclib", "youtubemusic", "simpmusic", "netease", "qq", "kugou"], "the order the providers are liked in")
+    for (const [id, fn] of [["boidu", "pBoidu"], ["youtubemusic", "pYoutubeMusic"], ["simpmusic", "pSimpmusic"], ["lrclib", "pLrclib"], ["netease", "pNetease"], ["qq", "pQq"], ["kugou", "pKugou"], ["lyricsplus", "pLyricsplus"]]) {
+        assert.ok(new RegExp('id === "' + id + '"\\)\\s*root\\.' + fn + "\\(ctx, cb\\)").test(svc), id + " is asked through " + fn)
+        assert.ok(new RegExp("function " + fn + "\\(ctx, cb\\)").test(svc), fn + " exists")
+    }
+    assert.ok(/api\.betterlyrics\.org/.test(svc) && /lyrics-api\.boidu\.dev/.test(svc), "Boidu: the new address, then the old one")
+    assert.ok(/"&a=" \+ encodeURIComponent\(c\.artist\)/.test(svc) && /"&al=" \+/.test(svc) && /"&d=" \+ Math\.round\(ctx\.length\)/.test(svc), "Boidu is sent the song, the artist, the album and the length")
+    assert.ok(/LM\.ttmlToLrc\(o\.ttml\)/.test(svc) && /trusted:/.test(svc) && /trusted: res\.trusted === true/.test(svc), "its TTML is read, and a sure match is trusted")
+    assert.ok(/api-lyrics\.simpmusic\.org/.test(svc) && /LM\.simpmusicPick\(/.test(svc) && /LM\.videoIdOf\(ctx\.url\)/.test(svc), "SimpMusic by the video id")
+    assert.ok(/WEB_REMIX/.test(svc) && /ANDROID_MUSIC/.test(svc) && /LM\.ytmLyricsBrowseId\(j\)/.test(svc) && /LM\.ytmTimedLyrics\(j2\)/.test(svc), "YouTube Music: /next -> lyrics tab -> /browse")
+    assert.ok(/function post\(url, body, cb, extra\)/.test(svc) && /"--data-binary", body/.test(svc), "the POST helper")
+    assert.ok(!/encodeURIComponent\(ctx\.url\)|"videoId": ctx\.url/.test(svc), "the track's address itself is never sent, only a YouTube video id out of it")
+    // the choice: every spelling of a name, from the picker, Settings and ipc
+    assert.ok(/function providerId\(x\)/.test(svc) && /neteasecloudmusic: "netease"/.test(svc) && /qqmusic: "qq"/.test(svc) && /const v = root\.providerId\(id\)/.test(svc), "ipc lyrics source takes the names as they were written")
+    assert.ok(/SettingChoice\s*\{\s*label: "Lyrics source"/.test(sets) && /LyricsService\.setPreferred\(id\)/.test(sets) && /LyricsService\.providers\.map/.test(sets) && /current: LyricsService\.preferred/.test(sets), "Settings -> Desktop has the source chooser")
+    assert.ok(/LyricsService\.setWords\(!LyricsService\.wordsOn\)/.test(sets), "and the word-by-word switch")
+    assert.ok(/note: line\.modelData\.hint/.test(P), "the picker shows each provider's hint")
+    // old cache entries kept as line-synced are asked once more
+    assert.ok(/readonly property int cacheRev: 2/.test(svc) && /rev: root\.cacheRev/.test(svc) && /\(got\.rev \|\| 0\) < root\.cacheRev/.test(svc), "an older line-synced cache entry is asked again once")
+    console.log("lyrics sources (boidu first): ok")
+}

@@ -1233,6 +1233,356 @@ function lyricsplusToLrc(o) {
     return { text: out.join("\n"), word: word }
 }
 
+// ===== Better Lyrics ("Boidu"), SimpMusic and YouTube Music =====
+
+// A time out of a TTML file -- "HH:MM:SS.mmm", "M:SS.mmm", "SS.mmm" or "12.5s" -- in ms;
+// -1 when it is none of those.
+function ttmlTime(s) {
+    var str = String(s === undefined || s === null ? "" : s).trim()
+    if (str === "")
+        return -1
+    var sec = str.match(/^(\d+(?:\.\d+)?)s$/)
+    if (sec)
+        return Math.round(Number(sec[1]) * 1000)
+    var parts = str.split(":")
+    var v = 0
+    for (var i = 0; i < parts.length; i++) {
+        var n = Number(parts[i])
+        if (!isFinite(n) || n < 0)
+            return -1
+        v = v * 60 + n
+    }
+    return Math.round(v * 1000)
+}
+
+// The value of attribute `name` in the inside of a tag ("" when it has none).
+function ttmlAttr(tag, name) {
+    var m = String(tag).match(new RegExp("(?:^|\\s)" + name + "\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)')"))
+    return m ? (m[1] !== undefined ? m[1] : m[2]) : ""
+}
+
+// The space between two timed spans (the file has no tag there, only the space itself).
+function ttmlGap(list) {
+    if (list.length === 0)
+        return
+    var last = list[list.length - 1]
+    list.push({ t: last.t + (last.d > 0 ? last.d : 0), d: 0, text: " " })
+}
+
+// Better Lyrics (lyrics-api.boidu.dev / api.betterlyrics.org) answers with TTML, Apple Music's
+// format: <p begin end> is a line, a <span begin end> inside it a word or a syllable (the space
+// between two spans is a space of the text, so the file must not be pretty-printed),
+// <span ttm:role="x-bg"> holds the backing voice. Read with regular expressions: the JS of QML
+// has no DOMParser. -> { text, word } in the "[mm:ss.xxx]<mm:ss.xxx>word ..." form parseLrc
+// reads; `word` is true when any line is timed by its words. The backing voice becomes a
+// "[start][bg: ...]" row, which foldEchoes puts on the line it is sung over. Translations and
+// romanizations (other ttm:roles) are left out.
+function ttmlToLrc(ttml) {
+    var src = String(ttml === undefined || ttml === null ? "" : ttml)
+    var out = []
+    var word = false
+    var pre = /<p\b([^>]*)>([\s\S]*?)<\/p>/g
+    var pm
+    while ((pm = pre.exec(src)) !== null) {
+        var pBegin = ttmlTime(ttmlAttr(pm[1], "begin"))
+        var main = []
+        var back = []
+        var plain = ""
+        var stack = []
+        var tre = /<(\/?)([A-Za-z][\w:.\-]*)([^>]*?)(\/?)>|([^<]+)/g
+        var tm
+        var k
+        while ((tm = tre.exec(pm[2])) !== null) {
+            var top = stack.length > 0 ? stack[stack.length - 1] : null
+            if (tm[5] !== undefined) {
+                if (top && top.skip)
+                    continue
+                var txt = unescapeEntities(tm[5])
+                var timed = null
+                for (var q = stack.length - 1; q >= 0; q--) {
+                    if (stack[q].timed) {
+                        timed = stack[q]
+                        break
+                    }
+                }
+                if (timed)
+                    timed.text += txt
+                else if (/^\s*$/.test(txt))
+                    ttmlGap(top && top.bg ? back : main)
+                else if (stack.length === 0)
+                    plain += txt
+                continue
+            }
+            var name = tm[2].toLowerCase()
+            if (name === "br") {
+                ttmlGap(top && top.bg ? back : main)
+                continue
+            }
+            if (name !== "span")
+                continue
+            if (tm[1] === "/") {
+                var done = stack.pop()
+                if (done && done.timed && !done.skip)
+                    (done.bg ? back : main).push({ t: done.t, d: done.d, text: done.text })
+                continue
+            }
+            if (tm[4] === "/")
+                continue
+            var role = ttmlAttr(tm[3], "ttm:role")
+            var b = ttmlTime(ttmlAttr(tm[3], "begin"))
+            var e = ttmlTime(ttmlAttr(tm[3], "end"))
+            stack.push({
+                timed: b >= 0,
+                bg: role === "x-bg" || (top !== null && top.bg),
+                skip: (top !== null && top.skip) || (role !== "" && role !== "x-bg"),
+                t: b,
+                d: (b >= 0 && e >= b) ? e - b : 0,
+                text: ""
+            })
+        }
+        var row = ""
+        var hasWords = false
+        for (k = 0; k < main.length; k++)
+            if (main[k].text.replace(/\s+/g, "") !== "")
+                hasWords = true
+        if (hasWords) {
+            row = wordRow(main, 0)
+            if (row !== "")
+                word = true
+        } else if (squash(plain) !== "" && pBegin >= 0) {
+            row = "[" + stampOf(pBegin) + "]" + squash(plain)
+        }
+        if (row !== "")
+            out.push(row)
+        var bt = ""
+        var bFirst = -1
+        for (k = 0; k < back.length; k++) {
+            if (back[k].text.replace(/\s+/g, "") !== "") {
+                if (bFirst < 0)
+                    bFirst = back[k].t
+                bt += back[k].text
+            } else if (bt !== "") {
+                bt += " "
+            }
+        }
+        bt = squash(bt.replace(/[\[\]]/g, ""))
+        var bStart = bFirst >= 0 ? bFirst : pBegin
+        if (bt !== "" && bStart >= 0)
+            out.push("[" + stampOf(bStart) + "][bg: " + bt + "]")
+    }
+    return { text: out.join("\n"), word: word }
+}
+
+// A word-timed text in Musixmatch's "rich sync" shape, [ { ts, te, l: [ { c, o } ] } ] (seconds;
+// `o` is when the piece `c` starts, after `ts`), as the array or as JSON text -> the same
+// "[start]<t>piece<t>piece<end>" rows. "" when it is not that.
+function richSyncToLrc(v) {
+    var arr = v
+    if (typeof v === "string") {
+        try {
+            arr = JSON.parse(v)
+        } catch (e) {
+            return ""
+        }
+    }
+    if (!Array.isArray(arr))
+        return ""
+    var out = []
+    for (var i = 0; i < arr.length; i++) {
+        var r = arr[i]
+        if (!r || typeof r.ts !== "number" || !Array.isArray(r.l))
+            continue
+        var chunks = []
+        for (var k = 0; k < r.l.length; k++) {
+            var w = r.l[k]
+            if (!w || typeof w.c !== "string")
+                continue
+            chunks.push({ t: Math.round((r.ts + (Number(w.o) || 0)) * 1000), d: 0, text: w.c })
+        }
+        for (var n = 0; n < chunks.length; n++) {
+            var until = n + 1 < chunks.length ? chunks[n + 1].t : (typeof r.te === "number" ? Math.round(r.te * 1000) : chunks[n].t)
+            chunks[n].d = Math.max(0, until - chunks[n].t)
+        }
+        var row = wordRow(chunks, 0)
+        if (row !== "")
+            out.push(row)
+    }
+    return out.join("\n")
+}
+
+// SimpMusic (a community database keyed by YouTube video id) answers
+//   { success, data: [ { songTitle, artistName, durationSeconds, syncedLyrics, richSyncLyrics, ... } ] }
+// -> { text, word, duration } of the entry that has synced lyrics and is cut closest to the
+// track's length (within 4 s when both are known); the word-timed text of an entry when it has
+// one. null when none.
+function simpmusicPick(o, lengthS) {
+    var list = o && Array.isArray(o.data) ? o.data : (o && o.data && typeof o.data === "object" ? [o.data] : [])
+    var best = null
+    var bestDiff = 1e9
+    for (var i = 0; i < list.length; i++) {
+        var r = list[i]
+        if (!r || typeof r !== "object")
+            continue
+        var dur = Number(r.durationSeconds !== undefined ? r.durationSeconds : r.duration) || 0
+        var diff = (lengthS > 0 && dur > 0) ? Math.abs(dur - lengthS) : 0
+        if (lengthS > 0 && dur > 0 && diff > 4)
+            continue
+        var rich = richSyncToLrc(r.richSyncLyrics)
+        var text = rich !== "" ? rich : (typeof r.syncedLyrics === "string" ? r.syncedLyrics : "")
+        if (parseLrc(text).length === 0)
+            continue
+        if (diff < bestDiff) {
+            best = { text: text, word: rich !== "", duration: dur }
+            bestDiff = diff
+        }
+    }
+    return best
+}
+
+// The songs of a SimpMusic search, in the shape pickWordSong reads (id = the video id).
+function simpmusicSongs(o) {
+    var list = o && Array.isArray(o.data) ? o.data : []
+    var out = []
+    for (var i = 0; i < list.length; i++) {
+        var r = list[i]
+        if (!r || typeof r.videoId !== "string" || r.videoId === "")
+            continue
+        out.push({
+            id: r.videoId,
+            name: r.songTitle || "",
+            artists: [{ name: r.artistName || "" }],
+            duration: (Number(r.durationSeconds !== undefined ? r.durationSeconds : r.duration) || 0) * 1000
+        })
+    }
+    return out
+}
+
+// The YouTube video id in a track's address ("" when it is not a YouTube one).
+function videoIdOf(url) {
+    var u = String(url === undefined || url === null ? "" : url)
+    if (!/youtube\.com|youtu\.be/i.test(u))
+        return ""
+    var m = u.match(/[?&]v=([A-Za-z0-9_-]{11})(?:[&#]|$)/)
+        || u.match(/youtu\.be\/([A-Za-z0-9_-]{11})/)
+        || u.match(/\/(?:shorts|embed|live)\/([A-Za-z0-9_-]{11})/)
+    return m ? m[1] : ""
+}
+
+// Every value of `key` in a parsed JSON, in document order (at most `limit` when it is given):
+// YouTube's answers are deep and their layout changes, so what is wanted is looked for by name.
+function jsonFind(root, key, limit) {
+    var found = []
+    var stack = [root]
+    var seen = 0
+    while (stack.length > 0 && seen < 300000) {
+        var o = stack.pop()
+        seen++
+        if (o === null || typeof o !== "object")
+            continue
+        var i
+        if (Array.isArray(o)) {
+            for (i = o.length - 1; i >= 0; i--)
+                if (o[i] !== null && typeof o[i] === "object")
+                    stack.push(o[i])
+            continue
+        }
+        if (o[key] !== undefined) {
+            found.push(o[key])
+            if (limit > 0 && found.length >= limit)
+                break
+        }
+        var keys = Object.keys(o)
+        for (i = keys.length - 1; i >= 0; i--)
+            if (o[keys[i]] !== null && typeof o[keys[i]] === "object")
+                stack.push(o[keys[i]])
+    }
+    return found
+}
+
+// YouTube Music's /next answer for a video: the id of its lyrics tab ("" when it has none).
+function ytmLyricsBrowseId(j) {
+    var eps = jsonFind(j, "browseEndpoint")
+    for (var i = 0; i < eps.length; i++) {
+        var ep = eps[i]
+        var cfg = ep ? ep.browseEndpointContextSupportedConfigs : null
+        var pt = cfg && cfg.browseEndpointContextMusicConfig ? cfg.browseEndpointContextMusicConfig.pageType : ""
+        if (pt === "MUSIC_PAGE_TYPE_TRACK_LYRICS" && typeof ep.browseId === "string" && ep.browseId !== "")
+            return ep.browseId
+    }
+    return ""
+}
+
+// The lyrics tab's /browse answer: its timed lines as "[mm:ss.xxx]words" ("" when it has only
+// plain text, or none). A short silence after a line is marked with an empty row, which is how
+// parseLrc learns when the line ends.
+function ytmTimedLyrics(j) {
+    var models = jsonFind(j, "timedLyricsModel", 1)
+    var data = models.length > 0 && models[0] && models[0].lyricsData ? models[0].lyricsData.timedLyricsData : null
+    if (!Array.isArray(data))
+        return ""
+    var rows = []
+    for (var i = 0; i < data.length; i++) {
+        var d = data[i]
+        var cue = d && d.cueRange ? d.cueRange : null
+        if (!cue)
+            continue
+        var st = Number(cue.startTimeMilliseconds)
+        if (!isFinite(st))
+            continue
+        var en = Number(cue.endTimeMilliseconds)
+        rows.push({ t: st, end: isFinite(en) ? en : -1, text: squash(d.lyricLine === undefined || d.lyricLine === null ? "" : d.lyricLine) })
+    }
+    var out = []
+    for (var k = 0; k < rows.length; k++) {
+        out.push("[" + stampOf(rows[k].t) + "]" + rows[k].text)
+        var next = k + 1 < rows.length ? rows[k + 1].t : Infinity
+        if (rows[k].text !== "" && rows[k].end > rows[k].t + 200 && next - rows[k].end > 500)
+            out.push("[" + stampOf(rows[k].end) + "]")
+    }
+    return out.join("\n")
+}
+
+// The text runs of one column of a YouTube Music search row.
+function ytmRuns(c) {
+    var r = c && c.musicResponsiveListItemFlexColumnRenderer && c.musicResponsiveListItemFlexColumnRenderer.text
+        ? c.musicResponsiveListItemFlexColumnRenderer.text.runs : null
+    return Array.isArray(r) ? r : []
+}
+
+// YouTube Music's search answer as songs for pickWordSong: { id (video id), name, artists, duration }.
+function ytmSongs(j) {
+    var items = jsonFind(j, "musicResponsiveListItemRenderer")
+    var out = []
+    for (var i = 0; i < items.length; i++) {
+        var it = items[i]
+        if (!it || typeof it !== "object")
+            continue
+        var vid = it.playlistItemData && typeof it.playlistItemData.videoId === "string" ? it.playlistItemData.videoId : ""
+        if (vid === "") {
+            var w = jsonFind(it, "watchEndpoint", 1)
+            if (w.length > 0 && w[0] && typeof w[0].videoId === "string")
+                vid = w[0].videoId
+        }
+        if (vid === "")
+            continue
+        var cols = Array.isArray(it.flexColumns) ? it.flexColumns : []
+        var title = ytmRuns(cols[0]).map(function (r) { return r && r.text ? r.text : "" }).join("")
+        var meta = ytmRuns(cols[1])
+        var names = []
+        var dur = 0
+        for (var m = 0; m < meta.length; m++) {
+            var tx = meta[m] && typeof meta[m].text === "string" ? meta[m].text : ""
+            var tmatch = tx.match(/^(?:(\d+):)?(\d{1,2}):(\d{2})$/)
+            if (tmatch)
+                dur = (Number(tmatch[1] || 0) * 3600 + Number(tmatch[2]) * 60 + Number(tmatch[3])) * 1000
+            else if (tx.replace(/[\s\u2022]/g, "") !== "")
+                names.push({ name: tx })
+        }
+        out.push({ id: vid, name: title, artists: names, duration: dur })
+    }
+    return out
+}
+
 // Out of what the providers found (each { id, kind: "word" | "synced", text, lines, duration })
 // the one to show. `order`: the provider ids, best liked first. `lengthS`: the track's length.
 //  - a word-timed one wins over a synced one; between the same kind, the one cut to the
@@ -1274,7 +1624,11 @@ function chooseLyrics(results, order, lengthS, preferred, wordsOn) {
             u.text = stripWords(r.text)
         } else if (r.kind === "word") {
             var shift = 0
-            if (ref) {
+            if (r.trusted === true) {
+                // a trusted provider (Boidu, when it is sure of its match) keeps its own timing as
+                // it is: it is not moved onto the synced text of another provider, whose lines may
+                // be off by a little themselves
+            } else if (ref) {
                 if (!sameWords(ref, r.lines))
                     continue
                 shift = alignShift(r.lines, ref)
