@@ -15,8 +15,6 @@
 > ⚠️ **Warning: this is a passion project, and it is heavily vibe-coded.**
 >
 > I designed and directed SekaiPop myself: the visuals, the UI, how everything should animate and how everything should behave. Claude wrote most of the code to make that possible, so expect rough edges and bugs.
->
-> Credit to [ilyamiro](https://github.com/ilyamiro) for the equalizer engine and the welcome screen structure. See [Credits](#credits).
 
 </div>
 
