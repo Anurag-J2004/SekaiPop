@@ -75,7 +75,7 @@ Most shells pick one look and theme it. SekaiPop starts from a single design lan
 <td valign="top"><b>Music that feels alive</b><br>A media pill with a live wave, a cava visualizer widget, and a lyrics widget that asks several providers (LyricsPlus, NetEase, LRCLIB, QQ Music, Kugou), picks the best one per song, highlights word by word and has a source picker.</td>
 </tr>
 <tr>
-<td valign="top"><b>Discord voice</b><br>A bar pill and popup showing who is in the call, who is speaking, mute and deafen, through a small Vencord companion plugin. Optional; it needs the official Discord client patched with the standalone Vencord installer, plus <code>git</code>, <code>node</code> and <code>pnpm</code>. Run <code>pjsekai/scripts/discordVoice/vencord-companion/install.sh</code> to add the plugin.</td>
+<td valign="top"><b>Discord voice</b><br>A bar pill and popup showing who is in the call, who is speaking, mute and deafen, through a small Vencord companion plugin. Optional; it needs the official Discord client patched with the standalone Vencord installer, plus <code>git</code>, <code>node</code> and <code>pnpm</code>. Run <code>sekaipop/scripts/discordVoice/vencord-companion/install.sh</code> to add the plugin.</td>
 <td valign="top"><b>Configure without config files</b><br>Drag screens around a to-scale Displays layout and set resolution, scale and refresh rate. Set keyboard layouts with a bar switcher. Open a cheatsheet that builds itself from your Hyprland bind descriptions. Tune night light, gamma and brightness, and get a reload popup that shows shell errors.</td>
 </tr>
 <tr>
@@ -169,7 +169,7 @@ chmod +x install.sh install-deps.sh check-deps.sh
 ```
 install.sh        install-deps.sh        check-deps.sh
 hypr/             the preconfigured Hyprland (Lua) config
-pjsekai/          the shell itself (version in pjsekai/VERSION)
+sekaipop/         the shell itself (version in sekaipop/VERSION)
 ```
 
 ### 2. Look before you leap
@@ -187,7 +187,7 @@ pjsekai/          the shell itself (version in pjsekai/VERSION)
 This does three jobs:
 
 1. **Dependencies:** packages (repos and AUR), Google Sans Flex, services, groups.
-2. **The shell:** copied to `~/.config/quickshell/pjsekai` (an older copy is kept as `.bak-<time>`).
+2. **The shell:** copied to `~/.config/quickshell/sekaipop` (an older copy is kept as `.bak-<time>`).
 3. **Hyprland:** a ready Lua config in `~/.config/hypr` (keybinds, rules, autostart, idle lock) and a `monitors.lua` made for the screens connected right now. Inside a running Hyprland it picks the highest refresh rate your screen offers at its preferred size.
 
 > [!WARNING]
@@ -213,7 +213,7 @@ Log out and back in, choosing the plain **Hyprland** session (**not** "uwsm"). T
 | `--hypr merge` | **Keep your config**, only add a small `pjsekai_session` file |
 | `--hypr skip` | Don't touch Hyprland at all |
 | `--no-deps` | Only copy files, install no packages |
-| `--rice DIR` | Install a different copy of the `pjsekai` folder |
+| `--rice DIR` | Install a different copy of the `sekaipop` folder |
 | `--restore` | Put back the Hyprland config backed up by the last run |
 | `-- <options>` | Pass options on to `install-deps.sh` |
 
@@ -278,10 +278,10 @@ Volume and brightness keys go through the shell's on-screen display.
 
 | Problem | Try |
 |---|---|
-| Shell doesn't start | Run `qs -c pjsekai log`, and make sure you logged into the plain **Hyprland** session, not uwsm |
+| Shell doesn't start | Run `qs -c sekaipop log`, and make sure you logged into the plain **Hyprland** session, not uwsm |
 | Black screen after install | `./install.sh --restore`, then read `~/.cache/pjsekai/hypr-errors.log` |
 | Icons are missing | Install `ttf-material-symbols-variable`, then `fc-cache -f` |
-| Shaders or transitions don't draw | Qt older than 6.12 needs the shaders rebuilt: `bash ~/.config/quickshell/pjsekai/shaders/compile-shaders.sh` (needs `qt6-shadertools`) |
+| Shaders or transitions don't draw | Qt older than 6.12 needs the shaders rebuilt: `bash ~/.config/quickshell/sekaipop/shaders/compile-shaders.sh` (needs `qt6-shadertools`) |
 | Hyprland rejected part of the config | `hyprctl configerrors` shows what it refused to load |
 | Something is missing | Run `./check-deps.sh`; it lists every missing package and QML module |
 
