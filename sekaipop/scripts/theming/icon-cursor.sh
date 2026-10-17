@@ -16,6 +16,13 @@
 #                                           spec says. The shell uses this for its own icons:
 #                                           a running Qt program reads its icon theme once, so
 #                                           it can not be told to look again.
+#   icon-cursor.sh import <pack> [name]     turn a Windows cursor pack (.zip, a folder, an
+#                                           install.inf, or one .cur / .ani) into a cursor
+#                                           theme in ~/.local/share/icons, so it shows up in
+#                                           `list cursors` and in Settings. Animated cursors
+#                                           keep their frames and timing. Prints the theme
+#                                           name. The work is win-cursor.py (next to this
+#                                           file; its header says how roles are found).
 #   icon-cursor.sh check                    what is installed / set up, for debugging
 #
 # WHAT IT WRITES (only the keys named here; nothing else of yours is replaced)
@@ -494,10 +501,20 @@ case "$mode_cmd" in
     resolve)
         [ $# -ge 2 ] || { say "usage: resolve <theme> <size> <icon name>..."; exit 2; }
         do_resolve "$@" ;;
+    import)
+        [ -n "$1" ] || { say "usage: import <pack> [name]"; exit 2; }
+        py="$(command -v python3 || command -v python)"
+        [ -n "$py" ] || { say "python3 is needed to convert Windows cursors"; exit 127; }
+        here="$(cd "$(dirname "$0")" && pwd)"
+        if [ -n "$2" ]; then
+            exec "$py" "$here/win-cursor.py" "$1" -n "$2"
+        else
+            exec "$py" "$here/win-cursor.py" "$1"
+        fi ;;
     check)
         do_check ;;
     *)
-        say "usage: icon-cursor.sh list icons|cursors | get | icons <theme> | cursor <theme> <size> | restore <theme> <size> | resolve <theme> <size> <name>... | check"
+        say "usage: icon-cursor.sh list icons|cursors | get | icons <theme> | cursor <theme> <size> | restore <theme> <size> | resolve <theme> <size> <name>... | import <pack> [name] | check"
         exit 2 ;;
 esac
 exit 0

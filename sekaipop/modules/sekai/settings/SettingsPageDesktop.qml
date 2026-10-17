@@ -1090,6 +1090,15 @@ SettingsPage {
         }
 
         SettingAction {
+            icon: "upload_file"
+            label: "Import Windows cursors"
+            detail: IconCursorService.importNote !== "" ? IconCursorService.importNote
+                    : "Pick a .zip or install.inf (.cur / .ani); it is added and used"
+            busy: IconCursorService.picking || IconCursorService.importing
+            onActivated: IconCursorService.pickPack("settings")
+        }
+
+        SettingAction {
             icon: "undo"
             label: "Use the system's"
             detail: "Stop restoring the cursor at start"

@@ -1447,6 +1447,17 @@ Scope {
         }
     }
 
+    // Same for the Windows cursor chooser (Settings -> Desktop -> Icons & cursor);
+    // IconCursorService opens the Settings again afterwards.
+    Connections {
+        target: IconCursorService
+
+        function onPickingChanged() {
+            if (IconCursorService.picking && root.settingsOpen)
+                root.close()
+        }
+    }
+
     HyprlandFocusGrab {
         id: grab
         windows: root.grabList

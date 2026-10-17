@@ -23,6 +23,13 @@ import qs.modules.common
 //   qs -c sekaipop ipc call appearance icons Papirus-Dark
 //   qs -c sekaipop ipc call appearance cursor Bibata-Modern-Ice 28
 //   qs -c sekaipop ipc call appearance status
+//
+// Windows cursors (.cur / .ani, any pack from a cursor site) are turned into a normal cursor
+// theme by scripts/theming/win-cursor.py (through `icon-cursor.sh import`): it lands in
+// ~/.local/share/icons, so it is listed next to the others and works in every app.
+//
+//   Settings -> Desktop -> Icons & cursor -> Import Windows cursors   (file chooser)
+//   qs -c sekaipop ipc call appearance importcursor ~/Downloads/Pack.zip true
 Singleton {
     id: root
 
@@ -222,6 +229,130 @@ Singleton {
         root.refresh()
     }
 
+    // ===== Windows cursors =====
+    // True while the file chooser is open / while a pack is being converted.
+    property bool picking: false
+    property bool importing: false
+
+    // One line for the Settings page: what the last import did.
+    property string importNote: ""
+
+    // Use the new theme as soon as it is made (the Settings button does; `importcursor false` only adds it).
+    property bool importApply: false
+    property string pickReopen: ""
+
+    readonly property string pickPackScript: Directories.script("theming/pick-cursor-pack.sh")
+
+    // path: a .zip, a folder, an install.inf or one .cur / .ani.
+    function importPack(path, apply) {
+        const p = (path || "").trim()
+        if (p === "" || root.importing)
+            return
+        root.importing = true
+        root.importApply = !!apply
+        root.importNote = "Converting..."
+        importer.theme = ""
+        importer.report = ""
+        importer.outDone = false
+        importer.errDone = false
+        importer.ended = false
+        importer.rc = 0
+        importer.exec(["sh", root.script, "import", p])
+    }
+
+    // The chooser is a window of its own: the Settings step aside while it is open (QuickPanel
+    // listens to `picking`), so the dialog is not under them and gets the keyboard.
+    // `reopen` = "settings" brings the Settings back afterwards.
+    function pickPack(reopen) {
+        if (root.picking || root.importing)
+            return
+        root.pickReopen = reopen || ""
+        root.picking = true
+        const chooser = SettingsService.get("files.chooser")
+        const env = (chooser === "kdialog" || chooser === "zenity" || chooser === "yad")
+            ? ["env", "PJSEKAI_CHOOSER=" + chooser] : []
+        packPicker.exec(env.concat(["sh", root.pickPackScript, "pick"]))
+    }
+
+    Process {
+        id: packPicker
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const path = text.trim()
+                root.picking = false
+                if (path !== "")
+                    root.importPack(path, true)
+                if (root.pickReopen !== "")
+                    packReopen.restart()
+            }
+        }
+    }
+
+    // A beat after the dialog is gone, so a quick cancel does not land on the phone's own closing animation.
+    Timer {
+        id: packReopen
+        interval: 450
+        onTriggered: {
+            const side = root.pickReopen
+            root.pickReopen = ""
+            if (side === "settings")
+                Quickshell.execDetached(["qs", "-c", "sekaipop", "ipc", "call", "settings", "page", "desktop"])
+        }
+    }
+
+    Process {
+        id: importer
+
+        property string theme: ""
+        property string report: ""
+        property bool outDone: false
+        property bool errDone: false
+        property bool ended: false
+        property int rc: 0
+
+        // Finish when the output, the messages and the exit have all arrived (they come in any order).
+        function settle() {
+            if (!importer.outDone || !importer.errDone || !importer.ended)
+                return
+            root.importing = false
+            const lines = importer.report.split("\n").map(l => l.trim()).filter(l => l.length > 0)
+            if (lines.length > 0)
+                console.log("[IconCursorService] import:", lines.join(" | "))
+            if (importer.rc === 0 && importer.theme !== "") {
+                root.importNote = "Added " + importer.theme
+                root.refresh()
+                if (root.importApply)
+                    root.setCursor(importer.theme, root.shownSize)
+            } else {
+                const last = lines.length > 0 ? lines[lines.length - 1] : ""
+                root.importNote = last !== "" ? last.replace(/^win-cursor: /, "") : "Could not convert that"
+            }
+        }
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const l = text.split("\n").map(x => x.trim()).filter(x => x.length > 0)
+                importer.theme = l.length > 0 ? l[l.length - 1] : ""
+                importer.outDone = true
+                importer.settle()
+            }
+        }
+
+        stderr: StdioCollector {
+            onStreamFinished: {
+                importer.report = text
+                importer.errDone = true
+                importer.settle()
+            }
+        }
+
+        onExited: (code, status) => {
+            importer.rc = code
+            importer.ended = true
+            importer.settle()
+        }
+    }
+
     Timer {
         id: cursorDebounce
         interval: 350
@@ -359,6 +490,12 @@ Singleton {
         function icons(name: string): void { root.setIcons(name) }
 
         function cursor(name: string, size: int): void { root.setCursor(name, size) }
+
+        // A Windows cursor pack (.zip, folder, install.inf, .cur / .ani) -> a cursor theme.
+        // `apply` true also switches to it.  pickcursor opens the file chooser.
+        function importcursor(path: string, apply: bool): void { root.importPack(path, apply) }
+
+        function pickcursor(): void { root.pickPack("") }
 
         // The file the shell uses for an icon name right now (for finding out why one is wrong).
         function lookup(name: string): string {
