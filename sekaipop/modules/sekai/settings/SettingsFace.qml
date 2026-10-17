@@ -477,7 +477,7 @@ Item {
                 icon: modelData.icon
                 label: modelData.longLabel !== undefined ? modelData.longLabel : modelData.label
                 subtitle: modelData.sub
-                badge: modelData.id === "about" && UpdateService.status === "behind"
+                badge: modelData.id === "about" && UpdateService.status === "behind" && !UpdateService.unknown
                 onClicked: face.go(index)
             }
         }

@@ -5,9 +5,21 @@ import Quickshell.Io
 import qs.modules.common
 
 // What version this shell is, whether a newer one exists, and what changed.
-// The work is scripts/system/update-check.sh (git upstream first, then an optional
-// URL to a VERSION file; see its header). The changelog is CHANGELOG.md next
-// to shell.qml.
+// The work is scripts/system/update-check.sh (a git checkout, an installed copy
+// or an optional URL to a VERSION file; see its header). The changelog is
+// CHANGELOG.md next to shell.qml.
+//
+// It also looks by itself (while "updates.shellNotify" is on, the default): once
+// shortly after the shell starts and then every "updates.shellHours" hours. When
+// such a look finds a newer version it sends ONE notification for it (the shell
+// is the notification daemon, so it shows on the phone like any other) and
+// remembers which version that was (`seen`, kept in ~/.cache/pjsekai/update-seen
+// by the script), so it never repeats for the same one, also after a restart. A
+// look you asked for yourself (the page, the button) counts as seen and sends
+// nothing. Nothing is sent for an installed copy with no version mark yet
+// (`unknown`: it can't tell if it is behind), and not while Game Mode is on
+// (it waits for the next look). With the setting off nothing here touches the
+// network until you press Check for updates.
 //
 //   status   "idle"      never asked yet
 //            "checking"  asking
@@ -34,6 +46,13 @@ Singleton {
     property string status: "idle"
     property int behind: 0
     property string latest: ""
+    // Short id of the newest version out there (a commit, or the VERSION text).
+    property string rev: ""
+    // The id the user was last told about (or looked at themselves).
+    property string seen: ""
+    // True while the look in progress was asked for by the user.
+    property bool byUser: false
+    readonly property bool watching: SettingsService.flag("updates.shellNotify")
     property string reason: ""
     property double checkedAt: 0
     // Commits an update would bring: [{ hash, subject, age }]
@@ -56,12 +75,38 @@ Singleton {
         return out
     }
 
-    function check() {
-        if (checker.running)
+    // `byUser` is true for a look somebody asked for (the page, the button).
+    function check(byUser) {
+        if (checker.running) {
+            if (byUser === true)
+                root.byUser = true
             return
-        root.status = "checking"
+        }
+        root.byUser = byUser === true
+        // A look the timers start leaves a known answer on screen (so the About tab's
+        // badge does not blink every few hours); only the first one shows "checking".
+        if (byUser === true || root.status === "idle" || root.status === "error")
+            root.status = "checking"
         root.reason = ""
         checker.running = true
+    }
+
+    // One notification per newer version, and only for a look nobody asked for.
+    function announce() {
+        if (root.status !== "behind" || root.unknown || root.rev === "" || root.rev === root.seen)
+            return
+        if (!root.byUser && root.watching && GameModeService.enabled)
+            return
+        const byUser = root.byUser
+        root.seen = root.rev
+        seenWriter.exec(["sh", root.script, "seen", root.rev])
+        if (byUser || !root.watching)
+            return
+        const what = root.isGit && root.behind > 0
+            ? root.behind + (root.behind === 1 ? " new commit is" : " new commits are") + " waiting upstream."
+            : (!root.isGit && !root.managed && root.latest !== "" ? "Version " + root.latest + " is out." : "A newer version is on GitHub.")
+        Quickshell.execDetached(["notify-send", "-a", "pjsekai", "-i", "material:system_update",
+            "SekaiPop update available", what + " Open Settings \u2192 About / Update to install it."])
     }
 
     function update() {
@@ -98,6 +143,7 @@ Singleton {
                 const kv = root.parseKv(text)
                 root.behind = Number(kv.behind || 0)
                 root.latest = kv.latest || ""
+                root.rev = kv.rev || ""
                 root.unknown = kv.unknown === "yes"
                 root.reason = kv.reason || ""
                 root.status = kv.status || "error"
@@ -106,6 +152,7 @@ Singleton {
                     logger.running = true
                 else
                     root.pending = []
+                root.announce()
             }
         }
         onExited: code => {
@@ -114,6 +161,34 @@ Singleton {
                 root.reason = "the update check failed"
             }
         }
+    }
+
+    // What the user was last told about: read once at startup, written when it changes.
+    Process {
+        running: true
+        command: ["sh", root.script, "seen"]
+        stdout: StdioCollector {
+            onStreamFinished: root.seen = text.trim()
+        }
+    }
+
+    Process {
+        id: seenWriter
+    }
+
+    // A first look a little after the start (the network is often not up yet in the
+    // very first seconds), then regularly. Both only run while the setting is on.
+    Timer {
+        interval: 40 * 1000
+        running: root.watching
+        onTriggered: root.check()
+    }
+
+    Timer {
+        interval: Math.max(1, SettingsService.get("updates.shellHours")) * 3600 * 1000
+        running: root.watching
+        repeat: true
+        onTriggered: root.check()
     }
 
     Process {

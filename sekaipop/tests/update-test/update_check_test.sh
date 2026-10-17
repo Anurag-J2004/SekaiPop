@@ -19,7 +19,11 @@ git remote add origin "$t/remote.git" && git fetch -q && git branch -q -u origin
 inst="$HOME/.config/quickshell/sekaipop"; cp -a sekaipop "$inst"
 S="sh $inst/scripts/system/update-check.sh"
 
+export XDG_CACHE_HOME="$t/cache"
 expect "no marker: managed + unknown" "$($S check)" "unknown=yes"
+expect "check names the newest version (rev)" "$($S check)" "rev=$(git -C "$t/work" rev-parse --short HEAD)"
+[ -z "$($S seen)" ] && ok "seen: empty at first" || bad "seen not empty"
+$S seen abc1234; expect "seen: stores and reads back" "$($S seen)" "abc1234"
 printf 'commit=%s\nrepo=%s\nref=main\n' "$(git rev-parse HEAD)" "$t/remote.git" > "$inst/.source"
 expect "marker = remote: current" "$($S check)" "status=current"
 echo 1.0.1 > sekaipop/VERSION && git commit -qam second && git push -q origin main
@@ -34,6 +38,7 @@ mkdir -p "$t/real" && cp -a "$inst" "$t/real/s" && ln -s "$t/real/s" "$HOME/.con
 sh "$HOME/.config/quickshell/lnk/scripts/system/update-check.sh" apply >/dev/null; [ $? != 0 ] && ok "symlinked folder: refuses" || bad "symlink"
 G="sh $t/work/sekaipop/scripts/system/update-check.sh"
 expect "repo layout: git mode" "$($G info)" "git=yes"
+expect "repo layout: rev is the upstream head" "$($G check)" "rev="
 cd "$t/work" && git fetch -q && echo "// local" >> sekaipop/shell.qml && git commit -qam local && git push -q origin main
 expect "repo layout: current after push" "$($G check)" "status=current"
 [ $fail = 0 ] && echo "all passed" || { echo "FAILED"; exit 1; }

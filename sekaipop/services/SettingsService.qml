@@ -104,6 +104,9 @@ Singleton {
         "updates.showZero": false,      // keep the badge on the bar when nothing is pending
         "updates.intervalMin": 30,      // how often to look (minutes)
         "updates.terminal": "kitty",    // what a click on the badge opens: kitty | foot | alacritty
+        // The shell's own updates (services/UpdateService.qml, About / Update): look on its own and send one notification per newer version.
+        "updates.shellNotify": true,
+        "updates.shellHours": 6,        // how often it looks (hours)
         // ===== Media pill =====
         "media.leftClick": "panel",
         // ===== Region selector =====

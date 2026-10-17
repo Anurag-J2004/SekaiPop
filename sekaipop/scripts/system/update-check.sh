@@ -6,7 +6,10 @@
 #   update-check.sh info     print  version= / git= / managed= / branch= / commit= / remote=
 #   update-check.sh check    print  status=current|behind|nosource|error and
 #                            behind=<n> (git) or latest=<version or commit> (the rest);
+#                            rev=<short id of the newest version> (all modes);
 #                            unknown=yes when the installed files carry no commit mark
+#   update-check.sh seen [x] print, or with an argument store, the id of the newest version
+#                            the user was last told about (~/.cache/pjsekai/update-seen)
 #   update-check.sh log      commits that an update would bring, one per line:
 #                            <hash>|<subject>|<age>   (git checkout only)
 #   update-check.sh apply    bring the shell up to date; exits 0 only if it worked
@@ -145,10 +148,12 @@ case "$cmd" in
             n=$(git -C "$root" rev-list --count 'HEAD..@{u}' 2>/dev/null || echo 0)
             if [ "$n" -gt 0 ]; then echo "status=behind"; else echo "status=current"; fi
             echo "behind=$n"
+            echo "rev=$(git -C "$root" rev-parse --short '@{u}' 2>/dev/null)"
         elif is_managed; then
             head=$(remote_head)
             [ -n "$head" ] || { echo "status=error"; echo "reason=couldn't reach the repository"; exit 0; }
             echo "latest=$(short "$head")"
+            echo "rev=$(short "$head")"
             if [ -z "$installed" ]; then echo "unknown=yes"; echo "status=behind"
             elif [ "$installed" = "$head" ]; then echo "status=current"
             else echo "status=behind"; fi
@@ -157,11 +162,20 @@ case "$cmd" in
             latest=$(curl -fsSL -m 15 "$url" 2>/dev/null | head -n 1 | tr -d ' \r')
             [ -n "$latest" ] || { echo "status=error"; echo "reason=couldn't reach the update URL"; exit 0; }
             echo "latest=$latest"
+            echo "rev=$latest"
             if [ "$latest" = "$ver" ]; then echo "status=current"
             elif [ "$(printf '%s\n%s\n' "$ver" "$latest" | sort -V | tail -n 1)" = "$latest" ]; then echo "status=behind"
             else echo "status=current"; fi
         else
             echo "status=nosource"
+        fi
+        ;;
+    seen)
+        f="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/update-seen"
+        if [ -n "$2" ]; then
+            mkdir -p "$(dirname "$f")" && printf '%s\n' "$2" > "$f"
+        else
+            head -n 1 "$f" 2>/dev/null
         fi
         ;;
     log)
@@ -183,7 +197,7 @@ case "$cmd" in
         fi
         ;;
     *)
-        echo "usage: $0 info|check|log|apply" >&2
+        echo "usage: $0 info|check|log|apply|seen" >&2
         exit 2
         ;;
 esac

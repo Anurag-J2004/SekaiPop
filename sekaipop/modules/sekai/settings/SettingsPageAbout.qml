@@ -9,10 +9,11 @@ import qs.modules.common.widgets
 SettingsPage {
     id: page
 
-    // Once per session; opening this page is the "check for updates" gesture.
+    // Opening this page is the "check for updates" gesture, when nothing has looked yet
+    // (with the background look on, it usually has).
     Component.onCompleted: {
         if (UpdateService.status === "idle")
-            UpdateService.check()
+            UpdateService.check(true)
     }
 
     readonly property string statusTitle: {
@@ -217,7 +218,7 @@ SettingsPage {
             detail: UpdateService.status === "checking" ? "Checking…"
                 : (UpdateService.checkedAt > 0 ? "Checked " + Qt.formatTime(new Date(UpdateService.checkedAt), "hh:mm") : "")
             busy: UpdateService.status === "checking"
-            onActivated: UpdateService.check()
+            onActivated: UpdateService.check(true)
         }
 
         SettingAction {
@@ -229,6 +230,26 @@ SettingsPage {
                     : (UpdateService.isGit ? "Pull, then reload" : "Download, then reload"))
             busy: UpdateService.updating
             onActivated: UpdateService.update()
+        }
+
+        SettingToggle {
+            icon: "notifications_active"
+            label: "Tell me about updates"
+            checked: SettingsService.flag("updates.shellNotify")
+            onToggled: SettingsService.toggle("updates.shellNotify")
+        }
+
+        SettingSlider {
+            width: page.halfWidth
+            visible: SettingsService.flag("updates.shellNotify")
+            icon: "schedule"
+            label: "Look every"
+            from: 1
+            to: 48
+            step: 1
+            suffix: " h"
+            value: SettingsService.get("updates.shellHours")
+            onMoved: v => SettingsService.set("updates.shellHours", v)
         }
 
         // The commits an update would bring.
