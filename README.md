@@ -1,6 +1,5 @@
 <div align="center">
 
-<img src="docs/banner.svg" alt="SekaiPop: a Quickshell + Hyprland shell built from sticker blocks, with a phone for a control center" width="100%">
 
 <img src="docs/highlights.svg" alt="Phone control center, Sekai Pad equalizer, Edit Desktop, shader wallpaper transitions, two lockscreens, installs from a bare Arch" width="82%">
 
