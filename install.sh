@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # install.sh: one command to turn a minimal Hyprland system into the SekaiPop (pjsekai) desktop.
 #
-# It does what end-4's "./setup install" does, for this rice:
+# What it does:
 #   1. dependencies   packages, fonts, services, groups     (runs install-deps.sh)
 #   2. the rice       copied to ~/.config/quickshell/sekaipop
 #   3. Hyprland       a ready configuration in ~/.config/hypr (keybinds, rules, autostart),
