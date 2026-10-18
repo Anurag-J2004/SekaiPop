@@ -2,8 +2,8 @@
 
 # Hyprland options for the Settings Panel, written the same way
 # antiflashbang-state.sh writes the screen shader: as marker-tagged lines in
-# ~/.config/hypr/pjsekai_overrides.lua (which hyprland.lua loads with
-# `pcall(require, "pjsekai_overrides")`), and applied live right away.
+# ~/.config/hypr/sekaipop_overrides.lua (which hyprland.lua loads with
+# `pcall(require, "sekaipop_overrides")`), and applied live right away.
 #
 #   hyprland-settings.sh set <path> <int|float|bool|str> <value>
 #   hyprland-settings.sh reset <path>          drop our override of one option
@@ -19,14 +19,14 @@
 # <path> is the option as dotted Lua names:  general.gaps_in,
 # decoration.blur.enabled, input.touchpad.natural_scroll ...
 #
-# Only lines ending in "-- pjsekai:hypr:<path>" are ever touched, so the
+# Only lines ending in "-- sekaipop:hypr:<path>" are ever touched, so the
 # anti-flashbang lines (and anything else) in that file are left alone.
 # Live apply: `hyprctl eval "hl.config({...})"` (Lua config); if Hyprland
 # doesn't answer that, `hyprctl keyword section:name value` (hyprlang).
 
 dir="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
-file="$dir/pjsekai_overrides.lua"
-MARK='-- pjsekai:hypr:'
+file="$dir/sekaipop_overrides.lua"
+MARK='-- sekaipop:hypr:'
 
 # general.gaps_in 5 int  ->  { ["general"] = { ["gaps_in"] = 5 } }
 lua_table() {
@@ -59,7 +59,7 @@ lua_value() {
 drop_marker() {
     # Everything except our line for <path>. A grep that really failed (exit
     # 2) must never replace the file with nothing; exit 1 = no lines left.
-    tmp=$(mktemp "$dir/.pjsekai_overrides.XXXXXX") || return 1
+    tmp=$(mktemp "$dir/.sekaipop_overrides.XXXXXX") || return 1
     grep -v -F -e "$MARK$1" "$file" > "$tmp"
     [ $? -le 1 ] || { rm -f "$tmp"; return 1; }
     chmod 644 "$tmp"
@@ -151,7 +151,7 @@ case "$1" in
         ;;
     reset-all)
         [ -f "$file" ] || exit 0
-        tmp=$(mktemp "$dir/.pjsekai_overrides.XXXXXX") || exit 1
+        tmp=$(mktemp "$dir/.sekaipop_overrides.XXXXXX") || exit 1
         grep -v -F -e "$MARK" "$file" > "$tmp"
         [ $? -le 1 ] || { rm -f "$tmp"; exit 1; }
         chmod 644 "$tmp"
@@ -175,7 +175,7 @@ case "$1" in
         cfg="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.lua"
         if [ -f "$cfg" ]; then
             printf 'lua=yes\n'
-            grep -q 'pjsekai_overrides' "$cfg" && printf 'linked=yes\n' || printf 'linked=no\n'
+            grep -q 'sekaipop_overrides' "$cfg" && printf 'linked=yes\n' || printf 'linked=no\n'
         else
             printf 'lua=no\nlinked=yes\n'
         fi

@@ -355,8 +355,8 @@ run("reset")
 ok(run("status") === "none" && run("check") === "SHOW", "state: reset starts over")
 run("done")
 ok(run("status") === "done" && run("check") === "SKIP", "state: done means never again by itself")
-ok(fs.existsSync(path.join(tmp, "pjsekai", "welcome")) && !fs.existsSync(path.join(tmp, "pjsekai", "welcome.tmp")), "state: one file, no temp file left behind")
-fs.writeFileSync(path.join(tmp, "pjsekai", "welcome"), "garbage!\n")
+ok(fs.existsSync(path.join(tmp, "sekaipop", "welcome")) && !fs.existsSync(path.join(tmp, "sekaipop", "welcome.tmp")), "state: one file, no temp file left behind")
+fs.writeFileSync(path.join(tmp, "sekaipop", "welcome"), "garbage!\n")
 ok(run("check") === "SHOW", "state: a damaged file counts as no tries instead of breaking")
 let bad = false
 try { execFileSync("sh", [script, "nonsense"], { env: { ...process.env, XDG_STATE_HOME: tmp }, stdio: "pipe" }) } catch (e) { bad = e.status === 2 }

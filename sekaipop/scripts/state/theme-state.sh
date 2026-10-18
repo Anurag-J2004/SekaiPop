@@ -15,11 +15,11 @@
 #                              applied (five #rrggbb), the colours of the "custom" theme
 #   theme-state.sh load-custom print it (nothing if none)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/theme — state, not
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/theme — state, not
 # data, same convention barstyle-state.sh uses.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/theme"
 darkfile="$dir/dark"
 darkerfile="$dir/darker"

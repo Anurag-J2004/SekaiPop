@@ -1,6 +1,6 @@
 import QtQuick
 
-// "Tide": pjsekai's own audio visualizer (not from end4-pC). Three sheets of cut paper,
+// "Tide": sekaipop's own audio visualizer (not from end4-pC). Three sheets of cut paper,
 // stacked like a scrapbook page, rise out of the bottom of the screen with the music:
 //
 //   - the spectrum is folded round the middle (the bass in the centre, the highs out at

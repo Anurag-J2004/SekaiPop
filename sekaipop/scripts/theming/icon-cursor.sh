@@ -100,7 +100,7 @@ ini_set() {
                 print ENVIRON["KEY"] "=" ENVIRON["VAL"]
             } else close_section()
         }
-    ' "$f" > "$f.pjsekai-tmp" && mv "$f.pjsekai-tmp" "$f"
+    ' "$f" > "$f.sekaipop-tmp" && mv "$f.sekaipop-tmp" "$f"
 }
 
 # ===== GNOME interface settings (dconf first, like system-theme.sh) =====

@@ -14,7 +14,7 @@ ShaderEffect {
     property color color1
     property color color2
     property color color3
-    // pjsekai's own styles (ribbons, scope, pulse): the outline colour
+    // sekaipop's own styles (ribbons, scope, pulse): the outline colour
     property color ink: "#1c2a4a"
     // Ring only: texture provider for the cover, and whether it holds one
     property Item cover: null

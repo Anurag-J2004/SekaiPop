@@ -46,7 +46,7 @@ Item {
 
     // mpv's control socket (one per output)
     readonly property string socketPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp")
-        + "/pjsekai-mpvpaper-" + root.screenName + ".sock"
+        + "/sekaipop-mpvpaper-" + root.screenName + ".sock"
 
     // Set when the socket never came up: pausing then means stopping the process.
     property bool ipcFailed: false
@@ -54,7 +54,7 @@ Item {
 
     // The saved frame, and where the video was when it was saved.
     readonly property string framePath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp")
-        + "/pjsekai-mpvpaper-" + root.screenName + "-frame.jpg"
+        + "/sekaipop-mpvpaper-" + root.screenName + "-frame.jpg"
     property real resumeAt: 0
     property real startAt: 0
 

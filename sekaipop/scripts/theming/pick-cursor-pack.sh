@@ -11,7 +11,7 @@
 # any of them is enough). Nothing is changed here: IconCursorService hands the path to
 # `icon-cursor.sh import`.
 #
-# The chooser is the first of kdialog, zenity or yad that's installed, and PJSEKAI_CHOOSER
+# The chooser is the first of kdialog, zenity or yad that's installed, and SEKAIPOP_CHOOSER
 # (Settings -> General -> picker) is tried first, the same way pick-folder.sh does it.
 
 mode="$1"
@@ -29,7 +29,7 @@ title="Choose a Windows cursor pack (.zip or install.inf)"
 patterns="*.zip *.ZIP *.inf *.INF *.cur *.CUR *.ani *.ANI"
 
 chooser=""
-for c in ${PJSEKAI_CHOOSER:-} kdialog zenity yad; do
+for c in ${SEKAIPOP_CHOOSER:-} kdialog zenity yad; do
     case "$c" in
         zenity|kdialog|yad) ;;
         *) continue ;;

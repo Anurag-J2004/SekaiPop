@@ -24,7 +24,7 @@ import qs.modules.common
 //
 // PRESETS are named copies of that list ("Work", "Gaming"): save the dock as
 // one, switch between them later. Everything (layout, presets, which preset is
-// active) lives in one JSON file, ~/.local/state/pjsekai/dock-layout.json.
+// active) lives in one JSON file, ~/.local/state/sekaipop/dock-layout.json.
 Singleton {
     id: root
 

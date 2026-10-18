@@ -32,7 +32,7 @@ import qs.modules.common.widgets
 // focus but frees the pointer. `qs -c sekaipop ipc call desktopedit close`
 // still ends the mode if anything ever goes wrong.
 //
-// The layer namespace is still "pjsekai-edit-drawer": a layerrule written for
+// The layer namespace is still "sekaipop-edit-drawer": a layerrule written for
 // the old drawer keeps working.
 //
 // To put another widget on the shelf, add it to EditMode.widgetList (and to
@@ -57,7 +57,7 @@ PanelWindow {
     visible: EditMode.screenName !== ""
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "pjsekai-edit-drawer"
+    WlrLayershell.namespace: "sekaipop-edit-drawer"
     // Exclusive only for the first moments of the mode (see the header).
     property bool focusSeed: false
 

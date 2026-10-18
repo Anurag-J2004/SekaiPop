@@ -69,7 +69,7 @@ Singleton {
     }
 
     // The folder of the frozen pictures (one per monitor) and the cropped files.
-    readonly property string tmpDir: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/pjsekai-region"
+    readonly property string tmpDir: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/sekaipop-region"
 
     readonly property string script: Directories.script("system/region-action.sh")
 
@@ -143,15 +143,15 @@ Singleton {
     // switched off for this namespace (and the preview card's): the dim then
     // appears at once, at full size, and goes the same way. The dim itself is
     // untouched. `region-action.sh rules` does it, same as, in hyprland.lua,
-    //   hl.layer_rule({ match = { namespace = "^pjsekai-region$" }, no_anim = true })
-    //   hl.layer_rule({ match = { namespace = "^pjsekai-region-preview$" }, no_anim = true })
+    //   hl.layer_rule({ match = { namespace = "^sekaipop-region$" }, no_anim = true })
+    //   hl.layer_rule({ match = { namespace = "^sekaipop-region-preview$" }, no_anim = true })
     //
     // A rule added live only lasts until Hyprland reloads its config (hyprctl
     // reload, an edit of hyprland.lua, the anti-flashbang tile, the Hyprland
     // page in Settings ...), and the zoom would come back with nothing to say
     // so. So the rules are put back at start-up and again after every reload
     // (a short wait, since a reload can send several events). With
-    // `pcall(require, "pjsekai_overrides")` in hyprland.lua they are also kept
+    // `pcall(require, "sekaipop_overrides")` in hyprland.lua they are also kept
     // in that file and come back by themselves.
     function ensureNoAnim() {
         if (!noAnim.running)
@@ -241,7 +241,7 @@ Singleton {
             if (j !== null && code === 0) {
                 root.afterCrop(j)
             } else {
-                Quickshell.execDetached(["notify-send", "-a", "pjsekai", "-i", "material:error", "Screen region",
+                Quickshell.execDetached(["notify-send", "-a", "sekaipop", "-i", "material:error", "Screen region",
                     "Couldn't grab the region (is grim installed?)"])
                 root.finishJob(false)
             }
@@ -388,7 +388,7 @@ Singleton {
         onExited: {
             if (root.recordFile !== "") {
                 Quickshell.execDetached(["sh", "-c",
-                    "[ -s \"$1\" ] && notify-send -a pjsekai -i material:videocam 'Recording saved' \"$1\"", "sh", root.recordFile])
+                    "[ -s \"$1\" ] && notify-send -a sekaipop -i material:videocam 'Recording saved' \"$1\"", "sh", root.recordFile])
                 root.recordFile = ""
             }
         }

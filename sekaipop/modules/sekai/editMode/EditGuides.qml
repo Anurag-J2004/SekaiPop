@@ -36,10 +36,10 @@ import qs.modules.common.widgets
 // navy outline the rest of Edit Desktop wears. Sizes are kept the same on
 // screen whatever the card has shrunk to (`room.u`).
 //
-// Layer namespace: pjsekai-edit-guides. It maps when the mode starts and
+// Layer namespace: sekaipop-edit-guides. It maps when the mode starts and
 // unmaps when it ends, while it is fully transparent, so Hyprland's own layer
 // animation has nothing to show. (If you ever see a flash, give that namespace a
-// no_anim layer rule, the same as pjsekai-region.)
+// no_anim layer rule, the same as sekaipop-region.)
 PanelWindow {
     id: win
 
@@ -54,7 +54,7 @@ PanelWindow {
     visible: EditMode.editing(win.screenName)
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "pjsekai-edit-guides"
+    WlrLayershell.namespace: "sekaipop-edit-guides"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"

@@ -239,7 +239,7 @@ Scope {
     // next, so only the last one can be left behind: remove that too when the
     // selection is dropped, and at start-up (a crash or logout may have left one).
     function dropClipTemp() {
-        Quickshell.execDetached(["sh", "-c", "rm -f \"${XDG_RUNTIME_DIR:-/tmp}\"/pjsekai-clip-*"])
+        Quickshell.execDetached(["sh", "-c", "rm -f \"${XDG_RUNTIME_DIR:-/tmp}\"/sekaipop-clip-*"])
     }
 
     Component.onCompleted: root.dropClipTemp()
@@ -327,7 +327,7 @@ Scope {
     // may hold (webp, avif, tiff, ...) is turned into a png first when ImageMagick is
     // there, so the picture is not left blank.
     readonly property string clipImageScript: [
-        'd="${XDG_RUNTIME_DIR:-/tmp}"; rm -f "$d"/pjsekai-clip-*; f="$d/pjsekai-clip-$1"',
+        'd="${XDG_RUNTIME_DIR:-/tmp}"; rm -f "$d"/sekaipop-clip-*; f="$d/sekaipop-clip-$1"',
         'cliphist decode "$1" > "$f" && [ -s "$f" ] || exit 1',
         't=$(file -b --mime-type "$f" 2>/dev/null)',
         'case "$t" in image/png|image/jpeg|image/gif|image/bmp) ;; *)',
@@ -363,7 +363,7 @@ Scope {
                     return
                 }
                 // picture: the path of the decoded file, which ends in this entry's id
-                if (text.endsWith("/pjsekai-clip-" + sel)) {
+                if (text.endsWith("/sekaipop-clip-" + sel)) {
                     root.clipImage = "file://" + text
                     root.clipLoadedId = sel
                     root.clipFailed = false

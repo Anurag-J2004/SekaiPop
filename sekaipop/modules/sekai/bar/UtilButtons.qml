@@ -154,7 +154,7 @@ Item {
         onRunningChanged: {
             if (!running && root.recordFile !== "") {
                 Quickshell.execDetached(["bash", "-c",
-                    "[ -s \"$1\" ] && notify-send -a pjsekai -i material:videocam \"Recording saved\" \"$1\"",
+                    "[ -s \"$1\" ] && notify-send -a sekaipop -i material:videocam \"Recording saved\" \"$1\"",
                     "bash", root.recordFile])
                 root.recordFile = ""
             }
@@ -191,7 +191,7 @@ Item {
             "dir=\"$HOME/Pictures/Screenshots\"",
             "mkdir -p \"$dir\"",
             "f=\"$dir/$(date +%Y-%m-%d_%H-%M-%S).png\"",
-            "grim -g \"$(slurp)\" \"$f\" && wl-copy < \"$f\" && notify-send -a pjsekai -i material:photo_camera \"Screenshot saved\" \"$f\""
+            "grim -g \"$(slurp)\" \"$f\" && wl-copy < \"$f\" && notify-send -a sekaipop -i material:photo_camera \"Screenshot saved\" \"$f\""
         ].join("; ")
         Quickshell.execDetached(["bash", "-c", script])
     }

@@ -16,7 +16,7 @@ assert.ok(!/Pill\b|Rectangle\s*\{[^}]*fillColor/.test(W), "no housing / card beh
 assert.ok(!/\bRectangle\b/.test(W), "the widget draws no rectangle at all")
 
 // ---- the window follows the other desktop widgets ----
-assert.ok(/WlrLayershell\.namespace: "pjsekai-lyrics"/.test(W))
+assert.ok(/WlrLayershell\.namespace: "sekaipop-lyrics"/.test(W))
 assert.ok(/WlrLayershell\.keyboardFocus: WlrKeyboardFocus\.None/.test(W), "it never takes the keyboard")
 assert.ok(/FocusGate\s*\{[^}]*widgetId: "lyrics"/.test(W), "Focus Mode hides it")
 assert.ok(/mask: Region/.test(W) && /EditMode\.desktopDragAllowed \|\| EditMode\.active \|\| chrome\.selected/.test(W), "clicks fall through while Lock all is on")

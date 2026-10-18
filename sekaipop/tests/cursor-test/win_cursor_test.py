@@ -330,7 +330,7 @@ busy = "a4.ani"
         with open(os.path.join(stub, "zenity"), "w") as fh:
             fh.write("#!/bin/sh\nprintf '%s\\n' \"$STUB_PICK\"\n")
         os.chmod(os.path.join(stub, "zenity"), 0o755)
-        penv = dict(env, PATH=stub + os.pathsep + os.environ["PATH"], STUB_PICK=chosen, PJSEKAI_CHOOSER="zenity")
+        penv = dict(env, PATH=stub + os.pathsep + os.environ["PATH"], STUB_PICK=chosen, SEKAIPOP_CHOOSER="zenity")
         r = subprocess.run(["sh", os.path.join(scripts, "pick-cursor-pack.sh"), "pick"],
                            capture_output=True, text=True, env=penv)
         check(r.stdout.strip() == pack, "one .cur / .ani picked out of a folder of cursors gives the folder (got %r)" % r.stdout.strip())

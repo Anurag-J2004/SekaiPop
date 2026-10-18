@@ -8,12 +8,12 @@
 #   visualizer-state.sh load          print the remembered JSON (or nothing at
 #                                     all, if the widget has never been used)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/visualizer.json — state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/visualizer.json — state,
 # not data, same convention clock-state.sh uses. Written to a temp file and
 # moved into place, so a crash mid-save can't leave half a file.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/visualizer.json"
 
 case "$mode" in

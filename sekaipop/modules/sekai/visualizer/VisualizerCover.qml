@@ -4,7 +4,7 @@ import Quickshell.Io
 
 // The cover art of the current track, for the end4-style visualizers (the same
 // approach as end4-pC's VisualizerWidget.qml): the art is downloaded once into
-// ${XDG_CACHE_HOME:-~/.cache}/pjsekai/cover-art/<md5 of the url> (a file:// art is used
+// ${XDG_CACHE_HOME:-~/.cache}/sekaipop/cover-art/<md5 of the url> (a file:// art is used
 // as it is), and ColorQuantizer takes the most saturated colours from it, lifted so
 // they read on any wallpaper.
 //
@@ -17,7 +17,7 @@ Item {
     property string artUrl: ""
     property bool enabled: false
 
-    readonly property string cacheDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/pjsekai/cover-art"
+    readonly property string cacheDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/sekaipop/cover-art"
     readonly property string filePath: root.cacheDir + "/" + Qt.md5(root.artUrl)
     property bool downloaded: false
 

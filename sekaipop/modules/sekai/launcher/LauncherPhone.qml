@@ -607,7 +607,7 @@ Scope {
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "pjsekai-launcherphone"
+        WlrLayershell.namespace: "sekaipop-launcherphone"
         // Exclusive, not OnDemand: OnDemand only hands the keyboard over once the
         // compositor decides this window is focused (pointer over it / clicked),
         // so with the mouse elsewhere the search box got no keys. While the

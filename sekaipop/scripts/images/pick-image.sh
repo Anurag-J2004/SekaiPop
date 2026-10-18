@@ -10,7 +10,7 @@
 #                                       picture already picked
 #   pick-image.sh clear avatar|banner   forget one (back to the default)
 #
-# The pictures live in ${XDG_DATA_HOME:-~/.local/share}/pjsekai/ (copied,
+# The pictures live in ${XDG_DATA_HOME:-~/.local/share}/sekaipop/ (copied,
 # so moving or deleting the original doesn't break the panel). Each pick
 # gets a fresh file name — avatar-<time>.<ext> — so the image is really
 # reloaded instead of the old one coming out of a cache.
@@ -18,7 +18,7 @@
 # The chooser is the first of kdialog, zenity or yad that's installed. kdialog
 # comes first because it opens its own window at once; GTK4 zenity goes through
 # the desktop portal, which can take seconds to wake up. Settings > General >
-# Quick Panel > "Avatar & banner picker" sets PJSEKAI_CHOOSER (kdialog, zenity
+# Quick Panel > "Avatar & banner picker" sets SEKAIPOP_CHOOSER (kdialog, zenity
 # or yad) to try one of them first; "Auto" leaves it unset. A chooser that is
 # not installed is skipped, so a wrong choice never leaves you without one.
 #
@@ -28,7 +28,7 @@
 
 mode="$1"
 kind="$2"
-dir="${XDG_DATA_HOME:-$HOME/.local/share}/pjsekai"
+dir="${XDG_DATA_HOME:-$HOME/.local/share}/sekaipop"
 here=$(cd "$(dirname "$0")" && pwd)
 
 case "$kind" in
@@ -74,7 +74,7 @@ done
 patterns="${patterns# }"
 
 chooser=""
-for c in ${PJSEKAI_CHOOSER:-} kdialog zenity yad; do
+for c in ${SEKAIPOP_CHOOSER:-} kdialog zenity yad; do
     case "$c" in
         zenity|kdialog|yad) ;;
         *) continue ;;

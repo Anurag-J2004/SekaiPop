@@ -179,7 +179,7 @@ PanelWindow {
     // edited last is in front of the other widgets (see EditChrome.qml); Bottom is as far
     // up as it goes, because the dock is on Top while editing (see Dock.qml).
     WlrLayershell.layer: (chrome.raised || WallpaperService.restacking) ? WlrLayer.Bottom : WlrLayer.Background
-    WlrLayershell.namespace: "pjsekai-todo"
+    WlrLayershell.namespace: "sekaipop-todo"
     // Not while editing: the shelf keeps the keyboard then (Esc), and a click
     // on a card must not take it away. The shield blocks typing anyway. The one
     // exception is the To-Do while it is selected for editing: then it is

@@ -176,7 +176,7 @@ Variants {
         visible: revealed > 0.001 || fade > 0.001
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.namespace: "pjsekai-region-preview"
+        WlrLayershell.namespace: "sekaipop-region-preview"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

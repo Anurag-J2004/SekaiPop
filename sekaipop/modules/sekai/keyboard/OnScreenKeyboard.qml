@@ -100,7 +100,7 @@ Variants {
         visible: revealed > 0.001
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.namespace: "pjsekai-keyboard"
+        WlrLayershell.namespace: "sekaipop-keyboard"
         WlrLayershell.layer: WlrLayer.Overlay
         // The whole point of a keyboard like this: never steal the focus.
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None

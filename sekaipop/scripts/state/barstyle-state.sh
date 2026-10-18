@@ -8,12 +8,12 @@
 #   barstyle-state.sh load          print the remembered name (or nothing
 #                                   at all, if none is saved yet)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/bar-style — state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/bar-style — state,
 # not data, same convention wallpaper-state.sh and pinned-apps-state.sh
 # use.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/bar-style"
 
 case "$mode" in

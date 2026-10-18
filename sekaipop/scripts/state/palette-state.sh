@@ -8,13 +8,13 @@
 #   palette-state.sh load          print the remembered JSON (or nothing at all, if
 #                                  the tool has never been used)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/palette.json, state, not data,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/palette.json, state, not data,
 # same convention weathercard-state.sh uses. Written to a temp file and moved into
 # place, so a crash mid-save can't leave half a file. This file never holds the theme:
 # the colours an Apply put on the shell are in `custom-palette` (theme-state.sh).
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/palette.json"
 
 case "$mode" in

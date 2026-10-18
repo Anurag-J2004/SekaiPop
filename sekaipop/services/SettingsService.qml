@@ -18,7 +18,7 @@ import qs.modules.common
 //     interval: SettingsService.get("panel.hotDwell")
 //
 // Only what differs from `defaults` is saved (scripts/state/settings-state.sh,
-// ~/.config/pjsekai/settings.json), so adding a new key later never
+// ~/.config/sekaipop/settings.json), so adding a new key later never
 // disturbs an old file, and removing a key from `defaults` just ignores it.
 //
 // From a keybind or a script:

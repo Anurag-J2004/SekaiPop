@@ -779,7 +779,7 @@ ShellRoot {
         // bands only: true = up the side of the screen, false = along the bottom
         function vertical(on: bool): void { VisualizerService.setVertical(on) }
         function toggleVertical(): void { VisualizerService.toggleVertical() }
-        // sekai | tide | ribbons | scope | pulse (pjsekai's own) | bars | aurora | ring | dots | mirror (end4-pC's)
+        // sekai | tide | ribbons | scope | pulse (sekaipop's own) | bars | aurora | ring | dots | mirror (end4-pC's)
         function style(name: string): void { VisualizerService.setStyle(name) }
         function nextStyle(): void { VisualizerService.cycleStyle() }
         // the media pill's little visualizer: none | dots | wave

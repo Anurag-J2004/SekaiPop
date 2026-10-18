@@ -68,7 +68,7 @@ const SettingsService = {
 for (const n of ["phonePart", "wearPhone", "overviewPart", "wearOverview", "lockPart", "wearLock"]) root[n] = eval("(" + grab(svcSrc, n) + ")")
 
 // ---- imagesPart / framePaths
-const A = { id: "a", path: "/home/u/.local/share/pjsekai/custom-images/img-1-1.png", x: 10, y: 20, w: 300, h: 200 }
+const A = { id: "a", path: "/home/u/.local/share/sekaipop/custom-images/img-1-1.png", x: 10, y: 20, w: 300, h: 200 }
 const B = { id: "b", path: "", x: 5, y: 5, w: 320, h: 240 }              // an empty frame
 const C = { id: "c", path: A.path, x: 50, y: 60, w: 100, h: 100 }        // same picture, 2nd frame
 ImageService.items = [A, B, C]

@@ -233,7 +233,7 @@ Singleton {
 
     // ===== video thumbnails =====
     // A video's picture is one frame, made by ffmpegthumbnailer (or ffmpeg when that is what
-    // is installed) into ~/.cache/pjsekai/video-thumbs/<key>.jpg, 256 px wide, once: the key
+    // is installed) into ~/.cache/sekaipop/video-thumbs/<key>.jpg, 256 px wide, once: the key
     // is made from the path, size and date, so a changed file gets a new one. Nothing is made
     // for a video the card is not showing (a job that has not started is dropped when its
     // icon goes away), at most two run at a time, and a file that can't be read keeps its
@@ -241,7 +241,7 @@ Singleton {
     // not touched for 60 days are deleted (checked on the first job of a session); deleting
     // the whole folder is always safe.
     readonly property string cacheHome: Quickshell.env("XDG_CACHE_HOME") || (root.home + "/.cache")
-    readonly property string thumbDir: root.cacheHome + "/pjsekai/video-thumbs"
+    readonly property string thumbDir: root.cacheHome + "/sekaipop/video-thumbs"
 
     property bool videoThumbsOk: true
     // key -> true once its jpg exists / once it can't be made (replaced as a whole, so bindings see it)

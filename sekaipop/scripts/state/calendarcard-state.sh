@@ -8,7 +8,7 @@
 #   calendarcard-state.sh load          print the remembered JSON (or nothing at
 #                                       all, if the card has never been used)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/calendarcard.json — state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/calendarcard.json — state,
 # not data, same convention todo-state.sh / weathercard-state.sh use. The JSON
 # is passed as one real argv entry (not a shell string), so whatever you type
 # into an event never has to be quoted. Written to a temp file and moved into
@@ -16,7 +16,7 @@
 # yours: this file is never cleaned up behind your back.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/calendarcard.json"
 
 case "$mode" in

@@ -287,7 +287,7 @@ Item {
         visible: root.showContent
         x: root.width - root.margin - width
         y: root.height - root.margin - height
-        text: "PJSEKAI \u00b7 QUICKSHELL"
+        text: "SEKAIPOP \u00b7 QUICKSHELL"
     }
 
     // ---- the hint at the bottom: how to move on, after a pause ----

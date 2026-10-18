@@ -6,7 +6,7 @@ import qs.services
 
 // The avatar and banner pictures — picked by clicking them on the Quick
 // Panel (QuickPanelFace.qml -> QuickPanel.qml -> pick()). A file chooser opens, the chosen
-// picture is copied into ~/.local/share/pjsekai/ and shown; it's found
+// picture is copied into ~/.local/share/sekaipop/ and shown; it's found
 // again there the next time the shell starts. The chooser itself and the
 // copying are pick-image.sh's job.
 //
@@ -106,7 +106,7 @@ Singleton {
 
         command: root.chooser === ""
             ? ["sh", root.script, "pick", kind]
-            : ["env", "PJSEKAI_CHOOSER=" + root.chooser, "sh", root.script, "pick", kind]
+            : ["env", "SEKAIPOP_CHOOSER=" + root.chooser, "sh", root.script, "pick", kind]
         stdout: StdioCollector {
             onStreamFinished: {
                 const path = text.trim()

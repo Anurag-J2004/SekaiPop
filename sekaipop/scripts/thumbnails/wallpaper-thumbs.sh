@@ -11,7 +11,7 @@
 #                                      full size (made if missing); empty + exit 1 on failure
 #   wallpaper-thumbs.sh clear          delete the whole cache
 #
-# The cache is ${XDG_CACHE_HOME:-~/.cache}/pjsekai/wallpaper/{thumbs,stills}. A
+# The cache is ${XDG_CACHE_HOME:-~/.cache}/sekaipop/wallpaper/{thumbs,stills}. A
 # file's key is the md5 of its path, size and modification time, so editing or
 # replacing a picture makes a new thumbnail and the old one is simply left behind
 # (`clear` removes them all).
@@ -20,7 +20,7 @@
 # need ffmpeg (or ffmpegthumbnailer for thumbnails). Without any of them nothing
 # is made and the picker just loads the originals, as it always did.
 
-base="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/wallpaper"
+base="${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/wallpaper"
 thumbs="$base/thumbs"
 stills="$base/stills"
 width=720

@@ -5,7 +5,7 @@ import QtQuick
 // (fast attack, slow release), falling peaks, a beat pulse and a playback fade.
 // Ticks only while there is something to animate, and emits frame() after each step.
 //
-// Two differences from end4's, both because pjsekai has no GlobalStates:
+// Two differences from end4's, both because sekaipop has no GlobalStates:
 //   - the bands come in through `raw` (VisualizerWidget.qml sets it from its cava
 //     process, scripts/cava/cava-pc.conf) instead of GlobalStates.visualizerPoints;
 //   - `demo` plays a made-up spectrum so Edit Desktop (and the shelf's picture of

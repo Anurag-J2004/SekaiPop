@@ -70,7 +70,7 @@ Singleton {
         property bool want: false
         command: ["sh", "-c",
             "sh \"$1\" \"$2\"; rc=$?; "
-            + "[ \"$2\" = off ] && rm -f \"${XDG_RUNTIME_DIR:-/tmp}/pjsekai-gamemode\"; "
+            + "[ \"$2\" = off ] && rm -f \"${XDG_RUNTIME_DIR:-/tmp}/sekaipop-gamemode\"; "
             + "exit $rc",
             "sh", root.script, action.want ? "on" : "off"]
         onExited: (exitCode, exitStatus) => {
@@ -89,7 +89,7 @@ Singleton {
     Process {
         id: restore
         running: true
-        command: ["sh", "-c", "[ -f \"${XDG_RUNTIME_DIR:-/tmp}/pjsekai-gamemode\" ] && echo 1 || echo 0"]
+        command: ["sh", "-c", "[ -f \"${XDG_RUNTIME_DIR:-/tmp}/sekaipop-gamemode\" ] && echo 1 || echo 0"]
         stdout: StdioCollector {
             onStreamFinished: {
                 // A toggle that got in first (it cannot, set() waits for `loaded`) wins.

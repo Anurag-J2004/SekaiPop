@@ -71,7 +71,7 @@ Variants {
         color: "transparent"
         // Doesn't reserve screen space, like the Quick Panel.
         exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.namespace: "pjsekai-osd"
+        WlrLayershell.namespace: "sekaipop-osd"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

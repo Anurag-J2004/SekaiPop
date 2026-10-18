@@ -32,7 +32,7 @@ const reset = () => { calls.clear = []; calls.exec = []; calls.assign = [] }
 
 // --- imageEntry ---
 assert.deepStrictEqual(root.imageEntry("avatar", ""), null)
-assert.deepStrictEqual(root.imageEntry("avatar", "/h/.local/share/pjsekai/avatar-170.PNG"),
+assert.deepStrictEqual(root.imageEntry("avatar", "/h/.local/share/sekaipop/avatar-170.PNG"),
     { file: "avatar.png", from: "avatar-170.PNG" })          // ext lower-cased, like the script
 assert.deepStrictEqual(root.imageEntry("banner", "/x/banner-9"), { file: "banner", from: "banner-9" })
 

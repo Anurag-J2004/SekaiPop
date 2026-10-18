@@ -157,7 +157,7 @@ PanelWindow {
 
     // Always BELOW the dock (see WeatherCardWidget.qml), up a layer while edited / moved.
     WlrLayershell.layer: (chrome.raised || WallpaperService.restacking) ? WlrLayer.Bottom : WlrLayer.Background
-    WlrLayershell.namespace: "pjsekai-palettecard"
+    WlrLayershell.namespace: "sekaipop-palettecard"
     // Not while editing: the shelf keeps the keyboard then (Esc), and a click on a card must
     // not take it away. The exception is this card while it is selected for editing.
     WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "palettecard")

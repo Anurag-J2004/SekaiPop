@@ -245,7 +245,7 @@ Scope {
         "nl=$(timeout 2 hyprctl hyprsunset temperature 2>/dev/null | head -n1)",
         "gg=$(timeout 2 hyprctl hyprsunset gamma 2>/dev/null | head -n1)",
         "gm=$( { timeout 2 hyprctl getoption animations:enabled; timeout 2 hyprctl getoption animations.enabled; } 2>/dev/null | sed -nE 's/^[[:space:]]*(int|bool|float): *//p' | head -n1 | cut -d' ' -f1)",
-        "gmm=$([ -f \"${XDG_RUNTIME_DIR:-/tmp}/pjsekai-gamemode\" ] && echo 1 || echo 0)",
+        "gmm=$([ -f \"${XDG_RUNTIME_DIR:-/tmp}/sekaipop-gamemode\" ] && echo 1 || echo 0)",
         "ee=$(pgrep -x easyeffects >/dev/null 2>&1 && echo 1 || echo 0)",
         "af=$( { timeout 2 hyprctl getoption decoration.screen_shader; timeout 2 hyprctl getoption decoration:screen_shader; } 2>/dev/null | sed -n 's/^[[:space:]]*str: //p' | head -n1)",
         "printf 'wifi=%s\\nssid=%s\\neth=%s\\nbt=%s\\nbtdev=%s\\nsinkmuted=%s\\nsrcmuted=%s\\nsinkvol=%s\\nsrcvol=%s\\nnl=%s\\ngg=%s\\ngm=%s\\ngmm=%s\\nee=%s\\naf=%s\\n' \"$w\" \"$s\" \"$e\" \"$b\" \"$d\" \"$sm\" \"$mm\" \"$sv\" \"$mv\" \"$nl\" \"$gg\" \"$gm\" \"$gmm\" \"$ee\" \"$af\""
@@ -1043,10 +1043,10 @@ Scope {
     // average. Each click cycles off -> weak -> strong -> off.
     //
     // Hyprland's Lua config ignores `hyprctl keyword`, so (like end4) the
-    // setting goes into a Lua override file, ~/.config/hypr/pjsekai_overrides.lua,
+    // setting goes into a Lua override file, ~/.config/hypr/sekaipop_overrides.lua,
     // through scripts/hyprland/antiflashbang-state.sh, which also reloads Hyprland and
     // applies it live. For it to survive a reload or restart, hyprland.lua
-    // needs one line:  pcall(require, "pjsekai_overrides")
+    // needs one line:  pcall(require, "sekaipop_overrides")
     // The state is read back from Hyprland, so a reload that drops it shows
     // up as OFF.
     readonly property string antiFlashbangScript: Directories.script("hyprland/antiflashbang-state.sh")
@@ -1102,7 +1102,7 @@ Scope {
                 "mkdir -p \"$dir\"",
                 "f=\"$dir/$(date +%Y-%m-%d_%H-%M-%S).png\"",
                 "g=$(slurp) || exit 0",
-                "grim -g \"$g\" \"$f\" && wl-copy < \"$f\" && notify-send -a pjsekai -i material:photo_camera \"Screenshot saved\" \"$f\""
+                "grim -g \"$g\" \"$f\" && wl-copy < \"$f\" && notify-send -a sekaipop -i material:photo_camera \"Screenshot saved\" \"$f\""
             ].join("; ")])
         } else if (id === "colorPicker") {
             Quickshell.execDetached(["sh", "-c", "sleep 1; exec hyprpicker -a"])
@@ -1819,15 +1819,15 @@ Scope {
     // saved by toggleKeepAwake(), and on every load the script below first
     // kills any leftover inhibitor, then — if the saved choice was ON —
     // starts a fresh one. Either way the tile shows what's really running.
-    // The "pjsekai-keep-awake" comment in the command is the marker the
+    // The "sekaipop-keep-awake" comment in the command is the marker the
     // script finds leftovers by; keep the two in step.
     readonly property string keepAwakeScript: Directories.script("state/keep-awake-state.sh")
 
     Process {
         id: inhibitor
-        command: ["systemd-inhibit", "--what=idle", "--who=pjsekai",
+        command: ["systemd-inhibit", "--what=idle", "--who=sekaipop",
                   "--why=Keep Awake (Quick Panel)", "--mode=block",
-                  "sh", "-c", "while kill -0 $PPID 2>/dev/null; do sleep 5; done # pjsekai-keep-awake"]
+                  "sh", "-c", "while kill -0 $PPID 2>/dev/null; do sleep 5; done # sekaipop-keep-awake"]
     }
 
     readonly property string tilesScript: Directories.script("state/qp-tiles-state.sh")

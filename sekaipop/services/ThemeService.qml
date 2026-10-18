@@ -170,7 +170,7 @@ Singleton {
 
     readonly property string stateDir: {
         const xdg = Quickshell.env("XDG_STATE_HOME")
-        return ((xdg && xdg.length > 0) ? xdg : (Quickshell.env("HOME") + "/.local/state")) + "/pjsekai"
+        return ((xdg && xdg.length > 0) ? xdg : (Quickshell.env("HOME") + "/.local/state")) + "/sekaipop"
     }
 
     // Same files theme-state.sh writes (`dark`, `darker`: "on" / "off").
@@ -327,7 +327,7 @@ Singleton {
         // notice is unchanged.
         const script = "s=\"$HOME/.config/quickshell/ii/scripts/colors/switchwall.sh\"\n"
             + "if [ -f \"$s\" ]; then\n"
-            + "d=\"${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/nonotify\"\n"
+            + "d=\"${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/nonotify\"\n"
             + "mkdir -p \"$d\" || exit 1\n"
             + "real=$(PATH=\"${PATH//$d:/}\" command -v notify-send) || real=true\n"
             + "printf '%s\\n' '#!/bin/sh' 'case \"$*\" in *[Uu]psc*|*[Rr]esolution*) exit 0;; esac' \"exec \\\"$real\\\" \\\"\\$@\\\"\" > \"$d/notify-send.tmp\" && chmod +x \"$d/notify-send.tmp\" && mv \"$d/notify-send.tmp\" \"$d/notify-send\"\n"
@@ -450,7 +450,7 @@ Singleton {
     readonly property string matugenPath: {
         const xdgCache = Quickshell.env("XDG_CACHE_HOME")
         const base = (xdgCache && xdgCache.length > 0) ? xdgCache : (Quickshell.env("HOME") + "/.cache")
-        return base + "/pjsekai/matugen/colors.json"
+        return base + "/sekaipop/matugen/colors.json"
     }
 
     // Same queue-one-behind convention as the savers: a switch mid-run isn't
@@ -557,7 +557,7 @@ Singleton {
     readonly property string lockMatugenPath: {
         const xdgCache = Quickshell.env("XDG_CACHE_HOME")
         const base = (xdgCache && xdgCache.length > 0) ? xdgCache : (Quickshell.env("HOME") + "/.cache")
-        return base + "/pjsekai/matugen/lock-colors.json"
+        return base + "/sekaipop/matugen/lock-colors.json"
     }
 
     Process {

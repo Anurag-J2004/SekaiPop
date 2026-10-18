@@ -147,7 +147,7 @@ Scope {
             visible: revealed > 0.001
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
-            WlrLayershell.namespace: "pjsekai-reload"
+            WlrLayershell.namespace: "sekaipop-reload"
             WlrLayershell.layer: WlrLayer.Overlay
             WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

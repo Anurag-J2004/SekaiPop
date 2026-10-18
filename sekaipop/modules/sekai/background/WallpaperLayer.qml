@@ -48,7 +48,7 @@ PanelWindow {
 
     // ===== sole background-layer client =====
     WlrLayershell.layer: WlrLayer.Background
-    WlrLayershell.namespace: "pjsekai-wallpaper"
+    WlrLayershell.namespace: "sekaipop-wallpaper"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "black" // shown before the first image finishes decoding

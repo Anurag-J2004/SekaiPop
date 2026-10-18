@@ -6,12 +6,12 @@ import qs.modules.common
 
 // Hyprland: gaps and borders, window looks, animations, workspaces and input.
 // Values are read from Hyprland itself and changes apply the moment you make
-// them; they are also written to ~/.config/hypr/pjsekai_overrides.lua so they
+// them; they are also written to ~/.config/hypr/sekaipop_overrides.lua so they
 // survive a reload (see scripts/hyprland/hyprland-settings.sh).
 SettingsPage {
     id: page
 
-    readonly property string linkLine: "pcall(require, \"pjsekai_overrides\")"
+    readonly property string linkLine: "pcall(require, \"sekaipop_overrides\")"
 
     function setInt(path, v) { HyprlandSettings.set(path, "int", Math.round(v)) }
     function setFloat(path, v) { HyprlandSettings.set(path, "float", v.toFixed(2)) }

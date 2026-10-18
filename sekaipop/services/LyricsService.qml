@@ -14,7 +14,7 @@ import "../modules/common/functions/LyricsMath.js" as LM
 //   LyricsService.nudge(250)
 //
 // Where the lyrics come from, in order, stopping at the first that has them:
-//   1. the cache (~/.cache/pjsekai/lyrics, what an earlier play found);
+//   1. the cache (~/.cache/sekaipop/lyrics, what an earlier play found);
 //   2. a .lrc file beside the music file (same name, ".lrc"), for tracks that are files;
 //   3. the providers (see `providers` below, in the order they are liked: Boidu / Better Lyrics,
 //      LyricsPlus, LRCLIB, YouTube Music, SimpMusic, NetEase, QQ Music, Kugou), all asked at
@@ -1111,7 +1111,7 @@ Singleton {
     // GET `url` with curl: cb(status, body). Status 0 means it never got an answer (no curl,
     // no network, a timeout). `-w` puts the HTTP status on a last line.
     function http(url, cb, extra) {
-        root.curl(extra ? extra : ["-H", "Lrclib-Client: pjsekai-quickshell"], url, cb)
+        root.curl(extra ? extra : ["-H", "Lrclib-Client: sekaipop-quickshell"], url, cb)
     }
 
     // POST a JSON `body`: cb(status, answer), the same as http().

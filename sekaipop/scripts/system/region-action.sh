@@ -33,19 +33,19 @@
 #       it with SIGINT, which is what makes wf-recorder finish the file properly.
 #   region-action.sh rules     switch Hyprland's layer animation off for the picker and
 #       its preview card (no zoom on the dim): applied live, and written to
-#       ~/.config/hypr/pjsekai_overrides.lua when hyprland.lua loads that file.
+#       ~/.config/hypr/sekaipop_overrides.lua when hyprland.lua loads that file.
 #       Safe to run again; RegionService runs it at start-up and after a reload.
 #   region-action.sh tools     print which of the helpers are installed
 #
 # Needs: grim, wl-clipboard. Optional: imagemagick (cropping; without it copy /
 # save / ocr / search fall back to grabbing the region live with grim), tesseract
 # (ocr), curl + jq (search), swappy (right-drag), wf-recorder (record), pactl (system sound).
-# Everything is written to ${XDG_RUNTIME_DIR:-/tmp}/pjsekai-region/ and removed.
+# Everything is written to ${XDG_RUNTIME_DIR:-/tmp}/sekaipop-region/ and removed.
 
 mode="$1"
 [ $# -gt 0 ] && shift
 
-notify() { command -v notify-send >/dev/null 2>&1 && notify-send -a pjsekai "$@"; }
+notify() { command -v notify-send >/dev/null 2>&1 && notify-send -a sekaipop "$@"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 case "$mode" in
@@ -157,27 +157,27 @@ case "$mode" in
         # closes, and Hyprland plays its own layer animation on both: the dim
         # zooms in and out. Switch that off for the picker's two namespaces
         # (the dim and the card are untouched). Same thing as, in hyprland.lua:
-        #   hl.layer_rule({ match = { namespace = "^pjsekai-region$" }, no_anim = true })
+        #   hl.layer_rule({ match = { namespace = "^sekaipop-region$" }, no_anim = true })
         #
         # A rule added with `hyprctl eval` lives only until Hyprland reloads its
         # config (hyprctl reload, an edit of hyprland.lua, the anti-flashbang
         # tile, Settings -> Hyprland ...), and then the zoom comes back. So:
         #   - it is applied live (RegionService does this at start-up and again
         #     after every "configreloaded" event), and
-        #   - when hyprland.lua already loads pjsekai_overrides, it is also
-        #     written there (marker lines, like the other pjsekai options), so a
+        #   - when hyprland.lua already loads sekaipop_overrides, it is also
+        #     written there (marker lines, like the other sekaipop options), so a
         #     reload brings it back by itself.
         have hyprctl || exit 0
         cfgdir="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
-        ovr="$cfgdir/pjsekai_overrides.lua"
+        ovr="$cfgdir/sekaipop_overrides.lua"
         linked=no
-        [ -f "$cfgdir/hyprland.lua" ] && grep -q 'pjsekai_overrides' "$cfgdir/hyprland.lua" && linked=yes
-        for spec in "region-no-anim:pjsekai-region" "region-preview-no-anim:pjsekai-region-preview"; do
+        [ -f "$cfgdir/hyprland.lua" ] && grep -q 'sekaipop_overrides' "$cfgdir/hyprland.lua" && linked=yes
+        for spec in "region-no-anim:sekaipop-region" "region-preview-no-anim:sekaipop-region-preview"; do
             key="${spec%%:*}"
             ns="${spec#*:}"
-            lua="hl.layer_rule({ name = \"pjsekai-$key\", match = { namespace = \"^$ns\$\" }, no_anim = true })"
+            lua="hl.layer_rule({ name = \"sekaipop-$key\", match = { namespace = \"^$ns\$\" }, no_anim = true })"
             if [ "$linked" = yes ]; then
-                mark="-- pjsekai:$key"
+                mark="-- sekaipop:$key"
                 [ -e "$ovr" ] || : > "$ovr"
                 grep -q -F -e "$mark" "$ovr" || printf '%s %s\n' "$lua" "$mark" >> "$ovr"
             fi

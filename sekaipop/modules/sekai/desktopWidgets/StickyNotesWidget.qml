@@ -130,7 +130,7 @@ PanelWindow {
 
     WlrLayershell.layer: win.pinnedLayer ? WlrLayer.Top
         : (WallpaperService.restacking ? WlrLayer.Bottom : WlrLayer.Background)
-    WlrLayershell.namespace: win.pinnedLayer ? "pjsekai-notes-pinned" : "pjsekai-notes"
+    WlrLayershell.namespace: win.pinnedLayer ? "sekaipop-notes-pinned" : "sekaipop-notes"
     // Not while editing the desktop: the shelf keeps the keyboard then (Esc).
     WlrLayershell.keyboardFocus: EditMode.active ? WlrKeyboardFocus.None : WlrKeyboardFocus.OnDemand
     exclusionMode: ExclusionMode.Ignore

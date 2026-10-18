@@ -1418,7 +1418,7 @@ PanelWindow {
     // so it must not sit behind them. Same for the Files stack: it opens over your windows.)
     WlrLayershell.layer: (dockWindow.dockPinned || dockWindow.autoHideOn || dockWindow.editing
                           || dockWindow.toolOpen === "files" || dockWindow.toolOpen === "shelf") ? WlrLayer.Top : WlrLayer.Bottom
-    WlrLayershell.namespace: "pjsekai-dock"
+    WlrLayershell.namespace: "sekaipop-dock"
     // The folder card has a text box (the rename) and the Files stack listens for Esc /
     // Backspace; the dock never takes the keyboard otherwise.
     WlrLayershell.keyboardFocus: (dockWindow.folderOpen || dockWindow.toolOpen === "files") ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None

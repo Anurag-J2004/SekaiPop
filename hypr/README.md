@@ -1,4 +1,4 @@
-# hypr config for the pjsekai shell
+# hypr config for the sekaipop shell
 
 Lua config for Hyprland 0.55+, built on end-4's dots-hyprland layout and rewritten around
 `qs -c sekaipop`. **Not run on a live Hyprland** (none here): the Lua was checked for balanced
@@ -9,8 +9,8 @@ but nothing has been loaded by Hyprland itself.
 
     cd ~/.config
     mv hypr hypr.bak
-    unzip ~/Downloads/hypr_pjsekai.zip
-    cp hypr.bak/pjsekai_overrides.lua hypr.bak/monitors.lua hypr/   # your live copies, not the snapshot in the zip
+    unzip ~/Downloads/hypr_sekaipop.zip
+    cp hypr.bak/sekaipop_overrides.lua hypr.bak/monitors.lua hypr/   # your live copies, not the snapshot in the zip
     cp hypr.bak/custom/*.lua hypr/custom/                           # only if you added things there
     hyprctl reload        # then log out and back in once: the startup list changed
 
@@ -20,23 +20,23 @@ but nothing has been loaded by Hyprland itself.
 
 It was Illogical Impulse's, so it talked to a shell that is not running:
 
-- every `quickshell:...` global shortcut except `searchToggleRelease` does not exist in pjsekai;
-- every `qs ... ipc call TEST_ALIVE || <fallback>` pair always ran the fallback (pjsekai has no
+- every `quickshell:...` global shortcut except `searchToggleRelease` does not exist in sekaipop;
+- every `qs ... ipc call TEST_ALIVE || <fallback>` pair always ran the fallback (sekaipop has no
   `TEST_ALIVE`), so SUPER+V opened fuzzel, SUPER+SHIFT+S ran hyprshot, and so on;
-- the layer rules matched `quickshell:*` namespaces; pjsekai's are `pjsekai-*`;
+- the layer rules matched `quickshell:*` namespaces; sekaipop's are `sekaipop-*`;
 - startup ran things the shell does itself (clipboard watcher, cursor, video wallpaper) or that
   call II-only IPC (`cliphistService`);
-- `hyprland/shellOverrides/main.lua` was II's generated file, loaded before pjsekai's.
+- `hyprland/shellOverrides/main.lua` was II's generated file, loaded before sekaipop's.
 
 ## What it is now
 
 | File | |
 |---|---|
-| `hyprland.lua` | load order; `pjsekai_overrides.lua` stays last |
+| `hyprland.lua` | load order; `sekaipop_overrides.lua` stays last |
 | `hyprland/variables.lua` | `QS_IPC`, terminal (also exported as `$TERMINAL`), apps |
 | `hyprland/execs.lua` | session env, keyring, cursor fallback, the shell, hypridle, easyeffects |
 | `hyprland/general.lua` | Hyprland options and animations (gaps/border/colours are the shell's to change) |
-| `hyprland/rules.lua` | window rules, plus one layer rule: no compositor animation on `^pjsekai-` |
+| `hyprland/rules.lua` | window rules, plus one layer rule: no compositor animation on `^sekaipop-` |
 | `hyprland/keybinds.lua` | see below |
 | `hypridle.conf` | unchanged behaviour: lock via the shell, screen off 10 min, sleep 15 min |
 
@@ -60,7 +60,7 @@ binds in `custom/keybinds.lua`.
   are gone: the shell's bar numbers workspaces 1..N.
 - Option values that II's generated override file used to force are now the defaults here:
   rounding 22, blur size 1, touchpad natural scroll off, click-finger off, focus-on-activate off.
-- Removed (nothing in pjsekai uses them): fuzzel / wlogout / hyprshot / geoclue / ollama scripts,
+- Removed (nothing in sekaipop uses them): fuzzel / wlogout / hyprshot / geoclue / ollama scripts,
   hyprlock.conf and its colours (the shell has its own lockscreen), `*.new` leftovers, the empty
   `workspaces.conf`, the hyprlang `monitors.conf`, II's `colors.lua`, `shellOverrides`, `custom/scripts`.
 - Not bound (no matching IPC): II's sidebar / OSK-overlay / bar toggle / media-controls / panel-family

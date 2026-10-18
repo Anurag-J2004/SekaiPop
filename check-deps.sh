@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-deps.sh: read-only dependency check for the SekaiPop (pjsekai) Quickshell rice.
+# check-deps.sh: read-only dependency check for the SekaiPop Quickshell rice.
 # Run it BEFORE installing the rice. It installs nothing and changes nothing.
 #
 #   ./check-deps.sh            full report
@@ -152,11 +152,11 @@ if have hyprctl && [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
 fi
 if [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
     printf '  %sconfig mode: Lua (hyprland.lua)%s\n' "$D" "$Z"
-    if grep -q 'pjsekai_overrides' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null \
-       || grep -rqs 'pjsekai_overrides' "$HOME/.config/hypr" 2>/dev/null; then
-        record 3 'hyprland.lua loads pjsekai_overrides' 1 "" manual
+    if grep -q 'sekaipop_overrides' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null \
+       || grep -rqs 'sekaipop_overrides' "$HOME/.config/hypr" 2>/dev/null; then
+        record 3 'hyprland.lua loads sekaipop_overrides' 1 "" manual
     else
-        record 3 'hyprland.lua loads pjsekai_overrides' 0 "" manual 'add: pcall(require, "pjsekai_overrides") or Settings changes are lost on reload'
+        record 3 'hyprland.lua loads sekaipop_overrides' 0 "" manual 'add: pcall(require, "sekaipop_overrides") or Settings changes are lost on reload'
     fi
 elif [ -f "$HOME/.config/hypr/hyprland.conf" ]; then
     printf '  %sconfig mode: hyprlang (hyprland.conf); the rice supports both%s\n' "$D" "$Z"
@@ -442,7 +442,7 @@ printf '  %s[note]%s if you log in from a display manager, pick plain Hyprland, 
 # --------------------------------------------------------------------------
 section "Rice folder (only if already copied)"
 # --------------------------------------------------------------------------
-RICE="${PJSEKAI_DIR:-$HOME/.config/quickshell/sekaipop}"
+RICE="${SEKAIPOP_DIR:-$HOME/.config/quickshell/sekaipop}"
 if [ -f "$RICE/shell.qml" ]; then
     printf '  %sfound %s (version %s)%s\n' "$D" "$RICE" "$(cat "$RICE/VERSION" 2>/dev/null || echo '?')" "$Z"
     miss=0
@@ -451,7 +451,7 @@ if [ -f "$RICE/shell.qml" ]; then
     done
     [ "$miss" = 0 ] && printf '  %s[ ok ]%s shaders, assets and templates are in place\n' "$G" "$Z"
 else
-    printf '  %snot installed at %s yet (set PJSEKAI_DIR to check another path)%s\n' "$D" "$RICE" "$Z"
+    printf '  %snot installed at %s yet (set SEKAIPOP_DIR to check another path)%s\n' "$D" "$RICE" "$Z"
 fi
 
 # --------------------------------------------------------------------------

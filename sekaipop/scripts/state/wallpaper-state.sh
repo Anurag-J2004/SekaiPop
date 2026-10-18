@@ -25,14 +25,14 @@
 # remembered on their own and never touch the desktop's files above. They are
 # kept while the option is off (the lockscreen just ignores them then).
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/wallpaper — state,
-# not data (contrast pick-image.sh's ~/.local/share/pjsekai/, which
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/wallpaper — state,
+# not data (contrast pick-image.sh's ~/.local/share/sekaipop/, which
 # holds actual copied picture files): this is just a pointer back into
 # wherever your real wallpapers already live (WallpaperService.qml's
 # `directory`), nothing gets copied or duplicated here.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/wallpaper"
 screens="$dir/wallpaper-screens"
 lockfile="$dir/lockwallpaper"

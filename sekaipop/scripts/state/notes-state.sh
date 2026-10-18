@@ -8,14 +8,14 @@
 #   notes-state.sh load          print the remembered JSON (or nothing at
 #                              all, if the widget has never been used)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/notes.json — state, not
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/notes.json — state, not
 # data, same convention pinned-apps-state.sh / wallpaper-state.sh use. The
 # JSON is passed as one real argv entry (not a shell string), so whatever
 # you type into a note never has to be quoted. Written to a temp file and
 # moved into place, so a crash mid-save can't leave half a file behind.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/notes.json"
 
 case "$mode" in

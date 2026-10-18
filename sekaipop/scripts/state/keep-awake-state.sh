@@ -9,13 +9,13 @@
 #                                  nothing at all)
 #   keep-awake-state.sh save on|off
 #
-# Lives in ${XDG_RUNTIME_DIR:-/tmp}/pjsekai/keep-awake — the runtime dir
+# Lives in ${XDG_RUNTIME_DIR:-/tmp}/sekaipop/keep-awake — the runtime dir
 # (tmpfs), not ~/.local/state, on purpose: a reload keeps it, but logging
 # out or rebooting wipes it, so Keep Awake never silently comes back ON in
 # a fresh session. Written to a temp file and moved into place.
 
 mode="$1"
-dir="${XDG_RUNTIME_DIR:-/tmp}/pjsekai"
+dir="${XDG_RUNTIME_DIR:-/tmp}/sekaipop"
 file="$dir/keep-awake"
 
 case "$mode" in
@@ -25,7 +25,7 @@ case "$mode" in
         # Keep Awake is off. Kill it; QuickSource starts a fresh one if
         # the saved state says ON. ([e] keeps this pattern from matching
         # a command line that merely contains the pattern's own text.)
-        pkill -f 'pjsekai-keep-awak[e]' 2>/dev/null
+        pkill -f 'sekaipop-keep-awak[e]' 2>/dev/null
         [ -f "$file" ] && cat "$file"
         exit 0
         ;;

@@ -9,7 +9,7 @@ const read = f => fs.readFileSync(require("../lib/locate")(f), "utf8")
 // ---------- the script ----------
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "presets-"))
 const env = Object.assign({}, process.env, { XDG_CONFIG_HOME: path.join(tmp, "config"), XDG_STATE_HOME: path.join(tmp, "state"), XDG_DATA_HOME: path.join(tmp, "data") })
-const dir = path.join(tmp, "config", "pjsekai", "presets")
+const dir = path.join(tmp, "config", "sekaipop", "presets")
 const sh = (...a) => spawnSync("sh", [path.join(top, "scripts", "state", "preset-state.sh"), ...a], { env, encoding: "utf8" })
 const png = path.join(tmp, "a.png"); fs.writeFileSync(png, "x")
 const json = n => JSON.stringify({ _meta: { name: n, v: 1 }, theme: { group: "g" } })
@@ -52,7 +52,7 @@ assert.strictEqual(sh("rename", "DAY", "Ghost", json("Ghost")).status, 0)
 assert.ok(!fs.existsSync(path.join(dir, "Ghost.images")), "no stray pictures under the new name")
 
 // wearing the pictures still works under the new name
-const data = path.join(tmp, "data", "pjsekai")
+const data = path.join(tmp, "data", "sekaipop")
 r = sh("restore", "Late night", "avatar", "avatar.png", "avatar-1.png")
 assert.strictEqual(r.status, 0); assert.ok(fs.existsSync(path.join(data, "avatar-1.png")), "restore finds the renamed folder")
 assert.ok(!fs.readdirSync(dir).some(f => f.endsWith(".tmp")), "no temp files left")

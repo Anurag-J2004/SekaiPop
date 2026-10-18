@@ -28,7 +28,7 @@ Singleton {
 
     // Which look: "sekai" (the keycap card, SekaiVisualizer.qml) or one of end4-pC's
     // visualizers: "bars", "aurora", "dots", "mirror" (a band across the bottom of the
-    // screen), "tide" (pjsekai's own: layered paper waves, TideVisualizer.qml), "ribbons" (pjsekai's own: neon ribbon waves, shaders/visualizer/ribbons.frag), "scope" (pjsekai's own: oscilloscope trace with afterglow, shaders/visualizer/scope.frag), "pulse" (pjsekai's own: halftone dot matrix, shaders/visualizer/pulse.frag) and "ring" (a round one, movable like the card). See VisualizerWidget.qml.
+    // screen), "tide" (sekaipop's own: layered paper waves, TideVisualizer.qml), "ribbons" (sekaipop's own: neon ribbon waves, shaders/visualizer/ribbons.frag), "scope" (sekaipop's own: oscilloscope trace with afterglow, shaders/visualizer/scope.frag), "pulse" (sekaipop's own: halftone dot matrix, shaders/visualizer/pulse.frag) and "ring" (a round one, movable like the card). See VisualizerWidget.qml.
     property string style: "sekai"
     readonly property var styles: ["sekai", "bars", "aurora", "ring", "dots", "mirror", "tide", "ribbons", "scope", "pulse"]
     readonly property bool isSekai: root.style === "sekai"

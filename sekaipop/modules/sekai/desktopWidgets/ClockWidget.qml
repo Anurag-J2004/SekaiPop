@@ -193,7 +193,7 @@ PanelWindow {
     // edited last is in front of the other widgets (see EditChrome.qml); Bottom is as far
     // up as it goes, because the dock is on Top while editing (see Dock.qml).
     WlrLayershell.layer: (chrome.raised || WallpaperService.restacking) ? WlrLayer.Bottom : WlrLayer.Background
-    WlrLayershell.namespace: "pjsekai-clock"
+    WlrLayershell.namespace: "sekaipop-clock"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"

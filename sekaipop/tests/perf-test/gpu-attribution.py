@@ -12,7 +12,7 @@ Run it three times under the same conditions and keep the output of each:
   3. MEDIA, pill visualizer OFF (VisualizerService.pillStyle = none).
 
 What it prints
-  * every layer-shell surface of pjsekai-* as w x h and as a share of its
+  * every layer-shell surface of sekaipop-* as w x h and as a share of its
     monitor. A transparent surface the size of the screen is composited
     again by Hyprland on every frame the shell draws into it.
   * per process, the share of GPU time (drm-engine-gfx) over the window, for
@@ -72,14 +72,14 @@ def layers():
     except Exception as e:
         print("hyprctl unavailable:", e)
         return
-    print("layer surfaces (pjsekai-*), size and share of the monitor")
+    print("layer surfaces (sekaipop-*), size and share of the monitor")
     rows = []
     for mon, v in j.items():
         mw, mh = mons.get(mon, (0, 0))
         for lvl, arr in v.get("levels", {}).items():
             for s in arr:
                 ns = s.get("namespace", "")
-                if ns.startswith(("pjsekai", "quickshell")):
+                if ns.startswith(("sekaipop", "quickshell")):
                     share = (s["w"] * s["h"]) / (mw * mh) * 100 if mw and mh else 0
                     rows.append((share, mon, lvl, ns, s["w"], s["h"]))
     for share, mon, lvl, ns, w, h in sorted(rows, reverse=True):

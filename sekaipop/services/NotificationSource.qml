@@ -12,7 +12,7 @@ import QtQuick
 //
 //   entries   the notification history, newest first — the Quick Panel's
 //             list. Every notification that arrives is kept here (and
-//             saved to ~/.local/state/pjsekai/notifications.json), so the
+//             saved to ~/.local/state/sekaipop/notifications.json), so the
 //             list survives a shell restart or reboot and still shows
 //             ones the app itself closed or replaced afterwards, like the
 //             sidebar list in end-4's "ii". Nothing expires on its own:
@@ -329,7 +329,7 @@ Scope {
     // The shell's own screenshot confirmations (scripts/system/region-action.sh).
     // Errors ("wl-clipboard is not installed") are not matched, so they still show.
     function isScreenshotNote(e) {
-        if (String(e.app).toLowerCase() !== "pjsekai")
+        if (String(e.app).toLowerCase() !== "sekaipop")
             return false
         return e.title === "Copied to the clipboard" && e.body === "Region screenshot"
             || e.title === "Screenshot saved"
@@ -382,7 +382,7 @@ Scope {
     }
 
     // ===== saved history =====
-    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pjsekai"
+    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/sekaipop"
 
     function snapshot() {
         return JSON.stringify(entries.map(e => ({

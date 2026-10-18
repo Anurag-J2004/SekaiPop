@@ -19,7 +19,7 @@ import qs.modules.common
 //     background, whether or not the card is open.
 //
 // Needs `easyeffects`, `jq`, `python3` and `curl` (Auto only). The state lives in
-// ${XDG_STATE_HOME:-~/.local/state}/pjsekai/eq.
+// ${XDG_STATE_HOME:-~/.local/state}/sekaipop/eq.
 //
 //   qs -c sekaipop ipc call eq open | preset <name> | auto <on|off> | get
 //                            lastfmKey <key> | saveAs <name>
@@ -30,7 +30,7 @@ Singleton {
     // ===== where things are =====
     readonly property string script: Directories.script("eq/equalizer.sh")
     readonly property string stateDir:
-        (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pjsekai/eq"
+        (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/sekaipop/eq"
 
     // ===== the curve =====
     readonly property var bandLabels: ["32", "63", "125", "250", "500", "1k", "2k", "4k", "8k", "16k"]

@@ -7,11 +7,11 @@
 #   barposition-state.sh load          print the remembered edge (or nothing
 #                                      at all, if none is saved yet)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/bar-position — same
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/bar-position — same
 # place and same idea as barstyle-state.sh.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/bar-position"
 
 case "$mode" in

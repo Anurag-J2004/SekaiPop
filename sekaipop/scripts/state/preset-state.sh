@@ -37,9 +37,9 @@
 #                                       one per line (a preset applies a
 #                                       wallpaper only if its file is there)
 #
-# Lives in ${XDG_CONFIG_HOME:-~/.config}/pjsekai/presets/<name>.json: a preset
+# Lives in ${XDG_CONFIG_HOME:-~/.config}/sekaipop/presets/<name>.json: a preset
 # is something the user made and keeps, so it sits with the config. Presets
-# saved by an older version in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/presets/
+# saved by an older version in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/presets/
 # are moved here (the whole folder, pictures included) the first time this runs.
 # Copy the folder to take your presets to another machine; the wallpaper
 # paths inside are plain paths, so keep the pictures where they were.
@@ -48,7 +48,7 @@
 # away whenever a new one is picked, so a preset keeps its OWN copy, in
 # <name>.images/avatar.<ext> and banner.<ext> beside <name>.json. Those travel
 # with the folder. "restore" puts a copy back in the data folder
-# (${XDG_DATA_HOME:-~/.local/share}/pjsekai/, pick-image.sh's folder) and drops
+# (${XDG_DATA_HOME:-~/.local/share}/sekaipop/, pick-image.sh's folder) and drops
 # the picture of that kind that was there, exactly like a fresh pick (including
 # scaling a very big one down, see shrink-image.sh).
 #
@@ -62,8 +62,8 @@
 # half a preset.
 
 mode="$1"
-dir="${XDG_CONFIG_HOME:-$HOME/.config}/pjsekai/presets"
-old="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai/presets"
+dir="${XDG_CONFIG_HOME:-$HOME/.config}/sekaipop/presets"
+old="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop/presets"
 here=$(cd "$(dirname "$0")" && pwd)
 
 # One-time move from the old place: only when there is no presets folder here
@@ -98,7 +98,7 @@ keep_image() {
 keep_frames() {
     out="$1"
     if [ $# -ge 6 ]; then shift 6; else set --; fi
-    src="${XDG_DATA_HOME:-$HOME/.local/share}/pjsekai/custom-images"
+    src="${XDG_DATA_HOME:-$HOME/.local/share}/sekaipop/custom-images"
     rm -rf -- "$out.tmp"
     mkdir -p "$out.tmp" || return 1
     for f in "$@"; do
@@ -162,7 +162,7 @@ case "$mode" in
         bad_name "$2" && { echo "bad preset name" >&2; exit 2; }
         name="$2"
         shift 2
-        data="${XDG_DATA_HOME:-$HOME/.local/share}/pjsekai/custom-images"
+        data="${XDG_DATA_HOME:-$HOME/.local/share}/sekaipop/custom-images"
         for file in "$@"; do
             # <file> is a plain name inside the preset's own folder.
             case "$file" in
@@ -187,7 +187,7 @@ case "$mode" in
         bad_name "$2" && { echo "bad preset name" >&2; exit 2; }
         name="$2"
         shift 2
-        data="${XDG_DATA_HOME:-$HOME/.local/share}/pjsekai"
+        data="${XDG_DATA_HOME:-$HOME/.local/share}/sekaipop"
         while [ $# -ge 3 ]; do
             kind="$1"
             file="$2"

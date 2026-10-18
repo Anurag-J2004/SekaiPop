@@ -270,7 +270,7 @@ Singleton {
         root.picking = true
         const chooser = SettingsService.get("files.chooser")
         const env = (chooser === "kdialog" || chooser === "zenity" || chooser === "yad")
-            ? ["env", "PJSEKAI_CHOOSER=" + chooser] : []
+            ? ["env", "SEKAIPOP_CHOOSER=" + chooser] : []
         packPicker.exec(env.concat(["sh", root.pickPackScript, "pick"]))
     }
 

@@ -8,7 +8,7 @@
 #   welcome-state.sh reset    forget it, so the next start shows it again
 #   welcome-state.sh status   print what is remembered: "done", a try count, or "none"
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/welcome - state, not data,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/welcome - state, not data,
 # same convention settings-state.sh / clock-state.sh use. The file holds the word
 # "done" or a number of tries.
 #
@@ -20,7 +20,7 @@
 # it any time with `qs -c sekaipop ipc call welcome show`.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/welcome"
 max_tries=3
 

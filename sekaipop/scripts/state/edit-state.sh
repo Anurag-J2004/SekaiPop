@@ -7,12 +7,12 @@
 #   edit-state.sh load          print the remembered JSON (or nothing at all,
 #                               if the switch has never been touched)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/edit.json — state, not
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/edit.json — state, not
 # data, same convention clock-state.sh / todo-state.sh use. Written to a temp
 # file and moved into place, so a crash mid-save can't leave half a file.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/edit.json"
 
 case "$mode" in

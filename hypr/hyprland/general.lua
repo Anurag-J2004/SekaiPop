@@ -1,5 +1,5 @@
 -- Hyprland options and animations. The shell's Settings > Hyprland page changes the same options
--- live and keeps its choices in pjsekai_overrides.lua (loaded last), so what you set there wins
+-- live and keeps its choices in sekaipop_overrides.lua (loaded last), so what you set there wins
 -- over what is written here. "Reset" on that page puts these values back.
 
 -- MONITOR CONFIG (monitors.lua, written by nwg-displays, takes over from this fallback)

@@ -38,7 +38,7 @@ Scope {
         id: win
 
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "pjsekai-region"
+        WlrLayershell.namespace: "sekaipop-region"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"

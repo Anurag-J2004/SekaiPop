@@ -22,7 +22,7 @@
 #   pinned-apps-state.sh layout-load
 #                                   print that JSON (nothing if never saved)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/pinned-apps —
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/pinned-apps —
 # state, not data, same convention wallpaper-state.sh right next to
 # this uses for the wallpaper path. Classes/icon names are passed as
 # real argv entries (not a shell string), so this never has to worry
@@ -30,7 +30,7 @@
 
 mode="$1"
 shift
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/pinned-apps"
 
 case "$mode" in

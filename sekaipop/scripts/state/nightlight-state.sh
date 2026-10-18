@@ -8,12 +8,12 @@
 #                                 one line — nothing at all if never saved
 #                                 (the shell then keeps its defaults)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/nightlight — state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/nightlight — state,
 # not runtime: your intensity and schedule should survive a reboot.
 # Written to a temp file and moved into place.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/nightlight"
 
 case "$mode" in

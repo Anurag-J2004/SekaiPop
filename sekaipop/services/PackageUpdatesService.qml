@@ -133,7 +133,7 @@ Singleton {
         if (root.nudged)
             return
         root.nudged = true
-        Quickshell.execDetached(["notify-send", "-a", "pjsekai", "-i", "material:system_update",
+        Quickshell.execDetached(["notify-send", "-a", "sekaipop", "-i", "material:system_update",
             root.total + " updates are waiting",
             "Click the update badge in the bar to run them in a terminal."])
     }

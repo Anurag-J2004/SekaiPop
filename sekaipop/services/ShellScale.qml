@@ -7,7 +7,7 @@ import qs.modules.common
 
 // One size knob per monitor for the whole shell.
 //
-// The numbers live in ~/.config/pjsekai/scale.json (or under $XDG_CONFIG_HOME)
+// The numbers live in ~/.config/sekaipop/scale.json (or under $XDG_CONFIG_HOME)
 // and are re-read the moment you save the file, so you can edit it and watch
 // the bar, dock, panels and popups resize live. A scale.json that an older
 // version kept next to shell.qml is copied there the first time (see
@@ -99,10 +99,10 @@ Singleton {
     // ignored (the in-memory values are already the newest).
     property double lastSaveMs: 0
 
-    // ~/.config/pjsekai/scale.json. The path is only given to the FileView once
+    // ~/.config/sekaipop/scale.json. The path is only given to the FileView once
     // scale-state.sh has made the folder and moved the old file in, so there is
     // always a file to watch.
-    readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/pjsekai"
+    readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/sekaipop"
     property string filePath: ""
 
     Process {

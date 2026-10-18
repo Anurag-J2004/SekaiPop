@@ -213,7 +213,7 @@ PanelWindow {
     // a fullscreen window too).
     WlrLayershell.layer: win.onTop ? WlrLayer.Overlay
         : ((chrome.raised || WallpaperService.restacking) ? WlrLayer.Bottom : WlrLayer.Background)
-    WlrLayershell.namespace: "pjsekai-image"
+    WlrLayershell.namespace: "sekaipop-image"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"

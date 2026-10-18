@@ -6,7 +6,7 @@
     }
     [class*="content_"]:has(> [class*="text_"]) > [class*="spinner_"] { display: none; }
     [class*="content_"]:has(> [class*="spinner_"]):has(> [class*="text_"])::before {
-        content: '\266A  pjsekai  \266A'; display: block;
+        content: '\266A  sekaipop  \266A'; display: block;
         font-size: 44px; font-weight: 900; letter-spacing: 0.04em;
         background: linear-gradient(90deg, var(--pj-a), var(--pj-b), var(--pj-a)) 0 50% / 200% auto;
         -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;

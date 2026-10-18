@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 #
-# Live 10-band equalizer backend for the pjsekai shell (services/EqualizerService.qml),
+# Live 10-band equalizer backend for the sekaipop shell (services/EqualizerService.qml),
 # carried over unchanged from the end-4's pC fork version (itself ported from
 # ilyaMiro's Serpantinum shell). The shell calls it as
-#   bash scripts/eq/equalizer.sh ~/.local/state/pjsekai/eq <command> [args]
+#   bash scripts/eq/equalizer.sh ~/.local/state/sekaipop/eq <command> [args]
 #
 # It writes a 32-band EasyEffects "Equalizer" preset (only 10 of the bands
 # are user-editable, matching Serpantinum's slider layout) and loads it live
@@ -51,7 +51,7 @@
 #                                                     or doesn't exist on disk)
 #
 # <state_dir> is EqualizerService.stateDir from the QML side
-# (~/.local/state/pjsekai/eq), passed in so this script never
+# (~/.local/state/sekaipop/eq), passed in so this script never
 # has to guess XDG paths itself.
 
 set -u

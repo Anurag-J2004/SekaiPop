@@ -10,7 +10,7 @@
 # output), so ONLY matugen-template.json is rendered: your own
 # ~/.config/matugen/config.toml (GTK, kitty, ...) is not touched and none of
 # its hooks run. The result is
-#   ${XDG_CACHE_HOME:-~/.cache}/pjsekai/matugen/colors.json
+#   ${XDG_CACHE_HOME:-~/.cache}/sekaipop/matugen/colors.json
 # which ThemeService.qml watches and re-colours the shell from. With a [name]
 # (the lockscreen uses "lock-colors") the file is <name>.json and the config is
 # <name>.toml instead, so two runs for two wallpapers never share a file.
@@ -25,7 +25,7 @@
 # matugen's own.
 
 mode="$1"
-cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/matugen"
+cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/matugen"
 here="$(cd "$(dirname "$0")" && pwd)"
 out="$cachedir/colors.json"
 
@@ -56,7 +56,7 @@ case "$mode" in
         # and the next start fell back to the default theme (and painted the terminal and
         # prompt with it).
         new="$out.new"
-        printf "[config]\n\n[templates.pjsekai]\ninput_path = '%s'\noutput_path = '%s'\n" \
+        printf "[config]\n\n[templates.sekaipop]\ninput_path = '%s'\noutput_path = '%s'\n" \
             "$here/matugen-template.json" "$new" > "$cfg" || exit 1
 
         rm -f "$new"

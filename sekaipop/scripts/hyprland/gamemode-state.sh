@@ -6,7 +6,7 @@
 #                            border 1, tearing allowed; applied live
 #   gamemode-state.sh off    `hyprctl reload`, which puts all of them back to
 #                            whatever the Hyprland config (and our
-#                            pjsekai_overrides.lua) says
+#                            sekaipop_overrides.lua) says
 #
 # Same rule as hyprland-settings.sh: a Lua Hyprland config ignores
 # `hyprctl keyword`, so `hyprctl eval "hl.config({...})"` goes first and
@@ -20,7 +20,7 @@ command -v hyprctl >/dev/null 2>&1 || exit 1
 
 # Left while Game Mode is on. The Quick Panel reads it when `hyprctl getoption`
 # gives no answer it can read, so the tile can't turn itself off by mistake.
-marker="${XDG_RUNTIME_DIR:-/tmp}/pjsekai-gamemode"
+marker="${XDG_RUNTIME_DIR:-/tmp}/sekaipop-gamemode"
 
 case "$1" in
     on)

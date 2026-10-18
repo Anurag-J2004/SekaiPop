@@ -70,7 +70,7 @@ assert.strictEqual(root.digestOf(a), root.digestOf(b))
 // ---------- the script: rewrite in place keeps the pictures ----------
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "presets-fav-"))
 const env = Object.assign({}, process.env, { XDG_CONFIG_HOME: path.join(tmp, "config"), XDG_STATE_HOME: path.join(tmp, "state"), XDG_DATA_HOME: path.join(tmp, "data") })
-const dir = path.join(tmp, "config", "pjsekai", "presets")
+const dir = path.join(tmp, "config", "sekaipop", "presets")
 const sh = (...x) => spawnSync("sh", [path.join(top, "scripts", "state", "preset-state.sh"), ...x], { env, encoding: "utf8" })
 const png = path.join(tmp, "a.png"); fs.writeFileSync(png, "x")
 const json = fav => JSON.stringify({ _meta: Object.assign({ name: "Night", v: 1 }, fav ? { favorite: true } : {}), theme: { group: "g" } })

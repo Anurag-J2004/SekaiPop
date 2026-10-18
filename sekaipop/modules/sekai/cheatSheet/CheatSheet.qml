@@ -269,7 +269,7 @@ Scope {
         // slide-out included (the phone is on Overlay for as long as the board is
         // shown, see QuickPanel).
         WlrLayershell.layer: (root.quickPanel && (root.quickPanel.up || root.quickPanel.onScreen)) ? WlrLayer.Top : WlrLayer.Overlay
-        WlrLayershell.namespace: "pjsekai-cheatsheet"
+        WlrLayershell.namespace: "sekaipop-cheatsheet"
 
         onVisibleChanged: {
             if (visible)

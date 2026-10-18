@@ -34,7 +34,7 @@ PanelWindow {
     visible: LyricsService.pickerOpen
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "pjsekai-lyrics-sources"
+    WlrLayershell.namespace: "sekaipop-lyrics-sources"
     WlrLayershell.keyboardFocus: LyricsService.pickerOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"

@@ -183,7 +183,7 @@ PanelWindow {
 
     // Always BELOW the dock, up a layer while edited / moved (see PaletteWidget.qml).
     WlrLayershell.layer: (chrome.raised || WallpaperService.restacking) ? WlrLayer.Bottom : WlrLayer.Background
-    WlrLayershell.namespace: "pjsekai-lyrics"
+    WlrLayershell.namespace: "sekaipop-lyrics"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"

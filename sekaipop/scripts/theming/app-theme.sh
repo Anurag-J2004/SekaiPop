@@ -15,31 +15,31 @@
 #
 # The rule for every target: the colours go in a file of ours, and your own
 # config gets ONE managed block that points at it (two lines, the first being a
-# `pjsekai` comment). `revert` deletes that block and our file, nothing else.
+# `sekaipop` comment). `revert` deletes that block and our file, nothing else.
 # A config file that doesn't exist yet is only created when the app is installed.
 #
-#   kitty   ~/.config/kitty/pjsekai-colors.conf, `include` at the END of kitty.conf
+#   kitty   ~/.config/kitty/sekaipop-colors.conf, `include` at the END of kitty.conf
 #           (so it wins). Open kitty windows are recoloured by reloading the
 #           config (SIGUSR1, only for kitty >= 0.22, where it is understood).
-#   foot    ~/.config/foot/pjsekai-colors.ini, `include=` at the TOP of foot.ini
+#   foot    ~/.config/foot/sekaipop-colors.ini, `include=` at the TOP of foot.ini
 #           (foot only allows it there, so a [colors] section of your own further
 #           down still wins: remove it to let ours show). Foot never re-reads its
 #           config, so new windows get the colours, open ones keep theirs.
 #   vscode  settings.json of Code / Code - OSS / VSCodium: one block
-#           `/* pjsekai:begin */ "workbench.colorCustomizations": {...}, /* pjsekai:end */`
+#           `/* sekaipop:begin */ "workbench.colorCustomizations": {...}, /* sekaipop:end */`
 #           right after the opening brace; VS Code applies it live. If the file
 #           already has its own "workbench.colorCustomizations" nothing is
 #           written (two of them would make the file invalid) and the colours
-#           are put in ~/.config/pjsekai/vscode-colors.json for you to merge.
-#   fuzzel  ~/.config/fuzzel/pjsekai-colors.ini, `include=` at the TOP of
+#           are put in ~/.config/sekaipop/vscode-colors.json for you to merge.
+#   fuzzel  ~/.config/fuzzel/sekaipop-colors.ini, `include=` at the TOP of
 #           fuzzel.ini (same note as foot). Read at every launch.
-#   rofi    ~/.config/rofi/pjsekai-colors.rasi, `@import` at the END of
+#   rofi    ~/.config/rofi/sekaipop-colors.rasi, `@import` at the END of
 #           config.rasi: defines background, background-alt, foreground,
 #           selected, active, urgent, the names most rofi themes use.
 #   prompt  the fish prompt: outlined sticker plates (failed command, folder, git branch,
 #           command time) with a hard shadow under each one, like the shell's own plates.
-#           scripts/theming/prompt-pjsekai.sh is copied to ~/.local/state/pjsekai/terminal/prompt.sh
-#           and ~/.config/fish/conf.d/pjsekai-prompt.fish defines a `fish_prompt` that runs it
+#           scripts/theming/prompt-sekaipop.sh is copied to ~/.local/state/sekaipop/terminal/prompt.sh
+#           and ~/.config/fish/conf.d/sekaipop-prompt.fish defines a `fish_prompt` that runs it
 #           (the shadow row has to be exactly as wide as each pill, so the script draws the pills
 #           itself and measures them). Its colours are eight 256-colour indices (255 252 254 235
 #           240 241 244 243) that the target redefines in every open terminal as `OSC 4` sequences
@@ -53,7 +53,7 @@
 cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
 here="$(cd "$(dirname "$0")" && pwd)"
 have() { command -v "$1" >/dev/null 2>&1; }
-MARK="# pjsekai: managed block, removed by Settings -> Desktop -> App colours (revert)"
+MARK="# sekaipop: managed block, removed by Settings -> Desktop -> App colours (revert)"
 
 # ===== arguments =====
 cmd="$1"; target="$2"
@@ -71,12 +71,12 @@ nh() { printf '%s' "$1" | tr -d '#'; }
 # ===== the managed block in a text file =====
 block_remove() {
     f="$1"; [ -f "$f" ] || return 0
-    grep -qF "pjsekai: managed block" "$f" || return 0
-    awk -v m="pjsekai: managed block" '
+    grep -qF "sekaipop: managed block" "$f" || return 0
+    awk -v m="sekaipop: managed block" '
         skip > 0 { skip--; next }
         index($0, m) > 0 { skip = 1; next }
-        { print }' "$f" > "$f.pjsekai-tmp" && cat "$f.pjsekai-tmp" > "$f"
-    rm -f "$f.pjsekai-tmp"
+        { print }' "$f" > "$f.sekaipop-tmp" && cat "$f.sekaipop-tmp" > "$f"
+    rm -f "$f.sekaipop-tmp"
 }
 # block_add_end <file> <line> / block_add_top <file> <line>
 block_add_end() {
@@ -91,8 +91,8 @@ block_add_top() {
     block_remove "$f"
     mkdir -p "$(dirname "$f")" || return 1
     if [ -f "$f" ]; then
-        { printf '%s\n%s\n' "$MARK" "$line"; cat "$f"; } > "$f.pjsekai-tmp" && cat "$f.pjsekai-tmp" > "$f"
-        rm -f "$f.pjsekai-tmp"
+        { printf '%s\n%s\n' "$MARK" "$line"; cat "$f"; } > "$f.sekaipop-tmp" && cat "$f.sekaipop-tmp" > "$f"
+        rm -f "$f.sekaipop-tmp"
     else
         printf '%s\n%s\n' "$MARK" "$line" > "$f"
     fi
@@ -106,13 +106,13 @@ version_ge() { # version_ge "0.35.2" 0 22
 }
 
 # ===== kitty =====
-kitty_file="$cfg/kitty/pjsekai-colors.conf"
+kitty_file="$cfg/kitty/sekaipop-colors.conf"
 kitty_conf="$cfg/kitty/kitty.conf"
 kitty_apply() {
     have kitty || [ -d "$cfg/kitty" ] || { echo "kitty is not installed"; return 3; }
     mkdir -p "$cfg/kitty" || return 1
     {
-        echo "# Written by pjsekai (app-theme.sh). Do not edit: it is rewritten with the theme."
+        echo "# Written by sekaipop (app-theme.sh). Do not edit: it is rewritten with the theme."
         echo "foreground $col_fg"
         echo "background $col_bg"
         echo "selection_foreground $col_selfg"
@@ -130,7 +130,7 @@ kitty_apply() {
         i=0
         while [ $i -le 15 ]; do eval "echo color$i \$col_c$i"; i=$((i + 1)); done
     } > "$kitty_file" || return 1
-    block_add_end "$kitty_conf" "include pjsekai-colors.conf" || return 1
+    block_add_end "$kitty_conf" "include sekaipop-colors.conf" || return 1
     # Open windows: kitty reloads its config on SIGUSR1 (kitty >= 0.22).
     ver=$(kitty --version 2>/dev/null | awk '{ print $2 }')
     if [ -n "$ver" ] && version_ge "$ver" 0 22; then pkill -USR1 -x kitty 2>/dev/null; fi
@@ -144,19 +144,19 @@ kitty_revert() {
     return 0
 }
 kitty_status() {
-    if grep -qF "pjsekai: managed block" "$kitty_conf" 2>/dev/null; then echo on
+    if grep -qF "sekaipop: managed block" "$kitty_conf" 2>/dev/null; then echo on
     elif have kitty || [ -d "$cfg/kitty" ]; then echo off
     else echo missing; fi
 }
 
 # ===== foot =====
-foot_file="$cfg/foot/pjsekai-colors.ini"
+foot_file="$cfg/foot/sekaipop-colors.ini"
 foot_conf="$cfg/foot/foot.ini"
 foot_apply() {
     have foot || [ -d "$cfg/foot" ] || { echo "foot is not installed"; return 3; }
     mkdir -p "$cfg/foot" || return 1
     {
-        echo "# Written by pjsekai (app-theme.sh). Do not edit: it is rewritten with the theme."
+        echo "# Written by sekaipop (app-theme.sh). Do not edit: it is rewritten with the theme."
         echo "[colors]"
         echo "foreground=$(nh "$col_fg")"
         echo "background=$(nh "$col_bg")"
@@ -174,19 +174,19 @@ foot_apply() {
 }
 foot_revert() { block_remove "$foot_conf"; rm -f "$foot_file"; return 0; }
 foot_status() {
-    if grep -qF "pjsekai: managed block" "$foot_conf" 2>/dev/null; then echo on
+    if grep -qF "sekaipop: managed block" "$foot_conf" 2>/dev/null; then echo on
     elif have foot || [ -d "$cfg/foot" ]; then echo off
     else echo missing; fi
 }
 
 # ===== fuzzel =====
-fuzzel_file="$cfg/fuzzel/pjsekai-colors.ini"
+fuzzel_file="$cfg/fuzzel/sekaipop-colors.ini"
 fuzzel_conf="$cfg/fuzzel/fuzzel.ini"
 fuzzel_apply() {
     have fuzzel || [ -d "$cfg/fuzzel" ] || { echo "fuzzel is not installed"; return 3; }
     mkdir -p "$cfg/fuzzel" || return 1
     {
-        echo "# Written by pjsekai (app-theme.sh). Do not edit: it is rewritten with the theme."
+        echo "# Written by sekaipop (app-theme.sh). Do not edit: it is rewritten with the theme."
         echo "[colors]"
         echo "background=$(nh "$col_surface")f2"
         echo "text=$(nh "$col_fg")ff"
@@ -205,19 +205,19 @@ fuzzel_apply() {
 }
 fuzzel_revert() { block_remove "$fuzzel_conf"; rm -f "$fuzzel_file"; return 0; }
 fuzzel_status() {
-    if grep -qF "pjsekai: managed block" "$fuzzel_conf" 2>/dev/null; then echo on
+    if grep -qF "sekaipop: managed block" "$fuzzel_conf" 2>/dev/null; then echo on
     elif have fuzzel || [ -d "$cfg/fuzzel" ]; then echo off
     else echo missing; fi
 }
 
 # ===== rofi =====
-rofi_file="$cfg/rofi/pjsekai-colors.rasi"
+rofi_file="$cfg/rofi/sekaipop-colors.rasi"
 rofi_conf="$cfg/rofi/config.rasi"
 rofi_apply() {
     have rofi || [ -d "$cfg/rofi" ] || { echo "rofi is not installed"; return 3; }
     mkdir -p "$cfg/rofi" || return 1
     {
-        echo "/* Written by pjsekai (app-theme.sh). Do not edit: it is rewritten with the theme. */"
+        echo "/* Written by sekaipop (app-theme.sh). Do not edit: it is rewritten with the theme. */"
         echo "* {"
         echo "    background:     $col_surface;"
         echo "    background-alt: $col_hover;"
@@ -231,12 +231,12 @@ rofi_apply() {
     block_remove "$rofi_conf"
     mkdir -p "$(dirname "$rofi_conf")"
     [ -f "$rofi_conf" ] && [ -n "$(tail -c1 "$rofi_conf")" ] && echo >> "$rofi_conf"
-    printf '/* pjsekai: managed block, removed by Settings -> Desktop -> App colours (revert) */\n@import "pjsekai-colors.rasi"\n' >> "$rofi_conf"
+    printf '/* sekaipop: managed block, removed by Settings -> Desktop -> App colours (revert) */\n@import "sekaipop-colors.rasi"\n' >> "$rofi_conf"
     return 0
 }
 rofi_revert() { block_remove "$rofi_conf"; rm -f "$rofi_file"; return 0; }
 rofi_status() {
-    if grep -qF "pjsekai: managed block" "$rofi_conf" 2>/dev/null; then echo on
+    if grep -qF "sekaipop: managed block" "$rofi_conf" 2>/dev/null; then echo on
     elif have rofi || [ -d "$cfg/rofi" ]; then echo off
     else echo missing; fi
 }
@@ -250,7 +250,7 @@ vscode_dirs() {
 vscode_block() {
     a="$col_accent"
     cat <<JSON
-/* pjsekai:begin */ "workbench.colorCustomizations": {
+/* sekaipop:begin */ "workbench.colorCustomizations": {
     "editor.background": "$col_bg", "editor.foreground": "$col_fg",
     "editor.selectionBackground": "$col_selbg", "editorCursor.foreground": "$col_cursor",
     "editorLineNumber.foreground": "$col_muted", "editorLineNumber.activeForeground": "$col_fg",
@@ -274,7 +274,7 @@ vscode_block() {
     "terminal.ansiBlue": "$col_c4", "terminal.ansiMagenta": "$col_c5", "terminal.ansiCyan": "$col_c6", "terminal.ansiWhite": "$col_c7",
     "terminal.ansiBrightBlack": "$col_c8", "terminal.ansiBrightRed": "$col_c9", "terminal.ansiBrightGreen": "$col_c10", "terminal.ansiBrightYellow": "$col_c11",
     "terminal.ansiBrightBlue": "$col_c12", "terminal.ansiBrightMagenta": "$col_c13", "terminal.ansiBrightCyan": "$col_c14", "terminal.ansiBrightWhite": "$col_c15"
-}, /* pjsekai:end */
+}, /* sekaipop:end */
 JSON
 }
 # safe_replace <tmp> <dest>: only overwrite dest with a tmp that has content.
@@ -286,12 +286,12 @@ safe_replace() {
 # the end marker, both included).
 vscode_strip() {
     f="$1"; [ -f "$f" ] || return 0
-    grep -qF "pjsekai:begin" "$f" || return 0
+    grep -qF "sekaipop:begin" "$f" || return 0
     awk '
-        index($0, "/* pjsekai:begin */") > 0 { skip = 1 }
-        skip { if (index($0, "/* pjsekai:end */") > 0) skip = 0; next }
-        { print }' "$f" > "$f.pjsekai-tmp"
-    safe_replace "$f.pjsekai-tmp" "$f"
+        index($0, "/* sekaipop:begin */") > 0 { skip = 1 }
+        skip { if (index($0, "/* sekaipop:end */") > 0) skip = 0; next }
+        { print }' "$f" > "$f.sekaipop-tmp"
+    safe_replace "$f.sekaipop-tmp" "$f"
 }
 # vscode_insert <file> <blockfile>: the block goes right after the first "{"
 # (a line comment above it is skipped over).
@@ -306,8 +306,8 @@ vscode_insert() {
             done = 1
             next
         }
-        { print }' "$f" > "$f.pjsekai-tmp"
-    safe_replace "$f.pjsekai-tmp" "$f"
+        { print }' "$f" > "$f.sekaipop-tmp"
+    safe_replace "$f.sekaipop-tmp" "$f"
 }
 vscode_apply() {
     dirs=$(vscode_dirs)
@@ -317,12 +317,12 @@ vscode_apply() {
         [ -f "$f" ] || printf '{\n}\n' > "$f"
         vscode_strip "$f"
         if grep -q '"workbench.colorCustomizations"' "$f"; then
-            mkdir -p "$cfg/pjsekai"
-            vscode_block > "$cfg/pjsekai/vscode-colors.json"
-            echo "$f already has workbench.colorCustomizations; colours saved to $cfg/pjsekai/vscode-colors.json" >&2
+            mkdir -p "$cfg/sekaipop"
+            vscode_block > "$cfg/sekaipop/vscode-colors.json"
+            echo "$f already has workbench.colorCustomizations; colours saved to $cfg/sekaipop/vscode-colors.json" >&2
             continue
         fi
-        blkfile="$f.pjsekai-block"
+        blkfile="$f.sekaipop-block"
         vscode_block > "$blkfile"
         vscode_insert "$f" "$blkfile"
         rm -f "$blkfile"
@@ -331,14 +331,14 @@ vscode_apply() {
 }
 vscode_revert() {
     vscode_dirs | while IFS= read -r d; do vscode_strip "$d/settings.json"; done
-    rm -f "$cfg/pjsekai/vscode-colors.json"
+    rm -f "$cfg/sekaipop/vscode-colors.json"
     return 0
 }
 vscode_status() {
     dirs=$(vscode_dirs)
     [ -n "$dirs" ] || { echo missing; return; }
     if printf '%s\n' "$dirs" | while IFS= read -r d; do
-        grep -qF "pjsekai:begin" "$d/settings.json" 2>/dev/null && exit 0
+        grep -qF "sekaipop:begin" "$d/settings.json" 2>/dev/null && exit 0
     done; then echo on; else echo off; fi
 }
 
@@ -348,7 +348,7 @@ vscode_status() {
 #  2. the terminal palette as escape sequences (colours 0-15, text, background, cursor, selection): written to a file,
 #     pushed into every open terminal, and printed again by one line at the end of config.fish for new shells.
 #     starship, eza, ls and anything else that uses the named colours follow it.
-fish_state="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai/terminal"
+fish_state="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop/terminal"
 fish_seq="$fish_state/sequences.txt"
 fish_conf="$cfg/fish/config.fish"
 fish_names="fish_color_normal fish_color_command fish_color_keyword fish_color_quote fish_color_redirection fish_color_end fish_color_error fish_color_param fish_color_option fish_color_comment fish_color_selection fish_color_operator fish_color_escape fish_color_autosuggestion fish_color_cwd fish_color_cwd_root fish_color_user fish_color_host fish_color_host_remote fish_color_status fish_color_search_match fish_pager_color_progress fish_pager_color_prefix fish_pager_color_completion fish_pager_color_description fish_pager_color_selected_background"
@@ -433,7 +433,7 @@ fish_revert() {
 }
 
 fish_status() {
-    if grep -qF "pjsekai: managed block" "$fish_conf" 2>/dev/null; then echo on
+    if grep -qF "sekaipop: managed block" "$fish_conf" 2>/dev/null; then echo on
     elif have fish || [ -d "$cfg/fish" ]; then echo off
     else echo missing; fi
 }
@@ -441,10 +441,10 @@ fish_status() {
 # ===== prompt (capsule pills with a hard shadow, for fish) =====
 # See the header. The prompt's colours are fixed 256-colour indices, so the theme reaches it by
 # redefining those indices in the terminal (OSC 4); the other 249 entries are left alone.
-prompt_src="$here/prompt-pjsekai.sh"
+prompt_src="$here/prompt-sekaipop.sh"
 prompt_bin="$fish_state/prompt.sh"
 prompt_seq="$fish_state/prompt-sequences.txt"
-prompt_conf="$cfg/fish/conf.d/pjsekai-prompt.fish"
+prompt_conf="$cfg/fish/conf.d/sekaipop-prompt.fish"
 prompt_indices="255 252 254 235 240 241 244 243"
 
 # index colour, one pair per line: 255 the folder plate, 252 the git-branch plate, 254 the
@@ -464,11 +464,11 @@ prompt_pairs() {
 # The first version of this was a "starship" target (the illogical-impulse pills through
 # STARSHIP_CONFIG): if its files are still there, take them away.
 prompt_legacy_cleanup() {
-    old_toml="$cfg/pjsekai/starship.toml"
-    old_conf="$cfg/fish/conf.d/pjsekai-starship.fish"
+    old_toml="$cfg/sekaipop/starship.toml"
+    old_conf="$cfg/fish/conf.d/sekaipop-starship.fish"
     [ -f "$old_toml" ] || [ -f "$old_conf" ] || return 0
     rm -f "$old_conf" "$old_toml" "$fish_state/starship-sequences.txt"
-    rmdir "$cfg/pjsekai" 2>/dev/null
+    rmdir "$cfg/sekaipop" 2>/dev/null
     if have fish; then
         fish -c "if string match -q -- 'STARSHIP_CONFIG $old_toml' (set -U); set -e -U STARSHIP_CONFIG; end" 2>/dev/null
     fi
@@ -476,7 +476,7 @@ prompt_legacy_cleanup() {
 
 prompt_apply() {
     have fish || [ -d "$cfg/fish" ] || { echo "fish is not installed"; return 3; }
-    [ -f "$prompt_src" ] || { echo "prompt-pjsekai.sh is missing next to app-theme.sh" >&2; return 1; }
+    [ -f "$prompt_src" ] || { echo "prompt-sekaipop.sh is missing next to app-theme.sh" >&2; return 1; }
     mkdir -p "$fish_state" "$cfg/fish/conf.d" || return 1
     prompt_legacy_cleanup
     cp "$prompt_src" "$prompt_bin.tmp" && chmod +x "$prompt_bin.tmp" && mv "$prompt_bin.tmp" "$prompt_bin" || return 1
@@ -485,10 +485,10 @@ prompt_apply() {
     # fish_prompt is (re)defined once now and once more before the first prompt, so a prompt
     # that config.fish sets up later (a `starship init fish | source`, say) does not win.
     {
-        echo "# pjsekai: managed file, removed by Settings -> Desktop -> App colours (revert)"
+        echo "# sekaipop: managed file, removed by Settings -> Desktop -> App colours (revert)"
         echo "if status is-interactive"
         echo "    test -f '$prompt_seq'; and cat '$prompt_seq'"
-        echo "    function __pjsekai_define_prompt"
+        echo "    function __sekaipop_define_prompt"
         echo "        function fish_prompt"
         echo "            set -l last \$status"
         echo "            if test -f '$prompt_bin'"
@@ -499,10 +499,10 @@ prompt_apply() {
         echo "            end"
         echo "        end"
         echo "    end"
-        echo "    __pjsekai_define_prompt"
-        echo "    function __pjsekai_keep_prompt --on-event fish_prompt"
-        echo "        __pjsekai_define_prompt"
-        echo "        functions --erase __pjsekai_keep_prompt"
+        echo "    __sekaipop_define_prompt"
+        echo "    function __sekaipop_keep_prompt --on-event fish_prompt"
+        echo "        __sekaipop_define_prompt"
+        echo "        functions --erase __sekaipop_keep_prompt"
         echo "    end"
         echo "end"
     } > "$prompt_conf" || return 1
@@ -529,17 +529,17 @@ prompt_status() {
 
 # ===== hyprland (window borders) =====
 # The active and inactive window borders take the theme's colours, written to
-# ~/.config/hypr/pjsekai_overrides.lua (the file the Hyprland page of the Settings
+# ~/.config/hypr/sekaipop_overrides.lua (the file the Hyprland page of the Settings
 # Panel also writes, and which hyprland.lua loads with
-# `pcall(require, "pjsekai_overrides")`) as ONE line tagged "-- pjsekai:apptheme:hyprland",
+# `pcall(require, "sekaipop_overrides")`) as ONE line tagged "-- sekaipop:apptheme:hyprland",
 # and applied live with `hyprctl eval`. Revert deletes that line and reloads Hyprland, which
 # gives back the colours of your own hyprland.lua. The thickness is not touched
 # (Settings -> Hyprland -> Gaps & borders -> Border thickness; 0 means no border at all).
-hypr_file="$cfg/hypr/pjsekai_overrides.lua"
-HMARK="-- pjsekai:apptheme:hyprland"
+hypr_file="$cfg/hypr/sekaipop_overrides.lua"
+HMARK="-- sekaipop:apptheme:hyprland"
 hyprland_drop() {
     [ -f "$hypr_file" ] || return 0
-    tmp=$(mktemp "$cfg/hypr/.pjsekai_overrides.XXXXXX") || return 1
+    tmp=$(mktemp "$cfg/hypr/.sekaipop_overrides.XXXXXX") || return 1
     grep -v -F -e "$HMARK" "$hypr_file" > "$tmp"
     [ $? -le 1 ] || { rm -f "$tmp"; return 1; }
     chmod 644 "$tmp"

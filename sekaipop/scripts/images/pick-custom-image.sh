@@ -11,7 +11,7 @@
 #   pick-custom-image.sh remove <path>  delete one copy (only ever inside the
 #                                       data folder below; anything else is left alone)
 #
-# The copies live in ${XDG_DATA_HOME:-~/.local/share}/pjsekai/custom-images/
+# The copies live in ${XDG_DATA_HOME:-~/.local/share}/sekaipop/custom-images/
 # (copied, so moving or deleting the original doesn't break the desktop). The
 # bytes are NOT re-encoded or shrunk: a GIF (or an animated WebP / APNG) has to
 # arrive exactly as it is or it stops moving. The widget decodes a big still
@@ -20,10 +20,10 @@
 # replaced is really reloaded instead of coming out of Qt's cache.
 #
 # The chooser is the first of kdialog, zenity or yad that is installed;
-# PJSEKAI_CHOOSER (Settings -> General -> Quick Panel -> picker) is tried first.
+# SEKAIPOP_CHOOSER (Settings -> General -> Quick Panel -> picker) is tried first.
 
 mode="$1"
-dir="${XDG_DATA_HOME:-$HOME/.local/share}/pjsekai/custom-images"
+dir="${XDG_DATA_HOME:-$HOME/.local/share}/sekaipop/custom-images"
 exts="png jpg jpeg webp gif apng bmp svg"
 
 # Copies <file> into the data folder; prints the new path. 1 = not a picture we show.
@@ -74,7 +74,7 @@ done
 patterns="${patterns# }"
 
 chooser=""
-for c in ${PJSEKAI_CHOOSER:-} kdialog zenity yad; do
+for c in ${SEKAIPOP_CHOOSER:-} kdialog zenity yad; do
     case "$c" in
         zenity|kdialog|yad) ;;
         *) continue ;;

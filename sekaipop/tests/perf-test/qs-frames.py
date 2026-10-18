@@ -11,7 +11,7 @@ Hands off the mouse and keyboard while it runs (about 70 s); no media playing.
 """
 import os, re, subprocess, sys, threading, time
 
-CFG = "pjsekai"
+CFG = "sekaipop"
 lines = []                       # (time, text)
 lock = threading.Lock()
 

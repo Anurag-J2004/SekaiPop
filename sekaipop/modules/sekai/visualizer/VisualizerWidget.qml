@@ -48,7 +48,7 @@ import qs.modules.sekai.desktopWidgets
 //                 desktop.
 //
 // Styles (VisualizerService.style): besides the Sekai keycap card, this widget can draw
-// "tide" (pjsekai's own: three sheets of cut paper, TideVisualizer.qml) and the
+// "tide" (sekaipop's own: three sheets of cut paper, TideVisualizer.qml) and the
 // visualizers of end4-pC, ported over: "bars" (plain QML), "aurora", "dots", "mirror"
 // (a band across the bottom of the screen, GPU shaders) and "ring" (round, movable like
 // the card, with the cover in the middle). They are fed by cava (scripts/cava/cava-pc.conf,
@@ -221,7 +221,7 @@ PanelWindow {
     // which means between them and this card the later one mapped is in front. It does not
     // go up while it is edited or moved (EditChrome.raised) like the other widgets do.
     WlrLayershell.layer: WallpaperService.restackingLow ? WlrLayer.Bottom : WlrLayer.Background
-    WlrLayershell.namespace: "pjsekai-visualizer"
+    WlrLayershell.namespace: "sekaipop-visualizer"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
@@ -908,7 +908,7 @@ PanelWindow {
                                         }
                                     }
 
-                                    // pjsekai's own (TideVisualizer.qml)
+                                    // sekaipop's own (TideVisualizer.qml)
                                     Loader {
                                         anchors.fill: parent
                                         active: win.style === "tide"
@@ -923,7 +923,7 @@ PanelWindow {
                                         }
                                     }
 
-                                    // (bars is plain QML and tide has its own shader above; the rest are end4-pC's shaders plus pjsekai's ribbons, scope and pulse)
+                                    // (bars is plain QML and tide has its own shader above; the rest are end4-pC's shaders plus sekaipop's ribbons, scope and pulse)
                                     Loader {
                                         anchors.fill: parent
                                         active: win.style !== "bars" && win.style !== "tide"

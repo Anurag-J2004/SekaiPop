@@ -228,7 +228,7 @@ It is read-only: it lists what is installed and what is missing, and changes not
 | `--dry-run` | Show everything, change nothing |
 | `--yes` | No questions |
 | `--hypr full` | Install the preconfigured Hyprland config (default on a new setup) |
-| `--hypr merge` | **Keep your config**, only add a small `pjsekai_session` file |
+| `--hypr merge` | **Keep your config**, only add a small `sekaipop_session` file |
 | `--hypr skip` | Don't touch Hyprland at all |
 | `--no-deps` | Only copy files, install no packages |
 | `--rice DIR` | Install a different copy of the `sekaipop` folder |
@@ -245,14 +245,14 @@ It is read-only: it lists what is installed and what is missing, and changes not
 
 ### Safety
 
-- Your old Hyprland config is moved to `~/.config/hypr.pjsekai-backup-<time>`, **never deleted**. `./install.sh --restore` brings it back.
-- Your `monitors.lua`, `workspaces.lua`, `pjsekai_overrides.lua` and `custom/` folder are carried over.
+- Your old Hyprland config is moved to `~/.config/hypr.sekaipop-backup-<time>`, **never deleted**. `./install.sh --restore` brings it back.
+- Your `monitors.lua`, `workspaces.lua`, `sekaipop_overrides.lua` and `custom/` folder are carried over.
 - `monitors.lua` is **never shipped**. It is generated for your screens, so a config written for someone else's monitors can't give you a black screen.
-- A mistake in any config file is written to `~/.cache/pjsekai/hypr-errors.log`; the other files still load.
+- A mistake in any config file is written to `~/.cache/sekaipop/hypr-errors.log`; the other files still load.
 
 ### Updating
 
-Run the install command again. Settings and state live in `~/.local/state/pjsekai`, so your choices are kept. If you cloned the repo instead, `git pull` and run `./install.sh` again.
+Run the install command again. Settings and state live in `~/.local/state/sekaipop`, so your choices are kept. If you cloned the repo instead, `git pull` and run `./install.sh` again.
 
 ### Your own changes
 
@@ -297,7 +297,7 @@ Volume and brightness keys go through the shell's on-screen display.
 | Problem | Try |
 |---|---|
 | Shell doesn't start | Run `qs -c sekaipop log`, and make sure you logged into the plain **Hyprland** session, not uwsm |
-| Black screen after install | `./install.sh --restore`, then read `~/.cache/pjsekai/hypr-errors.log` |
+| Black screen after install | `./install.sh --restore`, then read `~/.cache/sekaipop/hypr-errors.log` |
 | Icons are missing | Install `ttf-material-symbols-variable`, then `fc-cache -f` |
 | Shaders or transitions don't draw | Qt older than 6.12 needs the shaders rebuilt: `bash ~/.config/quickshell/sekaipop/shaders/compile-shaders.sh` (needs `qt6-shadertools`) |
 | Hyprland rejected part of the config | `hyprctl configerrors` shows what it refused to load |

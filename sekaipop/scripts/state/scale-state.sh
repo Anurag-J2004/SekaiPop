@@ -5,7 +5,7 @@
 #   scale-state.sh init <old scale.json>
 #
 # The scale is one of the user's own adjustments, so it lives in
-# ${XDG_CONFIG_HOME:-~/.config}/pjsekai/scale.json, not next to shell.qml
+# ${XDG_CONFIG_HOME:-~/.config}/sekaipop/scale.json, not next to shell.qml
 # (where a fresh copy of the shell would write over it). This makes that
 # folder and, when there is no file in it yet, puts one there: a copy of the
 # scale.json an older version kept beside shell.qml (<old scale.json>, left
@@ -13,7 +13,7 @@
 # there is never touched.
 
 mode="$1"
-dir="${XDG_CONFIG_HOME:-$HOME/.config}/pjsekai"
+dir="${XDG_CONFIG_HOME:-$HOME/.config}/sekaipop"
 file="$dir/scale.json"
 
 case "$mode" in

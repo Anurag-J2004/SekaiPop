@@ -8,14 +8,14 @@
 #   image-state.sh load          print the remembered JSON (or nothing at all, if
 #                                no picture has ever been added)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/images.json — state, not
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/images.json — state, not
 # data, same convention usercard-state.sh uses. (The pictures themselves are
-# copies kept in ~/.local/share/pjsekai/custom-images/, see
+# copies kept in ~/.local/share/sekaipop/custom-images/, see
 # scripts/images/pick-custom-image.sh.) Written to a temp file and moved into
 # place, so a crash mid-save can't leave half a file.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/images.json"
 
 case "$mode" in

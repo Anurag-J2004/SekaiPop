@@ -233,7 +233,7 @@ var ACTIONS = [
     { id: "panel",     title: "Quick Panel",          sub: "Open or close the phone panel",     glyph: "smartphone",         keys: "phone panel notifications quick",  ipc: ["quickpanel", "toggle"] },
     { id: "wallpaper", title: "Wallpapers",           sub: "Open the wallpaper board",          glyph: "photo_library",      keys: "wallpaper background picker",      ipc: ["wallpaperpicker", "toggle"] },
     { id: "shot",      title: "Screenshot region",    sub: "Select an area; saved and copied",  glyph: "screenshot_region",  keys: "screenshot screen capture snip grim", delay: 0.5,
-      argv: ["bash", "-c", "d=\"$HOME/Pictures/Screenshots\"; mkdir -p \"$d\"; f=\"$d/$(date +%Y-%m-%d_%H-%M-%S).png\"; g=$(slurp) || exit 0; grim -g \"$g\" \"$f\" && wl-copy < \"$f\" && notify-send -a pjsekai -i material:photo_camera 'Screenshot saved' \"$f\""] },
+      argv: ["bash", "-c", "d=\"$HOME/Pictures/Screenshots\"; mkdir -p \"$d\"; f=\"$d/$(date +%Y-%m-%d_%H-%M-%S).png\"; g=$(slurp) || exit 0; grim -g \"$g\" \"$f\" && wl-copy < \"$f\" && notify-send -a sekaipop -i material:photo_camera 'Screenshot saved' \"$f\""] },
     { id: "pickcolor", title: "Pick a colour",        sub: "Eyedropper anywhere on screen",     glyph: "colorize",           keys: "color colour picker eyedropper hyprpicker", special: "colorpick" },
     { id: "mutespk",   title: "Mute / unmute speakers", sub: "Toggle the default output",       glyph: "volume_off",         keys: "mute speaker volume sound audio",  argv: ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"] },
     { id: "mutemic",   title: "Mute / unmute microphone", sub: "Toggle the default input",      glyph: "mic_off",            keys: "mute microphone mic input",        argv: ["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"] },
@@ -272,7 +272,7 @@ function backgroundArgv(cmd) {
     return ["sh", "-c",
         "out=$(eval \"$1\" 2>&1); rc=$?; "
         + "if [ -n \"$out\" ] || [ \"$rc\" -ne 0 ]; then "
-        + "notify-send -a pjsekai -i material:terminal \"$1 (exit $rc)\" \"$(printf %s \"$out\" | head -c 600)\"; fi",
+        + "notify-send -a sekaipop -i material:terminal \"$1 (exit $rc)\" \"$(printf %s \"$out\" | head -c 600)\"; fi",
         "sh", cmd];
 }
 
@@ -285,7 +285,7 @@ function terminalArgv(cmd) {
         + "kitty|foot) exec \"$t\" sh -c \"$run\" sh \"$1\";; "
         + "wezterm) exec wezterm start -- sh -c \"$run\" sh \"$1\";; "
         + "gnome-terminal) exec gnome-terminal -- sh -c \"$run\" sh \"$1\";; "
-        + "\"\") notify-send -a pjsekai -i material:terminal 'No terminal found' 'Set $TERMINAL or install kitty / foot / alacritty'; exit 1;; "
+        + "\"\") notify-send -a sekaipop -i material:terminal 'No terminal found' 'Set $TERMINAL or install kitty / foot / alacritty'; exit 1;; "
         + "*) exec \"$t\" -e sh -c \"$run\" sh \"$1\";; esac",
         "sh", cmd];
 }

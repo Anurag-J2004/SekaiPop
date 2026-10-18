@@ -59,7 +59,7 @@ Scope {
                 color: "transparent"
                 exclusionMode: ExclusionMode.Ignore
 
-                WlrLayershell.namespace: "pjsekai-polkit"
+                WlrLayershell.namespace: "sekaipop-polkit"
                 WlrLayershell.layer: WlrLayer.Overlay
                 WlrLayershell.keyboardFocus: win.isTarget ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 

@@ -541,7 +541,7 @@ Scope {
         // monitor's clicks land on it and count as "outside", not a leak.
         WlrLayershell.keyboardFocus: win.visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "pjsekai-overview"
+        WlrLayershell.namespace: "sekaipop-overview"
 
         onVisibleChanged: {
             if (visible)

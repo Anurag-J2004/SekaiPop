@@ -14,7 +14,7 @@ import QtQuick
 //   isPinned(i) / togglePinned(i)
 //
 // Pins are remembered by the app's own tray id and saved to
-// ~/.local/state/pjsekai/tray.json (or under $XDG_STATE_HOME), so they
+// ~/.local/state/sekaipop/tray.json (or under $XDG_STATE_HOME), so they
 // survive restarts. A pinned app that isn't running just doesn't show;
 // it's still pinned and comes back when the app does.
 Scope {
@@ -32,7 +32,7 @@ Scope {
     readonly property var unpinnedItems: items.filter(i => pinnedIds.indexOf(i.id) === -1)
 
     readonly property string stateDir:
-        (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pjsekai"
+        (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/sekaipop"
 
     // Which apps are asking for attention (their tray status is "needs
     // attention": a new message, a failed backup...). The pinned ones show it on

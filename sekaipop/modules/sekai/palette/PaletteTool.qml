@@ -191,7 +191,7 @@ Scope {
 
         WlrLayershell.keyboardFocus: win.visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "pjsekai-palette"
+        WlrLayershell.namespace: "sekaipop-palette"
 
         ScaleHost {
             anchors.fill: parent

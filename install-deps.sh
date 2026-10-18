@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install-deps.sh: installs everything SekaiPop (pjsekai) needs to be a full working desktop
+# install-deps.sh: installs everything SekaiPop needs to be a full working desktop
 # on Arch / CachyOS / EndeavourOS (anything with pacman), starting from a minimal Hyprland system.
 #
 # It does the same three jobs as end-4's "./setup install", for this rice:
@@ -88,7 +88,7 @@ result() { # result ok|bad <text>
 nx() { printf '  %s%s%s %s\n' "$PK" "$G_ARR" "$Z" "$1"; }
 
 # when install.sh runs this, its steps are shown one level down so the numbering doesn't clash
-if [ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ]; then
+if [ "${SEKAIPOP_FULL_INSTALL:-0}" = 1 ]; then
     step() { printf '\n  %s%s%s %s%s%s\n' "$C" "$G_ARR" "$Z" "$B" "$1" "$Z"; }
 fi
 
@@ -108,7 +108,7 @@ ask() { # ask <question>: default yes in --yes and --dry-run
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # ---------------------------------------------------------------- preconditions
-[ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ] || banner "SekaiPop dependencies" "packages, fonts, services, groups"
+[ "${SEKAIPOP_FULL_INSTALL:-0}" = 1 ] || banner "SekaiPop dependencies" "packages, fonts, services, groups"
 step "Checking the system"
 [ "$(id -u)" = 0 ] && { echo "Run this as your normal user, not root (it calls sudo itself)." >&2; exit 1; }
 have pacman || { echo "pacman not found: this installer is for Arch-based systems. Read DEPENDENCIES.md for the package list." >&2; exit 1; }
@@ -239,7 +239,7 @@ if [ "${#AURP[@]}" -gt 0 ]; then
             warn "no AUR helper found (yay or paru)."
             if ask "Build yay-bin from the AUR now (needs base-devel + git, like end-4's installer)?"; then
                 run sudo pacman -S --needed base-devel git
-                run_sh 'rm -rf /tmp/pjsekai-yay && git clone https://aur.archlinux.org/yay-bin.git /tmp/pjsekai-yay && cd /tmp/pjsekai-yay && makepkg -si'"$([ "$YES" = 1 ] && echo ' --noconfirm')"' && cd / && rm -rf /tmp/pjsekai-yay' \
+                run_sh 'rm -rf /tmp/sekaipop-yay && git clone https://aur.archlinux.org/yay-bin.git /tmp/sekaipop-yay && cd /tmp/sekaipop-yay && makepkg -si'"$([ "$YES" = 1 ] && echo ' --noconfirm')"' && cd / && rm -rf /tmp/sekaipop-yay' \
                     || fail "could not build yay"
                 helper=yay
             fi
@@ -266,7 +266,7 @@ if [ "$FONTS" = 1 ]; then
         info "Google Sans Flex already installed"
     else
         info "installing Google Sans Flex (the same source end-4's installer uses)"
-        run_sh 'set -e; d=$(mktemp -d); git clone --depth 1 --recurse-submodules https://github.com/end-4/google-sans-flex "$d/gsf"; mkdir -p "$HOME/.local/share/fonts/pjsekai-google-sans-flex"; cp -r "$d/gsf/." "$HOME/.local/share/fonts/pjsekai-google-sans-flex/"; rm -rf "$HOME/.local/share/fonts/pjsekai-google-sans-flex/.git"; fc-cache -f; rm -rf "$d"' \
+        run_sh 'set -e; d=$(mktemp -d); git clone --depth 1 --recurse-submodules https://github.com/end-4/google-sans-flex "$d/gsf"; mkdir -p "$HOME/.local/share/fonts/sekaipop-google-sans-flex"; cp -r "$d/gsf/." "$HOME/.local/share/fonts/sekaipop-google-sans-flex/"; rm -rf "$HOME/.local/share/fonts/sekaipop-google-sans-flex/.git"; fc-cache -f; rm -rf "$d"' \
             || fail "Google Sans Flex install failed (put the .ttf files in ~/.local/share/fonts by hand and run fc-cache -f)"
     fi
 fi
@@ -321,9 +321,9 @@ if [ "$SESSION" = 1 ]; then
         [ -n "${QT_QPA_PLATFORMTHEME:-}" ] && qtline=0   # something already themes Qt apps (e.g. kde): don't override it
         [ "$IS_KDE" = 1 ] && qtline=0
         if [ "$mode" = lua ]; then
-            f="$HYPR/pjsekai_session.lua"
+            f="$HYPR/sekaipop_session.lua"
             {
-                echo '-- pjsekai_session.lua  (written by install-deps.sh; safe to edit or delete)'
+                echo '-- sekaipop_session.lua  (written by install-deps.sh; safe to edit or delete)'
                 echo '-- Glue a bare Hyprland session needs so portals (screen sharing) and apps work.'
                 echo 'hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")'
                 [ "$qtline" = 1 ] && echo 'hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")'
@@ -332,17 +332,17 @@ if [ "$SESSION" = 1 ]; then
                 [ "$autostart" = 1 ] && echo '    hl.exec_cmd("qs -c sekaipop")'
                 echo 'end)'
             } > "$tmp"
-            reqline='pcall(require, "pjsekai_session")'
+            reqline='pcall(require, "sekaipop_session")'
         else
-            f="$HYPR/pjsekai_session.conf"
+            f="$HYPR/sekaipop_session.conf"
             {
-                echo '# pjsekai_session.conf  (written by install-deps.sh; safe to edit or delete)'
+                echo '# sekaipop_session.conf  (written by install-deps.sh; safe to edit or delete)'
                 echo 'env = ELECTRON_OZONE_PLATFORM_HINT,auto'
                 [ "$qtline" = 1 ] && echo 'env = QT_QPA_PLATFORMTHEME,qt6ct'
                 echo 'exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP'
                 [ "$autostart" = 1 ] && echo 'exec-once = qs -c sekaipop'
             } > "$tmp"
-            reqline='source = ~/.config/hypr/pjsekai_session.conf'
+            reqline='source = ~/.config/hypr/sekaipop_session.conf'
         fi
         if [ -e "$f" ]; then
             if cmp -s "$tmp" "$f"; then
@@ -366,28 +366,28 @@ if [ "$SESSION" = 1 ]; then
         fi
         rm -f "$tmp"
         cfg="$HYPR/hyprland.$mode"
-        if grep -qsF 'pjsekai_session' "$cfg"; then
-            info "$cfg already loads pjsekai_session"
+        if grep -qsF 'sekaipop_session' "$cfg"; then
+            info "$cfg already loads sekaipop_session"
         elif ask "Add  $reqline  to $cfg (a backup is saved next to it)?"; then
-            run cp "$cfg" "$cfg.pjsekai.bak"
+            run cp "$cfg" "$cfg.sekaipop.bak"
             run_sh "printf '\\n%s\\n' '$reqline' >> '$cfg'"
             [ "$DRY" = 1 ] || info "added  $reqline  to $cfg"
         else
             warn "add this line to $cfg yourself:  $reqline"
         fi
-        [ "$mode" = lua ] && ! grep -rqs 'pjsekai_overrides' "$HYPR/hyprland.lua" 2>/dev/null && \
-            warn 'also add this line to hyprland.lua so the Settings-panel Hyprland changes survive reloads:  pcall(require, "pjsekai_overrides")'
+        [ "$mode" = lua ] && ! grep -rqs 'sekaipop_overrides' "$HYPR/hyprland.lua" 2>/dev/null && \
+            warn 'also add this line to hyprland.lua so the Settings-panel Hyprland changes survive reloads:  pcall(require, "sekaipop_overrides")'
     fi
 fi
 
 # ---------------------------------------------------------------- done
-[ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ] || step "Done"
+[ "${SEKAIPOP_FULL_INSTALL:-0}" = 1 ] || step "Done"
 if [ "${#FAILED[@]}" -gt 0 ]; then
     printf '  %s%d problem(s):%s\n' "$R" "${#FAILED[@]}" "$Z"
     for m in "${FAILED[@]}"; do printf '    %s%s%s %s\n' "$R" "$G_BAD" "$Z" "$m"; done
 fi
 # when install.sh runs this, it prints its own "Next" and runs the check itself
-[ "${PJSEKAI_FULL_INSTALL:-0}" = 1 ] && exit "${#FAILED[@]}"
+[ "${SEKAIPOP_FULL_INSTALL:-0}" = 1 ] && exit "${#FAILED[@]}"
 if [ "${#FAILED[@]}" -eq 0 ]; then result ok "Dependencies are in place"; else result bad "Finished with ${#FAILED[@]} problem(s), see above"; fi
 printf '\n  %sNext%s\n' "$B" "$Z"
 nx "Log out and back in (group membership and user services need a fresh session)."

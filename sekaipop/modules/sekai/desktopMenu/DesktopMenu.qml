@@ -39,7 +39,7 @@ PanelWindow {
     visible: EditMode.menuOpen
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "pjsekai-desktop-menu"
+    WlrLayershell.namespace: "sekaipop-desktop-menu"
     WlrLayershell.keyboardFocus: EditMode.menuOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"

@@ -6,13 +6,13 @@
 #   extras-state.sh save-emoji <emoji> [<emoji> ...]   replace the list
 #   extras-state.sh load-emoji                         print it, one per line
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/recent-emoji -- state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/recent-emoji -- state,
 # same place wallpaper-state.sh and pinned-apps-state.sh keep theirs.
 # Emoji are passed as real argv entries, so nothing needs quoting.
 
 mode="$1"
 shift
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/recent-emoji"
 
 case "$mode" in

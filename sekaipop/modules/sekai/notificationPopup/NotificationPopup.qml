@@ -68,7 +68,7 @@ Variants {
         color: "transparent"
         // Doesn't reserve screen space.
         exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.namespace: "pjsekai-notifications"
+        WlrLayershell.namespace: "sekaipop-notifications"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

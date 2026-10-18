@@ -1066,7 +1066,7 @@ Scope {
 
     // ===== frame-time probe =====
     readonly property real perfLogMs: {
-        const v = parseFloat(Quickshell.env("PJSEKAI_PERF") ?? "")
+        const v = parseFloat(Quickshell.env("SEKAIPOP_PERF") ?? "")
         return isNaN(v) ? 0 : (v > 1 ? v : 22)
     }
 
@@ -1487,7 +1487,7 @@ Scope {
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Top
-        WlrLayershell.namespace: "pjsekai-quickpanel-clickaway"
+        WlrLayershell.namespace: "sekaipop-quickpanel-clickaway"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
         anchors {
             left: true
@@ -1500,7 +1500,7 @@ Scope {
             anchors.fill: parent
             acceptedButtons: Qt.AllButtons
             onPressed: {
-                console.log("pjsekai click-away: pressed on the click-away window")
+                console.log("sekaipop click-away: pressed on the click-away window")
                 root.close()
             }
         }
@@ -1606,7 +1606,7 @@ Scope {
         // scale, where the lift would too), never under 24px.
         readonly property real bleed: Math.max(24, Math.ceil((topRoom + shownHeight) * 0.04))
         margins.bottom: -Math.ceil(bleed)
-        WlrLayershell.namespace: "pjsekai-quickpanel"
+        WlrLayershell.namespace: "sekaipop-quickpanel"
 
         // The panel never wants keyboard input for itself (every other
         // tile is a click or a drag) — except the Wi-Fi password field
@@ -1668,7 +1668,7 @@ Scope {
                     mouse.accepted = false
                     return
                 }
-                console.log("pjsekai click-away: pressed beside the phone (panel window)")
+                console.log("sekaipop click-away: pressed beside the phone (panel window)")
                 root.close()
             }
         }

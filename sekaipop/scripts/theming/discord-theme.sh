@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Helper for ThemeService.qml: writes the pjsekai Vencord/Vesktop theme with
+# Helper for ThemeService.qml: writes the sekaipop Vencord/Vesktop theme with
 # the shell's CURRENT palette baked in, so Discord follows whichever group
 # theme (or the matugen wallpaper theme) is active.
 #
@@ -8,7 +8,7 @@
 #   discord-theme.sh print [role=#hex ...]   print the CSS to stdout, install nothing
 #   discord-theme.sh where                   list the folders it would install into
 #
-# mode=light|dark|auto picks the Discord look (default auto; PJSEKAI_DISCORD_MODE also works).
+# mode=light|dark|auto picks the Discord look (default auto; SEKAIPOP_DISCORD_MODE also works).
 # Roles: border A B deep hoverTint divider boardBg boardDot rimHi
 #
 # Layout options (same key=value form; validated, bad values are ignored):
@@ -25,9 +25,9 @@
 #   loader=sekai|off          spotify=on|off         gap=0px..99px
 #   (loader defaults to off: its :has() selectors cost time on every DOM change)
 # layout=floating @imports system24 (github.com/refact0r/system24) for the geometry
-# and dresses it in the pjsekai look; layout=classic imports nothing.
-# Set them once in ${XDG_CONFIG_HOME:-~/.config}/pjsekai/discord-options (one key=value
-# per line, # comments ok), or in PJSEKAI_DISCORD_OPTS="labels=off gap=16px", or as
+# and dresses it in the sekaipop look; layout=classic imports nothing.
+# Set them once in ${XDG_CONFIG_HOME:-~/.config}/sekaipop/discord-options (one key=value
+# per line, # comments ok), or in SEKAIPOP_DISCORD_OPTS="labels=off gap=16px", or as
 # arguments. Later wins: file < env < arguments.
 # (same names as ThemeService.qml's palette). Missing/invalid roles fall back to
 # Virtual Singer, so `write` with no arguments produces the default look.
@@ -35,17 +35,17 @@
 # The material look has two colour sources (option source=theme|matugen):
 #   theme    the shell's active theme (Virtual Singer, Leo/need, ...): the Discord
 #            surfaces are built from the theme's `deep` colour and the accent from `A`
-#   matugen  matugen's output, ${XDG_CACHE_HOME:-~/.cache}/pjsekai/matugen/colors.json
-#            (or PJSEKAI_MATUGEN_COLORS), written by matugen-state.sh from
+#   matugen  matugen's output, ${XDG_CACHE_HOME:-~/.cache}/sekaipop/matugen/colors.json
+#            (or SEKAIPOP_MATUGEN_COLORS), written by matugen-state.sh from
 #            matugen-template.json. Without that file: a warm brown palette.
 # If you don't say, it is `theme` when colour roles are passed (what the shell does
 # for the group themes) and `matugen` otherwise (so your own matugen post-hook can
 # just run `sh discord-theme.sh write`).
 #
-# Installs pjsekai.theme.css into every themes folder that exists:
+# Installs sekaipop.theme.css into every themes folder that exists:
 #   ~/.config/Vencord/themes   ~/.config/vesktop/themes   ~/.config/Equicord/themes
-# or exactly the folders in PJSEKAI_DISCORD_DIRS (colon-separated). A copy is
-# always kept at ${XDG_CACHE_HOME:-~/.cache}/pjsekai/discord/pjsekai.theme.css.
+# or exactly the folders in SEKAIPOP_DISCORD_DIRS (colon-separated). A copy is
+# always kept at ${XDG_CACHE_HOME:-~/.cache}/sekaipop/discord/sekaipop.theme.css.
 # The file is only rewritten when its content changed, and replaced atomically,
 # so Vencord never reads a half-written theme.
 
@@ -53,11 +53,11 @@ mode="$1"; [ $# -gt 0 ] && shift
 here="$(cd "$(dirname "$0")" && pwd)"
 body="$here/discord-theme.body.css"
 cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/discord"
-mcolors="${PJSEKAI_MATUGEN_COLORS:-${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/matugen/colors.json}"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/discord"
+mcolors="${SEKAIPOP_MATUGEN_COLORS:-${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/matugen/colors.json}"
 
 # auto (default: follow Discord's own light/dark setting) | dark | light
-mode_sel="${PJSEKAI_DISCORD_MODE:-auto}"
+mode_sel="${SEKAIPOP_DISCORD_MODE:-auto}"
 case "$mode_sel" in light|dark|auto) ;; *) mode_sel=light ;; esac
 
 # Virtual Singer defaults
@@ -88,8 +88,8 @@ setopt() {
     return 0
 }
 
-# 1) options file, 2) PJSEKAI_DISCORD_OPTS, 3) arguments (below)
-optfile="${PJSEKAI_DISCORD_OPTIONS:-$cfg/pjsekai/discord-options}"
+# 1) options file, 2) SEKAIPOP_DISCORD_OPTS, 3) arguments (below)
+optfile="${SEKAIPOP_DISCORD_OPTIONS:-$cfg/sekaipop/discord-options}"
 if [ -r "$optfile" ]; then
     while IFS= read -r line || [ -n "$line" ]; do
         line="${line%%#*}"
@@ -98,7 +98,7 @@ if [ -r "$optfile" ]; then
         setopt "$k" "$v"
     done < "$optfile"
 fi
-for kv in $PJSEKAI_DISCORD_OPTS; do setopt "${kv%%=*}" "${kv#*=}"; done
+for kv in $SEKAIPOP_DISCORD_OPTS; do setopt "${kv%%=*}" "${kv#*=}"; done
 
 for kv in "$@"; do
     k="${kv%%=*}"; v="${kv#*=}"
@@ -137,8 +137,8 @@ import_line=""
 [ "$o_layout" = floating ] && import_line="@import url('https://refact0r.github.io/system24/build/system24.css');"
 
 dirs() {
-    if [ -n "$PJSEKAI_DISCORD_DIRS" ]; then
-        printf '%s\n' "$PJSEKAI_DISCORD_DIRS" | tr ':' '\n'
+    if [ -n "$SEKAIPOP_DISCORD_DIRS" ]; then
+        printf '%s\n' "$SEKAIPOP_DISCORD_DIRS" | tr ':' '\n'
         return
     fi
     for app in Vencord vesktop Equicord; do
@@ -263,10 +263,10 @@ generate_material() {
 
     cat << MAT
 /**
- * @name pjsekai (Material Discord)
- * @version 3.0.5-pjsekai
- * @description Material Discord by CapnKitten (github.com/CapnKitten/BetterDiscord) with its Material You addon, coloured by matugen from your wallpaper through the pjsekai Quickshell theme. All credit for the theme goes to CapnKitten.
- * @author CapnKitten (original theme), pjsekai (matugen colours)
+ * @name sekaipop (Material Discord)
+ * @version 3.0.5-sekaipop
+ * @description Material Discord by CapnKitten (github.com/CapnKitten/BetterDiscord) with its Material You addon, coloured by matugen from your wallpaper through the sekaipop Quickshell theme. All credit for the theme goes to CapnKitten.
+ * @author CapnKitten (original theme), sekaipop (matugen colours)
  *
  * @website http://github.com/CapnKitten
  * @source https://github.com/CapnKitten/BetterDiscord/blob/master/Themes/Material-Discord/css/source.css
@@ -413,8 +413,8 @@ generate() {
     [ -f "$body" ] || { echo "discord-theme: missing $body" >&2; return 1; }
     cat << HEAD
 /**
- * @name pjsekai
- * @description Project Sekai look for Discord: floating rounded cards with one clean outline and accent-gradient highlights (look=scrapbook adds washi labels and hard shadows). Colours follow the pjsekai Quickshell theme. Layout by system24 (imported), look by pjsekai.
+ * @name sekaipop
+ * @description Project Sekai look for Discord: floating rounded cards with one clean outline and accent-gradient highlights (look=scrapbook adds washi labels and hard shadows). Colours follow the sekaipop Quickshell theme. Layout by system24 (imported), look by sekaipop.
  * @author generated by sekaipop/scripts/theming/discord-theme.sh
  * @version 2.0.0
  */
@@ -434,7 +434,7 @@ $import_line
     --pj-rim-hi: $rimHi;
 }
 body {
-    /* pjsekai options */
+    /* sekaipop options */
     --pj-look: $o_look;
     --pj-layout: $o_layout;
     --pj-chatbar: $o_chatbar;
@@ -484,16 +484,16 @@ case "$mode" in
         installed=0
         for d in "$cache" $(dirs); do
             mkdir -p "$d" 2>/dev/null || continue
-            f="$d/pjsekai.theme.css"
+            f="$d/sekaipop.theme.css"
             if [ -f "$f" ] && [ "$(cat "$f")" = "$css" ]; then
                 [ "$d" != "$cache" ] && installed=$((installed + 1))
                 continue
             fi
-            tmp="$d/.pjsekai.theme.tmp"
+            tmp="$d/.sekaipop.theme.tmp"
             printf '%s\n' "$css" > "$tmp" && mv -f "$tmp" "$f" || continue
             [ "$d" != "$cache" ] && installed=$((installed + 1))
         done
-        [ "$installed" -gt 0 ] || echo "no Vencord/Vesktop themes folder found; copy $cache/pjsekai.theme.css into yours (or set PJSEKAI_DISCORD_DIRS)" >&2
+        [ "$installed" -gt 0 ] || echo "no Vencord/Vesktop themes folder found; copy $cache/sekaipop.theme.css into yours (or set SEKAIPOP_DISCORD_DIRS)" >&2
         ;;
     *)
         echo "usage: $0 write|print [role=#hex ...] | where" >&2

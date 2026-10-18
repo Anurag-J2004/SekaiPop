@@ -12,7 +12,7 @@
 # (Settings -> Desktop -> Wallpaper -> Wallpaper folder is saved by the caller).
 #
 # The chooser is the first of kdialog, zenity or yad that's installed, the same
-# way pick-image.sh does it, and PJSEKAI_CHOOSER (Settings -> General -> picker)
+# way pick-image.sh does it, and SEKAIPOP_CHOOSER (Settings -> General -> picker)
 # is tried first. A chooser that is not installed is skipped.
 
 mode="$1"
@@ -30,7 +30,7 @@ fi
 title="Choose your wallpaper folder"
 
 chooser=""
-for c in ${PJSEKAI_CHOOSER:-} kdialog zenity yad; do
+for c in ${SEKAIPOP_CHOOSER:-} kdialog zenity yad; do
     case "$c" in
         zenity|kdialog|yad) ;;
         *) continue ;;

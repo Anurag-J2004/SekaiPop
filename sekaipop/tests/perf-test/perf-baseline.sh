@@ -18,10 +18,10 @@
 #   gpu_*       SYSTEM-WIDE, not the shell's: the compositor and every other app are in it.
 #               Only printed when the driver exposes it (amdgpu gpu_busy_percent, nvidia-smi).
 # Not measured here: frame time, GPU memory attributable to the shell, startup time.
-# Use PJSEKAI_PERF=<ms> for the frame-time probe already built into QuickPanel.qml.
+# Use SEKAIPOP_PERF=<ms> for the frame-time probe already built into QuickPanel.qml.
 
 secs=${1:-60}
-pid=${PID:-$(pgrep -o -x quickshell || pgrep -o -f 'quickshell.* pjsekai')}
+pid=${PID:-$(pgrep -o -x quickshell || pgrep -o -f 'quickshell.* sekaipop')}
 [ -n "$pid" ] && [ -r /proc/$pid/stat ] || { echo "quickshell not found (set PID=)"; exit 1; }
 hz=$(getconf CLK_TCK)
 

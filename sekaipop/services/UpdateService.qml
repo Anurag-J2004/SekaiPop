@@ -13,7 +13,7 @@ import qs.modules.common
 // shortly after the shell starts and then every "updates.shellHours" hours. When
 // such a look finds a newer version it sends ONE notification for it (the shell
 // is the notification daemon, so it shows on the phone like any other) and
-// remembers which version that was (`seen`, kept in ~/.cache/pjsekai/update-seen
+// remembers which version that was (`seen`, kept in ~/.cache/sekaipop/update-seen
 // by the script), so it never repeats for the same one, also after a restart. A
 // look you asked for yourself (the page, the button) counts as seen and sends
 // nothing. Nothing is sent for an installed copy with no version mark yet
@@ -105,7 +105,7 @@ Singleton {
         const what = root.isGit && root.behind > 0
             ? root.behind + (root.behind === 1 ? " new commit is" : " new commits are") + " waiting upstream."
             : (!root.isGit && !root.managed && root.latest !== "" ? "Version " + root.latest + " is out." : "A newer version is on GitHub.")
-        Quickshell.execDetached(["notify-send", "-a", "pjsekai", "-i", "material:system_update",
+        Quickshell.execDetached(["notify-send", "-a", "sekaipop", "-i", "material:system_update",
             "SekaiPop update available", what + " Open Settings \u2192 About / Update to install it."])
     }
 

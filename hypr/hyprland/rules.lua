@@ -93,18 +93,18 @@ hl.window_rule({match = {float = 0 }, no_shadow = true})
 hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })
 
 -- ######## Layer rules ########
--- Every surface of the shell has a namespace starting with "pjsekai-" (the bar is plain
+-- Every surface of the shell has a namespace starting with "sekaipop-" (the bar is plain
 -- "quickshell": Quickshell's default, since Bar.qml sets none). They draw their own motion
 -- (the phone slides and bounces, the cards pop, the keyboard rises), and Hyprland's layer
 -- animation on top of that shows up as a flash or a lifted edge (see CHANGELOG: quickpanel,
 -- keyboard, region picker). So the compositor's animation is off for all of them.
 --
 -- To give some of them Hyprland's animation back, narrow the regex below (e.g. list only the
--- ones you want switched off) instead of "^pjsekai-".
-hl.layer_rule({ name = "pjsekai-no-anim", match = { namespace = "^pjsekai-" }, no_anim = true })
+-- ones you want switched off) instead of "^sekaipop-".
+hl.layer_rule({ name = "sekaipop-no-anim", match = { namespace = "^sekaipop-" }, no_anim = true })
 
 -- No blur anywhere on the shell: its surfaces are opaque. To blur one, e.g. the notification cards:
---   hl.layer_rule({ match = { namespace = "^pjsekai-notifications$" }, blur = true, ignore_alpha = 0.3 })
+--   hl.layer_rule({ match = { namespace = "^sekaipop-notifications$" }, blur = true, ignore_alpha = 0.3 })
 
 -- Launchers need to be FAST (GTK4 layer-shell apps: fuzzel-style launchers, wlogout, ...)
 hl.layer_rule({ match = { namespace = "gtk4-layer-shell" }, no_anim = true})

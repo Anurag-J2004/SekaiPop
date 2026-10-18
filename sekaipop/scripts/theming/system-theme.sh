@@ -17,20 +17,20 @@
 #               matugen builds a full Material scheme around it
 #
 # WHAT IT WRITES (matugen renders these; nothing else of yours is replaced)
-#   gtk   ~/.config/gtk-3.0/pjsekai-colors.css and ~/.config/gtk-4.0/pjsekai-colors.css,
-#         plus ONE line `@import url("pjsekai-colors.css");` at the top of each gtk.css
+#   gtk   ~/.config/gtk-3.0/sekaipop-colors.css and ~/.config/gtk-4.0/sekaipop-colors.css,
+#         plus ONE line `@import url("sekaipop-colors.css");` at the top of each gtk.css
 #         (added once; a gtk.css that is a symlink is left alone and you are told).
 #         If adw-gtk3 is installed, also a copy of it with the colours added to the theme
-#         itself, ~/.local/share/themes/pjsekai-adw-gtk3[-dark], which gtk-theme is set to
+#         itself, ~/.local/share/themes/sekaipop-adw-gtk3[-dark], which gtk-theme is set to
 #         (GTK3 re-reads a theme from disk when the theme setting changes, but reads the
 #         user's gtk.css only once per app, so this copy is what makes GTK3 apps live).
-#   qt    ~/.config/qt5ct/colors/pjsekai.conf and ~/.config/qt6ct/colors/pjsekai.conf, and in
+#   qt    ~/.config/qt5ct/colors/sekaipop.conf and ~/.config/qt6ct/colors/sekaipop.conf, and in
 #         qt5ct.conf / qt6ct.conf only `color_scheme_path` and `custom_palette=true`
 #         (the files are created, with style=Fusion, if they don't exist; style is
 #         never changed on an existing file). Stock qt5ct/qt6ct only read this format.
-#   kde   a KDE colour scheme, ~/.local/share/color-schemes/PjsekaiA.colors or PjsekaiB.colors
+#   kde   a KDE colour scheme, ~/.local/share/color-schemes/SekaipopA.colors or SekaipopB.colors
 #         (they take turns), its [Colors:*] / [ColorEffects:*] / [WM] sections merged into
-#         ~/.config/kdeglobals (a backup is kept once, as kdeglobals.pjsekai-bak) and
+#         ~/.config/kdeglobals (a backup is kept once, as kdeglobals.sekaipop-bak) and
 #         [General] ColorScheme there set to it. Dolphin and the other KDE apps read this
 #         through QT_QPA_PLATFORMTHEME=kde (plasma-integration); stock qt6ct can't read it.
 #   plus, when scheme=on, GNOME's color-scheme setting (prefer-dark / prefer-light).
@@ -47,7 +47,7 @@
 #         time they start. Some apps that follow the portal's colour scheme, notably
 #         Chromium, can also miss the restore: drop gtk4 from reload= if that happens.
 #   gtk3  gtk-theme is switched to another theme and back, so GTK3 apps re-read the theme
-#         files (the pjsekai-adw-gtk3 copy above). A dark theme goes through a dark one
+#         files (the sekaipop-adw-gtk3 copy above). A dark theme goes through a dark one
 #         (Adwaita-dark, or HighContrastInverse), so it never flashes light.
 #   qt    qt5ct.conf / qt6ct.conf are replaced last; qt5ct / qt6ct watch their config
 #         folder and re-apply the palette in every running Qt app
@@ -59,7 +59,7 @@
 # apps reload, so the matching switch-and-back is skipped.
 #
 # It skips the whole run if nothing changed since the last one (a stamp in
-# ${XDG_CACHE_HOME:-~/.cache}/pjsekai/system), unless force=1.
+# ${XDG_CACHE_HOME:-~/.cache}/sekaipop/system), unless force=1.
 #
 # Exit codes: 0 done (or nothing to do), 2 bad arguments, 3 matugen ran but an output is
 # missing, 127 matugen not installed, anything else is matugen's own.
@@ -71,18 +71,18 @@ here="$(cd "$(dirname "$0")" && pwd)"
 tpl="$here/system-templates"
 cfgdir="${XDG_CONFIG_HOME:-$HOME/.config}"
 datadir="${XDG_DATA_HOME:-$HOME/.local/share}"
-cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/system"
+cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/system"
 stamp="$cachedir/stamp"
 
-gtk3_css="$cfgdir/gtk-3.0/pjsekai-colors.css"
-gtk4_css="$cfgdir/gtk-4.0/pjsekai-colors.css"
-qt5_conf="$cfgdir/qt5ct/colors/pjsekai.conf"
-qt6_conf="$cfgdir/qt6ct/colors/pjsekai.conf"
+gtk3_css="$cfgdir/gtk-3.0/sekaipop-colors.css"
+gtk4_css="$cfgdir/gtk-4.0/sekaipop-colors.css"
+qt5_conf="$cfgdir/qt5ct/colors/sekaipop.conf"
+qt6_conf="$cfgdir/qt6ct/colors/sekaipop.conf"
 kde_render="$cachedir/kde-colors.colors"
 kdeglobals="$cfgdir/kdeglobals"
 schemes_dir="$datadir/color-schemes"
 themes_dir="$datadir/themes"
-import_line='@import url("pjsekai-colors.css");'
+import_line='@import url("sekaipop-colors.css");'
 
 say() { printf 'system-theme: %s\n' "$*" >&2; }
 
@@ -122,7 +122,7 @@ ini_set() {
                 print ENVIRON["KEY"] "=" ENVIRON["VAL"]
             } else close_section()
         }
-    ' "$f" > "$f.pjsekai-tmp" && mv "$f.pjsekai-tmp" "$f"
+    ' "$f" > "$f.sekaipop-tmp" && mv "$f.sekaipop-tmp" "$f"
 }
 
 # ensure_import FILE: puts the @import line at the top of a gtk.css, once.
@@ -134,8 +134,8 @@ ensure_import() {
     fi
     mkdir -p "$(dirname "$f")" || return 1
     if [ -f "$f" ]; then
-        grep -qF 'pjsekai-colors.css' "$f" && return 0
-        { printf '%s\n' "$import_line"; cat "$f"; } > "$f.pjsekai-tmp" && mv "$f.pjsekai-tmp" "$f"
+        grep -qF 'sekaipop-colors.css' "$f" && return 0
+        { printf '%s\n' "$import_line"; cat "$f"; } > "$f.sekaipop-tmp" && mv "$f.sekaipop-tmp" "$f"
     else
         printf '%s\n' "$import_line" > "$f"
     fi
@@ -147,18 +147,18 @@ merge_kde() {
     src="$1"; dst="$2"
     if is_link "$dst"; then say "$dst is a symlink, not editing it"; return 0; fi
     if [ -f "$dst" ]; then
-        [ -f "$dst.pjsekai-bak" ] || cp "$dst" "$dst.pjsekai-bak"
-        awk '/^\[/ { skip = ($0 ~ /^\[(Colors:|ColorEffects:|WM\])/) } !skip { print }' "$dst" > "$dst.pjsekai-tmp" || return 1
+        [ -f "$dst.sekaipop-bak" ] || cp "$dst" "$dst.sekaipop-bak"
+        awk '/^\[/ { skip = ($0 ~ /^\[(Colors:|ColorEffects:|WM\])/) } !skip { print }' "$dst" > "$dst.sekaipop-tmp" || return 1
         # one blank line between what stays and what we add
-        if [ -s "$dst.pjsekai-tmp" ]; then
-            tail -n 1 "$dst.pjsekai-tmp" | grep -q '^[[:space:]]*$' || printf '\n' >> "$dst.pjsekai-tmp"
+        if [ -s "$dst.sekaipop-tmp" ]; then
+            tail -n 1 "$dst.sekaipop-tmp" | grep -q '^[[:space:]]*$' || printf '\n' >> "$dst.sekaipop-tmp"
         fi
     else
         mkdir -p "$(dirname "$dst")" || return 1
-        : > "$dst.pjsekai-tmp"
+        : > "$dst.sekaipop-tmp"
     fi
-    awk '/^\[/ { keep = ($0 ~ /^\[(Colors:|ColorEffects:|WM\])/) } keep { print }' "$src" >> "$dst.pjsekai-tmp" \
-        && mv "$dst.pjsekai-tmp" "$dst"
+    awk '/^\[/ { keep = ($0 ~ /^\[(Colors:|ColorEffects:|WM\])/) } keep { print }' "$src" >> "$dst.sekaipop-tmp" \
+        && mv "$dst.sekaipop-tmp" "$dst"
 }
 
 # GNOME interface settings. dconf is what GTK actually reads; a `gsettings` from a GLib
@@ -190,15 +190,15 @@ find_theme() {
 }
 
 # build_gtk3_theme MODE: copies adw-gtk3 (adw-gtk3-dark for dark) to
-# ~/.local/share/themes/pjsekai-<that> with the rendered colours added at the end of its
+# ~/.local/share/themes/sekaipop-<that> with the rendered colours added at the end of its
 # CSS, and prints the new theme's name. Prints nothing and fails if adw-gtk3 isn't installed
 # or the target folder is somebody else's.
 build_gtk3_theme() {
     base=adw-gtk3; [ "$1" = dark ] && base=adw-gtk3-dark
     src="$(find_theme "$base")" || return 1
-    name="pjsekai-$base"
+    name="sekaipop-$base"
     dst="$themes_dir/$name"
-    if [ -e "$dst" ] && [ ! -f "$dst/.pjsekai" ]; then
+    if [ -e "$dst" ] && [ ! -f "$dst/.sekaipop" ]; then
         say "$dst exists and is not ours, not touching it"
         return 1
     fi
@@ -210,19 +210,19 @@ build_gtk3_theme() {
             { printf '\n'; cat "$gtk3_css"; } >> "$f"
         fi
     done
-    : > "$dst.tmp/.pjsekai"
+    : > "$dst.tmp/.sekaipop"
     rm -rf "$dst" && mv "$dst.tmp" "$dst" || return 1
     printf '%s' "$name"
 }
 
-# Writes the next scheme file (PjsekaiA / PjsekaiB, alternating) and nothing else.
+# Writes the next scheme file (SekaipopA / SekaipopB, alternating) and nothing else.
 # kdeglobals is NOT touched here on purpose: plasma-apply-colorscheme has to be the one that changes it.
 # If we wrote the new colours into kdeglobals first, it would find nothing to change, KDE would send
 # no "colours changed" signal, and an open Dolphin would keep the old colours until restarted.
 kde_publish() {
     [ -s "$kde_render" ] || { say "no KDE colours rendered yet (run apply first)"; return 1; }
     if [ "$(cat "$cachedir/kde-slot" 2>/dev/null)" = A ]; then slot=B; else slot=A; fi
-    kde_scheme="Pjsekai$slot"
+    kde_scheme="Sekaipop$slot"
     mkdir -p "$schemes_dir" || return 1
     sed "s/@@NAME@@/$kde_scheme/g" "$kde_render" > "$schemes_dir/$kde_scheme.colors" || return 1
     printf '%s\n' "$slot" > "$cachedir/kde-slot"
@@ -252,7 +252,7 @@ pause() { sleep "$bounce_gap" 2>/dev/null || :; }
 # Replaces a file by a copy of itself: a rename, which watchers of the folder notice.
 retouch() {
     [ -f "$1" ] && ! is_link "$1" || return 0
-    cp -p "$1" "$1.pjsekai-tmp" && mv "$1.pjsekai-tmp" "$1"
+    cp -p "$1" "$1.sekaipop-tmp" && mv "$1.sekaipop-tmp" "$1"
 }
 
 reload_gtk3() {
@@ -351,19 +351,19 @@ do_check() {
     fi
     echo "gdbus:          $(command -v gdbus || echo 'not found (only matters for KDE apps when plasma-apply-colorscheme is missing too)')"
     echo "plasma-apply-colorscheme: $(command -v plasma-apply-colorscheme || echo 'not found (KDE apps are told through D-Bus signals instead, less certain)')"
-    if find_theme adw-gtk3 >/dev/null; then echo "adw-gtk3:       installed (GTK3 apps get the pjsekai-adw-gtk3 copy and can recolour live)"; else echo "adw-gtk3:       NOT installed (GTK3 apps can't recolour live; install adw-gtk3)"; fi
+    if find_theme adw-gtk3 >/dev/null; then echo "adw-gtk3:       installed (GTK3 apps get the sekaipop-adw-gtk3 copy and can recolour live)"; else echo "adw-gtk3:       NOT installed (GTK3 apps can't recolour live; install adw-gtk3)"; fi
     echo "qt5ct / qt6ct:  $(command -v qt5ct || echo 'qt5ct missing') / $(command -v qt6ct || echo 'qt6ct missing')"
     echo "QT_QPA_PLATFORMTHEME in this shell: '${QT_QPA_PLATFORMTHEME:-}'"
     case "${QT_QPA_PLATFORMTHEME:-}" in
-        kde) echo "  kde: Dolphin and the other KDE apps follow the PjsekaiA/B colour scheme (needs plasma-integration)" ;;
+        kde) echo "  kde: Dolphin and the other KDE apps follow the SekaipopA/B colour scheme (needs plasma-integration)" ;;
         qt5ct|qt6ct) echo "  $QT_QPA_PLATFORMTHEME: plain Qt apps follow the qt*ct palette, but Dolphin and other KDE apps do NOT follow the colour scheme this way (stock qt6ct can't read KDE schemes). Use QT_QPA_PLATFORMTHEME=kde for them." ;;
         *) echo "  not kde / qt5ct / qt6ct: Qt apps ignore these colours. Set it before the apps start, e.g. in hyprland.conf: env = QT_QPA_PLATFORMTHEME,kde" ;;
     esac
     for f in "$cfgdir/gtk-3.0/gtk.css" "$cfgdir/gtk-4.0/gtk.css"; do
-        if [ -L "$f" ]; then s="symlink (will not be edited)"; elif grep -qF pjsekai-colors.css "$f" 2>/dev/null; then s="imports pjsekai-colors.css"; elif [ -f "$f" ]; then s="exists, import not added yet"; else s="missing (created on the first apply)"; fi
+        if [ -L "$f" ]; then s="symlink (will not be edited)"; elif grep -qF sekaipop-colors.css "$f" 2>/dev/null; then s="imports sekaipop-colors.css"; elif [ -f "$f" ]; then s="exists, import not added yet"; else s="missing (created on the first apply)"; fi
         echo "$f: $s"
     done
-    for f in "$gtk3_css" "$gtk4_css" "$qt5_conf" "$qt6_conf" "$schemes_dir/PjsekaiA.colors" "$schemes_dir/PjsekaiB.colors" "$themes_dir/pjsekai-adw-gtk3" "$themes_dir/pjsekai-adw-gtk3-dark"; do
+    for f in "$gtk3_css" "$gtk4_css" "$qt5_conf" "$qt6_conf" "$schemes_dir/SekaipopA.colors" "$schemes_dir/SekaipopB.colors" "$themes_dir/sekaipop-adw-gtk3" "$themes_dir/sekaipop-adw-gtk3-dark"; do
         echo "output:         $f ($([ -e "$f" ] && echo exists || echo 'not written yet'))"
     done
     echo "kdeglobals:     $kdeglobals ($([ -L "$kdeglobals" ] && echo symlink || { [ -f "$kdeglobals" ] && echo "exists, ColorScheme=$(sed -n 's/^ColorScheme=//p' "$kdeglobals" | head -n 1)" || echo missing; }))"
@@ -396,23 +396,23 @@ do_revert() {
     for f in "$cfgdir/gtk-3.0/gtk.css" "$cfgdir/gtk-4.0/gtk.css"; do
         if [ -f "$f" ] && ! is_link "$f"; then
             # grep exits 1 when nothing is left to print (a file that was only our line)
-            grep -vF 'pjsekai-colors.css' "$f" > "$f.pjsekai-tmp"
-            if [ $? -le 1 ]; then mv "$f.pjsekai-tmp" "$f"; else rm -f "$f.pjsekai-tmp"; fi
+            grep -vF 'sekaipop-colors.css' "$f" > "$f.sekaipop-tmp"
+            if [ $? -le 1 ]; then mv "$f.sekaipop-tmp" "$f"; else rm -f "$f.sekaipop-tmp"; fi
             [ -s "$f" ] || rm -f "$f"
         fi
     done
     cur="$(iface_get gtk-theme)"
-    case "$cur" in pjsekai-adw-gtk3|pjsekai-adw-gtk3-dark) iface_set gtk-theme "${cur#pjsekai-}" ;; esac
-    for t in pjsekai-adw-gtk3 pjsekai-adw-gtk3-dark; do
-        [ -f "$themes_dir/$t/.pjsekai" ] && rm -rf "$themes_dir/$t"
+    case "$cur" in sekaipop-adw-gtk3|sekaipop-adw-gtk3-dark) iface_set gtk-theme "${cur#sekaipop-}" ;; esac
+    for t in sekaipop-adw-gtk3 sekaipop-adw-gtk3-dark; do
+        [ -f "$themes_dir/$t/.sekaipop" ] && rm -rf "$themes_dir/$t"
     done
     rm -f "$gtk3_css" "$gtk4_css" "$qt5_conf" "$qt6_conf" "$kde_render" "$stamp" "$cachedir/kde-slot" \
-          "$schemes_dir/PjsekaiA.colors" "$schemes_dir/PjsekaiB.colors"
+          "$schemes_dir/SekaipopA.colors" "$schemes_dir/SekaipopB.colors"
     for q in qt5ct qt6ct; do
         [ -f "$cfgdir/$q/$q.conf" ] && ini_set "$cfgdir/$q/$q.conf" Appearance custom_palette false
     done
-    if [ -f "$kdeglobals.pjsekai-bak" ] && ! is_link "$kdeglobals"; then
-        cp "$kdeglobals.pjsekai-bak" "$kdeglobals" && rm -f "$kdeglobals.pjsekai-bak"
+    if [ -f "$kdeglobals.sekaipop-bak" ] && ! is_link "$kdeglobals"; then
+        cp "$kdeglobals.sekaipop-bak" "$kdeglobals" && rm -f "$kdeglobals.sekaipop-bak"
         say "kdeglobals restored from its backup"
     fi
     say "reverted (the GNOME color-scheme setting was left as it is)"
@@ -457,7 +457,7 @@ do_apply() {
         ok=1
         want gtk && { [ -f "$gtk3_css" ] && [ -f "$gtk4_css" ] || ok=0; }
         want qt  && { [ -f "$qt6_conf" ] || ok=0; }
-        want kde && { [ -f "$schemes_dir/PjsekaiA.colors" ] || [ -f "$schemes_dir/PjsekaiB.colors" ] || ok=0; }
+        want kde && { [ -f "$schemes_dir/SekaipopA.colors" ] || [ -f "$schemes_dir/SekaipopB.colors" ] || ok=0; }
         [ "$ok" = 1 ] && exit 0
     fi
 
@@ -467,16 +467,16 @@ do_apply() {
         printf '[config]\n'
         if want gtk; then
             mkdir -p "$cfgdir/gtk-3.0" "$cfgdir/gtk-4.0" || exit 1
-            printf "\n[templates.pjsekai-gtk3]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/gtk-colors.css" "$gtk3_css"
-            printf "\n[templates.pjsekai-gtk4]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/gtk-colors.css" "$gtk4_css"
+            printf "\n[templates.sekaipop-gtk3]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/gtk-colors.css" "$gtk3_css"
+            printf "\n[templates.sekaipop-gtk4]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/gtk-colors.css" "$gtk4_css"
         fi
         if want qt; then
             mkdir -p "$cfgdir/qt5ct/colors" "$cfgdir/qt6ct/colors" || exit 1
-            printf "\n[templates.pjsekai-qt5ct]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/qt5ct-colors.conf" "$qt5_conf"
-            printf "\n[templates.pjsekai-qt6ct]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/qt6ct-colors.conf" "$qt6_conf"
+            printf "\n[templates.sekaipop-qt5ct]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/qt5ct-colors.conf" "$qt5_conf"
+            printf "\n[templates.sekaipop-qt6ct]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/qt6ct-colors.conf" "$qt6_conf"
         fi
         if want kde; then
-            printf "\n[templates.pjsekai-kde]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/kde-colors.colors" "$kde_render"
+            printf "\n[templates.sekaipop-kde]\ninput_path = '%s'\noutput_path = '%s'\n" "$tpl/kde-colors.colors" "$kde_render"
         fi
     } > "$cfg" || exit 1
     want kde && rm -f "$kde_render"

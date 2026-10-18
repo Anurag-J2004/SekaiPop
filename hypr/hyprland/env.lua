@@ -20,4 +20,4 @@ if terminalName and terminalName ~= "" and not os.getenv("TERMINAL") then
 end
 
 -- File chooser for the avatar / banner picker: kdialog, zenity or yad. Unset = the shell picks.
--- hl.env("PJSEKAI_CHOOSER", "kdialog")
+-- hl.env("SEKAIPOP_CHOOSER", "kdialog")

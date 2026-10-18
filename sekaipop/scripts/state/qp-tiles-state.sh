@@ -19,12 +19,12 @@
 #                                   layout prints "-". Output includes the
 #                                   "#v2" line.
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/qp-tiles — state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/qp-tiles — state,
 # not data, same convention as pinned-apps-state.sh next to this one.
 
 mode="$1"
 shift
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/qp-tiles"
 
 case "$mode" in

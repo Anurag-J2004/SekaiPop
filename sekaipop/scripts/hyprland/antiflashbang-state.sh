@@ -6,18 +6,18 @@
 #
 #   antiflashbang-state.sh off|weak|strong
 #
-# The override file is  ~/.config/hypr/pjsekai_overrides.lua. Only lines ending
+# The override file is  ~/.config/hypr/sekaipop_overrides.lua. Only lines ending
 # in the marker below are ever touched, so other things can live in that file.
-# One-time setup, in hyprland.lua:   pcall(require, "pjsekai_overrides")
+# One-time setup, in hyprland.lua:   pcall(require, "sekaipop_overrides")
 #
 # After writing, Hyprland is reloaded, and the setting is also applied live
 # with `hyprctl eval`, so it works at once even before that line exists (it
 # just won't survive the next reload until it does).
 
-MARK='-- pjsekai:antiflashbang'
+MARK='-- sekaipop:antiflashbang'
 here=$(cd "$(dirname "$0")" && pwd)
 dir="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
-file="$dir/pjsekai_overrides.lua"
+file="$dir/sekaipop_overrides.lua"
 
 case "$1" in
     weak)   shader="$here/anti-flashbang-weak.glsl" ;;
@@ -28,7 +28,7 @@ esac
 
 mkdir -p "$dir" || exit 1
 [ -e "$file" ] || : > "$file"
-tmp=$(mktemp "$dir/.pjsekai_overrides.XXXXXX") || exit 1
+tmp=$(mktemp "$dir/.sekaipop_overrides.XXXXXX") || exit 1
 
 # Everything except our own lines... (-e: the marker starts with "--"; and a
 # grep that actually failed, exit 2, must never replace the file with nothing.

@@ -8,12 +8,12 @@
 #   barlayout-state.sh load          print the remembered JSON (or nothing at
 #                                    all, if the bar was never rearranged)
 #
-# Lives in ${XDG_STATE_HOME:-~/.local/state}/pjsekai/bar-layout.json — state,
+# Lives in ${XDG_STATE_HOME:-~/.local/state}/sekaipop/bar-layout.json — state,
 # not data, same convention settings-state.sh uses. Written to a temp file and
 # moved into place, so a crash mid-save can't leave half a file.
 
 mode="$1"
-dir="${XDG_STATE_HOME:-$HOME/.local/state}/pjsekai"
+dir="${XDG_STATE_HOME:-$HOME/.local/state}/sekaipop"
 file="$dir/bar-layout.json"
 
 case "$mode" in

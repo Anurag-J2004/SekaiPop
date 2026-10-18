@@ -10,10 +10,10 @@
 #
 # <key> is the 32 hex digits of an md5 (the service makes it from the artist, the title
 # and the length), so nothing from outside can name a path. The cache is a cache:
-# ${XDG_CACHE_HOME:-~/.cache}/pjsekai/lyrics/<key>.json, safe to delete any time.
+# ${XDG_CACHE_HOME:-~/.cache}/sekaipop/lyrics/<key>.json, safe to delete any time.
 
 mode="$1"
-dir="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/lyrics"
+dir="${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/lyrics"
 MAX=262144
 
 valid_key() {

@@ -39,7 +39,7 @@ SettingsPage {
                     ? "These files carry no version mark yet, so Update now installs the latest from GitHub (" + UpdateService.latest + ")."
                     : "A newer commit is on GitHub (" + UpdateService.latest + ")."
             return "Version " + UpdateService.latest + " is out"
-        case "nosource": return "Install git to update from GitHub, or put a link to a VERSION file in ~/.config/pjsekai/update-url."
+        case "nosource": return "Install git to update from GitHub, or put a link to a VERSION file in ~/.config/sekaipop/update-url."
         case "error": return UpdateService.reason
         default: return ""
         }
@@ -111,7 +111,7 @@ SettingsPage {
             spacing: 2
 
             Text {
-                text: "pjsekai"
+                text: "SekaiPop"
                 color: Theme.pInk
                 font.family: Theme.fontFamily
                 font.pixelSize: 34

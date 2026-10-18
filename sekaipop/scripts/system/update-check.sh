@@ -9,7 +9,7 @@
 #                            rev=<short id of the newest version> (all modes);
 #                            unknown=yes when the installed files carry no commit mark
 #   update-check.sh seen [x] print, or with an argument store, the id of the newest version
-#                            the user was last told about (~/.cache/pjsekai/update-seen)
+#                            the user was last told about (~/.cache/sekaipop/update-seen)
 #   update-check.sh log      commits that an update would bring, one per line:
 #                            <hash>|<subject>|<age>   (git checkout only)
 #   update-check.sh apply    bring the shell up to date; exits 0 only if it worked
@@ -21,14 +21,14 @@
 #   2. An installed copy (what install.sh makes: ~/.config/quickshell/sekaipop, no
 #      .git inside). The repo is read from the ".source" file install.sh and this
 #      script keep next to shell.qml (commit= / repo= / ref=), else from
-#      $SEKAIPOP_REPO, else ~/.config/pjsekai/update-repo, else the SekaiPop repo on
+#      $SEKAIPOP_REPO, else ~/.config/sekaipop/update-repo, else the SekaiPop repo on
 #      GitHub; the branch is ref= (else $SEKAIPOP_REF, else main). `check` only asks
 #      the remote for its newest commit (git ls-remote) and compares it with
 #      commit=. `apply` downloads that commit into a temporary folder, builds the new
 #      folder beside this one, keeps the old one as sekaipop.previous (one copy) and
 #      swaps them. Needs git. Refuses when this folder is a symlink.
-#   3. Otherwise a URL to a plain-text VERSION file, from $PJSEKAI_UPDATE_URL or the
-#      first line of ~/.config/pjsekai/update-url. It is compared with this folder's
+#   3. Otherwise a URL to a plain-text VERSION file, from $SEKAIPOP_UPDATE_URL or the
+#      first line of ~/.config/sekaipop/update-url. It is compared with this folder's
 #      VERSION. (Nothing is downloaded or installed this way; the panel just tells
 #      you a newer version exists.)
 #   4. Otherwise: status=nosource.
@@ -62,7 +62,7 @@ is_git() { [ -n "$root" ]; }
 has_up() { git -C "$root" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; }
 
 # --- 2. an installed copy ---------------------------------------------------
-cfgdir="${XDG_CONFIG_HOME:-$HOME/.config}/pjsekai"
+cfgdir="${XDG_CONFIG_HOME:-$HOME/.config}/sekaipop"
 marker="$here/.source"
 mark() { sed -n "s/^$1=//p" "$marker" 2>/dev/null | head -n 1 | tr -d '\r'; }
 installed=$(mark commit)
@@ -124,7 +124,7 @@ apply_managed() {
 }
 
 # --- 3. a URL to a VERSION file ---------------------------------------------
-url="$PJSEKAI_UPDATE_URL"
+url="$SEKAIPOP_UPDATE_URL"
 [ -n "$url" ] || url=$(head -n 1 "$cfgdir/update-url" 2>/dev/null)
 
 cmd=$1
@@ -171,7 +171,7 @@ case "$cmd" in
         fi
         ;;
     seen)
-        f="${XDG_CACHE_HOME:-$HOME/.cache}/pjsekai/update-seen"
+        f="${XDG_CACHE_HOME:-$HOME/.cache}/sekaipop/update-seen"
         if [ -n "$2" ]; then
             mkdir -p "$(dirname "$f")" && printf '%s\n' "$2" > "$f"
         else

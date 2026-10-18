@@ -1,24 +1,24 @@
--- SekaiPop (pjsekai): Hyprland configuration (Lua config, Hyprland 0.55+).
+-- SekaiPop: Hyprland configuration (Lua config, Hyprland 0.55+).
 --
--- Built on end-4's dots-hyprland layout (GPL-3.0), rewritten around the pjsekai shell.
+-- Built on end-4's dots-hyprland layout (GPL-3.0), rewritten around the sekaipop shell.
 --
 --   hyprland/*.lua          the defaults (variables, env, execs, general, rules, keybinds)
 --   custom/*.lua            YOUR changes. Loaded after the defaults, never overwritten.
 --   workspaces.lua          nwg-displays / the shell's Settings write this one
 --   monitors.lua            made for THIS machine by the installer, then written by the shell's
 --                           Settings > Hyprland > Displays or nwg-displays. Never shipped.
---   pjsekai_overrides.lua   written by the SHELL (Settings > Hyprland, Game Mode, Anti-Flashbang,
+--   sekaipop_overrides.lua   written by the SHELL (Settings > Hyprland, Game Mode, Anti-Flashbang,
 --                           window-border colours, the region picker's layer rules). Keep it last.
 --
 -- Every part is loaded on its own. If one file has a mistake, the error is written to
--- ~/.cache/pjsekai/hypr-errors.log and the rest still loads, so a typo (or a bad monitors.lua)
+-- ~/.cache/sekaipop/hypr-errors.log and the rest still loads, so a typo (or a bad monitors.lua)
 -- never leaves you without keybinds or without the shell.
 
 local HOME_DIR = os.getenv("HOME") or ""
 
 local function log_error(name, err)
-    os.execute('mkdir -p "' .. HOME_DIR .. '/.cache/pjsekai"')
-    local f = io.open(HOME_DIR .. "/.cache/pjsekai/hypr-errors.log", "a")
+    os.execute('mkdir -p "' .. HOME_DIR .. '/.cache/sekaipop"')
+    local f = io.open(HOME_DIR .. "/.cache/sekaipop/hypr-errors.log", "a")
     if f then
         f:write(os.date("%Y-%m-%d %H:%M:%S") .. "  " .. name .. ": " .. tostring(err) .. "\n")
         f:close()
@@ -64,4 +64,4 @@ load("workspaces", true)
 load("monitors", true)
 
 -- The shell's own overrides. LAST, so what you set in the shell's Settings wins.
-load("pjsekai_overrides", true)
+load("sekaipop_overrides", true)

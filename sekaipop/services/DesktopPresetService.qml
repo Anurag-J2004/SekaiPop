@@ -97,7 +97,7 @@ import "../modules/common/functions/PresetParts.js" as PP
 // the preset's own file (`_meta.favorite`), so it travels with the folder, and it
 // is not part of the look: it never affects the "you are wearing this one" tick.
 //
-// Files: ${XDG_CONFIG_HOME:-~/.config}/pjsekai/presets/<name>.json
+// Files: ${XDG_CONFIG_HOME:-~/.config}/sekaipop/presets/<name>.json
 // (scripts/state/preset-state.sh).
 //
 //   qs -c sekaipop ipc call presets list

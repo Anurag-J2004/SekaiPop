@@ -1,5 +1,5 @@
 // The user's adjustments (settings.json, scale.json) and presets live in
-// ~/.config/pjsekai, and what an older version left in ~/.local/state/pjsekai or
+// ~/.config/sekaipop, and what an older version left in ~/.local/state/sekaipop or
 // next to shell.qml is moved over once, never over something already there.
 const assert = require("assert")
 const fs = require("fs")
@@ -12,8 +12,8 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cfgdir-"))
 const env = Object.assign({}, process.env, {
     XDG_CONFIG_HOME: path.join(tmp, "config"), XDG_STATE_HOME: path.join(tmp, "state"), XDG_DATA_HOME: path.join(tmp, "data")
 })
-const cfg = (...p) => path.join(tmp, "config", "pjsekai", ...p)
-const old = (...p) => path.join(tmp, "state", "pjsekai", ...p)
+const cfg = (...p) => path.join(tmp, "config", "sekaipop", ...p)
+const old = (...p) => path.join(tmp, "state", "sekaipop", ...p)
 const run = (script, ...a) => spawnSync("sh", [path.join(top, "scripts", "state", script), ...a], { env, encoding: "utf8" })
 const put = (f, t) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, t) }
 
@@ -57,7 +57,7 @@ assert.strictEqual(JSON.parse(fs.readFileSync(cfg("scale.json"), "utf8")).defaul
 
 // ---------- the QML side ----------
 const scaleQml = fs.readFileSync(path.join(top, "services", "ShellScale.qml"), "utf8")
-assert.ok(scaleQml.includes('"/pjsekai"') && scaleQml.includes("XDG_CONFIG_HOME") && !scaleQml.includes('shellDir + "/scale.json"\n        watch'), "ShellScale watches the config file")
+assert.ok(scaleQml.includes('"/sekaipop"') && scaleQml.includes("XDG_CONFIG_HOME") && !scaleQml.includes('shellDir + "/scale.json"\n        watch'), "ShellScale watches the config file")
 assert.ok(!fs.existsSync(path.join(top, "scale.json")), "no scale.json is shipped (it would overwrite the user's)")
 
 console.log("config dir ok")

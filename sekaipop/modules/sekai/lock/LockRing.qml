@@ -53,7 +53,7 @@ PanelWindow {
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "pjsekai-lock-ring"
+    WlrLayershell.namespace: "sekaipop-lock-ring"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
 

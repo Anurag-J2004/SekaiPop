@@ -39,7 +39,7 @@
 // Windows that belong to the shell itself. Layer-shell surfaces (the bar, the
 // panels, the notification popups ...) are not Hyprland clients at all, so this
 // is only for a toplevel the shell might one day map (a FloatingWindow).
-var SHELL_CLASSES = ["quickshell", "org.quickshell", "sekaipop", "pjsekai"]
+var SHELL_CLASSES = ["quickshell", "org.quickshell", "sekaipop"]
 
 function isShell(cls, shellClasses) {
     if (typeof cls !== "string" || cls === "")

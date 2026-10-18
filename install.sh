@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh: one command to turn a minimal Hyprland system into the SekaiPop (pjsekai) desktop.
+# install.sh: one command to turn a minimal Hyprland system into the SekaiPop desktop.
 #
 # What it does:
 #   1. dependencies   packages, fonts, services, groups     (runs install-deps.sh)
@@ -7,7 +7,7 @@
 #   3. Hyprland       a ready configuration in ~/.config/hypr (keybinds, rules, autostart),
 #                     so after a re-login the shell simply starts. monitors.lua is not shipped:
 #                     your own is kept, otherwise one is made for the screens connected now.
-# Your old Hyprland config is never deleted: it is moved to ~/.config/hypr.pjsekai-backup-<time>
+# Your old Hyprland config is never deleted: it is moved to ~/.config/hypr.sekaipop-backup-<time>
 # and  ./install.sh --restore  puts it back.
 #
 # Usage:  ./install.sh [options] [-- options for install-deps.sh]
@@ -15,7 +15,7 @@
 #   --yes               no questions
 #   --rice DIR          the sekaipop folder (default: ./sekaipop next to this script)
 #   --hypr MODE         full   = install the preconfigured Hyprland config (default for a new setup)
-#                       merge  = keep YOUR config, only add a small pjsekai_session file to it
+#                       merge  = keep YOUR config, only add a small sekaipop_session file to it
 #                       skip   = do not touch Hyprland at all
 #   --no-deps           do not install packages / services (only copy files)
 #   --with-tests        also copy the developer tests folder
@@ -101,16 +101,23 @@ hypr_running() { [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && have hyprctl && hy
 
 banner "SekaiPop installer" "Quickshell + Hyprland desktop"
 
+# Anything left from when SekaiPop was called pjsekai (settings, presets, app-colour blocks, the
+# Hyprland overrides file and backups) is moved to the new name first. Does nothing otherwise.
+if [ -f "$HERE/sekaipop/scripts/system/migrate-from-pjsekai.sh" ]; then
+    if [ "$DRY" = 1 ]; then sh "$HERE/sekaipop/scripts/system/migrate-from-pjsekai.sh" --dry-run
+    else sh "$HERE/sekaipop/scripts/system/migrate-from-pjsekai.sh"; fi
+fi
+
 # ------------------------------------------------------------------ --restore
 if [ "$RESTORE" = 1 ]; then
     step "Restoring your previous Hyprland config"
-    last=$(ls -d "$CFG"/hypr.pjsekai-backup-* 2>/dev/null | sort | tail -1)
-    [ -n "$last" ] || { echo "No backup of your own config found (looked for $CFG/hypr.pjsekai-backup-*)." >&2
-        [ -d "$CFG/hypr.pjsekai-previous" ] && echo "There is $CFG/hypr.pjsekai-previous: the pjsekai config from before the last update." >&2
+    last=$(ls -d "$CFG"/hypr.sekaipop-backup-* 2>/dev/null | sort | tail -1)
+    [ -n "$last" ] || { echo "No backup of your own config found (looked for $CFG/hypr.sekaipop-backup-*)." >&2
+        [ -d "$CFG/hypr.sekaipop-previous" ] && echo "There is $CFG/hypr.sekaipop-previous: the sekaipop config from before the last update." >&2
         exit 1; }
     info "backup: $last"
-    ask "Put it back as $HYPR_DEST (the current one is kept as hypr.pjsekai-replaced-$TS)?" || exit 0
-    [ -e "$HYPR_DEST" ] && run mv "$HYPR_DEST" "$CFG/hypr.pjsekai-replaced-$TS"
+    ask "Put it back as $HYPR_DEST (the current one is kept as hypr.sekaipop-replaced-$TS)?" || exit 0
+    [ -e "$HYPR_DEST" ] && run mv "$HYPR_DEST" "$CFG/hypr.sekaipop-replaced-$TS"
     run cp -a "$last" "$HYPR_DEST"
     ok "done. Reload Hyprland (or log out and in) to use it."
     exit 0
@@ -148,19 +155,19 @@ SRC_HYPR="$HERE/hypr"
 if [ "$HYPR" = auto ]; then
     HYPR=full
     if [ "$HAVE_CFG" = 1 ]; then
-        if grep -qsF 'SekaiPop (pjsekai): Hyprland configuration' "$HYPR_DEST/hyprland.lua" 2>/dev/null; then
-            info "your Hyprland config is already the pjsekai one: it will be updated (your custom/ folder is kept)"
+        if grep -qsE 'SekaiPop( \(pjsekai\))?: Hyprland configuration' "$HYPR_DEST/hyprland.lua" 2>/dev/null; then
+            info "your Hyprland config is already the sekaipop one: it will be updated (your custom/ folder is kept)"
         else
             warn "you already have a Hyprland config in $HYPR_DEST."
-            info "'full' replaces it with the pjsekai one (keybinds, rules, autostart). Yours is moved to"
-            info "$CFG/hypr.pjsekai-backup-$TS and  ./install.sh --restore  puts it back."
-            ask "Replace it? (n = keep yours and only add the small pjsekai_session file)" || HYPR=merge
+            info "'full' replaces it with the sekaipop one (keybinds, rules, autostart). Yours is moved to"
+            info "$CFG/hypr.sekaipop-backup-$TS and  ./install.sh --restore  puts it back."
+            ask "Replace it? (n = keep yours and only add the small sekaipop_session file)" || HYPR=merge
         fi
     fi
 fi
 if [ "$HYPR" = full ] && [ -n "$HV" ] && ! ver_ge "$HV" 0.55; then
     warn "Hyprland $HV is older than 0.55, which is the first with the Lua config this installer writes."
-    warn "Falling back to 'merge' (your hyprlang config stays; a small pjsekai_session.conf is added)."
+    warn "Falling back to 'merge' (your hyprlang config stays; a small sekaipop_session.conf is added)."
     HYPR=merge
 fi
 info "Hyprland config mode: $HYPR"
@@ -172,7 +179,7 @@ if [ "$NODEPS" = 0 ]; then
     [ "$DRY" = 1 ] && FLAGS+=(--dry-run)
     [ "$YES" = 1 ] && FLAGS+=(--yes)
     [ "$HYPR" != merge ] && FLAGS+=(--no-session)    # full/skip handle the session themselves
-    PJSEKAI_FULL_INSTALL=1 bash "$HERE/install-deps.sh" "${FLAGS[@]}" "${DEPS_ARGS[@]}" || fail "install-deps.sh reported problems (see above)"
+    SEKAIPOP_FULL_INSTALL=1 bash "$HERE/install-deps.sh" "${FLAGS[@]}" "${DEPS_ARGS[@]}" || fail "install-deps.sh reported problems (see above)"
 
     if [ "$HYPR" = full ] && have pacman; then
         # used by the keybinds / autostart of the preconfigured config
@@ -250,7 +257,7 @@ best_mode() { # best_mode <output> <WxH>  ->  prints WxH@Hz (highest Hz offered 
 }
 
 gen_monitors_lua() { # gen_monitors_lua <file>
-    local out=$1 dir=${PJSEKAI_DRM_DIR:-/sys/class/drm} d n st m b names=()
+    local out=$1 dir=${SEKAIPOP_DRM_DIR:-/sys/class/drm} d n st m b names=()
     for d in "$dir"/card*-*; do
         [ -e "$d/status" ] || continue
         st=$(cat "$d/status" 2>/dev/null)
@@ -259,7 +266,7 @@ gen_monitors_lua() { # gen_monitors_lua <file>
         names+=("$n")
     done
     {
-        printf '%s\n' '-- Made by the pjsekai installer for the screens found at install time.'
+        printf '%s\n' '-- Made by the sekaipop installer for the screens found at install time.'
         printf '%s\n' "-- Change it in the shell's Settings > Hyprland > Displays, or with nwg-displays."
         printf '%s\n' '-- Outputs that are not listed here are set up by Hyprland itself (preferred mode, auto position).'
         if [ "${#names[@]}" -eq 0 ]; then
@@ -282,8 +289,8 @@ step "3. Hyprland"
 # Your own config is saved under a time-stamped name (and kept for good: --restore uses it).
 # Re-running the installer on a config that is already ours only keeps one rolling "previous" copy,
 # so it can never push your original out of reach.
-OURS=0; grep -qsF 'SekaiPop (pjsekai): Hyprland configuration' "$HYPR_DEST/hyprland.lua" 2>/dev/null && OURS=1
-if [ "$OURS" = 1 ]; then BACKUP_TO="$CFG/hypr.pjsekai-previous"; else BACKUP_TO="$CFG/hypr.pjsekai-backup-$TS"; fi
+OURS=0; grep -qsE 'SekaiPop( \(pjsekai\))?: Hyprland configuration' "$HYPR_DEST/hyprland.lua" 2>/dev/null && OURS=1
+if [ "$OURS" = 1 ]; then BACKUP_TO="$CFG/hypr.sekaipop-previous"; else BACKUP_TO="$CFG/hypr.sekaipop-backup-$TS"; fi
 case "$HYPR" in
   skip) info "left alone (--hypr skip). Start the shell yourself with:  qs -c sekaipop" ;;
   merge)
@@ -291,20 +298,20 @@ case "$HYPR" in
         info "your config was kept. No session file was written because of --no-deps; add it with:"
         info "  ./install-deps.sh --no-update --core-only"
     else
-        info "your config was kept; install-deps.sh added pjsekai_session.* to it (see above)"
+        info "your config was kept; install-deps.sh added sekaipop_session.* to it (see above)"
     fi ;;
   full)
     if [ "$DRY" = 1 ]; then
         info "would build the new config from $SRC_HYPR"
         [ -e "$HYPR_DEST" ] && info "would move $HYPR_DEST to $BACKUP_TO"
-        info "would keep your monitors.lua, workspaces.lua, pjsekai_overrides.lua and custom/ folder"
+        info "would keep your monitors.lua, workspaces.lua, sekaipop_overrides.lua and custom/ folder"
         [ -f "$HYPR_DEST/monitors.lua" ] || info "would make a monitors.lua for the screens connected to this machine"
     else
         mkdir -p "$CFG"
-        NEW=$(mktemp -d "$CFG/.hypr-pjsekai-new.XXXXXX") || { fail "could not create a temporary folder in $CFG"; NEW=""; }
+        NEW=$(mktemp -d "$CFG/.hypr-sekaipop-new.XXXXXX") || { fail "could not create a temporary folder in $CFG"; NEW=""; }
         if [ -n "$NEW" ]; then
             cp -a "$SRC_HYPR/." "$NEW/"
-            for f in monitors.lua workspaces.lua pjsekai_overrides.lua; do
+            for f in monitors.lua workspaces.lua sekaipop_overrides.lua; do
                 [ -f "$HYPR_DEST/$f" ] && cp -a "$HYPR_DEST/$f" "$NEW/$f"
             done
             if [ -d "$HYPR_DEST/custom" ]; then mkdir -p "$NEW/custom"; cp -a "$HYPR_DEST/custom/." "$NEW/custom/"; fi
@@ -317,7 +324,7 @@ case "$HYPR" in
             fi
             find "$NEW" -name '*.sh' -exec chmod +x {} +
             if [ -e "$HYPR_DEST" ]; then
-                [ "$OURS" = 1 ] && rm -rf "$BACKUP_TO"      # only one rolling copy of a previous pjsekai config
+                [ "$OURS" = 1 ] && rm -rf "$BACKUP_TO"      # only one rolling copy of a previous sekaipop config
                 mv "$HYPR_DEST" "$BACKUP_TO" || fail "could not back up $HYPR_DEST"
                 info "old config kept as $BACKUP_TO"
             fi
@@ -346,7 +353,7 @@ if [ "${#FAILED[@]}" -gt 0 ]; then
     for m in "${FAILED[@]}"; do printf '    %s%s%s %s\n' "$R" "$G_BAD" "$Z" "$m"; done
 fi
 if [ "$DRY" = 0 ] && [ -f "$HERE/check-deps.sh" ]; then
-    printf '\n'; PJSEKAI_DIR="$QS_DEST" bash "$HERE/check-deps.sh" --core
+    printf '\n'; SEKAIPOP_DIR="$QS_DEST" bash "$HERE/check-deps.sh" --core
 fi
 
 if [ "$DRY" = 0 ] && [ "$HYPR" = full ] && hypr_running; then
@@ -369,7 +376,7 @@ printf '\n  %sNext%s\n' "$B" "$Z"
 nx "If you did not reload above: log out and back in (pick the plain Hyprland session)."
 printf '      %sThe shell starts by itself. By hand:%s  %sqs -c sekaipop%s\n' "$D" "$Z" "$B" "$Z"
 nx "Keybinds: ${B}Super + /${Z} opens the cheat sheet.  ${B}Super${Z} (tap) = apps.  ${B}Super + I${Z} = settings."
-nx "Config mistakes are written to ${B}~/.cache/pjsekai/hypr-errors.log${Z} (the rest still loads)."
+nx "Config mistakes are written to ${B}~/.cache/sekaipop/hypr-errors.log${Z} (the rest still loads)."
 nx "Undo the Hyprland part:  ${B}./install.sh --restore${Z}"
 printf '\n'
 [ "${#FAILED[@]}" -eq 0 ]

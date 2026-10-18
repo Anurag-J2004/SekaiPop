@@ -20,7 +20,7 @@ import "../modules/common/functions/ImageMath.js" as IM
 //
 // What one entry holds (ImageMath.defaults / normalize are the source of truth):
 //
-//   path           the copy of the picture in ~/.local/share/pjsekai/custom-images/
+//   path           the copy of the picture in ~/.local/share/sekaipop/custom-images/
 //                  (any still format, or a GIF / animated WebP / APNG; the file is
 //                  never re-encoded, so it keeps moving). "" = an EMPTY frame: it is
 //                  on the desktop already, drawn as a drop target, and the first

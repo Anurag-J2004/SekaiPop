@@ -114,7 +114,7 @@ EOF2
         fi
         tmp=$(mktemp "$dir/.monitors.XXXXXX") || exit 1
         {
-            printf '%s\n\n' '-- Written by the pjsekai shell (Settings > Hyprland > Displays) in the format nwg-displays uses. Do not edit manually.'
+            printf '%s\n\n' '-- Written by the sekaipop shell (Settings > Hyprland > Displays) in the format nwg-displays uses. Do not edit manually.'
             for spec in "$@"; do
                 IFS='|' read -r name state mode x y scale <<EOF2
 $spec
