@@ -171,7 +171,7 @@ The portals are what make screen sharing work in Discord, browsers and OBS.
 ### 1. Install
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh)
+curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh | bash
 ```
 
 That is the whole install. It downloads SekaiPop, then does three jobs:
@@ -186,7 +186,7 @@ That is the whole install. It downloads SekaiPop, then does three jobs:
 Want to look first? Add `--dry-run`: it prints everything it would do and changes nothing.
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh) --dry-run
+curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh) | bash -s -- --dry-run
 ```
 
 Options go after the command (see [Installer options](#installer-options)), for example `--yes` or `--hypr merge`.
@@ -216,7 +216,7 @@ Log out and back in, choosing the plain **Hyprland** session (**not** "uwsm"). T
 ### 3. Check everything
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh) --check
+curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh | bash -s -- --check
 ```
 
 It is read-only: it lists what is installed and what is missing, and changes nothing.
