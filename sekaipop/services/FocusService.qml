@@ -64,12 +64,14 @@ Singleton {
     // The audio visualizer's own switch: keep its audio tap and analyzer warm while it is hidden.
     readonly property bool visualizerBackground: SettingsService.flag("focus.visualizerBackground")
     // Costly effects (a video wallpaper) pause while a window is on the monitor.
-    readonly property bool reduceEffects: SettingsService.flag("focus.reduceEffects")
+    // (Low-end mode, `perf.lowEnd`, counts as this switch being on.)
+    readonly property bool reduceEffects: SettingsService.flag("focus.reduceEffects") || SettingsService.flag("perf.lowEnd")
 
     // Aggressive: a widget that has been hidden for a while is destroyed (its whole QML
     // tree, images and models) and built again when the desktop comes back. Unloading is
     // suspension taken to its end, so it needs suspension to be on.
-    readonly property bool unloadHidden: SettingsService.flag("focus.unload") && root.suspendWorkloads
+    // (Low-end mode, `perf.lowEnd`, counts as `focus.unload` being on.)
+    readonly property bool unloadHidden: (SettingsService.flag("focus.unload") || SettingsService.flag("perf.lowEnd")) && root.suspendWorkloads
 
     // Does the visualizer's audio tap keep running while the widget is hidden?
     // Its own switch says so, and so does switching suspension off altogether

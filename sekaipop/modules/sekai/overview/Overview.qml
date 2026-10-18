@@ -135,14 +135,8 @@ Scope {
             ScrollOverviewService.dispatch("off")
     }
 
-    // Edit Desktop starting closes an Overview that is already open.
-    Connections {
-        target: EditMode
-        function onActiveChanged() {
-            if (EditMode.active)
-                root.hide()
-        }
-    }
+    // (Edit Desktop starting closes an open overview: shell.qml's entry point does that,
+    // because this board may not be built at the time.)
 
     function toggleOn(screen) {
         if (open && (!screen || screen === targetScreen)) {
@@ -157,29 +151,8 @@ Scope {
             root.openBoard(screen)
     }
 
-    IpcHandler {
-        target: "overview"
-
-        function toggle(): void {
-            root.toggleOn(root.focusedScreen())
-        }
-
-        function show(): void {
-            root.openOn(root.focusedScreen())
-        }
-
-        function hide(): void {
-            root.hide()
-        }
-
-        // `ipc call overview style` says which overview a key opens;
-        // `... style scroll` / `... style board` switches it (remembered).
-        function style(name: string): string {
-            if (name === "scroll" || name === "board")
-                SettingsService.set("overview.style", name)
-            return SettingsService.get("overview.style")
-        }
-    }
+    // (`ipc call overview toggle | show | hide | style` is answered in shell.qml, by the
+    // entry point that builds this board on demand.)
 
     // ===== open/close animation =====
     property real openT: 0

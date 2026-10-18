@@ -632,14 +632,18 @@ Singleton {
     // with full-screen windows). On saves the compositor blending a full-screen layer
     // for every frame a widget draws, but brings the jump back.
     //   qs -c sekaipop ipc call desktopedit compactwindows true   (until the next reload)
-    property bool compactWindows: false
+    // Low-end mode (Settings -> Desktop -> Low-end mode, `perf.lowEnd`) turns it on and stays on
+    // until the switch is turned off; the ipc call overrides both until the next reload.
+    property var compactOverride: undefined
+    readonly property bool compactWindows: root.compactOverride !== undefined
+        ? !!root.compactOverride : SettingsService.flag("perf.lowEnd")
 
     // ===== ipc =====
     IpcHandler {
         target: "desktopedit"
 
         function compactwindows(on: bool): void {
-            root.compactWindows = on;
+            root.compactOverride = on;
         }
 
         function toggle(): void {

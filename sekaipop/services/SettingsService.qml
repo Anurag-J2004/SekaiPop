@@ -133,6 +133,10 @@ Singleton {
         "focus.suspend": true,          // hidden widgets pause their clocks, fetches and effects
         "focus.unload": false,          // aggressive: hidden widgets are destroyed (memory back) and rebuilt on return
         "focus.reduceEffects": false,   // costly effects (a video wallpaper) pause while a window is open
+        // Low-end mode (Settings -> Desktop -> Low-end mode): one switch for the three costs that are
+        // off by default because they change how the desktop behaves, not how it looks: widget windows are
+        // boxes around their cards, hidden widgets are freed, a video wallpaper pauses while a window is open.
+        "perf.lowEnd": false,
         // Which overview `ipc call overview ...` opens: "board" (this shell's film strip)
         // or "scroll" (the ScrollOverview Hyprland plugin, niri-style; see ScrollOverviewService.qml).
         "overview.style": "board",

@@ -404,25 +404,39 @@ PanelWindow {
     }
 
     // The end4 styles' tap: cava with 50 bands (scripts/cava/cava-pc.conf), the same as end4-pC's.
-    readonly property string cavaPcConf: Directories.script("cava/cava-pc.conf")
+    // It is the bar pill's tap too (services/PcCavaService.qml), so this widget does not start a
+    // cava of its own any more: it adds itself to the service's demand count while it wants audio
+    // (the same conditions as before: `wantAudio` and a non-Sekai style) and reads the bands
+    // from `PcCavaService.raw`. `counted` keeps the add / remove idempotent in any order of
+    // signals, and the destruction handler gives the count back if the widget is unloaded
+    // (Desktop Focus unload, Game Mode, lock) while it still wants audio.
+    QtObject {
+        id: tapDemand
 
-    Process {
-        id: cavaPc
-        running: win.wantAudio && !win.isSekai
-        command: ["nice", "-n", "5", "cava", "-p", win.cavaPcConf]
+        property bool counted: false
+        readonly property bool want: win.wantAudio && !win.isSekai
 
-        stdout: SplitParser {
-            onRead: data => pcEngine.raw = win.parseBands(data)
+        onWantChanged: tapDemand.sync()
+
+        function sync() {
+            if (tapDemand.want === tapDemand.counted)
+                return
+            tapDemand.counted = tapDemand.want
+            PcCavaService.demand(tapDemand.want ? 1 : -1)
         }
 
-        onRunningChanged: {
-            if (!cavaPc.running)
-                pcEngine.raw = []
+        Component.onCompleted: tapDemand.sync()
+        Component.onDestruction: {
+            if (tapDemand.counted) {
+                tapDemand.counted = false
+                PcCavaService.demand(-1)
+            }
         }
     }
 
     ShaderVisualizerEngine {
         id: pcEngine
+        raw: tapDemand.want ? PcCavaService.raw : []
         active: !win.isSekai && (win.switchedOn || EditMode.active)
         demo: !win.isSekai && EditMode.active
         sensitivity: VisualizerService.sensitivity

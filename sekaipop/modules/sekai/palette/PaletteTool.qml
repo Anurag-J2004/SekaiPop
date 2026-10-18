@@ -76,34 +76,8 @@ Scope {
             openOn(screen)
     }
 
-    IpcHandler {
-        target: "palette"
-
-        function toggle(): void {
-            root.toggleOn(root.focusedScreen())
-        }
-
-        function show(): void {
-            root.openOn(root.focusedScreen())
-        }
-
-        function hide(): void {
-            root.close()
-        }
-
-        // A new random strip. Only the tool's own state changes, never the theme.
-        function shuffle(): void {
-            PaletteService.shuffle()
-        }
-    }
-
-    Connections {
-        target: PaletteService
-
-        function onOpenRequested() {
-            root.openOn(root.focusedScreen())
-        }
-    }
+    // (`ipc call palette toggle | show | hide | shuffle` and PaletteService.requestOpen()
+    // are answered in shell.qml, by the entry point that builds this tool on demand.)
 
     // Tells the desktop widget (PaletteWidget.qml) the tool is open, so only one of them
     // reads the picture for the same colours.

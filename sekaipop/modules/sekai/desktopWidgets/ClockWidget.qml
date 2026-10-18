@@ -317,8 +317,15 @@ PanelWindow {
         }
     }
 
-    onWidthChanged: { win.place(); settle.restart() }
-    onHeightChanged: { win.place(); settle.restart() }
+    // The window's size is `implicitWidth` / `implicitHeight` (boxW / boxH), and those read
+    // card.x / card.y, which place() sets. Calling place() from inside the size's own change
+    // notification therefore changed card.x while implicitWidth was still being worked out,
+    // and Qt logged "Binding loop detected for property implicitWidth" at start-up and at
+    // every Edit Desktop start / end. place() now runs one turn of the event loop later
+    // (Qt.callLater, before the next frame, and several calls become one).
+    // To undo: `onWidthChanged: { win.place(); settle.restart() }` (same for the height).
+    onWidthChanged: { Qt.callLater(win.place); settle.restart() }
+    onHeightChanged: { Qt.callLater(win.place); settle.restart() }
     onUiScaleChanged: { win.place(); settle.restart() }
     onScreenChanged: { win.place(); settle.restart() }
     onVisibleChanged: settle.restart()

@@ -587,6 +587,22 @@ SettingsPage {
         }
     }
 
+    // One switch for the three savings that change how the desktop behaves (not how it looks);
+    // services/SettingsService.qml `perf.lowEnd`, read by EditMode.qml and FocusService.qml.
+    SectionCard {
+        title: "Low-end mode"
+
+        SettingToggle {
+            icon: "battery_saver"
+            label: "Low-end mode"
+            detail: SettingsService.flag("perf.lowEnd")
+                ? "Widget windows shrink to their cards, hidden widgets are freed, a video wallpaper pauses while a window is open"
+                : "Off: nothing is changed"
+            checked: SettingsService.flag("perf.lowEnd")
+            onToggled: SettingsService.toggle("perf.lowEnd")
+        }
+    }
+
     SectionCard {
         title: "Dock"
 

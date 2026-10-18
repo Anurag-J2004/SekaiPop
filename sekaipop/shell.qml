@@ -237,7 +237,7 @@ ShellRoot {
     // (`quickpanel`, `launcherphone` and `settings` keep working; see CHANGELOG.)
     QuickPanel {
         id: panel
-        coverCheat: cheatSheet.shown
+        coverCheat: cheatSheetEntry.shown
         source: quickState
         notificationSource: notificationState
         barWindows: bars.instances
@@ -297,8 +297,46 @@ ShellRoot {
         id: appState
     }
 
-    Overview {
+    // The board itself is built only while it is open (services/ComponentActivation.qml,
+    // OverviewEntry.qml); `overview` below is its front door, with the same functions the
+    // board had (`toggleOn`, `openOn`, `hide`, `close`).
+    OverviewEntry {
         id: overview
+    }
+
+    LazyLoader {
+        active: ComponentActivation.overviewActive
+
+        Overview {
+            id: overviewBoardItem
+            Component.onCompleted: overview.attach(overviewBoardItem)
+            Component.onDestruction: overview.detach(overviewBoardItem)
+        }
+    }
+
+    //   qs -c sekaipop ipc call overview toggle | show | hide | style [board|scroll]
+    IpcHandler {
+        target: "overview"
+
+        function toggle(): void {
+            overview.toggleOn(overview.focusedScreen())
+        }
+
+        function show(): void {
+            overview.openOn(overview.focusedScreen())
+        }
+
+        function hide(): void {
+            overview.hide()
+        }
+
+        // `ipc call overview style` says which overview a key opens;
+        // `... style scroll` / `... style board` switches it (remembered).
+        function style(name: string): string {
+            if (name === "scroll" || name === "board")
+                SettingsService.set("overview.style", name)
+            return SettingsService.get("overview.style")
+        }
     }
 
     // The corner phone (LauncherPhone.qml): what is left of the old launcher phone
@@ -331,9 +369,37 @@ ShellRoot {
     //   bind = SUPER, F1, exec, qs -c sekaipop ipc call cheatsheet toggle
     // (also `show` / `hide`). Files: CheatSheet.qml, CheatNote.qml,
     // CheatBinds.js.
-    CheatSheet {
-        id: cheatSheet
-        quickPanel: panel
+    // Built only while it is open (services/ComponentActivation.qml, ActivationEntry.qml).
+    ActivationEntry {
+        id: cheatSheetEntry
+        name: "cheatSheet"
+    }
+
+    LazyLoader {
+        active: ComponentActivation.cheatSheetActive
+
+        CheatSheet {
+            id: cheatSheetBoard
+            quickPanel: panel
+            Component.onCompleted: cheatSheetEntry.attach(cheatSheetBoard)
+            Component.onDestruction: cheatSheetEntry.detach(cheatSheetBoard)
+        }
+    }
+
+    IpcHandler {
+        target: "cheatsheet"
+
+        function toggle(): void {
+            cheatSheetEntry.toggle(cheatSheetEntry.focusedScreen())
+        }
+
+        function show(): void {
+            cheatSheetEntry.open(cheatSheetEntry.focusedScreen())
+        }
+
+        function hide(): void {
+            cheatSheetEntry.close()
+        }
     }
 
     // The Palette tool (modules/sekai/palette/PaletteTool.qml): colours from the
@@ -343,7 +409,52 @@ ShellRoot {
     //   qs -c sekaipop ipc call palette toggle | show | hide | shuffle
     // Also Settings -> Quick -> Look -> "Palette tool", and the corner key on the Palette
     // desktop card (PaletteWidget.qml, ipc target `palettecard`).
-    PaletteTool {}
+    // Built only while it is open, together with the MediaSource and the picture reader it
+    // owns (services/ComponentActivation.qml, ActivationEntry.qml).
+    ActivationEntry {
+        id: paletteToolEntry
+        name: "paletteTool"
+    }
+
+    LazyLoader {
+        active: ComponentActivation.paletteToolActive
+
+        PaletteTool {
+            id: paletteToolBoard
+            Component.onCompleted: paletteToolEntry.attach(paletteToolBoard)
+            Component.onDestruction: paletteToolEntry.detach(paletteToolBoard)
+        }
+    }
+
+    IpcHandler {
+        target: "palette"
+
+        function toggle(): void {
+            paletteToolEntry.toggle(paletteToolEntry.focusedScreen())
+        }
+
+        function show(): void {
+            paletteToolEntry.open(paletteToolEntry.focusedScreen())
+        }
+
+        function hide(): void {
+            paletteToolEntry.close()
+        }
+
+        // A new random strip. Only the tool's own state changes, never the theme.
+        function shuffle(): void {
+            PaletteService.shuffle()
+        }
+    }
+
+    // Settings and the Palette card's expand key ask through the service.
+    Connections {
+        target: PaletteService
+
+        function onOpenRequested() {
+            paletteToolEntry.open(paletteToolEntry.focusedScreen())
+        }
+    }
 
     // One bar per monitor, *per edge*. Each entry carries the edge the bar
     // is on, so moving the bar (BarPositionService.cycle()) doesn't

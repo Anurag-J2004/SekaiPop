@@ -174,21 +174,8 @@ Scope {
             getBinds.running = true
     }
 
-    IpcHandler {
-        target: "cheatsheet"
-
-        function toggle(): void {
-            root.toggleOn(root.focusedScreen())
-        }
-
-        function show(): void {
-            root.openOn(root.focusedScreen())
-        }
-
-        function hide(): void {
-            root.close()
-        }
-    }
+    // (`ipc call cheatsheet toggle | show | hide` is answered in shell.qml, by the entry
+    // point that builds this screen on demand: a handler in here would vanish with it.)
 
     // Binds only change on a config reload, so one read per open is enough.
     Process {

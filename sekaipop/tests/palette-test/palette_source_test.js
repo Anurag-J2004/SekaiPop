@@ -49,7 +49,11 @@ const tool = code(read(dir + "PaletteTool.qml"))
 assert.strictEqual((tool.match(/PaletteService\.apply\(\)/g) || []).length, 1, "exactly one PaletteService.apply() call")
 assert.ok(/primary: true[\s\S]{0,400}onClicked: PaletteService\.apply\(\)/.test(tool), "apply() is called by the primary button")
 assert.strictEqual((tool.match(/PaletteService\.undo\(\)/g) || []).length, 1, "exactly one undo() call")
-const ipc = tool.match(/IpcHandler \{[\s\S]*?\n    \}\n/)[0]
+// (The tool is built on demand now, so its `palette` IPC handler lives in shell.qml, next to the loader.)
+assert.ok(!/IpcHandler/.test(tool), "the tool is built on demand: its handler is not inside it")
+const shellSrc = code(read("shell.qml"))
+const ipc = shellSrc.match(/IpcHandler \{\s*target: "palette"[\s\S]*?\n    \}\n/)[0]
+assert.ok(/function toggle\(\)/.test(ipc) && /function shuffle\(\)/.test(ipc), "the palette handler is in shell.qml")
 assert.ok(!/apply|undo/.test(ipc), "the IPC handler cannot apply")
 // the strings the user reads say so
 assert.ok(/Preview only, theme unchanged/.test(tool))

@@ -454,8 +454,12 @@ PanelWindow {
         }
     }
 
-    onWidthChanged: { win.place(); settle.restart() }
-    onHeightChanged: { win.place(); settle.restart() }
+    // place() runs one turn of the event loop later (Qt.callLater), not inside the window's own
+    // size change: the size is boxW / boxH, which read card.x / card.y, which place() sets
+    // (Qt logged "Binding loop detected for property implicitWidth"). Same as ClockWidget.qml.
+    // To undo: `onWidthChanged: { win.place(); settle.restart() }` (same for the height).
+    onWidthChanged: { Qt.callLater(win.place); settle.restart() }
+    onHeightChanged: { Qt.callLater(win.place); settle.restart() }
     onUiScaleChanged: { win.place(); settle.restart() }
     onScreenChanged: { win.place(); settle.restart() }
     onVisibleChanged: settle.restart()
