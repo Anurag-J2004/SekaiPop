@@ -4,6 +4,16 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — The Notifications tile (do-not-disturb) is kept across restarts
+
+**Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), partly: `notify.on` set to `false` with `ipc call options set`, the shell restarted twice, and `ipc call options get notify.on` still printed `false` after each. **Not checked by eye:** clicking the tile itself, that the phone stays down for a `notify-send` while it is off, and wearing a preset. Checked: `node tests/notify-dnd-test/dnd_persist_test.js` (new). The other JS tests give the same results as before the change (60 pass; the same 6 fail on `main` without it).
+
+- Found: `QuickSource.notificationsOn` was a plain `property bool notificationsOn: true`, so turning the Quick Panel's Notifications tile off (do-not-disturb: no rising phone, no buzz, no popup) lasted only until the shell restarted. Every login, and every Ctrl+Super+R, announced notifications again until the tile was turned off by hand. Issue #3 runs into the same thing ("you could just disable/enable notifications but that can be annoying to do manually").
+- Changed: the tile is the setting `notify.on` (default `true`, so nothing changes for anyone who never turns it off). `notificationsOn` is now read-only and bound to `SettingsService.flag("notify.on")`, and `toggleNotifications()` toggles the setting, which saves it to `settings.json`. `DesktopPresetService.keepExact` gains `notify.on`, so wearing a preset keeps the choice, like the 24-hour clock. Files: `services/QuickSource.qml`, `services/SettingsService.qml`, `services/DesktopPresetService.qml`, `tests/notify-dnd-test/dnd_persist_test.js` (new).
+- Not changed: what do-not-disturb does (`NotificationSource`: critical notifications still break through; everything still lands in the list), the tile and the Settings → Quick toggle themselves. Nothing here does what #3 asks (hold notifications back while a window is fullscreen); this only makes the manual switch stick.
+- **Risk:** in the moment before `settings.json` is read at start-up the tile reads the default (on), so a notification arriving in that first instant could still announce itself once.
+- **To check:** turn the Notifications tile off; `qs -c sekaipop ipc call options get notify.on` prints `false`; restart the shell (Ctrl+Super+R): the tile is still off; `notify-send test` does not raise the phone and shows in the list; wear a preset: still off; turn it on again: notifications announce as before. From a shell: `qs -c sekaipop ipc call options set notify.on false|true`.
+
 ## Unreleased — Performance pass 4: activation registry, three on-demand screens, low-end mode
 
 Nothing run on a live shell (no `qs`/`qmllint` in the build environment); see `docs/PERF-AUDIT-4.md`

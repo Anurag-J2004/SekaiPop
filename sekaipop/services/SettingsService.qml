@@ -72,6 +72,8 @@ Singleton {
         "weather.fahrenheit": false,
         // How a new notification announces itself: phone (the Quick Panel's phone rises and buzzes; the default) | popups (a stack of cards in the corner).
         "notify.style": "phone",
+        // The Quick Panel's Notifications tile: false is do-not-disturb (nothing announces itself).
+        "notify.on": true,
         "notify.buzz": true,
         "panel.hotEdge": true,
         "panel.hotDwell": 140,

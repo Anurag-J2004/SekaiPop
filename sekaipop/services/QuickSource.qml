@@ -119,8 +119,10 @@ Scope {
 
     // The Notifications tile: OFF is do-not-disturb. shell.qml hands it to
     // NotificationSource, which then stops notifications taking over the
-    // media pill in the bar (they still land in the panel's list).
-    property bool notificationsOn: true
+    // media pill in the bar (they still land in the panel's list). Kept in
+    // settings.json ("notify.on") so a silent desktop stays silent across
+    // shell restarts and logins, instead of announcing again after each one.
+    readonly property bool notificationsOn: SettingsService.flag("notify.on")
     property bool editing: false
 
     // Night Light (hyprsunset's colour temperature) is read back from
@@ -629,7 +631,7 @@ Scope {
     }
 
     function toggleNotifications() {
-        notificationsOn = !notificationsOn
+        SettingsService.toggle("notify.on")
     }
 
     function toggleEditing() {

@@ -113,6 +113,7 @@ Singleton {
     // ===== what a preset leaves alone =====
     readonly property var keepExact: [
         "time.use24h",
+        "notify.on",           // do-not-disturb is the person's, not the look's
         "weather.fahrenheit",
         "weather.location",
         "calendar.marks",
