@@ -34,6 +34,11 @@ Item {
     // The Apps screen is up (the clipboard history and the web suggestions only run
     // while it is).
     property bool active: false
+    // The Apps screen is still on show, even if it is already on its way out (or has not
+    // started to come in): the card stays built while it fades away with the screen instead
+    // of vanishing the moment the screen is asked to go. (`active` is the data side: the
+    // clipboard history and the web suggestions only run while the screen is really up.)
+    property bool present: false
     // How many apps match the text, so the web row knows when nothing at all does.
     property int appCount: 0
     // The room the page has (design units).
@@ -67,6 +72,47 @@ Item {
     readonly property string cardMode: [ "calc", "clip", "color", "emoji", "web" ].indexOf(extras.mode) >= 0 ? extras.mode : ""
     readonly property bool cardShown: cardMode !== ""
 
+    // The card that is on the page. It is `cardMode` while one is asked for, and is kept for
+    // a moment after the box stops asking so the card can fade away; without this the card
+    // was destroyed in the same frame the text changed.
+    property string shownMode: ""
+    onCardModeChanged: {
+        if (root.cardMode !== "") {
+            holdTimer.stop()
+            root.shownMode = root.cardMode
+        } else if (root.shownMode !== "") {
+            holdTimer.restart()
+        }
+    }
+    Component.onCompleted: root.shownMode = root.cardMode
+    onPresentChanged: {
+        // Nothing on show any more: drop it now (nothing is left to fade).
+        if (!root.present && !root.active && root.cardMode === "") {
+            holdTimer.stop()
+            root.shownMode = ""
+        }
+    }
+    Timer {
+        id: holdTimer
+        interval: 150
+        onTriggered: {
+            if (root.cardMode === "")
+                root.shownMode = ""
+        }
+    }
+
+    // 0 = the apps grid has the page, 1 = a card has it. It glides (the grid fades out as
+    // the card fades in) while the screen is on show; with the screen out of sight it just
+    // takes its value, so a card asked for while the phone is still coming up is there
+    // already. LauncherFace reads it for the grid.
+    property real cardK: root.cardMode !== "" ? 1 : 0
+    Behavior on cardK {
+        enabled: root.present && root.active
+        NumberAnimation {
+            duration: 120
+            easing.type: Easing.OutCubic
+        }
+    }
     // System actions that match ("lock", "dark mode"), a command row for "> cmd", or
     // a "Search the web" row when nothing matches at all. `strong` are the ones that
     // match the start of their name: they have the pick, ahead of the apps.
@@ -95,9 +141,26 @@ Item {
     // Which destructive action is waiting for its second Enter.
     property string pendingConfirm: ""
 
+    // The rows that were showing, kept for a moment after there are none so they can fade
+    // out while the grid glides back up (`rowsHold`).
+    property var rowsHold: []
     onRowsChanged: {
         pendingConfirm = ""
         rowPick = strongRows > 0 ? 0 : -1
+        if (rows.length > 0) {
+            rowsHoldTimer.stop()
+            rowsHold = rows.slice(0, maxRows)
+        } else if (rowsHold.length > 0) {
+            rowsHoldTimer.restart()
+        }
+    }
+    Timer {
+        id: rowsHoldTimer
+        interval: 120
+        onTriggered: {
+            if (root.rows.length === 0)
+                root.rowsHold = []
+        }
     }
     onRowPickChanged: pendingConfirm = ""
 
@@ -106,7 +169,17 @@ Item {
     readonly property int maxRows: 3
     readonly property int shownRows: Math.min(rows.length, maxRows)
     // How much room the rows take above the grid (0 with none).
-    readonly property real rowsHeight: shownRows > 0 ? shownRows * rowH + (shownRows - 1) * rowGap + 14 : 0
+    readonly property real rowsTarget: shownRows > 0 ? shownRows * rowH + (shownRows - 1) * rowGap + 14 : 0
+    // ... and what the grid actually moves by: it glides to the new room instead of jumping
+    // (it used to jump the moment the first row showed up or the last one went).
+    property real rowsHeight: root.rowsTarget
+    Behavior on rowsHeight {
+        enabled: root.present && root.active
+        NumberAnimation {
+            duration: 110
+            easing.type: Easing.OutCubic
+        }
+    }
 
     // ===== keys (LauncherFace.qml forwards them) =====
     // Up / Down / Left / Right in a card, or Up / Down over the rows. true = handled.
@@ -288,10 +361,18 @@ Item {
         readonly property real fit: item ? Math.min(1, root.pageWidth / item.width, root.pageHeight / item.height) : 1
 
         x: Math.round((root.pageWidth - (item ? item.width * fit : 0)) / 2)
-        y: 0
-        active: root.active && root.cardMode !== ""
+        // Rises into place as it fades in (and sinks a little as it fades out).
+        y: (1 - root.cardK) * 16
+        opacity: root.cardK
+        visible: opacity > 0.001
+        // A card that is on its way out takes no more clicks or keys.
+        enabled: root.cardMode !== ""
+        // Built while the screen is on show, including the beat before it slides in (the
+        // phone waits for the screen to be drawn before it moves), so the build does not
+        // land in the first frames of the slide.
+        active: (root.active || root.present) && root.shownMode !== ""
         sourceComponent: {
-            switch (root.cardMode) {
+            switch (root.shownMode) {
             case "calc": return calcCard
             case "clip": return clipCard
             case "color": return colorCard
@@ -398,10 +479,20 @@ Item {
 
         width: root.pageWidth
         spacing: root.rowGap
-        visible: root.shownRows > 0
+        // Fades with the room it takes (a quick fade out, a little slower in).
+        opacity: root.shownRows > 0 ? 1 : 0
+        visible: opacity > 0.001
+        enabled: root.shownRows > 0
+        Behavior on opacity {
+            enabled: root.present && root.active
+            NumberAnimation {
+                duration: root.shownRows > 0 ? 110 : 80
+                easing.type: Easing.OutCubic
+            }
+        }
 
         Repeater {
-            model: root.rows.slice(0, root.maxRows)
+            model: root.rowsHold
 
             delegate: Item {
                 id: rowItem

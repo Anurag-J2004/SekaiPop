@@ -524,10 +524,14 @@ Item {
         y: face.pageY + extrasLayer.rowsHeight + (1 - face.revealT) * 30
         width: face.gridW
         height: face.gridH - extrasLayer.rowsHeight
-        opacity: face.revealT
-        scale: 0.96 + 0.04 * face.revealT
+        // The grid gives way to a card (calculator, clipboard...) by fading, as the card
+        // fades in (LauncherExtras `cardK`); it used to be hidden in the same frame.
+        opacity: face.revealT * (1 - extrasLayer.cardK)
+        scale: (0.96 + 0.04 * face.revealT) * (1 - 0.025 * extrasLayer.cardK)
         transformOrigin: Item.Top
-        visible: opacity > 0.01 && !extrasLayer.cardShown
+        visible: opacity > 0.01
+        // Behind a card (or fading behind one) it takes no clicks.
+        enabled: extrasLayer.cardK < 0.5
 
         WheelScroll { scroller: drawerGrid }
         GridView {
@@ -576,9 +580,17 @@ Item {
         y: face.pageY
         width: face.gridW
         height: face.pageH
-        visible: face.searching
+        // Also while a card is still fading out after the text was cleared.
+        visible: face.searching || extrasLayer.shownMode !== "" || extrasLayer.rowsHold.length > 0
         query: face.query
-        active: face.enabled && face.visible
+        // The data side (clipboard history...) runs while the screen is up, and starts as
+        // soon as it is asked for, a beat before the slide shows it (the phone waits for
+        // frames to be drawn before it moves, QuickPanel.armPrep), so a card is already
+        // built when the slide begins. It used to wait for the screen to be visible, which
+        // built it in the first frames of the slide.
+        active: face.enabled
+        // On show, including on its way in and out: the card stays built while it fades.
+        present: face.visible
         appCount: face.drawerEntries.length
         pageWidth: face.gridW
         pageHeight: face.pageH

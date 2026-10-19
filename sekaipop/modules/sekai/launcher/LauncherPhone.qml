@@ -129,7 +129,10 @@ Scope {
     // The roll the turn rings out with when it lands, in degrees.
     property real wob: 0
     property int ringSign: -1
-    property int flipMs: 260
+    // The turn: 200 ms on a soft bezier (the Quick Panel's, see QuickPanel.flipCurve). It was
+    // 260 ms of OutCubic, over in a few frames, with the screens swapping in the middle of that.
+    property int flipMs: 200
+    readonly property var flipCurve: [0.30, 0.0, 0.20, 1.0, 1.0, 1.0]
     property real flipDip: 0.12
     property real flipWobble: 2.5
     property int flipRingMs: 380
@@ -445,7 +448,8 @@ Scope {
         property: "flip"
         to: 1
         duration: root.flipMs
-        easing.type: Easing.OutCubic
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: root.flipCurve
         onFinished: turnFocus.restart()
     }
 
@@ -463,7 +467,7 @@ Scope {
         id: ring
 
         PauseAnimation {
-            duration: Math.round(root.flipMs * 0.55)
+            duration: Math.round(root.flipMs * 0.62)
         }
 
         NumberAnimation {

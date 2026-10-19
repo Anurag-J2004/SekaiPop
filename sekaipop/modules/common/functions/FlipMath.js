@@ -62,10 +62,20 @@ function quickScale(p, quickFit, settingsFit, depth) {
 }
 
 // ===== the screens =====
+// The two screens dissolve into each other while the body is on its way round. The
+// Settings' comes in first and the Quick Panel's goes out after it, so the phone is never
+// see-through in between (both bodies are the same size, one lies over the other).
+//
+// These windows are WIDE on purpose. The turn's curve (QuickPanel.flipCurve) is quickest
+// through the middle, so a narrow window in `p` is over in a couple of frames and the swap
+// reads as a cut. On the 260 ms turn each of these lasts roughly 70 - 100 ms: seen as a
+// dissolve, without making the turn any slower.
+//   settings: p 0.02 -> 0.55     quick: p 0.35 -> 0.92
+// (They overlap a little at 0.35 - 0.55, where the Settings are already mostly solid.)
 function quickAlpha(p) {
-    return 1 - smooth(0.60, 0.74, p)
+    return 1 - smooth(0.35, 0.92, p)
 }
 
 function settingsAlpha(p) {
-    return smooth(0.40, 0.60, p)
+    return smooth(0.02, 0.55, p)
 }

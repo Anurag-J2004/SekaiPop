@@ -155,7 +155,20 @@ Scope {
     // How the turn feels: how long it takes, how far it winds up and overshoots
     // (InOutBack's overshoot), and how much smaller the phone is held in the
     // middle of it (see FlipMath.dip).
-    property int flipMs: 260
+    property int flipMs: 200
+    // The turn's curve (a cubic bezier, Qt's [c1x, c1y, c2x, c2y, 1, 1]): it leaves gently,
+    // is quickest through the middle and glides into place with a long soft end. The old turn
+    // was 260 ms of Easing.OutCubic, which is half done after 55 ms and ~80 % after 110 ms, so
+    // the whole thing, and above all the swap of the two screens on it, was over in a few
+    // frames and read as a snap. Both directions use it (Quick -> Settings and back).
+    readonly property var flipCurve: [0.30, 0.0, 0.20, 1.0, 1.0, 1.0]
+    // Before anything moves, the phone is redrawn on the light settings and with room to be
+    // rolled (PhoneBody `turnRoll`, `moving`): that redraw is heavy and used to land on the
+    // first frames of the turn. The turn now waits until this many frames have really been
+    // drawn (and never longer than flipPrepMaxMs), so it starts on a phone that is ready
+    // instead of jumping ahead by however long the redraw took.
+    property int flipPrepFrames: 2
+    property int flipPrepMaxMs: 260
     // The Apps screen is a launcher, so its phone just slides, no bounce: up into
     // place in launchInMs on a sheet-style curve (it leaves gently, speeds up, then
     // glides to a long soft stop, the curve of a sheet on a phone), while the tilt
@@ -173,8 +186,8 @@ Scope {
     readonly property var launchOutCurve: [0.5, 0, 0.7, 0.35, 1, 1]
     // The turn INTO the Wallpapers is quicker than the Settings' (and so is its
     // ring-out), since the gallery is the point of going there. Leaving is the
-    // normal speed. Set it equal to flipMs for the same speed as the Settings.
-    property int wallpapersEnterMs: 190
+    // normal speed. Equal to flipMs now: every turn of the phone has the same speed.
+    property int wallpapersEnterMs: 200
     // Build the gallery while the Apps screen is up, so it is ready when you tap
     // the Wallpapers tile (a little work whenever Apps is on screen). false = build
     // it after the tap, which leaves the screen blank for a moment after the turn.
@@ -351,10 +364,24 @@ Scope {
                 settingsOpen = false
                 setRoute(PR.go(phoneRoute, faceScreen))
                 turnTo(0)
+            } else if (!open && (!screen || screen === targetScreen) && stage.flip > 0.5 && win.visible) {
+                // The Settings stand on their own (SUPER + I) and the Quick Panel is asked
+                // for (SUPER + N): the same turn back, not a cut. The Quick Panel's phone is
+                // put at its resting spot, upright, without its pull-out (`skipEnter`), and
+                // the Settings' phone turns into it the way the X does.
+                turningBack = true
+                backSettle.stop()
+                settingsEnter.stop()
+                settingsExit.stop()
+                settingsOpen = false
+                stage.sPop = 1
+                stage.sAlpha = 1
+                stage.sTilt = 0
+                skipEnter = true
+                turnTo(0)
             } else {
-                // The Settings stand on their own (or the phone is being asked
-                // for on another monitor): they give way at once, the phone is
-                // coming up in their place.
+                // The phone is being asked for on another monitor: the Settings give
+                // way at once, the phone is coming up in their place.
                 settingsOpen = false
                 settingsEnter.stop()
                 settingsExit.stop()
@@ -365,6 +392,10 @@ Scope {
             targetScreen = screen
         open = true
     }
+
+    // The Quick Panel comes up out of the standalone Settings by turning, so it does not
+    // pull out of the pocket (see openOn and onUpChanged).
+    property bool skipEnter: false
 
     function close() {
         alertUp = false
@@ -478,7 +509,35 @@ Scope {
         stopRing()
         flipAnim.stop()
         flipAnim.to = p
-        flipPrep.restart()
+        armPrep(flipPrep)
+    }
+
+    // ===== waiting for the redraw before a move =====
+    // Counts the frames that are really drawn while a turn (flipPrep) or a slide between
+    // the Quick and Apps screens (routePrep) is waiting to start. A fixed 40 ms wait was
+    // shorter than the redraw it was waiting for on a big or busy screen, so the move began
+    // in the middle of a stall and its first frames were skipped (the move just appeared
+    // part-way done). The frame counter follows the render loop, so it waits exactly as long
+    // as the redraw takes.
+    property real prepSince: 0
+    FrameAnimation {
+        id: prepFrames
+
+        property int count: 0
+
+        running: flipPrep.running || routePrep.running
+        onTriggered: count++
+    }
+
+    function armPrep(timer) {
+        prepFrames.count = 0
+        prepSince = Date.now()
+        timer.restart()
+    }
+
+    // The phone has been redrawn (enough frames), or it has waited long enough.
+    function prepReady() {
+        return prepFrames.count >= flipPrepFrames || Date.now() - prepSince >= flipPrepMaxMs
     }
 
     // The Settings' X, or Escape on their menu: the phone turns back into the
@@ -556,6 +615,15 @@ Scope {
     // Clicking the bell on the monitor it's already open on closes it;
     // on another monitor it moves there.
     function toggleOn(screen) {
+        // The Settings (or the Wallpapers) are up and the Quick Panel's key is pressed
+        // (SUPER + I, then SUPER + N): the phone turns into the Quick Panel instead of
+        // closing, whether it was turned out of the Quick Panel or came up on its own.
+        if (settingsOpen && (!screen || screen === targetScreen)) {
+            if (open)
+                setRoute(PR.home(phoneRoute))
+            openOn(screen)
+            return
+        }
         if (open && (!screen || screen === targetScreen))
             close()
         else
@@ -584,7 +652,7 @@ Scope {
             return
         }
         routeAnim.to = want
-        routePrep.restart()
+        armPrep(routePrep)
     }
     onFaceScreenChanged: syncFace()
 
@@ -810,16 +878,31 @@ Scope {
 
     Timer {
         id: routePrep
-        interval: 40
-        onTriggered: routeAnim.restart()
+        interval: 16
+        onTriggered: {
+            // Same wait as the turn's (see armPrep).
+            if (!root.prepReady()) {
+                routePrep.restart()
+                return
+            }
+            routeAnim.restart()
+        }
     }
+
+    // The slide between the Quick and Apps screens. It was 200 ms of Easing.OutCubic: the
+    // faces cross-fade over routeK 0.3 .. 0.7, which that curve covers in about 40 ms, so
+    // one face just replaced the other. Now it is a bit longer and starts and ends softly,
+    // and the cross-fade lasts around 150 ms (the two faces' opacity ranges are below).
+    property int routeMs: 200
+    readonly property var routeCurve: [0.40, 0.0, 0.20, 1.0, 1.0, 1.0]
 
     NumberAnimation {
         id: routeAnim
         target: root
         property: "routeK"
-        duration: 200
-        easing.type: Easing.OutCubic
+        duration: root.routeMs
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: root.routeCurve
         onFinished: root.focusPhoneKeys()
     }
 
@@ -841,6 +924,14 @@ Scope {
         if (up) {
             exitDelay.stop()
             exitAnim.stop()
+            // Turned out of the standalone Settings: it is already where it belongs.
+            if (root.skipEnter) {
+                root.skipEnter = false
+                enterAnim.stop()
+                stage.lift = 0
+                stage.tilt = 0
+                return
+            }
             // Coming up from nothing starts fully out of sight; coming
             // back mid-way through leaving carries on from where it is.
             // (It starts from the old hidden spot, `enterFrom`, not from the deeper
@@ -1252,8 +1343,13 @@ Scope {
     // ===== the turn into the Settings =====
     Timer {
         id: flipPrep
-        interval: 40
+        interval: 16
         onTriggered: {
+            // Wait for the redraw (see armPrep) before anything moves.
+            if (!root.prepReady()) {
+                flipPrep.restart()
+                return
+            }
             root.ringSign = flipAnim.to > 0.5 ? -1 : 1
             flipAnim.restart()
             ring.restart()
@@ -1268,7 +1364,8 @@ Scope {
         id: ring
 
         PauseAnimation {
-            duration: Math.round(root.flipMs * 0.55 * root.enterSpeed)
+            // The turn's curve is ~90 % there at 0.62 of its time.
+            duration: Math.round(root.flipMs * 0.62 * root.enterSpeed)
         }
 
         // One soft swing past, a hint back the other way, then still: the
@@ -1307,10 +1404,11 @@ Scope {
         property: "flip"
         to: 1
         duration: Math.round(root.flipMs * root.enterSpeed)
-        // Out, like the pull-out's rise: it leaves at full speed and eases into
-        // place (the wobble rings out after, see `ring`). The old InOutBack
-        // started slowly and felt heavy.
-        easing.type: Easing.OutCubic
+        // A soft bezier (see `flipCurve`): it does not jump away from rest and it glides
+        // into place; the wobble rings out after it (see `ring`). The old OutCubic left at
+        // full speed and was over in a few frames.
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: root.flipCurve
         onFinished: {
             // Back at the Quick Panel: the Settings stay on the page they were left on.
             if (!root.settingsOpen) {

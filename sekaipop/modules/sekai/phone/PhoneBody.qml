@@ -194,7 +194,7 @@ Item {
     // smaller picture. It is only for the second or so of the turn; the full
     // quality comes back once it has landed.
     property int turnSamples: 2
-    property real turnMegapixels: 3.5
+    property real turnMegapixels: 2.5
     readonly property bool turnLite: turnRoll !== 0
     property real restMegapixels: 10
 
