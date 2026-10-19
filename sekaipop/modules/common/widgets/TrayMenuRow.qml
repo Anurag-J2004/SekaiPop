@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Shapes
 import Quickshell.Widgets
 import qs.modules.common
@@ -16,6 +17,9 @@ import qs.modules.common
 // or be a separator line.
 Item {
     id: row
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string text: ""
     property string iconSource: ""
@@ -46,7 +50,7 @@ Item {
 
     readonly property bool hasIcon: iconSource !== "" || checked || glyphSlot.children.length > 0
 
-    implicitHeight: separator ? 9 : Theme.menuRowHeight
+    implicitHeight: separator ? 9 : mt.menuRowHeight
     implicitWidth: separator ? 0 : leftPad
         + (hasIcon ? iconSize + iconGap : 0)
         + Math.min(label.implicitWidth, maxTextWidth)
@@ -56,7 +60,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: height / 2
-        color: Theme.surfaceHover
+        color: mt.surfaceHover
         visible: !row.separator && !row.dim && area.containsMouse
     }
 
@@ -69,7 +73,7 @@ Item {
         anchors.rightMargin: 10
         height: 2
         radius: 1
-        color: Theme.surfaceDivider
+        color: mt.surfaceDivider
         visible: row.separator
     }
 
@@ -105,7 +109,7 @@ Item {
                                     Math.max(1, Math.ceil(height * row.texel)))
 
         ShapePath {
-            strokeColor: Theme.ink
+            strokeColor: mt.ink
             strokeWidth: 2
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap
@@ -124,9 +128,9 @@ Item {
         visible: !row.separator
         text: row.text
         elide: Text.ElideRight
-        color: row.dim ? Theme.inkSub : Theme.ink
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeMenu
+        color: row.dim ? mt.inkSub : mt.ink
+        font.family: mt.fontFamily
+        font.pixelSize: mt.fontSizeMenu
         font.weight: Font.DemiBold
     }
 
@@ -144,7 +148,7 @@ Item {
                                     Math.max(1, Math.ceil(height * row.texel)))
 
         ShapePath {
-            strokeColor: row.dim ? Theme.inkSub : Theme.ink
+            strokeColor: row.dim ? mt.inkSub : mt.ink
             strokeWidth: 2
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap

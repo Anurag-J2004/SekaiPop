@@ -83,6 +83,9 @@ import qs.modules.sekai.desktopWidgets
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         VisualizerService.posX = -1;
         VisualizerService.posY = -1;
@@ -450,12 +453,12 @@ PanelWindow {
         enabled: !win.isSekai && (win.isRing || VisualizerService.colorMode === 0)
     }
 
-    readonly property color neutralInk: Theme.dark ? Qt.color("#ffffff") : Qt.color(Theme.colBorder)
+    readonly property color neutralInk: mt.dark ? Qt.color("#ffffff") : Qt.color(mt.colBorder)
 
     // [color1, color2, color3]: the two of the shape, then the accent (peaks, the ring's
     // fallback). The same roles as end4's palettes, from this theme's colours.
     readonly property var themePalette: {
-        const A = Theme.accentCyan, B = Theme.accentMint, P = Theme.irisColorPink
+        const A = mt.accentCyan, B = mt.accentMint, P = mt.irisColorPink
         switch (win.style) {
             case "ring": return [A, B, Qt.lighter(A, 1.25)]
             case "dots": return [win.neutralInk, A, P]
@@ -465,7 +468,7 @@ PanelWindow {
 
     // The five card attributes (Cool, Cute, Happy, Mysterious, Pure).
     readonly property var attrPalette: {
-        const a = Theme.attributeColors
+        const a = mt.attributeColors
         switch (win.style) {
             case "dots": return [win.neutralInk, Qt.color(a[1]), Qt.color(a[2])]
             case "bars":
@@ -704,6 +707,9 @@ PanelWindow {
     component CornerButton: Item {
         id: cb
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string icon: "style"
         property bool shown: false
         signal clicked()
@@ -717,8 +723,8 @@ PanelWindow {
             ringWidth: 3
             pressed: area.pressed
             fillGradient: Gradient {
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
 
             MaterialIcon {
@@ -726,7 +732,7 @@ PanelWindow {
                 name: cb.icon
                 size: 18
                 weight: 600
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
 
@@ -932,7 +938,7 @@ PanelWindow {
                                             color1: win.shapeColors[0]
                                             color2: win.shapeColors[1]
                                             color3: win.shapeColors[2]
-                                            ink: Theme.colBorder
+                                            ink: mt.colBorder
                                             lite: VisualizerService.perf >= 2
                                         }
                                     }
@@ -945,7 +951,7 @@ PanelWindow {
                                             anchors.fill: parent
                                             style: win.style
                                             engine: pcEngine
-                                            ink: Theme.colBorder
+                                            ink: mt.colBorder
                                             color1: win.shapeColors[0]
                                             color2: win.shapeColors[1]
                                             color3: win.shapeColors[2]
@@ -1086,17 +1092,17 @@ PanelWindow {
                         height: 30
                         cornerRadius: 10
                         ringWidth: 3
-                        fillColor: Theme.chipFill
+                        fillColor: mt.chipFill
 
                         Text {
                             id: nameText
                             anchors.centerIn: parent
                             text: card.chipText
-                            color: Theme.chipInk
-                            font.family: Theme.fontFamily
+                            color: mt.chipInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }

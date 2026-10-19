@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -15,6 +16,9 @@ import qs.modules.sekai.quickPanel
 Item {
     id: ak
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string iconName: ""
     property bool on: true
 
@@ -27,8 +31,8 @@ Item {
 
     Gradient {
         id: akFill
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     Pill {
@@ -37,7 +41,7 @@ Item {
         ringWidth: 3
         shadowDy: 3
         pressed: akArea.pressed
-        fillColor: ak.hovered && !ak.on ? Theme.pSurfaceHover : Theme.pSurface
+        fillColor: ak.hovered && !ak.on ? mt.pSurfaceHover : mt.pSurface
         fillGradient: ak.on ? akFill : null
 
         Image {

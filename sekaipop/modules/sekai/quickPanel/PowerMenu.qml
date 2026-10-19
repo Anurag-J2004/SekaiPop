@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 
@@ -32,6 +33,9 @@ import qs.modules.common
 // the wave runs back up and the pills slide back toward the phone.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool open: false
 
@@ -84,7 +88,7 @@ Item {
     readonly property real pillWidth: 90
     readonly property real pillHeight: 82
     // (2D: 89 apart, the same pitch as the header keys, as in the flat design.)
-    readonly property real rowSpacing: Theme.quickFlat ? 89 : 83
+    readonly property real rowSpacing: mt.quickFlat ? 89 : 83
 
     // Each pill is anchorRight (see QuickToggle.qml), so it's the RIGHT
     // edge that's actually fixed — pinned here, at QuickToggle's own
@@ -169,7 +173,7 @@ Item {
 
                 delegate: QuickToggle {
                     id: item
-                    flatShadow: Theme.quickFlat
+                    flatShadow: mt.quickFlat
 
                     required property string modelData
                     required property int index
@@ -268,15 +272,15 @@ Item {
                         radius: 10
                         color: "#ff9f1c"
                         border.width: 2
-                        border.color: Theme.colBorder
+                        border.color: mt.colBorder
                         antialiasing: true
                         z: 5
 
                         Text {
                             anchors.centerIn: parent
                             text: "!"
-                            color: Theme.colBorder
-                            font.family: Theme.fontFamily
+                            color: mt.colBorder
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.Black
                         }
@@ -292,7 +296,7 @@ Item {
                         radius: 10
                         color: "#ff9f1c"
                         border.width: 2
-                        border.color: Theme.colBorder
+                        border.color: mt.colBorder
                         width: noteText.implicitWidth + 20
                         height: noteText.implicitHeight + 14
 
@@ -301,11 +305,11 @@ Item {
                             anchors.centerIn: parent
                             text: (item.index === 0 ? "Shut down" : "Reboot") + " will cut it off: "
                                   + PowerBusyService.note
-                            color: Theme.colBorder
-                            font.family: Theme.fontFamily
+                            color: mt.colBorder
+                            font.family: mt.fontFamily
                             font.pixelSize: 12
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
 

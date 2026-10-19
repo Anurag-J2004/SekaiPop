@@ -4,7 +4,7 @@
 // fill = capBody, and only while the bar is in the Capsule style.
 const assert = require("assert"), fs = require("fs"), path = require("path")
 const top = path.join(__dirname, "..", "..")
-const read = rel => fs.readFileSync(path.join(top, rel), "utf8")
+const read = rel => require("../lib/themetext")(fs.readFileSync(path.join(top, rel), "utf8"))
 const code = s => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'])\/\/.*$/gm, "$1")
 const balanced = (f, s) => { for (const [a, b] of [["{", "}"], ["(", ")"], ["[", "]"]])
     assert.strictEqual(s.split(a).length, s.split(b).length, f + ": " + a + b + " unbalanced") }

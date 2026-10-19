@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "PadMath.js" as PM
 import qs.modules.common
 
@@ -9,6 +10,9 @@ import qs.modules.common
 // cap is a second one that slides up it.
 Item {
     id: key
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property real kx: 0.30
@@ -178,7 +182,7 @@ Item {
             anchors.verticalCenterOffset: -key.u
             text: key.glyph
             color: PadPalette.alpha(PadPalette.stageTop, 0.72)
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 22 * key.u
             font.weight: Font.Bold
         }

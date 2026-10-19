@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A tiny drawing of a screen with the bar on it, for the bar-position and
@@ -12,9 +13,12 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string edge: "top"
     property string variant: ""
-    property color color: Theme.pInk
+    property color color: mt.pInk
 
     implicitWidth: 40
     implicitHeight: 28

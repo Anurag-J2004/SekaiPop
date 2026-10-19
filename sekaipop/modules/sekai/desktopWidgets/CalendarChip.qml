@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -9,6 +10,9 @@ import qs.modules.common.widgets
 //   CalendarChip { icon: "check"; label: "Done"; primary: true; onClicked: ... }
 Item {
     id: chip
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""
@@ -27,18 +31,18 @@ Item {
 
     Gradient {
         id: fill
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     Rectangle {
         anchors.fill: parent
         radius: 13
         border.width: 2
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
-        color: chip.primary ? Theme.accentMint
-            : (chip.lit ? (chip.danger ? Theme.irisColorPink : Theme.pSurfaceHover) : Theme.pSurface)
+        color: chip.primary ? mt.accentMint
+            : (chip.lit ? (chip.danger ? mt.irisColorPink : mt.pSurfaceHover) : mt.pSurface)
         gradient: chip.primary ? fill : null
 
         Behavior on color {
@@ -58,16 +62,16 @@ Item {
             size: 15
             weight: 700
             fill: 0
-            color: chip.primary || (chip.danger && chip.lit) ? Theme.colBorder : Theme.pInk
+            color: chip.primary || (chip.danger && chip.lit) ? mt.colBorder : mt.pInk
         }
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: chip.label
-            color: chip.primary || (chip.danger && chip.lit) ? Theme.colBorder : Theme.pInk
-            font.family: Theme.fontFamily
+            color: chip.primary || (chip.danger && chip.lit) ? mt.colBorder : mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 

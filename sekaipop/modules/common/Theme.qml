@@ -12,12 +12,14 @@ import qs.services
 // asked for and kept. What sits ON a monitor (the bar, the dock, the desktop widgets, the
 // Quick Panel) reads its colours from the theme of its window's monitor:
 //
-//   readonly property var T: Theme.of(QsWindow.window)     (needs `import Quickshell`)
-//   ... color: T.surface
+//   readonly property var mt: Theme.of(QsWindow.window)    (an Item; needs `import Quickshell`)
+//   readonly property var mt: Theme.of(screen)             (a PanelWindow's own file)
+//   ... color: mt.surface
 //
-// The window is passed in, not looked up: a function can't read another item's
-// attached QsWindow. Reading `win.screen` inside here makes the binding follow the
-// window when it moves to another monitor.
+// (`mt`, "monitor theme": a QML property can't start with a capital.) The window or
+// screen is passed in, not looked up: a function can't read another item's attached
+// QsWindow. Reading `screen` inside here makes the binding follow a window that moves
+// to another monitor.
 ThemeSet {
     id: theme
 
@@ -30,10 +32,12 @@ ThemeSet {
         ThemeSet {}
     }
 
-    function of(win) {
-        if (!theme.perMonitor)
+    // `w`: a window (anything with a `screen`), or a screen itself.
+    function of(w) {
+        if (!theme.perMonitor || !w)
             return theme
-        const name = win && win.screen ? String(win.screen.name ?? "") : ""
+        const scr = w.screen !== undefined ? w.screen : w
+        const name = scr ? String(scr.name ?? "") : ""
         if (name === "" || !ThemeService.hasScreenTheme(name))
             return theme
         let t = theme.perScreen[name]

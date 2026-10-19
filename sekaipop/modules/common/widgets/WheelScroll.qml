@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // One mouse-wheel feel for every scrolling list in the shell (the phone's
@@ -18,8 +19,11 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property Flickable scroller: null
-    property real step: Theme.wheelStep
+    property real step: mt.wheelStep
     property int orientation: Qt.Vertical
 
     anchors.fill: scroller
@@ -37,7 +41,7 @@ Item {
             // `step` rescales a mouse notch when an instance asks for a different
             // size; a touchpad (pixelDelta) stays 1:1 with the fingers.
             const px = event.pixelDelta.y !== 0 || (sideways && event.pixelDelta.x !== 0)
-            const d = Theme.wheelPx(event, sideways) * (px ? 1 : root.step / Theme.wheelStep)
+            const d = mt.wheelPx(event, sideways) * (px ? 1 : root.step / mt.wheelStep)
             if (d === 0)
                 return
             // The same range a drag can reach: the list's own top / bottom

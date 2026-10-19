@@ -48,7 +48,7 @@ ExtraFrame {
         radius: 20
         color: "#ffffff"
         border.width: 3
-        border.color: Theme.line
+        border.color: mt.line
         clip: true
 
         // checkerboard, so a translucent colour reads as translucent
@@ -86,10 +86,10 @@ ExtraFrame {
                 text: root.valid ? root.hex.toUpperCase()
                     : "Type a colour \u2014 #ff8800, rgb(255, 136, 0), hsl(32 100% 50%) or a name like coral"
                 color: root.valid ? root.ink : ScrapbookTheme.inkSoft
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: root.valid ? 30 : 14
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }
@@ -112,7 +112,7 @@ ExtraFrame {
                 radius: 9
                 color: Qt.rgba(col.r / 255, col.g / 255, col.b / 255, 1)
                 border.width: shadeArea.containsMouse ? 3 : 2
-                border.color: Theme.line
+                border.color: mt.line
 
                 MouseArea {
                     id: shadeArea
@@ -163,16 +163,16 @@ ExtraFrame {
                     width: 46
                     height: 24
                     radius: 12
-                    color: Theme.colBorder
+                    color: mt.colBorder
 
                     Text {
                         anchors.centerIn: parent
                         text: fmt.modelData.label
                         color: "#ffffff"
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -184,7 +184,7 @@ ExtraFrame {
                     anchors.verticalCenter: parent.verticalCenter
                     elide: Text.ElideRight
                     text: fmt.modelData.text
-                    color: Theme.colBorder
+                    color: mt.colBorder
                     font.family: "monospace"
                     font.pixelSize: 14
                 }
@@ -196,7 +196,7 @@ ExtraFrame {
                     name: fmt.flashed ? "check" : "content_copy"
                     size: 18
                     weight: 600
-                    color: fmt.flashed ? Qt.darker(Theme.accentMint, 1.6) : ScrapbookTheme.inkSoft
+                    color: fmt.flashed ? Qt.darker(mt.accentMint, 1.6) : ScrapbookTheme.inkSoft
                 }
 
                 Timer {
@@ -230,7 +230,7 @@ ExtraFrame {
         height: 38
         icon: "colorize"
         iconSize: 22
-        fill: Theme.accentMint
+        fill: mt.accentMint
         onClicked: root.pickRequested()
     }
 
@@ -242,14 +242,14 @@ ExtraFrame {
         width: tipText.implicitWidth + 20
         height: 26
         radius: 13
-        color: Theme.colBorder
+        color: mt.colBorder
 
         Text {
             id: tipText
             anchors.centerIn: parent
             text: "Pick from screen"
             color: "#ffffff"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }

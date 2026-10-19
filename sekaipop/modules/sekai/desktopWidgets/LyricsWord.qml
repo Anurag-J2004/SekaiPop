@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // One word of a lyric, drawn as a sticker with no card behind it, so it sits straight
@@ -15,11 +16,14 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string text: ""
     property int pixelSize: 38
     property color fillColor: "#FFFFFF"
-    property color litColor: Theme.accentCyan
-    property color outlineColor: Theme.colBorder
+    property color litColor: mt.accentCyan
+    property color outlineColor: mt.colBorder
     // 0 .. 1: how much of the word the sung colour has covered. Only drawn when `withFill`.
     property real sung: 0
     // Build the layer that holds the sung colour. Left off for words that are not being
@@ -37,11 +41,14 @@ Item {
     implicitHeight: Math.ceil(ink.implicitHeight + 2 * root.edge + root.shadowDy)
 
     component Glyphs: Text {
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
         text: root.text
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: root.pixelSize
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 
     Item {

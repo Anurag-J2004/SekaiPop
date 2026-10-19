@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -7,6 +8,9 @@ import qs.modules.common.widgets
 // icon (the fixed row's padlock).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string tip: ""
@@ -29,7 +33,7 @@ Item {
         width: 44
         height: 44
         radius: 22
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -39,9 +43,9 @@ Item {
         width: 44
         height: 44
         radius: 22
-        color: root.flat ? "transparent" : Theme.pSurface
+        color: root.flat ? "transparent" : mt.pSurface
         border.width: root.flat ? 0 : 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
 
         Rectangle {
@@ -52,8 +56,8 @@ Item {
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.accentCyan }
-                GradientStop { position: 1; color: Theme.accentMint }
+                GradientStop { position: 0; color: mt.accentCyan }
+                GradientStop { position: 1; color: mt.accentMint }
             }
         }
 
@@ -61,7 +65,7 @@ Item {
             anchors.centerIn: parent
             name: root.icon
             size: 20
-            color: root.flat ? Theme.pInkSub : (root.lit || root.hovered) ? Theme.colBorder : Theme.pInk
+            color: root.flat ? mt.pInkSub : (root.lit || root.hovered) ? mt.colBorder : mt.pInk
         }
     }
 
@@ -86,17 +90,17 @@ Item {
         width: tipText.implicitWidth + 28
         height: 36
         radius: 12
-        color: Theme.chipFill
+        color: mt.chipFill
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
 
         Text {
             id: tipText
             anchors.centerIn: parent
             text: root.tip
-            color: Theme.chipInk
-            font.family: Theme.fontFamily
+            color: mt.chipInk
+            font.family: mt.fontFamily
             font.pixelSize: 14
             font.weight: Font.Black
         }

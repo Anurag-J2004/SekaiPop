@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A one-shot puff of diamonds flying out from this item's origin (0, 0) and
@@ -10,10 +11,13 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property int count: 7
     property real radius: 40
     property real size: 9
-    property var colors: Theme.attributeColors
+    property var colors: mt.attributeColors
     // 0 = not started, 1 = finished; the diamonds are only drawn in between.
     property real t: 0
 

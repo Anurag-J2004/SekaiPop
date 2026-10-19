@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -13,9 +14,12 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string icon: ""
     property bool active: false
-    property color activeFill: Theme.accentCyan
+    property color activeFill: mt.accentCyan
 
     // The key's name (the flyout's caption shows it while the pointer is over it)
     // and whether the pointer is over it right now.
@@ -39,7 +43,7 @@ Item {
         anchors.margins: 2
         radius: 8
         antialiasing: true
-        color: root.active ? root.activeFill : Theme.chipInk
+        color: root.active ? root.activeFill : mt.chipInk
         opacity: root.active ? 1
             : (area.pressed ? 0.24 : (area.containsMouse ? 0.12 : 0))
 
@@ -51,7 +55,7 @@ Item {
         anchors.centerIn: parent
         name: root.icon
         size: root.iconSize
-        color: root.active ? Theme.colBorder : Theme.chipInk
+        color: root.active ? mt.colBorder : mt.chipInk
         scale: area.pressed ? 0.84 : 1
 
         Behavior on scale {

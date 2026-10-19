@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -6,6 +7,9 @@ import qs.modules.common.widgets
 // name running up the front. Drawn by DockShelfCard.qml, which sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property color tint
@@ -20,7 +24,7 @@ Item {
         width: parent.width
         height: parent.height - root.tabH
         radius: 6
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -32,8 +36,8 @@ Item {
         height: root.tabH + 8
         radius: 5
         color: Qt.darker(root.tint, 1.12)
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
     }
 
@@ -44,8 +48,8 @@ Item {
         height: parent.height - root.tabH
         radius: 6
         color: Qt.darker(root.tint, 1.12)
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
     }
 
@@ -58,8 +62,8 @@ Item {
         height: parent.height - root.tabH - 7
         radius: 6
         color: root.tint
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // lit edge
@@ -88,9 +92,9 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 7
-                color: Theme.surface
+                color: mt.surface
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
             }
 
@@ -125,8 +129,8 @@ Item {
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 text: root.item.name
-                color: Theme.line
-                font.family: Theme.fontFamily
+                color: mt.line
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
             }

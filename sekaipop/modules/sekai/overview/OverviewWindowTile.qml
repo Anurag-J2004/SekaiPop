@@ -34,6 +34,9 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // The Hyprland toplevel this tile shows, and the Overview.qml
     // Scope (rectFor(), captureActive, overviewMonitorId). Named
     // `grid` rather than something that could collide with an id.
@@ -159,7 +162,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 6
-        color: Theme.paperEdge
+        color: mt.paperEdge
     }
 
     // The picture. Inset by the border width so the outline (drawn on
@@ -245,7 +248,7 @@ Item {
             elide: Text.ElideRight
             text: root.windowTitle
             color: ScrapbookTheme.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 9
             font.weight: Font.DemiBold
         }

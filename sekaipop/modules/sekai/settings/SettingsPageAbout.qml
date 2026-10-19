@@ -65,12 +65,12 @@ SettingsPage {
             height: 96
 
             Rectangle {
-                x: Theme.quickFlat ? 0 : 5
+                x: mt.quickFlat ? 0 : 5
                 y: 4
                 width: 90
                 height: 90
                 radius: 45
-                color: Theme.pLineShadow
+                color: mt.pLineShadow
                 antialiasing: true
             }
 
@@ -78,9 +78,9 @@ SettingsPage {
                 width: 90
                 height: 90
                 radius: 45
-                color: Theme.pSurface
+                color: mt.pSurface
                 border.width: 5
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
 
                 Rectangle {
@@ -89,17 +89,17 @@ SettingsPage {
                     radius: width / 2
                     antialiasing: true
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: Theme.accentMint }
-                        GradientStop { position: 1.0; color: Theme.accentCyan }
+                        GradientStop { position: 0.0; color: mt.accentMint }
+                        GradientStop { position: 1.0; color: mt.accentCyan }
                     }
 
                     MaterialIcon {
                         anchors.centerIn: parent
                         size: 38
                         name: "palette"
-                        weight: Theme.settingsIconWeight
-                        fill: Theme.iconFill
-                        color: Theme.colBorder
+                        weight: mt.settingsIconWeight
+                        fill: mt.iconFill
+                        color: mt.colBorder
                     }
                 }
             }
@@ -112,17 +112,17 @@ SettingsPage {
 
             Text {
                 text: "SekaiPop"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 34
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Text {
                 text: "A Quickshell shell for Hyprland, styled like a phone."
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 17
             }
 
@@ -181,8 +181,8 @@ SettingsPage {
                 anchors.verticalCenter: parent.verticalCenter
                 size: 44
                 name: page.statusIcon
-                weight: Theme.settingsIconWeight
-                color: UpdateService.status === "behind" ? ScrapbookTheme.accentPink : Theme.pInk
+                weight: mt.settingsIconWeight
+                color: UpdateService.status === "behind" ? ScrapbookTheme.accentPink : mt.pInk
             }
 
             Column {
@@ -193,11 +193,11 @@ SettingsPage {
                     width: parent.width
                     elide: Text.ElideRight
                     text: page.statusTitle
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 24
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -205,8 +205,8 @@ SettingsPage {
                     visible: text !== ""
                     wrapMode: Text.WordWrap
                     text: page.statusDetail
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 17
                 }
             }
@@ -268,7 +268,7 @@ SettingsPage {
                     Text {
                         width: 70
                         text: modelData.hash
-                        color: Theme.pInkSub
+                        color: mt.pInkSub
                         font.family: "monospace"
                         font.pixelSize: 15
                     }
@@ -277,8 +277,8 @@ SettingsPage {
                         width: page.fullWidth - 70 - 12 - 160 - 12
                         elide: Text.ElideRight
                         text: modelData.subject
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 16
                         font.weight: Font.DemiBold
                     }
@@ -287,8 +287,8 @@ SettingsPage {
                         width: 160
                         horizontalAlignment: Text.AlignRight
                         text: modelData.age
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                     }
                 }
@@ -302,8 +302,8 @@ SettingsPage {
         Text {
             visible: UpdateService.changelog.length === 0
             text: "No CHANGELOG.md next to shell.qml."
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 17
         }
 
@@ -324,11 +324,11 @@ SettingsPage {
                     maximumLineCount: 2
                     elide: Text.ElideRight
                     text: entry.modelData.title
-                    color: entry.index === 0 ? Theme.pInk : Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: entry.index === 0 ? mt.pInk : mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 19
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Repeater {
@@ -343,15 +343,15 @@ SettingsPage {
                             width: 6
                             height: 6
                             radius: 3
-                            color: Theme.pInkSub
+                            color: mt.pInkSub
                         }
 
                         Text {
                             width: page.halfWidth - 15
                             wrapMode: Text.WordWrap
                             text: modelData
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 15
                         }
                     }
@@ -387,19 +387,19 @@ SettingsPage {
                     width: parent.width
                     elide: Text.ElideRight
                     text: modelData.who
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 17
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
                     width: parent.width
                     wrapMode: Text.WordWrap
                     text: modelData.what
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                 }
             }

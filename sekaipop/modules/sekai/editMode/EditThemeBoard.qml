@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -24,12 +25,18 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     readonly property real tileW: 150
     readonly property real tileH: 138
 
     // One group: the picture, its name, and a badge on the one that is on.
     component ThemeTile: Item {
         id: tile
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         required property var group
 
@@ -48,8 +55,8 @@ Item {
 
         Gradient {
             id: onFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         // The group's own accent stops, left to right.
@@ -71,7 +78,7 @@ Item {
             shadowDx: 0
             shadowDy: 4
             pressed: tileArea.pressed
-            fillColor: tileArea.containsMouse && !tile.selected ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: tileArea.containsMouse && !tile.selected ? mt.pSurfaceHover : mt.pSurface
             fillGradient: tile.selected ? onFill : null
 
             Behavior on y {
@@ -258,11 +265,11 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
                 text: tile.group.id === "matugen" ? "Matugen" : tile.group.name
-                color: tile.selected ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
+                color: tile.selected ? mt.colBorder : mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -274,9 +281,9 @@ Item {
             width: 24
             height: 24
             radius: 12
-            color: Theme.accentMint
+            color: mt.accentMint
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             MaterialIcon {
@@ -284,7 +291,7 @@ Item {
                 name: "check"
                 size: 15
                 weight: 700
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
 
@@ -315,7 +322,7 @@ Item {
         WheelHandler {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
-                const d = Theme.wheelPx(event, true)
+                const d = mt.wheelPx(event, true)
                 flick.contentX = Math.max(0, Math.min(flick.contentWidth - flick.width, flick.contentX - d))
             }
         }

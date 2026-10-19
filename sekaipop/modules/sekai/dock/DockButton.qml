@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -8,6 +9,9 @@ import qs.modules.common.widgets
 // cyan (the main action of a card).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""
@@ -27,7 +31,7 @@ Item {
         anchors.fill: parent
         cornerRadius: 11
         ringWidth: 5
-        fillColor: (root.accent || root.selected) ? Theme.accentCyan : Theme.surface
+        fillColor: (root.accent || root.selected) ? mt.accentCyan : mt.surface
         pressed: area.pressed
 
         Row {
@@ -41,18 +45,18 @@ Item {
                 name: root.icon
                 size: root.iconSize
                 fill: root.accent ? 1 : 0
-                color: (root.accent || root.selected) ? Theme.colBorder : Theme.ink
+                color: (root.accent || root.selected) ? mt.colBorder : mt.ink
             }
 
             Text {
                 visible: root.label !== ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.label
-                color: (root.accent || root.selected) ? Theme.colBorder : Theme.ink
-                font.family: Theme.fontFamily
+                color: (root.accent || root.selected) ? mt.colBorder : mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: root.fontSize
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

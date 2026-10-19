@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -7,6 +8,9 @@ import qs.modules.common.widgets
 // Drawn by DockShelfCard.qml, which sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property color tint
@@ -22,7 +26,7 @@ Item {
         width: parent.width
         height: parent.height
         radius: 5
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -34,8 +38,8 @@ Item {
         height: parent.height - root.lidH + 4
         radius: 5
         color: root.kraft
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // the tape, running down the middle
@@ -43,7 +47,7 @@ Item {
             x: (body.width - width) / 2
             y: 4
             width: 12
-            height: body.height - 4 - Theme.borderWidth
+            height: body.height - 4 - mt.borderWidth
             color: Qt.rgba(1, 1, 1, 0.55)
         }
 
@@ -57,7 +61,7 @@ Item {
             radius: 4
             color: "#FFFFFF"
             border.width: 1.5
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             Text {
@@ -69,7 +73,7 @@ Item {
                 maximumLineCount: 1
                 text: root.item.name
                 color: "#2B2D42"
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 10
                 font.weight: Font.Bold
                 opacity: root.lifted ? 0 : 1
@@ -86,7 +90,7 @@ Item {
             name: "folder_zip"
             size: 20
             weight: 700
-            color: Theme.line
+            color: mt.line
         }
     }
 
@@ -99,8 +103,8 @@ Item {
         height: root.lidH
         radius: 5
         color: Qt.darker(root.kraft, 1.08)
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         Rectangle {
@@ -115,9 +119,9 @@ Item {
 
         Rectangle {
             x: (lid.width - width) / 2
-            y: Theme.borderWidth
+            y: mt.borderWidth
             width: 12
-            height: lid.height - 2 * Theme.borderWidth
+            height: lid.height - 2 * mt.borderWidth
             color: Qt.rgba(1, 1, 1, 0.55)
         }
     }

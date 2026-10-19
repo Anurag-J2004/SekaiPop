@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // "Pick one": a name on the left and a row of SettingChips to its right that
@@ -14,6 +15,9 @@ import qs.modules.common
 // screen drawing) or nothing.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     property string sublabel: ""
@@ -35,11 +39,11 @@ Item {
         Text {
             width: parent.width
             text: root.label
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 18
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             wrapMode: Text.WordWrap
         }
 
@@ -47,8 +51,8 @@ Item {
             visible: root.sublabel !== ""
             width: parent.width
             text: root.sublabel
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 14
             wrapMode: Text.WordWrap
         }

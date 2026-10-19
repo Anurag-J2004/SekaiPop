@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // Rounded corners for a square picture inside a Pill, the way the bar's media
@@ -14,16 +15,19 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // "left" or "right": which end of the box lies on the pill's rounded end.
     property string edge: "left"
     property real cornerRadius: 20      // the Pill's cornerRadius
     property real ringWidth: 5          // the Pill's ringWidth
-    property real outlineWidth: Theme.borderWidth
+    property real outlineWidth: mt.borderWidth
     // The ring's colour at the top and bottom of the pill (the Pill's
     // ringColorTop / ringColorBottom) and the outline's.
-    property color ringTop: Theme.ringWhite
-    property color ringBottom: Theme.ringWhite
-    property color outlineColor: Theme.line
+    property color ringTop: mt.ringWhite
+    property color ringBottom: mt.ringWhite
+    property color outlineColor: mt.line
 
     anchors.fill: parent
     z: 20

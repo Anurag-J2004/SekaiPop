@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -16,6 +17,9 @@ import qs.modules.common.widgets
 //   }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     property string sublabel: ""
@@ -39,19 +43,19 @@ Item {
         Text {
             width: parent.width
             text: root.label
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 18
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             wrapMode: Text.WordWrap
         }
         Text {
             visible: root.sublabel !== ""
             width: parent.width
             text: root.sublabel
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 14
             wrapMode: Text.WordWrap
         }
@@ -63,10 +67,10 @@ Item {
         x: root.labelWidth
         y: Math.max(0, (root.height - height) / 2)
         width: root.width - root.labelWidth - (root.clearable ? 58 : 0)
-        height: 46 + Theme.shadowOffset
+        height: 46 + mt.shadowOffset
         cornerRadius: 16
         ringWidth: 4
-        fillColor: Theme.pSurface
+        fillColor: mt.pSurface
 
         MouseArea {
             anchors.fill: parent
@@ -83,10 +87,10 @@ Item {
             clip: true
             selectByMouse: true
             text: root.value
-            color: Theme.pInk
-            selectionColor: Theme.accentCyan
-            selectedTextColor: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            selectionColor: mt.accentCyan
+            selectedTextColor: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.DemiBold
 
@@ -107,7 +111,7 @@ Item {
                 visible: input.text === "" && !input.activeFocus
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.placeholder
-                color: Theme.pInkSub
+                color: mt.pInkSub
                 font: input.font
             }
         }

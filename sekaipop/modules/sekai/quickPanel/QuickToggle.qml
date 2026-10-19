@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -29,6 +30,9 @@ import qs.modules.common.widgets
 // badges, tray button and media pill use.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string kind: "wide"
     // How long a "wide" pill is: 200 for the two-column size, more for the
@@ -92,7 +96,7 @@ Item {
 
     // Text / glyph colour: the mode's ink when OFF, the fixed dark ink when
     // the tile is lit (the accent gradient behind it is bright in both modes).
-    readonly property color inkNow: Qt.tint(Theme.classicFor(root) ? Theme.pInk : Theme.ink, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+    readonly property color inkNow: Qt.tint(mt.classicFor(root) ? mt.pInk : mt.ink, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
     readonly property color inkSubNow: Qt.rgba(inkNow.r, inkNow.g, inkNow.b, 0.667)
 
     // 0 = OFF look, 1 = ON look; glides between them — the
@@ -212,8 +216,8 @@ Item {
             anchors.fill: parent
             radius: parent.radius
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
             opacity: root.litP
             antialiasing: true
@@ -236,7 +240,7 @@ Item {
                 x: root.kind === "wide" ? 28 - 8 * root.litP : (parent.width - width) / 2
                 y: (parent.height - height) / 2
                 name: root.icon
-                fill: root.iconFilled ? 1 : Theme.iconFill
+                fill: root.iconFilled ? 1 : mt.iconFill
                 color: root.inkNow
             }
 
@@ -251,10 +255,10 @@ Item {
                     elide: Text.ElideRight
                     text: root.label
                     color: root.inkNow
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 18
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     lineHeight: root.lineHeightPx > 0 ? root.lineHeightPx : root.titleLine
                     lineHeightMode: Text.FixedHeight
                 }
@@ -264,7 +268,7 @@ Item {
                     elide: Text.ElideRight
                     text: root.subtitle
                     color: root.inkSubNow
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.Normal
                     lineHeight: root.lineHeightPx > 0 ? root.lineHeightPx : root.subLine

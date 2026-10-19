@@ -255,7 +255,7 @@ SettingsPage {
                 QuickToggle {
                     kind: "round"
                     roundWidth: 74
-                    flatShadow: Theme.quickFlat
+                    flatShadow: mt.quickFlat
                     anchors.horizontalCenter: parent.horizontalCenter
                     icon: keyCell.modelData.icon
                     on: SettingsService.flag(keyCell.modelData.key)
@@ -269,8 +269,8 @@ SettingsPage {
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                     text: keyCell.modelData.label
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.DemiBold
                 }

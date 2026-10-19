@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -31,6 +32,9 @@ import "../../common/functions/NotesMath.js" as NM
 Item {
     id: note
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // ----- the row (ListModel roles, see services/NotesService.qml) -----
     required property string nid
     required property string body
@@ -55,7 +59,7 @@ Item {
     readonly property bool classicPanel: true
 
     readonly property color paper: NM.paperOf(note.tint)
-    readonly property color ink: Theme.colBorder
+    readonly property color ink: mt.colBorder
 
     property bool moving: false
     property bool resizing: false
@@ -102,6 +106,9 @@ Item {
     component NoteBtn: Rectangle {
         id: btn
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string icon: ""
         property bool lit: false         // e.g. pinned
         property bool danger: false      // the "really delete?" state
@@ -111,7 +118,7 @@ Item {
         width: 26
         height: 26
         radius: 9
-        color: btn.danger ? Theme.irisColorPink
+        color: btn.danger ? mt.irisColorPink
              : (btnArea.containsMouse ? Qt.rgba(1, 1, 1, 0.7) : (btn.lit ? Qt.rgba(1, 1, 1, 0.45) : "transparent"))
 
         Behavior on color {
@@ -124,7 +131,7 @@ Item {
             size: 18
             weight: 600
             fill: btn.iconFill
-            color: Theme.colBorder
+            color: mt.colBorder
         }
 
         MouseArea {
@@ -197,7 +204,7 @@ Item {
             Pill {
                 anchors.fill: parent
                 cornerRadius: 14
-                ringWidth: Theme.borderWidth + 3
+                ringWidth: mt.borderWidth + 3
                 ringColorTop: Qt.lighter(note.paper, 1.12)
                 ringColorBottom: ringColorTop
                 fillColor: note.paper
@@ -352,7 +359,7 @@ Item {
                             radius: 11
                             color: sw.modelData.paper
                             border.width: sw.current ? 3 : 2
-                            border.color: sw.current ? Theme.colBorder : Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.45)
+                            border.color: sw.current ? mt.colBorder : Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.45)
                             scale: swArea.containsMouse ? 1.15 : 1
 
                             Behavior on scale {
@@ -403,7 +410,7 @@ Item {
 
                 WheelHandler {
                     acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-                    onWheel: event => flick.contentY = flick.clampY(flick.contentY - Theme.wheelPx(event))
+                    onWheel: event => flick.contentY = flick.clampY(flick.contentY - mt.wheelPx(event))
                 }
 
                 TextEdit {
@@ -413,9 +420,9 @@ Item {
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
                     color: note.ink
-                    selectionColor: Theme.accentCyan
-                    selectedTextColor: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    selectionColor: mt.accentCyan
+                    selectedTextColor: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
 
@@ -467,7 +474,7 @@ Item {
                 text: "write something…"
                 color: note.ink
                 opacity: 0.45
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
             }

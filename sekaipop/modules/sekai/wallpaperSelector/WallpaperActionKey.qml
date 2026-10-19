@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -10,6 +11,9 @@ import qs.modules.sekai.phone
 // Pure UI: whoever places it turns clicked(all) into an action.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""
@@ -36,7 +40,7 @@ Item {
         pressed: area.pressed
         ringExtra: 6
 
-        readonly property color ink: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        readonly property color ink: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
 
         Row {
             anchors.centerIn: parent
@@ -53,10 +57,10 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.done ? root.doneLabel : root.label
                 color: key.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 25
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

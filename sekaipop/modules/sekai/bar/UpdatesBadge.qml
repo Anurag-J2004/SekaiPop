@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -18,6 +19,9 @@ import qs.modules.common.widgets
 // Nothing is shown while there is nothing to update (unless `showZero`).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property int count: 0
     property bool nudging: false
@@ -50,16 +54,16 @@ Item {
     property int shownCount: count
     onCountChanged: if (count > 0) shownCount = count
 
-    implicitWidth: Theme.pillHeight
-    implicitHeight: Theme.pillHeight + Theme.shadowOffset
+    implicitWidth: mt.pillHeight
+    implicitHeight: mt.pillHeight + mt.shadowOffset
 
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: 8
         capKeepsFill: root.nudging || root.count > 0   // Capsule bar: coloured only while there is news
-        fillColor: root.nudging ? "#ffb74d" : (root.count > 0 ? Theme.accentMint : Theme.surface)
+        fillColor: root.nudging ? "#ffb74d" : (root.count > 0 ? mt.accentMint : mt.surface)
         pressed: area.pressed
         Behavior on fillColor {
             ColorAnimation { duration: 220 }
@@ -70,7 +74,7 @@ Item {
             anchors.centerIn: parent
             size: 18
             fill: root.nudging ? 1 : 0
-            color: root.count > 0 ? Theme.colBorder : Theme.ink
+            color: root.count > 0 ? mt.colBorder : mt.ink
             name: root.busy ? "sync" : "system_update_alt"
             transformOrigin: Item.Center
 
@@ -122,9 +126,9 @@ Item {
                 rightMargin: -2
             }
             radius: 8
-            color: root.nudging ? "#e0575b" : Theme.colBorder
+            color: root.nudging ? "#e0575b" : mt.colBorder
             border.width: 2
-            border.color: Theme.ringWhite
+            border.color: mt.ringWhite
             implicitWidth: Math.max(16, countLabel.implicitWidth + 8)
             implicitHeight: 16
             antialiasing: true
@@ -134,10 +138,10 @@ Item {
                 anchors.centerIn: parent
                 text: root.shownCount > 99 ? "99+" : root.shownCount
                 color: "#ffffff"
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 9
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

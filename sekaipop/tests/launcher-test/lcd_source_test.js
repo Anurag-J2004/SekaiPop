@@ -9,7 +9,7 @@ const fs = require("fs")
 const path = require("path")
 const locate = require("../lib/locate")
 
-const read = rel => fs.readFileSync(locate(rel), "utf8")
+const read = rel => require("../lib/themetext")(fs.readFileSync(locate(rel), "utf8"))
 const top = path.join(__dirname, "..", "..")
 
 const lcd = read("modules/sekai/launcher/LauncherLcd.qml")

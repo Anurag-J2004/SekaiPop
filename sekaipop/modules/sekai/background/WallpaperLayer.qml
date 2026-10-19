@@ -43,6 +43,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     required property var modelData
     screen: modelData
 
@@ -625,7 +628,7 @@ PanelWindow {
             property var source2: win.currentSlot  // incoming
             property real progress: win.progress
             property real aspect: height > 0 ? width / height : 1.0
-            property color accentColor: Theme.accentCyan
+            property color accentColor: mt.accentCyan
             // sekaiIris-only: fixed white/pink/green band colours, kept
             // separate from accentColor since the iris wipe stays the
             // same regardless of which group's accent is active elsewhere.
@@ -635,7 +638,7 @@ PanelWindow {
             // With matugen they change when the new wallpaper's palette lands,
             // which can be halfway through a transition, so each one drifts to
             // its new value (the Behaviors below) instead of jumping.
-            readonly property var tc: Theme.transitionColors(ThemeService.palette)
+            readonly property var tc: mt.transitionColors(ThemeService.palette)
             property color colorWhite: tc.white
             property color colorPink: tc.pink
             property color colorGreen: tc.green

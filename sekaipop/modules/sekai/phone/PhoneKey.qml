@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -12,11 +13,14 @@ import qs.modules.common.widgets
 Item {
     id: key
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string label: ""
     property string icon: ""
-    property color fill: Theme.pSurface
+    property color fill: mt.pSurface
     property Gradient fillGradient: null
-    property color ink: Theme.pInk
+    property color ink: mt.pInk
     property real fontSize: 28
     property real iconSize: 30
     property real borderW: 3
@@ -42,7 +46,7 @@ Item {
             visible: key.icon === ""
             text: key.label
             color: key.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: key.fontSize
             font.weight: Font.ExtraBold
         }

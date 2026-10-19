@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../../common/functions/PhoneMath.js" as PM
 import qs.modules.common
 import qs.services
@@ -27,6 +28,9 @@ import qs.services
 // Pure UI (no Quickshell imports).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // ===== the flat design this is built around =====
     property real faceWidth: 654
@@ -84,8 +88,8 @@ Item {
         interval: 110
     }
 
-    property real rimWidth: Theme.phoneRimWidth          // outer outline, on the front edge
-    property real bezelWidth: Theme.phoneBezelWidth         // dark glass between rim and screen (was 16: too thick)
+    property real rimWidth: mt.phoneRimWidth          // outer outline, on the front edge
+    property real bezelWidth: mt.phoneBezelWidth         // dark glass between rim and screen (was 16: too thick)
     readonly property real screenInset: rimWidth + bezelWidth
     // How far the notch reaches back into the dark glass past the screen's edge, so
     // it and the bezel are one shape (they are the same colour). Inside the glass:
@@ -390,14 +394,14 @@ Item {
         : root.matrix(PM.ident())
 
     // ===== palette =====
-    property color rimColor: Theme.colBorder             // #555473
-    property color rimHighlight: Theme.phoneRimHighlight
-    property color bezelColor: Theme.phoneBezel
-    property color screenColor: Theme.pSurface
-    property color wallLight: Theme.phoneWallLight                  // the bright edge
-    property color wallMid: Theme.phoneWallMid
-    property color wallDark: Theme.phoneWallDark
-    property color hardwareDark: Theme.phoneHardware               // holes, lens
+    property color rimColor: mt.colBorder             // #555473
+    property color rimHighlight: mt.phoneRimHighlight
+    property color bezelColor: mt.phoneBezel
+    property color screenColor: mt.pSurface
+    property color wallLight: mt.phoneWallLight                  // the bright edge
+    property color wallMid: mt.phoneWallMid
+    property color wallDark: mt.phoneWallDark
+    property color hardwareDark: mt.phoneHardware               // holes, lens
 
     // Whatever is placed inside a PhoneBody goes on the screen.
     default property alias content: contentHost.data
@@ -797,7 +801,7 @@ Item {
                         height: root.powerH
                         radius: width / 2
                         color: !pslice.face ? root.wallMid
-                               : (powerSliceArea.pressed ? Theme.accentCyan : (lit ? Theme.accentMint : root.wallLight))
+                               : (powerSliceArea.pressed ? mt.accentCyan : (lit ? mt.accentMint : root.wallLight))
                         border.width: pslice.face ? 2 : 0
                         border.color: root.wallDark
                         antialiasing: true
@@ -978,7 +982,7 @@ Item {
                     width: root.powerStick + 4
                     height: root.powerH
                     radius: 8
-                    color: powerTabArea.pressed ? Theme.accentCyan : (lit ? Theme.accentMint : root.wallLight)
+                    color: powerTabArea.pressed ? mt.accentCyan : (lit ? mt.accentMint : root.wallLight)
                     border.width: 2
                     border.color: root.wallDark
                     antialiasing: true
@@ -1145,7 +1149,7 @@ Item {
                             width: 10
                             height: 10
                             radius: 5
-                            color: Theme.phoneLens
+                            color: mt.phoneLens
                             antialiasing: true
 
                             Rectangle {
@@ -1154,7 +1158,7 @@ Item {
                                 width: 3
                                 height: 3
                                 radius: 1.5
-                                color: Theme.phoneLensGlint
+                                color: mt.phoneLensGlint
                             }
                         }
                     }
@@ -1197,7 +1201,7 @@ Item {
                             width: 10
                             height: 10
                             radius: 5
-                            color: Theme.phoneLens
+                            color: mt.phoneLens
                             antialiasing: true
 
                             Rectangle {
@@ -1206,7 +1210,7 @@ Item {
                                 width: 3
                                 height: 3
                                 radius: 1.5
-                                color: Theme.phoneLensGlint
+                                color: mt.phoneLensGlint
                             }
                         }
                     }

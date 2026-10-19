@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Effects
 import qs.services
 import qs.modules.common
@@ -35,6 +36,9 @@ import qs.modules.sekai.quickPanel
 // it keeps `safeLeft` clear (what a real phone's "safe area" does).
 Item {
     id: face
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // Keeps the classic (white) look in the first dark mode; see Theme.classicFor.
     readonly property bool classicPanel: true
@@ -322,7 +326,7 @@ Item {
 
             capW: Math.max(420, 92 + Math.max(titleText.implicitWidth, subText.implicitWidth) + 120)
             capH: 66
-            skew: 0.26 * Theme.settingsLean
+            skew: 0.26 * mt.settingsLean
             radius: 26
             lit: true
             litP: 1
@@ -331,7 +335,7 @@ Item {
             ringExtra: 5
             shadowBaseX: 5
             shadowBaseY: 4
-            flatShadow: Theme.quickFlat
+            flatShadow: mt.quickFlat
 
             Behavior on capW {
                 NumberAnimation {
@@ -352,9 +356,9 @@ Item {
                     height: 34
                     radius: 10
                     rotation: 45
-                    color: Theme.colBg
+                    color: mt.colBg
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
                     antialiasing: true
                 }
 
@@ -363,10 +367,10 @@ Item {
                     y: (bannerKey.capH - height) / 2
                     size: 24
                     name: face.shownInfo.icon
-                    weight: Theme.settingsIconWeight
+                    weight: mt.settingsIconWeight
                     // Outline like every other icon (Theme.iconFill); this one
                     // used to be forced solid, which turned the gear into a blob.
-                    color: Theme.colBorder
+                    color: mt.colBorder
                 }
 
                 Column {
@@ -376,14 +380,14 @@ Item {
                     Text {
                         id: titleText
                         text: face.shownInfo.title
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         // The lit band inside the plate is 48 px tall (66 - 2 * (4 + 5));
                         // 26 + 15 = 41 px of text leaves it centred with ~3 px each side
                         // (it was 29 + 17 = 46: touching both edges).
                         font.pixelSize: 25
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         lineHeight: 26
                         lineHeightMode: Text.FixedHeight
                     }
@@ -391,8 +395,8 @@ Item {
                     Text {
                         id: subText
                         text: face.shownInfo.headerSub !== undefined ? face.shownInfo.headerSub : face.shownInfo.sub
-                        color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.78)
-                        font.family: Theme.fontFamily
+                        color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.78)
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                         lineHeight: 15
@@ -407,9 +411,9 @@ Item {
                 y: 8
                 size: 24
                 name: "star"
-                weight: Theme.settingsIconWeight
+                weight: mt.settingsIconWeight
                 rotation: 14
-                color: Theme.colBg
+                color: mt.colBg
             }
         }
     }
@@ -423,9 +427,9 @@ Item {
         y: 34
         capW: Math.max(clockLabel.implicitWidth, dateLabel.implicitWidth) + 62
         capH: 56
-        skew: 0.26 * Theme.settingsLean
+        skew: 0.26 * mt.settingsLean
         radius: 20
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
 
         Column {
             anchors.centerIn: parent
@@ -434,11 +438,11 @@ Item {
                 id: clockLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: face.clockText
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 21
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 lineHeight: 24
                 lineHeightMode: Text.FixedHeight
             }
@@ -447,8 +451,8 @@ Item {
                 id: dateLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: face.dateText
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
                 lineHeight: 16
@@ -496,15 +500,15 @@ Item {
             width: parent.width - 3
             height: 44
             radius: 14
-            color: Theme.pLineShadow
+            color: mt.pLineShadow
         }
         Rectangle {
             width: parent.width - 3
             height: 44
             radius: 14
-            color: Theme.attributeColors[2]
+            color: mt.attributeColors[2]
             border.width: 3
-            border.color: Theme.pLine
+            border.color: mt.pLine
 
             Row {
                 id: pauseRow
@@ -514,13 +518,13 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     name: "pause_circle"
                     size: 18
-                    color: Theme.colBorder
+                    color: mt.colBorder
                 }
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Shortcuts paused while you record"
-                    color: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.Black
                 }
@@ -761,8 +765,8 @@ Item {
             visible: face.results.length === 0
             anchors.centerIn: parent
             text: "No settings found"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 20
             font.weight: Font.DemiBold
         }
@@ -796,9 +800,9 @@ Item {
                         width: resultsColumn.width
                         height: 68
                         radius: 20
-                        color: row.index === face.selected ? Theme.pSurfaceHover : Theme.pSurface
+                        color: row.index === face.selected ? mt.pSurfaceHover : mt.pSurface
                         border.width: 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
 
                         MaterialIcon {
@@ -806,8 +810,8 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             size: 28
                             name: row.modelData.icon !== "" ? row.modelData.icon : "settings"
-                            weight: Theme.settingsIconWeight
-                            color: Theme.pInk
+                            weight: mt.settingsIconWeight
+                            color: mt.pInk
                         }
 
                         Column {
@@ -816,17 +820,17 @@ Item {
 
                             Text {
                                 text: row.modelData.label
-                                color: Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 20
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             Text {
                                 text: face.pages[row.modelData.page].label + (row.modelData.card !== "" ? "  ·  " + row.modelData.card : "")
-                                color: Theme.pInkSub
-                                font.family: Theme.fontFamily
+                                color: mt.pInkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 14
                                 font.weight: Font.DemiBold
                             }

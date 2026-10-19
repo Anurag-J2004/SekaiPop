@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -23,6 +24,9 @@ import qs.modules.sekai.phone
 // rather than the plain device list Network/Bluetooth get.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     property string icon: ""   // Material Symbols Rounded name
@@ -79,8 +83,8 @@ Item {
     // and no gradient behind its text -- it always sits on the plain surface,
     // so it always wears the mode ink (it was going navy on the dark surface).
     readonly property color inkNow: root.simple
-        ? Theme.pInk
-        : Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        ? mt.pInk
+        : Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
     readonly property color inkSubNow: Qt.rgba(inkNow.r, inkNow.g, inkNow.b, 0.667)
     Behavior on litP {
         NumberAnimation {
@@ -147,8 +151,8 @@ Item {
             anchors.fill: parent
             radius: parent.radius
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
             opacity: root.litP
             antialiasing: true
@@ -188,11 +192,11 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 elide: Text.ElideRight
                 text: root.label
-                color: root.muted ? Theme.pInkSub : root.inkNow
-                font.family: Theme.fontFamily
+                color: root.muted ? mt.pInkSub : root.inkNow
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Text {
@@ -202,7 +206,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.muted ? "MUTE" : Math.round(root.shownValue) + "%"
                 color: root.inkSubNow
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 14
             }
         }
@@ -241,10 +245,10 @@ Item {
             elide: Text.ElideRight
             text: root.label
             color: root.inkNow
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 18
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
@@ -254,7 +258,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             text: Math.round(root.shownValue) + "%"
             color: root.inkSubNow
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 14
         }
     }
@@ -317,7 +321,7 @@ Item {
         width: parent.width - 40
         height: 14
         radius: 7
-        color: Theme.pSurfaceDivider
+        color: mt.pSurfaceDivider
 
         Rectangle {
             width: parent.width * Math.max(0, Math.min(1, root.shownValue / 100))
@@ -325,8 +329,8 @@ Item {
             radius: 7
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: root.muted ? Theme.pInkSub : Theme.accentMint }
-                GradientStop { position: 1.0; color: root.muted ? Theme.pInkSub : Theme.accentCyan }
+                GradientStop { position: 0.0; color: root.muted ? mt.pInkSub : mt.accentMint }
+                GradientStop { position: 1.0; color: root.muted ? mt.pInkSub : mt.accentCyan }
             }
             opacity: root.muted ? 0.5 : 1
             Behavior on width {

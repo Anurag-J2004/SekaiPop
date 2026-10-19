@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "PadMath.js" as PM
 import qs.modules.common
 
@@ -8,6 +9,9 @@ import qs.modules.common
 // the shelf of presets to pick another from.
 Item {
     id: cart
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property real kx: 0.30
@@ -125,7 +129,7 @@ Item {
                     y: 3 * cart.u
                     text: cart.name.toUpperCase()
                     color: PadPalette.ink
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 12 * cart.u
                     font.weight: Font.ExtraBold
                     font.letterSpacing: 0.7 * cart.u
@@ -137,7 +141,7 @@ Item {
                     text: "10-BAND"
                     color: PadPalette.ink
                     opacity: 0.7
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 7 * cart.u
                     font.weight: Font.Bold
                 }

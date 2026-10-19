@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The search field in the wallpaper board's header: a white pill that's
@@ -12,6 +13,9 @@ import qs.modules.common
 // (leave()), so Left/Right scroll the row again.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property alias text: input.text
     property string placeholder: "Search"
@@ -42,21 +46,21 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.shadowOffset - 1
-        y: Theme.shadowOffset - 1
+        x: mt.shadowOffset - 1
+        y: mt.shadowOffset - 1
         width: root.width
         height: root.height
         radius: height / 2
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
     Rectangle {
         anchors.fill: parent
         radius: height / 2
-        color: Theme.surface
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        color: mt.surface
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         MouseArea {
@@ -72,7 +76,7 @@ Item {
             radius: height / 2
             color: "transparent"
             border.width: 2
-            border.color: Theme.accentCyan
+            border.color: mt.accentCyan
             visible: input.activeFocus
             antialiasing: true
         }
@@ -84,7 +88,7 @@ Item {
             name: "search"
             size: 22
             weight: 550
-            color: Theme.ink
+            color: mt.ink
         }
 
         Text {
@@ -94,7 +98,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             text: root.placeholder
             color: ScrapbookTheme.inkSoft
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 14
         }
 
@@ -107,8 +111,8 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             clip: true
             selectByMouse: true
-            color: Theme.ink
-            font.family: Theme.fontFamily
+            color: mt.ink
+            font.family: mt.fontFamily
             font.pixelSize: 15
 
             Keys.onEscapePressed: event => {
@@ -139,14 +143,14 @@ Item {
             width: 22
             height: 22
             radius: 11
-            color: clearArea.containsMouse ? Theme.surfaceTint : Theme.surfaceDivider
+            color: clearArea.containsMouse ? mt.surfaceTint : mt.surfaceDivider
 
             MaterialIcon {
                 anchors.centerIn: parent
                 name: "close"
                 size: 15
                 weight: 600
-                color: Theme.ink
+                color: mt.ink
             }
 
             MouseArea {

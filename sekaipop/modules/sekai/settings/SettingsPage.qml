@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -22,6 +23,9 @@ import qs.modules.sekai.phone
 Item {
     id: page
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // The Face the page lives in (its sources and requests); set by the Face.
     property var host: null
 
@@ -39,7 +43,7 @@ Item {
     readonly property real fullWidth: cardWidth - 5 - 52
 
     // What the cards sit on, for the fades.
-    readonly property color fadeColor: host && host.backdropColor !== undefined ? host.backdropColor : Theme.pSurface
+    readonly property color fadeColor: host && host.backdropColor !== undefined ? host.backdropColor : mt.pSurface
 
     // Scrolled back to the top (the Face does this when the panel is opened).
     function scrollToTop() {
@@ -217,7 +221,7 @@ Item {
         WheelHandler {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
-                const d = Theme.wheelPx(event, true)
+                const d = mt.wheelPx(event, true)
                 chipStrip.contentX = Math.max(0, Math.min(chipStrip.contentWidth - chipStrip.width, chipStrip.contentX - d))
             }
         }
@@ -284,7 +288,7 @@ Item {
         width: 6
         height: Math.max(30, flick.visibleArea.heightRatio * track)
         radius: 3
-        color: Theme.pSurfaceRing
+        color: mt.pSurfaceRing
         antialiasing: true
     }
 }

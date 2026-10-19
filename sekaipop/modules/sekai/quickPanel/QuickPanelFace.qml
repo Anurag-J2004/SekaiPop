@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Effects
 import "../../common/functions/QuickTiles.js" as QT
 import qs.modules.common
@@ -39,6 +40,9 @@ import qs.modules.sekai.phone
 // compact default-device dropdown plus a per-app volume mixer instead.
 Item {
     id: face
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // Keeps the classic (white) look in the first dark mode; see Theme.classicFor.
     readonly property bool classicPanel: true
@@ -236,7 +240,7 @@ Item {
     property real visibleExtra: 0
 
     // Extra scroll room (design units) under the last notification.
-    property real listBottomPad: Theme.quickFlat ? 46 : 40
+    property real listBottomPad: mt.quickFlat ? 46 : 40
 
         // "now" for the times on the cards; refreshed while the panel shows.
     property double nowMs: Date.now()
@@ -309,16 +313,16 @@ Item {
     signal bannerResetRequested()
     signal avatarResetRequested()
 
-    readonly property color placeholderGrey: Theme.pSurfaceHover // #f2f2f2
+    readonly property color placeholderGrey: mt.pSurfaceHover // #f2f2f2
 
     // ===== text colour over the banner =====
     property bool bannerDarkLeft: false
     property bool bannerDarkRight: false
     readonly property bool bannerHasImage: bannerImage.status === Image.Ready
     readonly property color bannerInkLeft: bannerHasImage
-        ? (bannerDarkLeft ? "#ffffff" : Theme.colBorder) : Theme.pInk
+        ? (bannerDarkLeft ? "#ffffff" : mt.colBorder) : mt.pInk
     readonly property color bannerInkRight: bannerHasImage
-        ? (bannerDarkRight ? "#ffffff" : Theme.colBorder) : Theme.pInk
+        ? (bannerDarkRight ? "#ffffff" : mt.colBorder) : mt.pInk
 
     // ===== banner =====
     Item {
@@ -452,7 +456,7 @@ Item {
         // Hover: a light tint and a pencil, so it's clear it can be changed
         Rectangle {
             anchors.fill: parent
-            color: Theme.pLine
+            color: mt.pLine
             opacity: bannerArea.containsMouse ? 0.14 : 0
             topLeftRadius: 74
             topRightRadius: 74
@@ -520,7 +524,7 @@ Item {
             width: 32
             height: 32
             radius: width / 2
-            color: Theme.pLine
+            color: mt.pLine
             opacity: bannerRemoveArea.containsMouse ? 1 : 0.8
             antialiasing: true
 
@@ -557,16 +561,16 @@ Item {
         Text {
             text: face.clockText
             color: face.bannerInkLeft
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 24
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
             text: face.dateText
             color: face.bannerInkLeft
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 20
         }
     }
@@ -607,10 +611,10 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: face.formatRate(face.downloadBps)
                 color: face.bannerInkRight
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 20
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -634,7 +638,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: face.formatRate(face.uploadBps)
                 color: face.bannerInkRight
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 20
             }
         }
@@ -715,7 +719,7 @@ Item {
             anchors.fill: parent
             anchors.margins: avatar.imgInset
             radius: width / 2
-            color: Theme.pLine
+            color: mt.pLine
             opacity: avatarArea.containsMouse ? 0.14 : 0
 
             Behavior on opacity {
@@ -745,7 +749,7 @@ Item {
             radius: width / 2
             color: "transparent"
             border.width: 3
-            border.color: Theme.pRingWhite
+            border.color: mt.pRingWhite
             antialiasing: true
         }
 
@@ -775,7 +779,7 @@ Item {
             width: 28
             height: 28
             radius: width / 2
-            color: Theme.pLine
+            color: mt.pLine
             opacity: avatarRemoveArea.containsMouse ? 1 : 0.8
             antialiasing: true
 
@@ -812,8 +816,8 @@ Item {
         width: 254
         elide: Text.ElideRight
         text: face.userName + "@" + face.hostName
-        color: Theme.pInk
-        font.family: Theme.fontFamily
+        color: mt.pInk
+        font.family: mt.fontFamily
         font.pixelSize: 20
     }
 
@@ -843,7 +847,7 @@ Item {
     }
 
     QuickToggle {
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         kind: "square"
         x: face.headerX
         y: 276
@@ -853,7 +857,7 @@ Item {
     }
 
     QuickToggle {
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         kind: "square"
         x: face.headerX + face.headerPitch
         y: 276
@@ -863,7 +867,7 @@ Item {
     }
 
     QuickToggle {
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         kind: "square"
         x: face.headerX + face.headerPitch * 2
         y: 276
@@ -875,7 +879,7 @@ Item {
 
     // ===== toggles =====
     // ===== button grid =====
-    readonly property var tileLayout: QT.pack(face.tiles, face.tileColumns, Theme.quickFlat)
+    readonly property var tileLayout: QT.pack(face.tiles, face.tileColumns, mt.quickFlat)
     property real tileExtra: tileLayout.height - QT.baseGridHeight
     Behavior on tileExtra {
         NumberAnimation {
@@ -1210,7 +1214,7 @@ Item {
 
             VolumeSlider {
                 id: slider
-                flatShadow: Theme.quickFlat
+                flatShadow: mt.quickFlat
                 visible: tile.sliderMode
                 sliderWidth: tile.slotW
                 // Edit mode takes over the mouse (see editArea below), so
@@ -1231,7 +1235,7 @@ Item {
             }
 
             QuickToggle {
-                flatShadow: Theme.quickFlat
+                flatShadow: mt.quickFlat
                 id: toggle
                 visible: !tile.sliderMode
                 // Wide (icon + name + status, e.g. the Wi-Fi network or the
@@ -1311,7 +1315,7 @@ Item {
                 width: 24
                 height: 24
                 radius: width / 2
-                color: Theme.pLine
+                color: mt.pLine
                 antialiasing: true
 
                 MaterialIcon {
@@ -1338,7 +1342,7 @@ Item {
                 width: 24
                 height: 24
                 radius: width / 2
-                color: Theme.pLine
+                color: mt.pLine
                 // Dimmed when no other size would fit (the panel is full).
                 opacity: face.canResize(tile.pos) ? 1 : 0.35
                 antialiasing: true
@@ -1374,7 +1378,7 @@ Item {
         radius: 44
         color: "transparent"
         border.width: 3
-        border.color: Theme.accentCyan
+        border.color: mt.accentCyan
         antialiasing: true
     }
 
@@ -1572,12 +1576,12 @@ Item {
     // breathing room as above it, and clear of the screen's rounded
     // bottom corners (radius 74).
     Rectangle {
-        x: 40 + (Theme.quickFlat ? 0 : 5)
+        x: 40 + (mt.quickFlat ? 0 : 5)
         y: 655 + 4 + face.tileExtra
         width: 575
         height: 515 - face.tileExtra
         radius: 41
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -1591,9 +1595,9 @@ Item {
         width: 575
         height: 515 - face.tileExtra
         radius: 41
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         clip: true
 
         readonly property bool empty: face.notifications.length === 0
@@ -1736,7 +1740,7 @@ Item {
                 }
 
                 // The stack behind a collapsed group's card.
-                readonly property color peekTone: Theme.classic ? Qt.color("#e9e9e9") : Qt.darker(Theme.pSurfaceHover, 1.12)
+                readonly property color peekTone: mt.classic ? Qt.color("#e9e9e9") : Qt.darker(mt.pSurfaceHover, 1.12)
 
                 // 1 while the group is collapsed, 0 once opened: fades the stack
                 // out. Kept apart from the drag, so following the card is not
@@ -1851,7 +1855,7 @@ Item {
             width: 6
             height: Math.max(30, list.visibleArea.heightRatio * track)
             radius: 3
-            color: Theme.pSurfaceRing
+            color: mt.pSurfaceRing
             antialiasing: true
         }
         antialiasing: true
@@ -1879,9 +1883,9 @@ Item {
         readonly property real reachH: Math.max(0, Math.min(height,
             face.visibleBottomLeft + face.visibleExtra - y))
         radius: 41
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         clip: true
         opacity: face.editing ? 1 : 0
         visible: opacity > 0.01
@@ -1915,11 +1919,11 @@ Item {
                 id: columnsLabel
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Columns"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Row {
@@ -1941,9 +1945,9 @@ Item {
                         width: 46
                         height: 40
                         radius: 20
-                        color: chip.current ? Theme.accentMint : Theme.pSurfaceDivider
+                        color: chip.current ? mt.accentMint : mt.pSurfaceDivider
                         border.width: 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         opacity: chip.allowed || chip.current ? 1 : 0.4
                         antialiasing: true
 
@@ -1956,11 +1960,11 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: chip.modelData
-                            color: chip.current ? Theme.colBorder : Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: chip.current ? mt.colBorder : mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 18
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
 
                         MouseArea {
@@ -2017,7 +2021,7 @@ Item {
                         opacity: face.canAdd ? 1 : 0.4
 
                         QuickToggle {
-                            flatShadow: Theme.quickFlat
+                            flatShadow: mt.quickFlat
                             kind: "round"
                             anchors.horizontalCenter: parent.horizontalCenter
                             hoverLights: face.canAdd
@@ -2038,11 +2042,11 @@ Item {
                             elide: Text.ElideRight
                             lineHeight: 0.9
                             text: face.tileName(modelData)
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 16
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }
@@ -2057,7 +2061,7 @@ Item {
             width: 6
             height: Math.max(30, trayScroll.visibleArea.heightRatio * trayScroll.height)
             radius: 3
-            color: Theme.pSurfaceRing
+            color: mt.pSurfaceRing
             antialiasing: true
         }
 
@@ -2068,9 +2072,9 @@ Item {
             width: 520
             wrapMode: Text.WordWrap
             text: "Every button is on the panel. Remove one to see it here."
-            color: Theme.pInk
+            color: mt.pInk
             opacity: 0.67
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 18
         }
 
@@ -2081,9 +2085,9 @@ Item {
             width: 520
             wrapMode: Text.WordWrap
             text: "The panel is full. Remove a button to make room."
-            color: Theme.pInk
+            color: mt.pInk
             opacity: 0.67
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 18
         }
     }
@@ -2100,9 +2104,9 @@ Item {
         width: 229
         height: 31
         radius: 27
-        color: tagArea.containsMouse && !notificationsCard.empty && !notificationsCard.clearing ? Theme.accentMint : Theme.pSurface
+        color: tagArea.containsMouse && !notificationsCard.empty && !notificationsCard.clearing ? mt.accentMint : mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
 
         Behavior on color {
             ColorAnimation {
@@ -2114,11 +2118,11 @@ Item {
             anchors.centerIn: parent
             text: face.editing ? "Add buttons"
                 : (tagArea.containsMouse && !notificationsCard.empty && !notificationsCard.clearing ? "Clear all" : "Notifications")
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 20
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         MouseArea {
@@ -2296,21 +2300,21 @@ Item {
 
         // Hard shadow
         Rectangle {
-            x: Theme.quickFlat ? 0 : 5
+            x: mt.quickFlat ? 0 : 5
             y: 4
             width: parent.width
             height: parent.height
             radius: 34
-            color: Theme.pLineShadow
+            color: mt.pLineShadow
             antialiasing: true
         }
 
         Rectangle {
             anchors.fill: parent
             radius: 34
-            color: Theme.pSurface
+            color: mt.pSurface
             border.width: alertCard.critical ? 5 : 3
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
         }
 
@@ -2325,7 +2329,7 @@ Item {
                 visible: !alertCard.shellIcon
                 anchors.fill: parent
                 radius: width / 2
-                color: Theme.pSurface
+                color: mt.pSurface
                 antialiasing: true
             }
 
@@ -2361,8 +2365,8 @@ Item {
             width: 340
             elide: Text.ElideRight
             text: alertCard.e !== null ? alertCard.e.app : ""
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.Medium
         }
@@ -2373,8 +2377,8 @@ Item {
             width: 70
             horizontalAlignment: Text.AlignRight
             text: "now"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.Medium
         }
@@ -2385,11 +2389,11 @@ Item {
             width: 434
             elide: Text.ElideRight
             text: alertCard.e !== null ? alertCard.e.title : ""
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 23
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
@@ -2402,8 +2406,8 @@ Item {
             maximumLineCount: 2
             elide: Text.ElideRight
             lineHeight: 0.92
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 17
         }
 

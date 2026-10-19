@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -56,6 +57,9 @@ import qs.modules.common.widgets
 //   outline flares
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string widgetId: ""
     property Item target: null
@@ -233,10 +237,10 @@ Item {
     Rectangle {
         anchors.fill: parent
         anchors.margins: -12 - root.flare * 8
-        radius: Theme.radiusOuter + 12 + root.flare * 8
+        radius: mt.radiusOuter + 12 + root.flare * 8
         color: "transparent"
         border.width: 6
-        border.color: Theme.accentMint
+        border.color: mt.accentMint
         opacity: root.gripped ? 0.34 : (root.selected ? 0.28 : root.flare * 0.6)
         antialiasing: true
 
@@ -248,10 +252,10 @@ Item {
     Rectangle {
         anchors.fill: parent
         anchors.margins: -6
-        radius: Theme.radiusOuter + 6
+        radius: mt.radiusOuter + 6
         color: "transparent"
         border.width: root.selected || root.gripped ? 4 : 3
-        border.color: root.selected || root.gripped || root.flare > 0.05 ? Theme.accentMint : Theme.accentCyan
+        border.color: root.selected || root.gripped || root.flare > 0.05 ? mt.accentMint : mt.accentCyan
         antialiasing: true
 
         Behavior on border.color {
@@ -273,9 +277,9 @@ Item {
             height: 13
             radius: 3
             rotation: 45
-            color: root.selected ? Theme.accentCyan : Theme.accentMint
+            color: root.selected ? mt.accentCyan : mt.accentMint
             border.width: 2
-            border.color: Theme.colBorder
+            border.color: mt.colBorder
             antialiasing: true
             x: (atRight ? root.width + 6 : -6) - width / 2
             y: (atBottom ? root.height + 6 : -6) - height / 2
@@ -312,7 +316,7 @@ Item {
             height: 28
             cornerRadius: 10
             ringWidth: 3
-            fillColor: root.selected ? Theme.accentMint : Theme.chipFill
+            fillColor: root.selected ? mt.accentMint : mt.chipFill
 
             Row {
                 id: tagRow
@@ -324,17 +328,17 @@ Item {
                     name: root.selected ? "edit" : "touch_app"
                     size: 14
                     weight: 700
-                    color: root.selected ? Theme.colBorder : Theme.chipInk
+                    color: root.selected ? mt.colBorder : mt.chipInk
                 }
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.selected ? "EDITING" : "CLICK TO EDIT"
-                    color: root.selected ? Theme.colBorder : Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: root.selected ? mt.colBorder : mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 10
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.8
                 }
             }

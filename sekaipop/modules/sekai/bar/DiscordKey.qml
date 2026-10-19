@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -9,6 +10,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string icon: ""
     property string label: ""
     // On = the state it controls is active (muted, deafened).
@@ -18,14 +22,14 @@ Item {
     signal clicked()
 
     implicitWidth: 154
-    implicitHeight: 44 + Theme.shadowOffset
+    implicitHeight: 44 + mt.shadowOffset
 
     Pill {
         anchors.fill: parent
         cornerRadius: 15
         ringWidth: 5
         fillColor: root.active ? root.activeColor
-                               : (area.containsMouse ? Theme.surfaceHover : Theme.surface)
+                               : (area.containsMouse ? mt.surfaceHover : mt.surface)
         pressed: area.pressed
 
         Row {
@@ -37,17 +41,17 @@ Item {
                 name: root.icon
                 fill: 0
                 size: 20
-                color: root.active ? Theme.textWhite : Theme.ink
+                color: root.active ? mt.textWhite : mt.ink
             }
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.label
-                color: root.active ? Theme.textWhite : Theme.ink
-                font.family: Theme.fontFamily
+                color: root.active ? mt.textWhite : mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

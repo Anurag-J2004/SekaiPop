@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.quickPanel
@@ -14,6 +15,9 @@ import qs.modules.sekai.quickPanel
 // `hovered` lets the owner show the name of the key under the pointer.
 Item {
     id: pk
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // A screen drawing: which edge, and (optionally) which bar look.
     property string edge: "top"
@@ -31,8 +35,8 @@ Item {
 
     Gradient {
         id: pkFill
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     Pill {
@@ -41,7 +45,7 @@ Item {
         ringWidth: 3
         shadowDy: 3
         pressed: pkArea.pressed
-        fillColor: pk.hovered && !pk.on ? Theme.pSurfaceHover : Theme.pSurface
+        fillColor: pk.hovered && !pk.on ? mt.pSurfaceHover : mt.pSurface
         fillGradient: pk.on ? pkFill : null
 
         ScreenGlyph {
@@ -51,7 +55,7 @@ Item {
             height: 20
             edge: pk.edge
             variant: pk.variant
-            color: pk.on ? Theme.colBorder : Theme.pInk
+            color: pk.on ? mt.colBorder : mt.pInk
         }
 
         MaterialIcon {
@@ -60,7 +64,7 @@ Item {
             name: pk.icon
             size: 20
             weight: 600
-            color: pk.on ? Theme.colBorder : Theme.pInk
+            color: pk.on ? mt.colBorder : mt.pInk
         }
     }
 

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -17,9 +18,12 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string label: ""
     property string icon: ""
-    property color fill: Theme.accentCyan
+    property color fill: mt.accentCyan
     property bool active: false
     property bool locked: false
     property bool repeats: false
@@ -35,13 +39,13 @@ Item {
     signal activated()
 
     // Same shape as a badge: the face is keyHeight tall, the shadow hangs below.
-    height: root.keyHeight + Theme.shadowOffset
+    height: root.keyHeight + mt.shadowOffset
 
     Pill {
         id: cap
         anchors.fill: parent
 
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: 8
         fillColor: root.fill
         pressed: area.pressed
@@ -55,24 +59,24 @@ Item {
 
         Text {
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: -Theme.shadowOffset / 2 + root.numberNudge
+            anchors.verticalCenterOffset: -mt.shadowOffset / 2 + root.numberNudge
             visible: root.icon === ""
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: root.labelSize
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             text: root.label
         }
 
         MaterialIcon {
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: -Theme.shadowOffset / 2 + root.numberNudge
+            anchors.verticalCenterOffset: -mt.shadowOffset / 2 + root.numberNudge
             visible: root.icon !== ""
             name: root.icon
             size: 22
             weight: 600
-            color: Theme.colBorder
+            color: mt.colBorder
         }
 
         // A locked Shift / Caps: a small dot under the label.
@@ -84,7 +88,7 @@ Item {
             width: 6
             height: 6
             radius: 3
-            color: Theme.colBorder
+            color: mt.colBorder
         }
     }
 

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import "../../common/functions/KeyBinds.js" as KB
@@ -9,6 +10,9 @@ import "../../common/functions/KeyBinds.js" as KB
 // The bare Super tap is `fixed`: shown, with a padlock instead of buttons.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var row: null              // KeyBinds.rows() entry (null for the fixed Super tap)
     property bool fixed: false
@@ -37,7 +41,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 16
-        color: Theme.pSurfaceHover
+        color: mt.pSurfaceHover
         opacity: root.hovered && !root.fixed ? 1 : 0
         Behavior on opacity {
             NumberAnimation { duration: 90 }
@@ -68,12 +72,12 @@ Item {
             rotation: 45
             radius: 3
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.accentCyan }
-                GradientStop { position: 1; color: Theme.accentMint }
+                GradientStop { position: 0; color: mt.accentCyan }
+                GradientStop { position: 1; color: mt.accentMint }
             }
         }
 
@@ -88,8 +92,8 @@ Item {
                 width: parent.width
                 text: root.fixed ? root.fixedName : root.row ? root.row.name : ""
                 elide: Text.ElideRight
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.ExtraBold
             }
@@ -99,8 +103,8 @@ Item {
                 width: parent.width
                 text: root.note
                 elide: Text.ElideRight
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }
@@ -122,8 +126,8 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: -1
                 text: "TAP"
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: Font.Black
                 font.letterSpacing: 1

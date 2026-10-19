@@ -18,7 +18,7 @@ SekaiPlate {
     property string glyph: ""
     property real pct: 0
     // The ink for the icon and the name: dark, white on the red plate.
-    property color ink: Theme.colBorder
+    property color ink: mt.colBorder
 
     height: 100
 
@@ -43,10 +43,10 @@ SekaiPlate {
             anchors.verticalCenter: parent.verticalCenter
             text: plate.label
             color: plate.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             font.letterSpacing: 1.2
         }
     }

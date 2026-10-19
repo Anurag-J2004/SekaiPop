@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // Text as a sticker: a navy outline, a ring in the card's ring colour, the
@@ -15,15 +16,18 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string text: ""
     property int pixelSize: 40
-    property color fillColor: Theme.accentMint
-    property color outlineColor: Theme.colBorder
-    property color ringColor: Theme.ringWhite
+    property color fillColor: mt.accentMint
+    property color outlineColor: mt.colBorder
+    property color ringColor: mt.ringWhite
     // How far the navy outline reaches around the glyphs, and the white ring inside it.
     property real outline: Math.max(2.5, root.pixelSize * 0.085)
     // The white ring: the same thin line as a block's (Theme.whiteLine), at every size.
-    property real ring: Theme.whiteLine
+    property real ring: mt.whiteLine
     property real shadowDx: Math.max(2, root.pixelSize * 0.05)
     property real shadowDy: Math.max(3, root.pixelSize * 0.075)
     property bool popOnChange: true
@@ -62,15 +66,18 @@ Item {
         id: probe
         visible: false
         text: root.text
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: root.pixelSize
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 
     // The same string drawn `steps` times around a circle of `radius`.
     component Ring: Item {
         id: ring
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string value: ""
         property color ink: "#000000"
@@ -94,10 +101,10 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 text: ring.value
                 color: ring.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: ring.px
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

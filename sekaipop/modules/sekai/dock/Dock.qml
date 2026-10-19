@@ -71,6 +71,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: dockWindow
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     // One entry of shell.qml's dock model: { screen, position, perMonitor }.
     required property var modelData
     screen: modelData.screen
@@ -100,14 +103,14 @@ PanelWindow {
     // with the bar's theme colour (Theme.capLit) instead of mint / cyan, its glyphs in the bar's ink, and
     // the running mark a round dot like the bar's workspace dots.
     readonly property bool capKeys: dockWindow.look === "capsule"
-    readonly property real keyRing: dockWindow.capKeys ? Theme.capDotRing : 7
+    readonly property real keyRing: dockWindow.capKeys ? mt.capDotRing : 7
     function ringTop(on) {
-        return dockWindow.capKeys ? (on ? Theme.capLit : Theme.capRim)
-                                  : (on ? Theme.accentMint : Theme.ringWhite)
+        return dockWindow.capKeys ? (on ? mt.capLit : mt.capRim)
+                                  : (on ? mt.accentMint : mt.ringWhite)
     }
     function ringBottom(on) {
-        return dockWindow.capKeys ? (on ? Theme.capLit : Theme.capRim)
-                                  : (on ? Theme.accentCyan : Theme.ringWhite)
+        return dockWindow.capKeys ? (on ? mt.capLit : mt.capRim)
+                                  : (on ? mt.accentCyan : mt.ringWhite)
     }
     readonly property bool perMonitor: modelData.perMonitor === true
     // +1 / -1: which way is "toward the middle of the screen" along the axis across the dock.
@@ -499,7 +502,7 @@ PanelWindow {
 
     // How much room an item takes along the dock. A key on a standing dock counts
     // its hard shadow, which sits under it.
-    readonly property real keyAlong: dockWindow.vertical ? dockWindow.iconSize + Theme.shadowOffset : dockWindow.iconSize
+    readonly property real keyAlong: dockWindow.vertical ? dockWindow.iconSize + mt.shadowOffset : dockWindow.iconSize
     function sizeOf(desc) {
         if (desc.kind === "media" && dockWindow.mediaWide)
             return dockWindow.mediaWidth
@@ -517,7 +520,7 @@ PanelWindow {
     readonly property real mediaGrow: Math.max(0, Math.min(10, dockWindow.pillPaddingV - 4))
     readonly property real mediaHeight: dockWindow.iconSize + dockWindow.mediaGrow * 2
     // (Capsule: the same thin ring the other keys have.)
-    readonly property real mediaRing: dockWindow.capKeys ? Theme.capDotRing : 6
+    readonly property real mediaRing: dockWindow.capKeys ? mt.capDotRing : 6
     readonly property real mediaInnerH: Math.max(10, dockWindow.mediaHeight - dockWindow.mediaRing * 2)
     // The three buttons: size, the gap between them, and the room kept to the pill's inner right edge.
     readonly property real mediaBtn: Math.max(16, Math.min(38, dockWindow.mediaInnerH - 10))
@@ -640,7 +643,7 @@ PanelWindow {
     }
 
     // How far the biggest key sticks out past the pill, design pixels.
-    readonly property real magLift: (dockWindow.magData.peak - 1) * (dockWindow.iconSize + Theme.shadowOffset)
+    readonly property real magLift: (dockWindow.magData.peak - 1) * (dockWindow.iconSize + mt.shadowOffset)
 
     // ===== the pointer =====
     // Which item the pointer is on (an index into rowItems, -1 for none), worked
@@ -1389,9 +1392,9 @@ PanelWindow {
                                      || dockWindow.hovered || hideGrace.running || dockWindow.dragOver
                                      || dockWindow.menuOpen || dockWindow.folderOpen || dockWindow.toolOpen !== "" || dockWindow.dragging
     // How far the pill is pushed toward its edge, design pixels (animated).
-    property real hideOffset: dockWindow.revealed ? 0 : (dockWindow.pillThickness + Theme.shadowOffset
+    property real hideOffset: dockWindow.revealed ? 0 : (dockWindow.pillThickness + mt.shadowOffset
                                                           + dockWindow.innerGap + 4
-                                                          + (dockWindow.magMax - 1) * (dockWindow.iconSize + Theme.shadowOffset))
+                                                          + (dockWindow.magMax - 1) * (dockWindow.iconSize + mt.shadowOffset))
     Behavior on hideOffset {
         enabled: dockWindow.animReady
         NumberAnimation { duration: 220; easing.type: dockWindow.revealed ? Easing.OutCubic : Easing.InCubic }
@@ -1403,9 +1406,9 @@ PanelWindow {
     // is already tucked away by auto-hide stays tucked. Two fixed animations
     // started from the flag, not one Behavior (see ClockWidget's reveal).
     property real presetSlide: 0
-    readonly property real fullHide: dockWindow.pillThickness + Theme.shadowOffset
+    readonly property real fullHide: dockWindow.pillThickness + mt.shadowOffset
                                      + dockWindow.innerGap + 4
-                                     + (dockWindow.magMax - 1) * (dockWindow.iconSize + Theme.shadowOffset)
+                                     + (dockWindow.magMax - 1) * (dockWindow.iconSize + mt.shadowOffset)
     readonly property real pullOffset: Math.max(dockWindow.hideOffset, dockWindow.presetSlide * dockWindow.fullHide)
     NumberAnimation {
         id: presetOut
@@ -1569,7 +1572,7 @@ PanelWindow {
     // How thick the pill is across (design pixels): the key, its padding and, on a
     // flat dock, its hard shadow underneath.
     readonly property real pillThickness: dockWindow.iconSize + dockWindow.pillPaddingV * 2
-                                          + (dockWindow.vertical ? 0 : Theme.shadowOffset)
+                                          + (dockWindow.vertical ? 0 : mt.shadowOffset)
     // ...and as the window sees it (real pixels): how far the strip reaches in from the edge.
     readonly property real stripSize: Math.round(dockWindow.pillThickness * dockWindow.uiScale)
     // The window is as big as the screen from the edge the pill is `lift` away from,
@@ -1641,7 +1644,7 @@ PanelWindow {
     // grown key still counts as "on the dock" (it would otherwise let go of the
     // pointer and shrink).
     readonly property real reach: (dockWindow.magOn && dockWindow.hovered)
-        ? (dockWindow.magMax - 1) * (dockWindow.iconSize + Theme.shadowOffset) + 8 : 0
+        ? (dockWindow.magMax - 1) * (dockWindow.iconSize + mt.shadowOffset) + 8 : 0
 
     // The pill, plus that reach on its inward side, in design pixels (the pill sits
     // inside a scaled ScaleHost; the mask below is in real window pixels).
@@ -1713,7 +1716,7 @@ PanelWindow {
         readonly property real slack: Math.round(8 * dockWindow.uiScale)
         readonly property real along: Math.min(dockWindow.vertical ? dockWindow.height : dockWindow.width,
             Math.ceil((dockWindow.rowLen + dockWindow.pillPaddingH * 2
-                       + (dockWindow.vertical ? Theme.shadowOffset : 0)) * dockWindow.uiScale) + slack * 2)
+                       + (dockWindow.vertical ? mt.shadowOffset : 0)) * dockWindow.uiScale) + slack * 2)
         width: on ? (dockWindow.vertical ? thick : along) : 1
         height: on ? (dockWindow.vertical ? along : thick) : 1
         x: on ? (dockWindow.vertical
@@ -1806,22 +1809,22 @@ PanelWindow {
                 // the Capsule bar's colours: Pill's `capRim` look, with a rim as
                 // thick as the bar's.
                 cornerRadius: dockWindow.look === "capsule"
-                    ? Math.min(dockPill.capWidth, dockPill.capHeight) / 2 : Theme.radiusOuter
+                    ? Math.min(dockPill.capWidth, dockPill.capHeight) / 2 : mt.radiusOuter
                 // Transparent: no background, only the keys.
                 bare: dockWindow.look === "transparent"
                 capRim: dockWindow.look === "capsule"
-                borderWidth: dockWindow.look === "capsule" ? Theme.capRimWidth : Theme.borderWidth
+                borderWidth: dockWindow.look === "capsule" ? mt.capRimWidth : mt.borderWidth
                 // Same navy-outline / pale-ring / white-fill construction as the
                 // bar's own background (Status_Bar.qml's bgShadow/bgFace/bgFill),
                 // just going through Pill's built-in ring. Pill's `ringWidth` is
                 // measured from the cap's outer edge (where the navy border sits),
                 // while Theme.outerRingWidth is the bar's *visible band* beyond that
                 // border — so it takes borderWidth on top to land on the same band.
-                ringWidth: dockWindow.look === "capsule" ? Theme.capRimWidth
-                    : Theme.borderWidth + Theme.outerRingWidth
-                ringColorTop: Theme.surfaceRing
-                ringColorBottom: Theme.surfaceRing
-                fillColor: Theme.surface
+                ringWidth: dockWindow.look === "capsule" ? mt.capRimWidth
+                    : mt.borderWidth + mt.outerRingWidth
+                ringColorTop: mt.surfaceRing
+                ringColorBottom: mt.surfaceRing
+                fillColor: mt.surface
 
                 // The row: every item placed by `rowPos` along it (this file does
                 // the layout, see the header).
@@ -1829,7 +1832,7 @@ PanelWindow {
                     id: dockRow
                     anchors.centerIn: parent
                     width: dockWindow.vertical ? dockWindow.iconSize : dockWindow.rowLen
-                    height: dockWindow.vertical ? dockWindow.rowLen : dockWindow.iconSize + Theme.shadowOffset
+                    height: dockWindow.vertical ? dockWindow.rowLen : dockWindow.iconSize + mt.shadowOffset
 
                     Repeater {
                         id: rowRepeater
@@ -2040,9 +2043,9 @@ PanelWindow {
                                 height: 13
                                 radius: 4
                                 rotation: 45
-                                color: Theme.accentMint
+                                color: mt.accentMint
                                 border.width: 2
-                                border.color: Theme.line
+                                border.color: mt.line
                             }
 
                             Text {
@@ -2050,11 +2053,11 @@ PanelWindow {
                                 width: Math.min(implicitWidth, 280)
                                 elide: Text.ElideRight
                                 text: dockWindow.cardName
-                                color: Theme.ink
-                                font.family: Theme.fontFamily
+                                color: mt.ink
+                                font.family: mt.fontFamily
                                 font.pixelSize: 17
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             Text {
@@ -2062,8 +2065,8 @@ PanelWindow {
                                 readonly property int n: dockWindow.cardInfo ? dockWindow.cardInfo.count : 0
                                 text: n > 1 ? n + " windows · scroll the key to flip" : ""
                                 visible: n > 1
-                                color: Theme.inkSub
-                                font.family: Theme.fontFamily
+                                color: mt.inkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 12
                                 font.weight: Font.Bold
                             }
@@ -2240,7 +2243,7 @@ PanelWindow {
             width: dockWindow.vertical ? dockWindow.iconSize : dockWindow.sizeOf(slot.modelData)
             readonly property bool longMedia: slot.isMedia && dockWindow.mediaWide
             height: dockWindow.vertical ? dockWindow.sizeOf(slot.modelData)
-                : (slot.longMedia ? dockWindow.mediaHeight : dockWindow.iconSize) + Theme.shadowOffset
+                : (slot.longMedia ? dockWindow.mediaHeight : dockWindow.iconSize) + mt.shadowOffset
             x: dockWindow.vertical ? 0 : slot.along0
             y: dockWindow.vertical ? slot.along0 : (slot.longMedia ? -dockWindow.mediaGrow : 0)
             // The key under the pointer (and the one being dragged) is above its
@@ -2343,7 +2346,7 @@ PanelWindow {
             // How far the key sticks out past the pill, design pixels: a lifted key
             // (no magnification) or a grown one.
             readonly property real pop: dockWindow.magOn
-                ? (slot.mag - 1) * (dockWindow.vertical ? dockWindow.iconSize : dockWindow.iconSize + Theme.shadowOffset)
+                ? (slot.mag - 1) * (dockWindow.vertical ? dockWindow.iconSize : dockWindow.iconSize + mt.shadowOffset)
                 : (slot.lit && slot.liftable ? 7 : 0)
 
             // Everything that moves is the tile. A key under the pointer lifts off the
@@ -2381,11 +2384,11 @@ PanelWindow {
                     x: -3
                     y: -2
                     width: slot.width
-                    height: slot.height - Theme.shadowOffset
-                    radius: dockWindow.capKeys ? height / 2 : Theme.radiusBadge
-                    color: dockWindow.capKeys ? Theme.capBody : Theme.surface
-                    border.width: dockWindow.capKeys ? Theme.capDotRing : Theme.borderWidth
-                    border.color: dockWindow.capKeys ? Theme.capRim : Theme.line
+                    height: slot.height - mt.shadowOffset
+                    radius: dockWindow.capKeys ? height / 2 : mt.radiusBadge
+                    color: dockWindow.capKeys ? mt.capBody : mt.surface
+                    border.width: dockWindow.capKeys ? mt.capDotRing : mt.borderWidth
+                    border.color: dockWindow.capKeys ? mt.capRim : mt.line
                     rotation: -10
                     antialiasing: true
                 }
@@ -2396,11 +2399,11 @@ PanelWindow {
                     x: 2
                     y: -3
                     width: slot.width
-                    height: slot.height - Theme.shadowOffset
-                    radius: dockWindow.capKeys ? height / 2 : Theme.radiusBadge
-                    color: dockWindow.capKeys ? Theme.capBody : Theme.surface
-                    border.width: dockWindow.capKeys ? Theme.capDotRing : Theme.borderWidth
-                    border.color: dockWindow.capKeys ? Theme.capRim : Theme.line
+                    height: slot.height - mt.shadowOffset
+                    radius: dockWindow.capKeys ? height / 2 : mt.radiusBadge
+                    color: dockWindow.capKeys ? mt.capBody : mt.surface
+                    border.width: dockWindow.capKeys ? mt.capDotRing : mt.borderWidth
+                    border.color: dockWindow.capKeys ? mt.capRim : mt.line
                     rotation: 7
                     antialiasing: true
                 }
@@ -2493,7 +2496,7 @@ PanelWindow {
                 borderWidth: 3
                 // The same outline + 2 px white line as every block (the calendar's
                 // prev / next keys): it was 3.5, a white line only half a pixel thick.
-                ringWidth: Theme.borderWidth + Theme.whiteLine
+                ringWidth: mt.borderWidth + mt.whiteLine
                 shadowDx: 3
                 shadowDy: 4
                 width: Math.max(flagTitle.width, flagHint.width) + 46
@@ -2524,9 +2527,9 @@ PanelWindow {
                         height: 10
                         radius: 3
                         rotation: 45
-                        color: slot.running ? Theme.accentMint : Theme.ringWhite
+                        color: slot.running ? mt.accentMint : mt.ringWhite
                         border.width: 2
-                        border.color: Theme.line
+                        border.color: mt.line
                     }
 
                     Column {
@@ -2538,11 +2541,11 @@ PanelWindow {
                             width: Math.min(implicitWidth, 210)
                             text: slot.modelData.displayName ?? ""
                             elide: Text.ElideRight
-                            color: Theme.ink
-                            font.family: Theme.fontFamily
+                            color: mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
 
                         Text {
@@ -2551,8 +2554,8 @@ PanelWindow {
                             width: visible ? implicitWidth : 0
                             height: visible ? implicitHeight : 0
                             text: flag.hint
-                            color: Theme.inkSub
-                            font.family: Theme.fontFamily
+                            color: mt.inkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 10
                             font.weight: Font.Bold
                         }
@@ -2574,11 +2577,11 @@ PanelWindow {
                     // clip / disc / mask below use the radius of the Pill's inner fill
                     // so the icon follows that shape.
                     // Capsule: a round chip, a thin ring, no outline, no hard shadow.
-                    cornerRadius: dockWindow.capKeys ? Math.min(iconPill.capWidth, iconPill.capHeight) / 2 : Theme.radiusBadge
+                    cornerRadius: dockWindow.capKeys ? Math.min(iconPill.capWidth, iconPill.capHeight) / 2 : mt.radiusBadge
                     ringWidth: dockWindow.keyRing
-                    borderWidth: dockWindow.capKeys ? 0 : Theme.borderWidth
+                    borderWidth: dockWindow.capKeys ? 0 : mt.borderWidth
                     flat: dockWindow.capKeys
-                    fillColor: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                    fillColor: dockWindow.capKeys ? mt.capBody : mt.surface
                     // The ring is lit mint-to-cyan under the pointer and on the key that
                     // is held down; plain white otherwise.
                     readonly property bool on: slot.lit || slot.focused
@@ -2626,7 +2629,7 @@ PanelWindow {
                         Rectangle {
                             anchors.fill: parent
                             radius: iconClip.shapeRadius
-                            color: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                            color: dockWindow.capKeys ? mt.capBody : mt.surface
                             antialiasing: true
                         }
 
@@ -2699,11 +2702,11 @@ PanelWindow {
                 Pill {
                     id: folderPill
                     anchors.fill: parent
-                    cornerRadius: dockWindow.capKeys ? Math.min(folderPill.capWidth, folderPill.capHeight) / 2 : Theme.radiusBadge
+                    cornerRadius: dockWindow.capKeys ? Math.min(folderPill.capWidth, folderPill.capHeight) / 2 : mt.radiusBadge
                     ringWidth: dockWindow.keyRing
-                    borderWidth: dockWindow.capKeys ? 0 : Theme.borderWidth
+                    borderWidth: dockWindow.capKeys ? 0 : mt.borderWidth
                     flat: dockWindow.capKeys
-                    fillColor: dockWindow.capKeys ? Theme.capBody : Theme.surfaceDivider
+                    fillColor: dockWindow.capKeys ? mt.capBody : mt.surfaceDivider
                     readonly property bool on: slot.lit || slot.focused
                     ringColorTop: dockWindow.ringTop(folderPill.on)
                     ringColorBottom: dockWindow.ringBottom(folderPill.on)
@@ -2745,9 +2748,9 @@ PanelWindow {
                     readonly property bool on: slot.lit || dockWindow.dockPinned
                     cornerRadius: capHeight / 2
                     ringWidth: dockWindow.keyRing
-                    borderWidth: dockWindow.capKeys ? 0 : Theme.borderWidth
+                    borderWidth: dockWindow.capKeys ? 0 : mt.borderWidth
                     flat: dockWindow.capKeys
-                    fillColor: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                    fillColor: dockWindow.capKeys ? mt.capBody : mt.surface
                     ringColorTop: dockWindow.ringTop(on)
                     ringColorBottom: dockWindow.ringBottom(on)
                     pressed: slot.pressedNow
@@ -2755,7 +2758,7 @@ PanelWindow {
                     MaterialIcon {
                         anchors.centerIn: parent
                         name: "push_pin"
-                        color: dockWindow.capKeys ? Theme.capInk : Theme.ink
+                        color: dockWindow.capKeys ? mt.capInk : mt.ink
                         size: Math.max(16, dockWindow.iconSize * 0.57)
                         // Upright when pinned, tilted when not; always outline (the lit
                         // ring says pinned / hovered).
@@ -2775,11 +2778,11 @@ PanelWindow {
                     readonly property string tool: slot.modelData.tool
                     readonly property bool timing: tool === "timer" && TimerService.anyRunning
                     readonly property bool on: slot.lit || dockWindow.toolOpen === tool || timing || shelfDrop.containsDrag
-                    cornerRadius: dockWindow.capKeys ? Math.min(toolPill.capWidth, toolPill.capHeight) / 2 : Theme.radiusBadge
+                    cornerRadius: dockWindow.capKeys ? Math.min(toolPill.capWidth, toolPill.capHeight) / 2 : mt.radiusBadge
                     ringWidth: dockWindow.keyRing
-                    borderWidth: dockWindow.capKeys ? 0 : Theme.borderWidth
+                    borderWidth: dockWindow.capKeys ? 0 : mt.borderWidth
                     flat: dockWindow.capKeys
-                    fillColor: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                    fillColor: dockWindow.capKeys ? mt.capBody : mt.surface
                     ringColorTop: dockWindow.ringTop(toolPill.on)
                     ringColorBottom: dockWindow.ringBottom(toolPill.on)
                     pressed: slot.pressedNow || dockWindow.toolOpen === toolPill.tool
@@ -2801,7 +2804,7 @@ PanelWindow {
                         ShapePath {
                             strokeWidth: 0
                             strokeColor: "transparent"
-                            fillColor: Qt.rgba(Theme.capLit.r, Theme.capLit.g, Theme.capLit.b, 0.55)
+                            fillColor: Qt.rgba(mt.capLit.r, mt.capLit.g, mt.capLit.b, 0.55)
                             PathAngleArc {
                                 centerX: capFill.width / 2
                                 centerY: capFill.height / 2
@@ -2821,14 +2824,14 @@ PanelWindow {
                         anchors.bottom: parent.bottom
                         height: parent.height * TimerService.shownProgress
                         radius: 4
-                        color: Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, 0.55)
+                        color: Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, 0.55)
                     }
 
                     MaterialIcon {
                         visible: !toolPill.timing
                         anchors.centerIn: parent
                         name: (dockWindow.toolMeta[toolPill.tool] ?? { icon: "build" }).icon
-                        color: dockWindow.capKeys ? Theme.capInk : Theme.ink
+                        color: dockWindow.capKeys ? mt.capInk : mt.ink
                         size: Math.max(16, dockWindow.iconSize * 0.57)
                         // Always outline: hover / open / drop is shown by the lit ring
                         // and the pressed key, not by filling the glyph.
@@ -2839,11 +2842,11 @@ PanelWindow {
                         visible: toolPill.timing
                         anchors.centerIn: parent
                         text: TimerService.shownText
-                        color: dockWindow.capKeys ? Theme.capInk : Theme.ink
-                        font.family: Theme.fontFamily
+                        color: dockWindow.capKeys ? mt.capInk : mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: Math.max(9, dockWindow.iconSize * 0.3)
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     DropArea {
@@ -2876,11 +2879,11 @@ PanelWindow {
                     // Capsule: fully rounded, flat, in the capsule keys' thin ring (and the cover
                     // is a circle that fills its left end); the other styles keep the rounded
                     // rectangle with the cover cut square at its left.
-                    cornerRadius: dockWindow.capKeys ? Math.min(widePill.capWidth, widePill.capHeight) / 2 : Theme.radiusBadge
+                    cornerRadius: dockWindow.capKeys ? Math.min(widePill.capWidth, widePill.capHeight) / 2 : mt.radiusBadge
                     ringWidth: dockWindow.mediaRing
-                    borderWidth: dockWindow.capKeys ? 0 : Theme.borderWidth
+                    borderWidth: dockWindow.capKeys ? 0 : mt.borderWidth
                     flat: dockWindow.capKeys
-                    fillColor: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                    fillColor: dockWindow.capKeys ? mt.capBody : mt.surface
                     readonly property bool on: slot.lit || media.playing
                     ringColorTop: dockWindow.ringTop(widePill.on)
                     ringColorBottom: dockWindow.ringBottom(widePill.on)
@@ -2889,8 +2892,8 @@ PanelWindow {
 
                     // The right side shows the blurred cover: text and buttons go white on it.
                     readonly property bool onArt: blurCover.status === Image.Ready
-                    readonly property color textColor: widePill.onArt ? "white" : Theme.ink
-                    readonly property color subColor: widePill.onArt ? Qt.rgba(1, 1, 1, 0.82) : Theme.inkSub
+                    readonly property color textColor: widePill.onArt ? "white" : mt.ink
+                    readonly property color subColor: widePill.onArt ? Qt.rgba(1, 1, 1, 0.82) : mt.inkSub
 
                     readonly property real innerH: dockWindow.mediaInnerH
                     readonly property bool compact: widePill.innerH < 40
@@ -2950,7 +2953,7 @@ PanelWindow {
 
                             Rectangle {
                                 anchors.fill: parent
-                                color: Theme.surfaceDivider
+                                color: mt.surfaceDivider
                             }
 
                             MaterialIcon {
@@ -3054,11 +3057,11 @@ PanelWindow {
                             // text on it reads, plus a touch of the theme's cyan.
                             Rectangle {
                                 anchors.fill: parent
-                                color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.38)
+                                color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.38)
                             }
                             Rectangle {
                                 anchors.fill: parent
-                                color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.08)
+                                color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.08)
                             }
                         }
 
@@ -3113,10 +3116,10 @@ PanelWindow {
                                 height: dockWindow.mediaBtn
                                 radius: width / 2
                                 antialiasing: true
-                                color: wideBtn.isPlay ? Theme.accentCyan
-                                    : (wideBtn.hot ? (widePill.onArt ? Qt.rgba(1, 1, 1, 0.24) : Theme.surfaceDivider) : "transparent")
+                                color: wideBtn.isPlay ? mt.accentCyan
+                                    : (wideBtn.hot ? (widePill.onArt ? Qt.rgba(1, 1, 1, 0.24) : mt.surfaceDivider) : "transparent")
                                 border.width: wideBtn.isPlay ? 2 : 0
-                                border.color: Theme.line
+                                border.color: mt.line
                                 scale: wideBtn.down ? 0.88 : (wideBtn.hot ? 1.08 : 1)
 
                                 Behavior on scale {
@@ -3131,7 +3134,7 @@ PanelWindow {
                                     name: wideBtn.glyph
                                     size: Math.round(parent.width * 0.64)
                                     fill: 0
-                                    color: wideBtn.isPlay ? Theme.colBorder : widePill.textColor
+                                    color: wideBtn.isPlay ? mt.colBorder : widePill.textColor
                                 }
                             }
                         }
@@ -3151,10 +3154,10 @@ PanelWindow {
                             elide: Text.ElideRight
                             text: media.title
                             color: widePill.textColor
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: Math.max(10, Math.round(widePill.innerH * 0.28))
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
 
                         Text {
@@ -3163,7 +3166,7 @@ PanelWindow {
                             elide: Text.ElideRight
                             text: media.artist
                             color: widePill.subColor
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: Math.max(9, Math.round(widePill.innerH * 0.21))
                             font.weight: Font.Bold
                         }
@@ -3173,13 +3176,13 @@ PanelWindow {
                             width: parent.width
                             height: 4
                             radius: 2
-                            color: widePill.onArt ? Qt.rgba(1, 1, 1, 0.3) : Theme.surfaceDivider
+                            color: widePill.onArt ? Qt.rgba(1, 1, 1, 0.3) : mt.surfaceDivider
 
                             Rectangle {
                                 width: parent.width * widePill.progress
                                 height: parent.height
                                 radius: parent.radius
-                                color: Theme.accentMint
+                                color: mt.accentMint
                             }
                         }
                     }
@@ -3193,11 +3196,11 @@ PanelWindow {
 
                 Pill {
                     id: mediaPill
-                    cornerRadius: dockWindow.capKeys ? Math.min(mediaPill.capWidth, mediaPill.capHeight) / 2 : Theme.radiusBadge
+                    cornerRadius: dockWindow.capKeys ? Math.min(mediaPill.capWidth, mediaPill.capHeight) / 2 : mt.radiusBadge
                     ringWidth: dockWindow.keyRing
-                    borderWidth: dockWindow.capKeys ? 0 : Theme.borderWidth
+                    borderWidth: dockWindow.capKeys ? 0 : mt.borderWidth
                     flat: dockWindow.capKeys
-                    fillColor: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                    fillColor: dockWindow.capKeys ? mt.capBody : mt.surface
                     readonly property bool on: slot.lit || media.playing
                     ringColorTop: dockWindow.ringTop(mediaPill.on)
                     ringColorBottom: dockWindow.ringBottom(mediaPill.on)
@@ -3207,7 +3210,7 @@ PanelWindow {
                         id: coverBox
                         anchors.fill: parent
                         radius: Math.max(0, mediaPill.cornerRadius - mediaPill.ringWidth)
-                        color: Theme.surfaceDivider
+                        color: mt.surfaceDivider
                         antialiasing: true
 
                         readonly property real texel: dockWindow.uiScale
@@ -3247,7 +3250,7 @@ PanelWindow {
                                 anchors.centerIn: parent
                                 visible: cover.status !== Image.Ready
                                 name: "genres"
-                                color: dockWindow.capKeys ? Theme.capInk : Theme.ink
+                                color: dockWindow.capKeys ? mt.capInk : mt.ink
                                 size: Math.max(16, dockWindow.iconSize * 0.55)
                             }
                         }
@@ -3280,15 +3283,15 @@ PanelWindow {
                             width: 15
                             height: 15
                             radius: 7.5
-                            color: dockWindow.capKeys ? Theme.capBody : Theme.surface
+                            color: dockWindow.capKeys ? mt.capBody : mt.surface
                             border.width: 1.5
-                            border.color: dockWindow.capKeys ? Theme.capRim : Theme.line
+                            border.color: dockWindow.capKeys ? mt.capRim : mt.line
                             antialiasing: true
 
                             MaterialIcon {
                                 anchors.centerIn: parent
                                 name: media.playing ? "pause" : "play_arrow"
-                                color: dockWindow.capKeys ? Theme.capInk : Theme.ink
+                                color: dockWindow.capKeys ? mt.capInk : mt.ink
                                 size: 11
                                 fill: 1
                             }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import "PadMath.js" as PM
 import qs.modules.common
@@ -17,6 +18,9 @@ import qs.modules.common
 // shelf, SAVE AS and setup.
 Item {
     id: scr
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property real renderScale: 1
@@ -167,7 +171,7 @@ Item {
             ctx.fillRect(0, 232.5, 460, 2)
             ctx.restore()
 
-            ctx.font = "700 8px '" + Theme.fontFamily + "'"
+            ctx.font = "700 8px '" + mt.fontFamily + "'"
             ctx.textAlign = "left"
             ctx.fillStyle = "rgba(255,255,255,0.55)"
             ctx.fillText("+12", 3, 44)
@@ -343,7 +347,7 @@ Item {
                 ctx.strokeStyle = isel ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.22)"
                 ctx.lineWidth = 1
                 ctx.stroke()
-                ctx.font = "700 11px '" + Theme.fontFamily + "'"
+                ctx.font = "700 11px '" + mt.fontFamily + "'"
                 ctx.textAlign = "center"
                 ctx.fillStyle = PM.css(PadPalette.groupsLight[gj])
                 ctx.fillText(PM.LABELS[i], tx, 255.5)
@@ -366,7 +370,7 @@ Item {
             ctx.strokeStyle = "rgba(255,255,255,0.4)"
             ctx.lineWidth = 1
             ctx.stroke()
-            ctx.font = "700 11px '" + Theme.fontFamily + "'"
+            ctx.font = "700 11px '" + mt.fontFamily + "'"
             ctx.fillStyle = "#ffffff"
             ctx.fillText(PM.HZ[info] + "  " + (gv > 0 ? "+" : (gv < 0 ? "\u2212" : "")) + Math.abs(gv) + " dB", bx, by + 16)
         }
@@ -458,7 +462,7 @@ Item {
                 text: "\u2605 AUTO"
                 color: scr.eq.autoEnabled ? PadPalette.ink : "#ffffff"
                 opacity: scr.eq.autoEnabled ? 1 : 0.75
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(9.5)
                 font.weight: Font.ExtraBold
             }
@@ -480,7 +484,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             text: scr.eq.presetName.toUpperCase()
             color: "#ffffff"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: scr.d(16)
             font.weight: Font.Bold
             font.letterSpacing: scr.d(1)
@@ -528,7 +532,7 @@ Item {
             text: "VOL"
             color: "#ffffff"
             opacity: 0.8
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: scr.d(9)
             font.weight: Font.Bold
         }
@@ -557,7 +561,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             text: (scr.eq.preamp > 0 ? "+" : "") + Math.round(scr.eq.preamp)
             color: "#ffffff"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: scr.d(9)
             font.weight: Font.Bold
         }
@@ -625,7 +629,7 @@ Item {
                 text: "PRESETS"
                 color: "#ffffff"
                 opacity: 0.7
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
                 font.weight: Font.Bold
                 font.letterSpacing: scr.d(1.5)
@@ -664,7 +668,7 @@ Item {
                 text: "Click a preset to load it." + (scr.eq.customNames.length > 0 ? " Right click one of yours (\u2605) to delete it." : "")
                 color: "#ffffff"
                 opacity: 0.5
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
             }
         }
@@ -678,7 +682,7 @@ Item {
                 text: "NAME THIS CURVE"
                 color: "#ffffff"
                 opacity: 0.7
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
                 font.weight: Font.Bold
                 font.letterSpacing: scr.d(1.5)
@@ -722,7 +726,7 @@ Item {
                 text: "EASYEFFECTS PRESET"
                 color: "#ffffff"
                 opacity: 0.7
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
                 font.weight: Font.Bold
                 font.letterSpacing: scr.d(1.5)
@@ -773,7 +777,7 @@ Item {
                     : "The equalizer is merged into the one you pick; a new preset replaces what is live in EasyEffects."
                 color: scr.eq.needsManualSave ? PadPalette.warn : "#ffffff"
                 opacity: scr.eq.needsManualSave ? 1 : 0.5
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
             }
             Text {
@@ -781,7 +785,7 @@ Item {
                 text: "LAST.FM KEY (for AUTO)"
                 color: "#ffffff"
                 opacity: 0.7
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
                 font.weight: Font.Bold
                 font.letterSpacing: scr.d(1.5)
@@ -811,7 +815,7 @@ Item {
                 text: "Free at last.fm/api/account/create. If typing does nothing: qs -c sekaipop ipc call eq lastfmKey <key>"
                 color: "#ffffff"
                 opacity: 0.5
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: scr.d(10)
             }
         }

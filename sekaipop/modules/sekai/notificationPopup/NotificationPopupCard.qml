@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Widgets
 import qs.modules.common
 import qs.modules.common.widgets
@@ -47,6 +48,9 @@ import "../../common/functions/NotifyKinds.js" as NK
 Item {
     id: card
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // MaterialIcon asks for this to use the panel's colours.
     readonly property bool classicPanel: true
 
@@ -83,15 +87,15 @@ Item {
     // itself (a screenshot, a recording, a timer ...): its icon is a ShellBadge
     // and the plate wears that badge's attribute colour.
     readonly property bool shell: card.materialIcon
-    readonly property color kindColor: Theme.attributeColors[NK.index(card.icon.substring(9))]
+    readonly property color kindColor: mt.attributeColors[NK.index(card.icon.substring(9))]
 
     // The plate's colours: the theme's accents, the kind's colour for the
     // shell's own, or the panel's pink when critical.
     readonly property color plateTop: card.critical ? "#FFB3D1"
-        : (card.shell ? Qt.lighter(card.kindColor, 1.05) : Theme.accentMint)
+        : (card.shell ? Qt.lighter(card.kindColor, 1.05) : mt.accentMint)
     readonly property color plateBottom: card.critical ? "#FF6F9C"
-        : (card.shell ? Qt.darker(card.kindColor, 1.22) : Theme.accentCyan)
-    readonly property color navy: Theme.colBorder
+        : (card.shell ? Qt.darker(card.kindColor, 1.22) : mt.accentCyan)
+    readonly property color navy: mt.colBorder
     readonly property color stickerShadow: Qt.rgba(card.navy.r, card.navy.g, card.navy.b, 0.5)
 
     signal closed()
@@ -232,7 +236,7 @@ Item {
                     // Pointer on the card: a faint wash of the accent.
                     Rectangle {
                         anchors.fill: parent
-                        color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.12)
+                        color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.12)
                         opacity: area.containsMouse ? 1 : 0
                         Behavior on opacity {
                             NumberAnimation { duration: 140 }
@@ -394,7 +398,7 @@ Item {
                     height: 20
                     width: Math.min(appText.implicitWidth + 18, card.faceW - card.textX - 110)
                     radius: 10
-                    color: Theme.chipFill
+                    color: mt.chipFill
                     antialiasing: true
 
                     Text {
@@ -405,11 +409,11 @@ Item {
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
                         text: card.app
-                        color: Theme.chipInk
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -424,15 +428,15 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         lit: true
                         size: 9
-                        litColor: card.critical ? "#FF6F9C" : Theme.accentMint
+                        litColor: card.critical ? "#FF6F9C" : mt.accentMint
                         lineColor: card.navy
                     }
 
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "now"
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.Medium
                     }
@@ -444,11 +448,11 @@ Item {
                     width: card.faceW - card.textX - 20
                     elide: Text.ElideRight
                     text: card.title
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 19
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -461,8 +465,8 @@ Item {
                     maximumLineCount: 2
                     elide: Text.ElideRight
                     lineHeight: 0.92
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                 }
             }
@@ -471,8 +475,8 @@ Item {
             // gradient (pink when critical).
             Gradient {
                 id: bodyGradient
-                GradientStop { position: 0.0; color: Theme.pSurface }
-                GradientStop { position: 1.0; color: Theme.pSurfaceHover }
+                GradientStop { position: 0.0; color: mt.pSurface }
+                GradientStop { position: 1.0; color: mt.pSurfaceHover }
             }
             Gradient {
                 id: plateGradient

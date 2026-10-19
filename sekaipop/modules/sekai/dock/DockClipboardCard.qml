@@ -86,19 +86,19 @@ DockCard {
             height: 13
             radius: 4
             rotation: 45
-            color: Theme.accentMint
+            color: mt.accentMint
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
         }
 
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: "Clipboard"
-            color: Theme.ink
-            font.family: Theme.fontFamily
+            color: mt.ink
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -111,8 +111,8 @@ DockCard {
         text: root.missing
             ? "Needs cliphist and wl-clipboard installed."
             : "Nothing copied yet."
-        color: Theme.inkSub
-        font.family: Theme.fontFamily
+        color: mt.inkSub
+        font.family: mt.fontFamily
         font.pixelSize: 14
         font.weight: Font.Bold
     }
@@ -137,7 +137,7 @@ DockCard {
                     anchors.fill: parent
                     radius: 10
                     color: area.containsMouse
-                        ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, area.pressed ? 0.34 : 0.2)
+                        ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, area.pressed ? 0.34 : 0.2)
                         : "transparent"
                     antialiasing: true
 
@@ -160,8 +160,8 @@ DockCard {
                     elide: Text.ElideRight
                     maximumLineCount: 1
                     text: row.modelData.image ? X.imageLabel(row.modelData.preview) : row.modelData.preview.replace(/\s+/g, " ").trim()
-                    color: Theme.ink
-                    font.family: Theme.fontFamily
+                    color: mt.ink
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.Bold
                 }
@@ -181,9 +181,9 @@ DockCard {
                     width: 26
                     height: 26
                     radius: 8
-                    color: Theme.surface
+                    color: mt.surface
                     border.width: 2
-                    border.color: delArea.containsMouse ? "#e0575b" : Theme.line
+                    border.color: delArea.containsMouse ? "#e0575b" : mt.line
                     opacity: area.containsMouse || delArea.containsMouse ? 1 : 0
                     visible: opacity > 0.01
                     antialiasing: true

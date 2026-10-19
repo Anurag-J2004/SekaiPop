@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "PadMath.js" as PM
 import qs.modules.common
 
@@ -8,6 +9,9 @@ import qs.modules.common
 // vector is fixed, so it is only redrawn if the render scale changes.
 Item {
     id: pad
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property real kx: 0.30
@@ -126,7 +130,7 @@ Item {
             text: modelData.g
             color: held ? "#ffffff" : PadPalette.arrow
             opacity: held ? 1 : 0.85
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 13 * pad.u
             font.weight: Font.Bold
         }

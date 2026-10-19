@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Shapes
 import qs.modules.common
 
@@ -14,9 +15,12 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string name: "cloud"
     property real size: 24
-    property color color: Theme.ink
+    property color color: mt.ink
     // The stroke in real pixels; thin sizes get proportionally more.
     property real stroke: Math.max(1.8, root.size * 0.07)
 

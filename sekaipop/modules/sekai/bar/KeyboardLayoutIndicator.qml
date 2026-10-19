@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -9,6 +10,9 @@ import qs.modules.common.widgets
 // something to switch between. Click cycles to the next layout.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string layoutCode: ""
 
@@ -21,8 +25,8 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
-        fillColor: Theme.chipFill
+        cornerRadius: mt.radiusBadge
+        fillColor: mt.chipFill
         pressed: area.pressed
         implicitWidth: label.implicitWidth + (pill.capsule ? 20 : 28)
 
@@ -30,11 +34,11 @@ Item {
             id: label
             anchors.centerIn: parent
             text: root.layoutCode
-            color: Theme.chipInk
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeInfo
+            color: mt.chipInk
+            font.family: mt.fontFamily
+            font.pixelSize: mt.fontSizeInfo
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 

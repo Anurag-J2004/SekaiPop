@@ -43,6 +43,9 @@ import "../../common/functions/PaletteMath.js" as PM
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         PaletteService.posX = -1;
         PaletteService.posY = -1;
@@ -414,10 +417,10 @@ PanelWindow {
                 readonly property bool small: PaletteService.small
                 readonly property int contentW: card.small ? 286 : 396
                 readonly property int contentH: card.small ? 238 : col.implicitHeight
-                readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 10
+                readonly property int inset: mt.borderWidth + mt.outerRingWidth + 10
 
                 width: card.contentW + card.inset * 2
-                height: card.contentH + card.inset * 2 + Theme.shadowOffset
+                height: card.contentH + card.inset * 2 + mt.shadowOffset
 
                 scale: Math.max(0, win.reveal) * (win.placed ? 1 : 0)
                 opacity: win.reveal > 0.001 ? 1 : 0
@@ -443,11 +446,11 @@ PanelWindow {
                 // as the bar, the dock, the To-Do card and the clock.
                 Pill {
                     anchors.fill: parent
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-                    ringColorTop: Theme.pSurfaceRing
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth + mt.outerRingWidth
+                    ringColorTop: mt.pSurfaceRing
                     ringColorBottom: ringColorTop
-                    fillColor: Theme.pSurface
+                    fillColor: mt.pSurface
                 }
 
                 // Edit Desktop: outline, corner diamonds, a tag and a drag shield
@@ -531,17 +534,17 @@ PanelWindow {
                                     anchors.verticalCenter: parent.verticalCenter
                                     name: "palette"
                                     size: 24
-                                    color: Theme.pInk
+                                    color: mt.pInk
                                 }
 
                                 Text {
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: "Palette"
-                                    color: Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: card.small ? 18 : 20
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                             }
 
@@ -557,9 +560,9 @@ PanelWindow {
                                     width: statusRow.implicitWidth + 18
                                     radius: 13
                                     antialiasing: true
-                                    color: PaletteService.applied ? Theme.accentMint : Theme.surfaceHover
+                                    color: PaletteService.applied ? mt.accentMint : mt.surfaceHover
                                     border.width: 2
-                                    border.color: Theme.line
+                                    border.color: mt.line
 
                                     Behavior on color { ColorAnimation { duration: 200 } }
 
@@ -572,17 +575,17 @@ PanelWindow {
                                             anchors.verticalCenter: parent.verticalCenter
                                             name: PaletteService.applied ? "check_circle" : "visibility"
                                             size: 15
-                                            color: PaletteService.applied ? Theme.colBorder : Theme.ink
+                                            color: PaletteService.applied ? mt.colBorder : mt.ink
                                         }
 
                                         Text {
                                             anchors.verticalCenter: parent.verticalCenter
                                             text: PaletteService.applied ? "Applied" : "Preview only"
-                                            color: PaletteService.applied ? Theme.colBorder : Theme.ink
-                                            font.family: Theme.fontFamily
+                                            color: PaletteService.applied ? mt.colBorder : mt.ink
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 11
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                     }
                                 }
@@ -595,9 +598,9 @@ PanelWindow {
                                     height: 28
                                     radius: 14
                                     antialiasing: true
-                                    color: expandMouse.containsMouse ? Theme.surfaceTint : Theme.surfaceHover
+                                    color: expandMouse.containsMouse ? mt.surfaceTint : mt.surfaceHover
                                     border.width: 2
-                                    border.color: Theme.line
+                                    border.color: mt.line
 
                                     Behavior on color { ColorAnimation { duration: 120 } }
 
@@ -605,7 +608,7 @@ PanelWindow {
                                         anchors.centerIn: parent
                                         name: "open_in_full"
                                         size: 15
-                                        color: Theme.ink
+                                        color: mt.ink
                                     }
 
                                     MouseArea {
@@ -645,8 +648,8 @@ PanelWindow {
                             visible: !card.small
                             width: parent.width
                             elide: Text.ElideRight
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.Bold
                             text: win.note
@@ -740,8 +743,8 @@ PanelWindow {
 
                             Text {
                                 text: "FAVOURITES" + (PaletteService.favorites.length > 0 ? " (" + PaletteService.favorites.length + ")" : "")
-                                color: Theme.pInkSub
-                                font.family: Theme.fontFamily
+                                color: mt.pInkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 10
                                 font.weight: Font.ExtraBold
                                 font.letterSpacing: 0.8
@@ -752,8 +755,8 @@ PanelWindow {
                                 width: parent.width
                                 text: "Press Save to keep a palette here."
                                 wrapMode: Text.WordWrap
-                                color: Theme.pInkSub
-                                font.family: Theme.fontFamily
+                                color: mt.pInkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.Bold
                             }
@@ -773,7 +776,7 @@ PanelWindow {
                                 WheelHandler {
                                     acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                                     onWheel: event => {
-                                        const d = Theme.wheelPx(event, true)
+                                        const d = mt.wheelPx(event, true)
                                         favFlick.contentX = Math.max(0, Math.min(Math.max(0, favFlick.contentWidth - favFlick.width), favFlick.contentX - d))
                                     }
                                 }

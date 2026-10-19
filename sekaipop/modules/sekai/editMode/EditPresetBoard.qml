@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Effects
 import qs.services
 import qs.modules.common
@@ -37,6 +38,9 @@ import qs.modules.common.widgets
 // (the tick badge pokes out above the tile).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     readonly property real tileW: 150
     readonly property real tileH: 138
@@ -82,6 +86,9 @@ Item {
     component NewTile: Item {
         id: nt
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property bool naming: false
 
         width: root.tileW
@@ -89,8 +96,8 @@ Item {
 
         Gradient {
             id: onFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         function begin() {
@@ -133,7 +140,7 @@ Item {
             shadowDx: 0
             shadowDy: 4
             pressed: addArea.pressed && !nt.naming
-            fillColor: addArea.containsMouse && !nt.naming ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: addArea.containsMouse && !nt.naming ? mt.pSurfaceHover : mt.pSurface
 
             Behavior on y {
                 NumberAnimation {
@@ -156,7 +163,7 @@ Item {
                     radius: 27
                     gradient: onFill
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MaterialIcon {
@@ -164,18 +171,18 @@ Item {
                         name: "add"
                         size: 32
                         weight: 700
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                 }
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "SAVE THIS LOOK"
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.6
                 }
             }
@@ -190,11 +197,11 @@ Item {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "NAME IT"
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.8
                 }
 
@@ -202,9 +209,9 @@ Item {
                     width: parent.width
                     height: 34
                     radius: 11
-                    color: Theme.chipFill
+                    color: mt.chipFill
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MouseArea {
@@ -222,13 +229,13 @@ Item {
                         clip: true
                         maximumLength: 40
                         selectByMouse: true
-                        color: Theme.chipInk
-                        selectionColor: Theme.accentCyan
-                        selectedTextColor: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        selectionColor: mt.accentCyan
+                        selectedTextColor: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
 
                         Keys.onReturnPressed: nt.commit()
                         Keys.onEnterPressed: nt.commit()
@@ -242,8 +249,8 @@ Item {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "Enter: save   Esc: cancel"
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 10
                     font.weight: Font.DemiBold
                 }
@@ -260,18 +267,18 @@ Item {
             radius: 11
             color: "#ffd04a"
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             Text {
                 id: unsavedText
                 anchors.centerIn: parent
                 text: "NOT SAVED"
-                color: Theme.colBorder
-                font.family: Theme.fontFamily
+                color: mt.colBorder
+                font.family: mt.fontFamily
                 font.pixelSize: 9
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 0.5
             }
         }
@@ -291,6 +298,9 @@ Item {
     component UndoTile: Item {
         id: ut
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string icon: "undo"
         property string title: ""
         property string sub: ""
@@ -308,7 +318,7 @@ Item {
             shadowDx: 0
             shadowDy: 4
             pressed: undoArea.pressed
-            fillColor: undoArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: undoArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
 
             Behavior on y {
                 NumberAnimation {
@@ -328,9 +338,9 @@ Item {
                     width: 54
                     height: 54
                     radius: 27
-                    color: Theme.chipFill
+                    color: mt.chipFill
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MaterialIcon {
@@ -338,18 +348,18 @@ Item {
                         name: ut.icon
                         size: 30
                         weight: 700
-                        color: Theme.chipInk
+                        color: mt.chipInk
                     }
                 }
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: ut.title
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.6
                 }
 
@@ -358,8 +368,8 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                     text: ut.sub
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 10
                     font.weight: Font.DemiBold
                 }
@@ -380,6 +390,9 @@ Item {
     component PresetTile: Item {
         id: tile
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         required property var entry
 
         readonly property var d: entry.data
@@ -395,8 +408,8 @@ Item {
 
         Gradient {
             id: onFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         // "" | "overwrite" | "delete": the button that was pressed once and
@@ -504,7 +517,7 @@ Item {
             shadowDx: 0
             shadowDy: 4
             pressed: tileArea.pressed
-            fillColor: tileArea.containsMouse && !tile.selected ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: tileArea.containsMouse && !tile.selected ? mt.pSurfaceHover : mt.pSurface
             fillGradient: tile.selected ? onFill : null
 
             Behavior on y {
@@ -681,10 +694,10 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: "DELETE?"
                             color: "#ffffff"
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: 12
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 0.8
                         }
 
@@ -692,7 +705,7 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: "right click again"
                             color: "#ffffff"
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: 10
                             font.weight: Font.DemiBold
                         }
@@ -710,9 +723,9 @@ Item {
                     width: 22
                     height: 22
                     radius: 11
-                    color: renameArea.containsMouse ? Theme.accentMint : Theme.chipFill
+                    color: renameArea.containsMouse ? mt.accentMint : mt.chipFill
                     border.width: 2
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MaterialIcon {
@@ -720,7 +733,7 @@ Item {
                         name: "edit"
                         size: 13
                         weight: 700
-                        color: renameArea.containsMouse ? Theme.colBorder : Theme.chipInk
+                        color: renameArea.containsMouse ? mt.colBorder : mt.chipInk
                     }
 
                     MouseArea {
@@ -743,9 +756,9 @@ Item {
                     width: overRow.width + 14
                     height: 22
                     radius: 11
-                    color: tile.armed === "overwrite" ? "#d83a5c" : Theme.chipFill
+                    color: tile.armed === "overwrite" ? "#d83a5c" : mt.chipFill
                     border.width: 2
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     Row {
@@ -758,17 +771,17 @@ Item {
                             name: "sync"
                             size: 13
                             weight: 700
-                            color: tile.armed === "overwrite" ? "#ffffff" : Theme.chipInk
+                            color: tile.armed === "overwrite" ? "#ffffff" : mt.chipInk
                         }
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: tile.armed === "overwrite" ? "SURE?" : "SAVE OVER"
-                            color: tile.armed === "overwrite" ? "#ffffff" : Theme.chipInk
-                            font.family: Theme.fontFamily
+                            color: tile.armed === "overwrite" ? "#ffffff" : mt.chipInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 9
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 0.5
                         }
                     }
@@ -801,9 +814,9 @@ Item {
                 width: pic.width
                 height: 26
                 radius: 9
-                color: Theme.chipFill
+                color: mt.chipFill
                 border.width: 3
-                border.color: tile.nameBad ? "#d83a5c" : Theme.pLine
+                border.color: tile.nameBad ? "#d83a5c" : mt.pLine
                 antialiasing: true
 
                 // Catches the clicks on the field's rim, which would otherwise wear
@@ -823,13 +836,13 @@ Item {
                     clip: true
                     maximumLength: 40
                     selectByMouse: true
-                    color: tile.nameBad ? "#d83a5c" : Theme.chipInk
-                    selectionColor: Theme.accentCyan
-                    selectedTextColor: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: tile.nameBad ? "#d83a5c" : mt.chipInk
+                    selectionColor: mt.accentCyan
+                    selectedTextColor: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
 
                     onTextChanged: tile.nameBad = false
 
@@ -850,11 +863,11 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
                 text: tile.entry.name
-                color: tile.selected ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
+                color: tile.selected ? mt.colBorder : mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -871,9 +884,9 @@ Item {
             width: 24
             height: 24
             radius: 12
-            color: tile.favorite ? "#ffd04a" : (starArea.containsMouse ? Theme.accentMint : Theme.chipFill)
+            color: tile.favorite ? "#ffd04a" : (starArea.containsMouse ? mt.accentMint : mt.chipFill)
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             MaterialIcon {
@@ -882,7 +895,7 @@ Item {
                 size: 15
                 weight: 700
                 fill: tile.favorite ? 1 : 0
-                color: tile.favorite || starArea.containsMouse ? Theme.colBorder : Theme.chipInk
+                color: tile.favorite || starArea.containsMouse ? mt.colBorder : mt.chipInk
             }
 
             MouseArea {
@@ -903,9 +916,9 @@ Item {
             width: 24
             height: 24
             radius: 12
-            color: Theme.accentMint
+            color: mt.accentMint
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             MaterialIcon {
@@ -913,7 +926,7 @@ Item {
                 name: "check"
                 size: 15
                 weight: 700
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
 
@@ -936,7 +949,7 @@ Item {
         WheelHandler {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
-                const d = Theme.wheelPx(event, true)
+                const d = mt.wheelPx(event, true)
                 flick.contentX = Math.max(0, Math.min(flick.contentWidth - flick.width, flick.contentX - d))
             }
         }
@@ -992,8 +1005,8 @@ Item {
                     width: parent.width
                     wrapMode: Text.WordWrap
                     text: "No presets yet. Set the desktop up the way you like it, then save it here to come back to it later."
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }

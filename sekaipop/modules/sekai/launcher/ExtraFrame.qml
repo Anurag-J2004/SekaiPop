@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,9 @@ import qs.modules.common.widgets
 // The card's size is the frame's width/height; the shadow hangs outside it.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     default property alias content: inner.data
     property real radius: 24
@@ -38,21 +42,21 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.shadowOffset
-        y: Theme.shadowOffset
+        x: mt.shadowOffset
+        y: mt.shadowOffset
         width: root.width
         height: root.height
         radius: root.radius
-        color: Theme.lineShadow
+        color: mt.lineShadow
     }
 
     Rectangle {
         id: face
         anchors.fill: parent
         radius: root.radius
-        color: Theme.colBg
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        color: mt.colBg
+        border.width: mt.borderWidth
+        border.color: mt.line
         clip: true
         antialiasing: true
 
@@ -65,7 +69,7 @@ Item {
         Item {
             id: inner
             anchors.fill: parent
-            anchors.margins: Theme.borderWidth
+            anchors.margins: mt.borderWidth
         }
     }
 

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -17,6 +18,9 @@ import qs.modules.common.widgets
 // hints switches every one of them off (`bar.scrollHints`).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string glyph: "unfold_more"
     // The module can switch its hint off (nothing to scroll right now).
@@ -47,9 +51,9 @@ Item {
         id: dot
         anchors.fill: parent
         radius: width / 2
-        color: Theme.colBorder
+        color: mt.colBorder
         border.width: 2
-        border.color: Theme.ringWhite
+        border.color: mt.ringWhite
         antialiasing: true
         opacity: root.shown && root.wanted ? 1 : 0
         scale: root.shown && root.wanted ? 1 : 0.5
@@ -62,7 +66,7 @@ Item {
             name: root.glyph
             size: 11
             fill: 1
-            color: Theme.textWhite
+            color: mt.textWhite
         }
     }
 }

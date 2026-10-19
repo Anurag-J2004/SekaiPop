@@ -504,9 +504,9 @@ DockCard {
                         height: 13
                         radius: 4
                         rotation: 45
-                        color: Theme.accentMint
+                        color: mt.accentMint
                         border.width: 2
-                        border.color: Theme.line
+                        border.color: mt.line
                     }
 
                     Row {
@@ -521,11 +521,11 @@ DockCard {
                             elide: Text.ElideMiddle
                             textFormat: Text.PlainText
                             text: FilesStackService.oneLine(FilesStackService.titleFor(root.path))
-                            color: Theme.ink
-                            font.family: Theme.fontFamily
+                            color: mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 20
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
 
                         Text {
@@ -533,8 +533,8 @@ DockCard {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: stack.count > 0
                             text: stack.filtering ? stack.count + " of " + stack.rawCount : stack.count + (stack.count === 1 ? " item" : " items")
-                            color: Theme.inkSub
-                            font.family: Theme.fontFamily
+                            color: mt.inkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 15
                             font.weight: Font.Bold
                         }
@@ -593,7 +593,7 @@ DockCard {
                     width: parent.width
                     height: 2
                     radius: 1
-                    color: Theme.surfaceDivider
+                    color: mt.surfaceDivider
                 }
             }
 
@@ -696,7 +696,7 @@ DockCard {
                               : (stack.shownState === "denied" ? "lock"
                               : (stack.shownState === "notdir" ? "block" : "folder_open"))
                         size: 44
-                        color: Theme.inkSub
+                        color: mt.inkSub
                     }
 
                     Text {
@@ -707,11 +707,11 @@ DockCard {
                               : stack.shownState === "missing" ? "Folder not found"
                               : (stack.shownState === "denied" ? "Can't open this folder"
                               : (stack.shownState === "notdir" ? "Not a folder" : "Nothing here"))
-                        color: Theme.ink
-                        font.family: Theme.fontFamily
+                        color: mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 18
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     Text {
@@ -722,8 +722,8 @@ DockCard {
                         text: stack.shownState === "filtered" ? FilesStackService.modifiedLabel(FilesStackService.modified)
                               : stack.shownState === "denied" ? "You don't have permission to read it"
                               : (stack.trashGone ? "What you delete waits here" : root.path)
-                        color: Theme.inkSub
-                        font.family: Theme.fontFamily
+                        color: mt.inkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 14
                         font.weight: Font.Bold
                     }
@@ -765,7 +765,7 @@ DockCard {
                     width: parent.width
                     height: 2
                     radius: 1
-                    color: Theme.surfaceDivider
+                    color: mt.surfaceDivider
                 }
 
                 Text {
@@ -778,8 +778,8 @@ DockCard {
                     textFormat: Text.PlainText
                     text: stack.hoverInfo !== "" ? stack.hoverInfo
                           : (stack.filtering ? FilesStackService.modifiedLabel(FilesStackService.modified) + "  ·  " : "") + stack.sortText
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.Bold
                 }
@@ -843,9 +843,9 @@ DockCard {
                     anchors.topMargin: 3
                     z: 5
                     radius: 12
-                    color: Theme.surface
+                    color: mt.surface
                     border.width: 2.5
-                    border.color: Theme.line
+                    border.color: mt.line
                     antialiasing: true
 
                     MouseArea {
@@ -859,11 +859,11 @@ DockCard {
                         width: parent.width - confirmRow.width - 36
                         elide: Text.ElideRight
                         text: "Empty the Trash for good?"
-                        color: Theme.ink
-                        font.family: Theme.fontFamily
+                        color: mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     Row {
@@ -917,7 +917,7 @@ DockCard {
                 width: menuBox.width
                 height: menuBox.height
                 radius: menuBox.radius
-                color: Theme.lineShadow
+                color: mt.lineShadow
                 visible: stack.menuOpen
             }
 
@@ -930,9 +930,9 @@ DockCard {
                 x: Math.max(0, Math.min(stack.menuX, stack.width - width - 4))
                 y: Math.max(0, Math.min(stack.menuY, stack.height - height - 4))
                 radius: 12
-                color: Theme.surface
+                color: mt.surface
                 border.width: 2.5
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
 
                 Column {
@@ -960,7 +960,7 @@ DockCard {
                                 width: parent.width
                                 height: 2
                                 radius: 1
-                                color: Theme.surfaceDivider
+                                color: mt.surfaceDivider
                             }
 
                             Rectangle {
@@ -968,7 +968,7 @@ DockCard {
                                 anchors.fill: parent
                                 radius: 9
                                 color: mArea.containsMouse
-                                    ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, mArea.pressed ? 0.34 : 0.2)
+                                    ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, mArea.pressed ? 0.34 : 0.2)
                                     : "transparent"
                                 antialiasing: true
 
@@ -985,8 +985,8 @@ DockCard {
                                     width: parent.width - 46
                                     elide: Text.ElideRight
                                     text: mrow.modelData.label ?? ""
-                                    color: Theme.ink
-                                    font.family: Theme.fontFamily
+                                    color: mt.ink
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 15
                                     font.weight: Font.Bold
                                 }
@@ -1041,9 +1041,9 @@ DockCard {
                                     radius: 13
                                     antialiasing: true
                                     color: area.containsMouse
-                                        ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, area.pressed ? 0.34 : 0.2)
+                                        ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, area.pressed ? 0.34 : 0.2)
                                         : (cell.fileIsDir
-                                            ? Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, 0.13)
+                                            ? Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, 0.13)
                                             : "transparent")
 
                                     Behavior on color {
@@ -1079,8 +1079,8 @@ DockCard {
                                     elide: Text.ElideRight
                                     textFormat: Text.PlainText
                                     text: FilesStackService.oneLine(cell.fileName)
-                                    color: Theme.ink
-                                    font.family: Theme.fontFamily
+                                    color: mt.ink
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 14
                                     font.weight: cell.fileIsDir ? Font.ExtraBold : Font.Bold
                                 }
@@ -1146,9 +1146,9 @@ DockCard {
                                 radius: 10
                                 antialiasing: true
                                 color: rarea.containsMouse
-                                    ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, rarea.pressed ? 0.34 : 0.2)
+                                    ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, rarea.pressed ? 0.34 : 0.2)
                                     : (row.fileIsDir
-                                        ? Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, 0.13)
+                                        ? Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, 0.13)
                                         : "transparent")
 
                                 Behavior on color {
@@ -1176,8 +1176,8 @@ DockCard {
                                 maximumLineCount: 1
                                 textFormat: Text.PlainText
                                 text: FilesStackService.oneLine(row.fileName)
-                                color: Theme.ink
-                                font.family: Theme.fontFamily
+                                color: mt.ink
+                                font.family: mt.fontFamily
                                 font.pixelSize: 16
                                 font.weight: row.fileIsDir ? Font.ExtraBold : Font.Bold
                             }
@@ -1190,8 +1190,8 @@ DockCard {
                                 width: 80
                                 horizontalAlignment: Text.AlignRight
                                 text: FilesStackService.sizeText(row.fileSize)
-                                color: Theme.inkSub
-                                font.family: Theme.fontFamily
+                                color: mt.inkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 14
                                 font.weight: Font.Bold
                             }
@@ -1202,8 +1202,8 @@ DockCard {
                                 width: 96
                                 horizontalAlignment: Text.AlignRight
                                 text: FilesStackService.dateText(row.fileModified)
-                                color: Theme.inkSub
-                                font.family: Theme.fontFamily
+                                color: mt.inkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 14
                                 font.weight: Font.Bold
                             }

@@ -63,12 +63,12 @@ for (const f of files) {
     }
 }
 for (const rel of ["modules/sekai/desktopWidgets/StickyNote.qml"])
-    assert.ok(/contentY - Theme\.wheelPx\(event\)/.test(code(fs.readFileSync(path.join(top, rel), "utf8"))), rel + " must scroll by Theme.wheelPx")
+    assert.ok(/contentY - Theme\.wheelPx\(event\)/.test(code(require("../lib/themetext")(fs.readFileSync(path.join(top, rel), "utf8")))), rel + " must scroll by Theme.wheelPx")
 
 // 3. the helper and the shared layer agree
-const theme = code(fs.readFileSync(path.join(top, "modules/common/Theme.qml"), "utf8"))
+const theme = code(fs.readFileSync(path.join(top, "modules/common/ThemeSet.qml"), "utf8"))
 assert.ok(/function wheelPx\(event, sideways\)/.test(theme), "Theme.wheelPx is missing")
-const ws = code(fs.readFileSync(path.join(top, "modules/common/widgets/WheelScroll.qml"), "utf8"))
+const ws = code(require("../lib/themetext")(fs.readFileSync(path.join(top, "modules/common/widgets/WheelScroll.qml"), "utf8")))
 assert.ok(/Theme\.wheelPx\(event, sideways\)/.test(ws), "WheelScroll must take its distance from Theme.wheelPx")
 
 console.log("wheel_source_test: ok (" + views.length + " scrolling views checked)")

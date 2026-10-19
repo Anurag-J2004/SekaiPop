@@ -64,6 +64,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         ClockService.posX = -1;
         ClockService.posY = -1;
@@ -465,6 +468,9 @@ PanelWindow {
     component KeyTile: Item {
         id: tile
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string digit: "0"
         property bool gradientFill: false     // minutes: true
         property bool ghost: false            // a leading 0 in 12h mode
@@ -488,18 +494,18 @@ PanelWindow {
 
         Gradient {
             id: minuteFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         Pill {
             id: press
             anchors.fill: parent
             cornerRadius: 16
-            ringWidth: Theme.borderWidth + Theme.whiteLine
+            ringWidth: mt.borderWidth + mt.whiteLine
             shadowDx: 3
             shadowDy: 4
-            fillColor: Theme.chipFill
+            fillColor: mt.chipFill
             fillGradient: tile.gradientFill ? minuteFill : null
 
             Text {
@@ -507,12 +513,12 @@ PanelWindow {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 text: tile.digit
-                color: tile.gradientFill ? Theme.colBorder : Theme.chipInk
+                color: tile.gradientFill ? mt.colBorder : mt.chipInk
                 opacity: tile.ghost ? 0.28 : 1
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 50
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
 
                 Behavior on opacity {
                     NumberAnimation { duration: 200 }
@@ -525,6 +531,9 @@ PanelWindow {
 
     component GlyphRing: Item {
         id: gr
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string value: "0"
         property color ink: "#000000"
@@ -547,10 +556,10 @@ PanelWindow {
                 verticalAlignment: Text.AlignVCenter
                 text: gr.value
                 color: gr.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 84
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }
@@ -561,8 +570,11 @@ PanelWindow {
     component StickerDigit: Item {
         id: sd
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string value: "0"
-        property color fillColor: Theme.accentMint
+        property color fillColor: mt.accentMint
         property bool ghost: false            // a leading 0 in 12h mode: pale grey fill, still fully solid
         property real tilt: 0
         property real pop: 1
@@ -589,20 +601,23 @@ PanelWindow {
             easing.overshoot: 2.4
         }
 
-        GlyphRing { anchors.fill: parent; value: sd.value; ink: Theme.colBorder; radius: 6; dx: 3; dy: 4 }
-        GlyphRing { anchors.fill: parent; value: sd.value; ink: Theme.colBorder; radius: 6 }
+        GlyphRing { anchors.fill: parent; value: sd.value; ink: mt.colBorder; radius: 6; dx: 3; dy: 4 }
+        GlyphRing { anchors.fill: parent; value: sd.value; ink: mt.colBorder; radius: 6 }
         GlyphRing { anchors.fill: parent; value: sd.value; ink: "#ffffff"; radius: 3.2 }
-        GlyphRing { anchors.fill: parent; value: sd.value; ink: sd.ghost ? Theme.colOuterRing : sd.fillColor; radius: 0; steps: 1 }
+        GlyphRing { anchors.fill: parent; value: sd.value; ink: sd.ghost ? mt.colOuterRing : sd.fillColor; radius: 0; steps: 1 }
     }
 
     // A diamond of the beat: lit on its turn, and it pops when it lights.
     component BeatDiamond: Rectangle {
         id: bd
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property bool lit: false
-        property color litColor: Theme.accentMint
-        property color offColor: Theme.pSurfaceDivider
-        property color lineColor: Theme.pLine
+        property color litColor: mt.accentMint
+        property color offColor: mt.pSurfaceDivider
+        property color lineColor: mt.pLine
         property real pop: 1
 
         width: 12
@@ -644,8 +659,8 @@ PanelWindow {
         rotation: -5
         transformOrigin: Item.Center
         fillGradient: Gradient {
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         Text {
@@ -653,11 +668,11 @@ PanelWindow {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             text: ds.day
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 20
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -666,6 +681,9 @@ PanelWindow {
     component AmPmSwitch: Item {
         id: sw
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property bool full: false      // 24h
         property bool pm: false
         readonly property real half: (sw.width - 6) / 2
@@ -673,16 +691,16 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent
             radius: 10
-            color: Theme.pSurfaceHover
-            border.width: Theme.borderWidth
-            border.color: Theme.pLine
+            color: mt.pSurfaceHover
+            border.width: mt.borderWidth
+            border.color: mt.pLine
         }
 
         Rectangle {
             y: 3
             height: sw.height - 6
             radius: 7
-            color: Theme.accentMint
+            color: mt.accentMint
             x: 3 + (sw.full ? 0 : (sw.pm ? sw.half : 0))
             width: sw.full ? sw.width - 6 : sw.half
 
@@ -703,11 +721,11 @@ PanelWindow {
             verticalAlignment: Text.AlignVCenter
             text: "AM"
             opacity: sw.full ? 0 : 1
-            color: sw.pm ? Theme.pInkSub : Theme.colBorder
-            font.family: Theme.fontFamily
+            color: sw.pm ? mt.pInkSub : mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             Behavior on opacity { NumberAnimation { duration: 160 } }
         }
 
@@ -719,11 +737,11 @@ PanelWindow {
             verticalAlignment: Text.AlignVCenter
             text: "PM"
             opacity: sw.full ? 0 : 1
-            color: sw.pm ? Theme.colBorder : Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: sw.pm ? mt.colBorder : mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             Behavior on opacity { NumberAnimation { duration: 160 } }
         }
 
@@ -733,11 +751,11 @@ PanelWindow {
             verticalAlignment: Text.AlignVCenter
             text: "24H"
             opacity: sw.full ? 1 : 0
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             Behavior on opacity { NumberAnimation { duration: 160 } }
         }
     }
@@ -747,13 +765,13 @@ PanelWindow {
         id: sc
 
         property string label: "00"
-        property color ink: Theme.colBorder
+        property color ink: mt.colBorder
 
         width: 56
         height: 30
         cornerRadius: 10
         ringWidth: 3
-        fillColor: Theme.chipFill
+        fillColor: mt.chipFill
         rotation: 3
         transformOrigin: Item.Center
 
@@ -763,10 +781,10 @@ PanelWindow {
             verticalAlignment: Text.AlignVCenter
             text: sc.label
             color: sc.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -780,7 +798,7 @@ PanelWindow {
         height: 28
         cornerRadius: 9
         ringWidth: 2
-        fillColor: Theme.accentMint
+        fillColor: mt.accentMint
         rotation: 3
         transformOrigin: Item.Center
 
@@ -789,11 +807,11 @@ PanelWindow {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             text: chip.label
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -801,6 +819,9 @@ PanelWindow {
     // are dimmed. Fills whatever size it is given.
     component DayBadge: Item {
         id: db
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property int dow: 0
         property bool today: false
@@ -814,7 +835,7 @@ PanelWindow {
             width: db.width
             height: db.height - 6
             radius: 9
-            color: Theme.pLineShadow
+            color: mt.pLineShadow
         }
 
         Rectangle {
@@ -822,28 +843,28 @@ PanelWindow {
             height: db.height - (db.today ? 6 : 8)
             y: db.today ? 1 : 3
             radius: 9
-            color: db.today ? "transparent" : Theme.pSurfaceHover
+            color: db.today ? "transparent" : mt.pSurfaceHover
             opacity: db.past ? 0.55 : 1
             rotation: db.today ? -3 : 0
             transformOrigin: Item.Center
-            border.width: db.today ? Theme.borderWidth : 0
-            border.color: Theme.pLine
+            border.width: db.today ? mt.borderWidth : 0
+            border.color: mt.pLine
             gradient: db.today ? todayFill : null
 
             Gradient {
                 id: todayFill
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
 
             Text {
                 anchors.centerIn: parent
                 text: Qt.locale().dayName(db.dow, Locale.ShortFormat).toUpperCase()
-                color: db.today ? Theme.colBorder : Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: db.today ? mt.colBorder : mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 10
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }
@@ -895,7 +916,7 @@ PanelWindow {
                 // Where the content starts on the card: the pill's own border +
                 // ring, plus room. Without the card, `pad` leaves room for the
                 // numerals' outline and shadow.
-                readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 10
+                readonly property int inset: mt.borderWidth + mt.outerRingWidth + 10
                 readonly property int pad: 14
 
                 // How much attitude the keys have. 0 / 0 = a flat, level row.
@@ -904,14 +925,14 @@ PanelWindow {
 
                 // On the navy chip: bright accents in the dark modes, navy ink in
                 // Light (where the chip is pale and mint would vanish).
-                readonly property color glow: Theme.dark ? Theme.accentMint : Theme.colBorder
+                readonly property color glow: mt.dark ? mt.accentMint : mt.colBorder
 
                 readonly property real contentW: content.item ? content.item.implicitWidth : 0
                 readonly property real contentH: content.item ? content.item.implicitHeight : 0
 
                 width: card.housed ? card.contentW + card.inset * 2 : card.contentW + card.pad * 2
                 height: card.housed
-                    ? card.contentH + card.inset * 2 + Theme.shadowOffset
+                    ? card.contentH + card.inset * 2 + mt.shadowOffset
                     : card.contentH + card.pad * 2
 
                 // Drop-and-settle bounce when the design changes.
@@ -955,11 +976,11 @@ PanelWindow {
                 Pill {
                     anchors.fill: parent
                     visible: card.housed
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-                    ringColorTop: Theme.pSurfaceRing
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth + mt.outerRingWidth
+                    ringColorTop: mt.pSurfaceRing
                     ringColorBottom: ringColorTop
-                    fillColor: Theme.pSurface
+                    fillColor: mt.pSurface
                 }
 
                 // Edit Desktop: outline, corner diamonds, a tag and a drag
@@ -1067,8 +1088,8 @@ PanelWindow {
                         ringWidth: 3
                         pressed: btnArea.pressed
                         fillGradient: Gradient {
-                            GradientStop { position: 0.0; color: Theme.accentMint }
-                            GradientStop { position: 1.0; color: Theme.accentCyan }
+                            GradientStop { position: 0.0; color: mt.accentMint }
+                            GradientStop { position: 1.0; color: mt.accentCyan }
                         }
 
                         MaterialIcon {
@@ -1076,7 +1097,7 @@ PanelWindow {
                             name: "style"
                             size: 18
                             weight: 600
-                            color: Theme.colBorder
+                            color: mt.colBorder
                         }
                     }
 
@@ -1103,17 +1124,17 @@ PanelWindow {
                     height: 30
                     cornerRadius: 10
                     ringWidth: 3
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
 
                     Text {
                         id: nameText
                         anchors.centerIn: parent
                         text: card.designNames[card.designIndex] + "  " + (card.designIndex + 1) + "/" + card.designNames.length
-                        color: Theme.chipInk
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -1163,17 +1184,17 @@ PanelWindow {
 
                                     Text {
                                         text: Qt.locale().dayName(win.now.getDay(), Locale.LongFormat)
-                                        color: Theme.pInk
-                                        font.family: Theme.fontFamily
+                                        color: mt.pInk
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 20
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                     }
 
                                     Text {
                                         text: Qt.formatDate(win.now, "MMMM yyyy")
-                                        color: Theme.pInkSub
-                                        font.family: Theme.fontFamily
+                                        color: mt.pInkSub
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 11
                                         font.weight: Font.DemiBold
                                     }
@@ -1209,7 +1230,7 @@ PanelWindow {
                                         width: 2
                                         height: kstage.height
                                         radius: 1
-                                        color: Theme.pSurfaceDivider
+                                        color: mt.pSurfaceDivider
                                     }
                                 }
 
@@ -1226,7 +1247,7 @@ PanelWindow {
                                     radius: kripple.r
                                     color: "transparent"
                                     border.width: 3
-                                    border.color: win.secs % 2 === 0 ? Theme.accentMint : Theme.accentCyan
+                                    border.color: win.secs % 2 === 0 ? mt.accentMint : mt.accentCyan
                                     opacity: 0
                                 }
 
@@ -1273,14 +1294,14 @@ PanelWindow {
                                             x: 6
                                             y: kstage.height / 2 - 14 - 6
                                             lit: win.secs % 2 === 0
-                                            litColor: Theme.accentMint
+                                            litColor: mt.accentMint
                                         }
 
                                         BeatDiamond {
                                             x: 6
                                             y: kstage.height / 2 + 14 - 6
                                             lit: win.secs % 2 !== 0
-                                            litColor: Theme.accentCyan
+                                            litColor: mt.accentCyan
                                         }
                                     }
 
@@ -1334,9 +1355,9 @@ PanelWindow {
                                         width: parent.width
                                         height: 12
                                         radius: 6
-                                        color: Theme.pSurfaceDivider
+                                        color: mt.pSurfaceDivider
                                         border.width: 2
-                                        border.color: Theme.pLine
+                                        border.color: mt.pLine
                                     }
 
                                     // What has played this minute.
@@ -1349,8 +1370,8 @@ PanelWindow {
 
                                         gradient: Gradient {
                                             orientation: Gradient.Horizontal
-                                            GradientStop { position: 0.0; color: Theme.accentMint }
-                                            GradientStop { position: 1.0; color: Theme.accentCyan }
+                                            GradientStop { position: 0.0; color: mt.accentMint }
+                                            GradientStop { position: 1.0; color: mt.accentCyan }
                                         }
 
                                         // At :00 the lane just resets instead of sweeping backwards.
@@ -1371,7 +1392,7 @@ PanelWindow {
                                             width: 3
                                             height: 12
                                             radius: 1.5
-                                            color: Theme.pLine
+                                            color: mt.pLine
                                             opacity: 0.45
                                         }
                                     }
@@ -1383,9 +1404,9 @@ PanelWindow {
                                         height: ktrack.headSize
                                         radius: 3
                                         rotation: 45
-                                        color: Theme.accentMint
+                                        color: mt.accentMint
                                         border.width: 2
-                                        border.color: Theme.pLine
+                                        border.color: mt.pLine
                                         x: ktrack.headX
 
                                         Behavior on x {
@@ -1458,17 +1479,17 @@ PanelWindow {
 
                                     Text {
                                         text: Qt.locale().dayName(win.now.getDay(), Locale.LongFormat)
-                                        color: Theme.pInk
-                                        font.family: Theme.fontFamily
+                                        color: mt.pInk
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 20
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                     }
 
                                     Text {
                                         text: Qt.formatDate(win.now, "MMMM yyyy")
-                                        color: Theme.pInkSub
-                                        font.family: Theme.fontFamily
+                                        color: mt.pInkSub
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 11
                                         font.weight: Font.DemiBold
                                     }
@@ -1498,9 +1519,9 @@ PanelWindow {
                                         width: 12
                                         height: vlane.height
                                         radius: 6
-                                        color: Theme.pSurfaceDivider
+                                        color: mt.pSurfaceDivider
                                         border.width: 2
-                                        border.color: Theme.pLine
+                                        border.color: mt.pLine
                                     }
 
                                     // What has played this minute.
@@ -1512,8 +1533,8 @@ PanelWindow {
                                         height: Math.max(0, vlane.headY + vlane.headSize / 2 - 2)
 
                                         gradient: Gradient {
-                                            GradientStop { position: 0.0; color: Theme.accentMint }
-                                            GradientStop { position: 1.0; color: Theme.accentCyan }
+                                            GradientStop { position: 0.0; color: mt.accentMint }
+                                            GradientStop { position: 1.0; color: mt.accentCyan }
                                         }
 
                                         // At :00 the lane just resets instead of sweeping backwards.
@@ -1534,7 +1555,7 @@ PanelWindow {
                                             width: 12
                                             height: 3
                                             radius: 1.5
-                                            color: Theme.pLine
+                                            color: mt.pLine
                                             opacity: 0.45
                                         }
                                     }
@@ -1546,9 +1567,9 @@ PanelWindow {
                                         height: vlane.headSize
                                         radius: 3
                                         rotation: 45
-                                        color: Theme.accentMint
+                                        color: mt.accentMint
                                         border.width: 2
-                                        border.color: Theme.pLine
+                                        border.color: mt.pLine
                                         y: vlane.headY
 
                                         Behavior on y {
@@ -1585,14 +1606,14 @@ PanelWindow {
                                         x: 60 - 14 - 6
                                         y: 106 - 6
                                         lit: win.secs % 2 === 0
-                                        litColor: Theme.accentMint
+                                        litColor: mt.accentMint
                                     }
 
                                     BeatDiamond {
                                         x: 60 + 14 - 6
                                         y: 106 - 6
                                         lit: win.secs % 2 !== 0
-                                        litColor: Theme.accentCyan
+                                        litColor: mt.accentCyan
                                     }
 
                                     KeyTile {
@@ -1679,14 +1700,14 @@ PanelWindow {
                                 y: 0
                                 value: win.hh.charAt(0)
                                 ghost: !ClockService.use24h && win.hh.charAt(0) === "0"
-                                fillColor: Theme.accentMint
+                                fillColor: mt.accentMint
                                 tilt: -card.tilt
                             }
 
                             StickerDigit {
                                 y: card.stagger
                                 value: win.hh.charAt(1)
-                                fillColor: Theme.accentMint
+                                fillColor: mt.accentMint
                                 tilt: -card.tilt * 0.4
                             }
 
@@ -1699,32 +1720,32 @@ PanelWindow {
                                     x: 6
                                     y: sroot.implicitHeight / 2 - 14 - 6
                                     lit: win.secs % 2 === 0
-                                    litColor: Theme.accentMint
+                                    litColor: mt.accentMint
                                     offColor: "#ffffff"
-                                    lineColor: Theme.colBorder
+                                    lineColor: mt.colBorder
                                 }
 
                                 BeatDiamond {
                                     x: 6
                                     y: sroot.implicitHeight / 2 + 14 - 6
                                     lit: win.secs % 2 !== 0
-                                    litColor: Theme.accentCyan
+                                    litColor: mt.accentCyan
                                     offColor: "#ffffff"
-                                    lineColor: Theme.colBorder
+                                    lineColor: mt.colBorder
                                 }
                             }
 
                             StickerDigit {
                                 y: card.stagger
                                 value: win.mm.charAt(0)
-                                fillColor: Theme.accentCyan
+                                fillColor: mt.accentCyan
                                 tilt: card.tilt * 0.4
                             }
 
                             StickerDigit {
                                 y: 0
                                 value: win.mm.charAt(1)
-                                fillColor: Theme.accentCyan
+                                fillColor: mt.accentCyan
                                 tilt: card.tilt
                             }
                         }
@@ -1755,14 +1776,14 @@ PanelWindow {
                                 y: 0
                                 value: win.hh.charAt(0)
                                 ghost: !ClockService.use24h && win.hh.charAt(0) === "0"
-                                fillColor: Theme.accentMint
+                                fillColor: mt.accentMint
                                 tilt: -card.tilt
                             }
 
                             StickerDigit {
                                 y: card.stagger
                                 value: win.hh.charAt(1)
-                                fillColor: Theme.accentMint
+                                fillColor: mt.accentMint
                                 tilt: -card.tilt * 0.4
                             }
                         }
@@ -1772,18 +1793,18 @@ PanelWindow {
                             x: aroot.implicitWidth / 2 - 14 - 6
                             y: 96 + card.stagger + 4 + 12 - 6
                             lit: win.secs % 2 === 0
-                            litColor: Theme.accentMint
+                            litColor: mt.accentMint
                             offColor: "#ffffff"
-                            lineColor: Theme.colBorder
+                            lineColor: mt.colBorder
                         }
 
                         BeatDiamond {
                             x: aroot.implicitWidth / 2 + 14 - 6
                             y: 96 + card.stagger + 4 + 12 - 6
                             lit: win.secs % 2 !== 0
-                            litColor: Theme.accentCyan
+                            litColor: mt.accentCyan
                             offColor: "#ffffff"
-                            lineColor: Theme.colBorder
+                            lineColor: mt.colBorder
                         }
 
                         // ...and minutes below.
@@ -1794,14 +1815,14 @@ PanelWindow {
                             StickerDigit {
                                 y: card.stagger
                                 value: win.mm.charAt(0)
-                                fillColor: Theme.accentCyan
+                                fillColor: mt.accentCyan
                                 tilt: card.tilt * 0.4
                             }
 
                             StickerDigit {
                                 y: 0
                                 value: win.mm.charAt(1)
-                                fillColor: Theme.accentCyan
+                                fillColor: mt.accentCyan
                                 tilt: card.tilt
                             }
                         }

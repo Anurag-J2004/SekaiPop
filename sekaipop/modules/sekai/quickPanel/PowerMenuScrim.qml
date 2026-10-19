@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The Power menu's dimming glass. The actual eight pills now float
@@ -13,6 +14,9 @@ import qs.modules.common
 // outside the rail.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool open: false
     signal dismissRequested()
@@ -29,9 +33,9 @@ Item {
     // covers the visible glass, not the bezel around it.
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.phoneScreenInset
-        radius: Theme.phoneCornerRadius - Theme.phoneScreenInset
-        color: Theme.scrim
+        anchors.margins: mt.phoneScreenInset
+        radius: mt.phoneCornerRadius - mt.phoneScreenInset
+        color: mt.scrim
         opacity: root.open ? 0.55 : 0
         Behavior on opacity { NumberAnimation { duration: 220 } }
 

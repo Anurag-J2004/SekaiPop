@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Widgets
 import qs.services
 import qs.modules.common
@@ -44,6 +45,9 @@ import qs.modules.sekai.phone
 // WallpaperFace.qml does the rest.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     clip: true
 
@@ -124,9 +128,9 @@ Item {
             root.syncShown()
     }
 
-    readonly property color markA: root.lockMode ? LockPalette.mint : Theme.accentCyan
-    readonly property color markColor: root.lockMode ? LockPalette.pink : Theme.accentMint
-    readonly property color otherColor: root.lockMode ? Theme.accentCyan : LockPalette.pink
+    readonly property color markA: root.lockMode ? LockPalette.mint : mt.accentCyan
+    readonly property color markColor: root.lockMode ? LockPalette.pink : mt.accentMint
+    readonly property color otherColor: root.lockMode ? mt.accentCyan : LockPalette.pink
 
     readonly property var tapeColors: [ScrapbookTheme.tapeTeal, ScrapbookTheme.tapeCoral,
                                        ScrapbookTheme.tapeMint, ScrapbookTheme.tapePink]
@@ -399,14 +403,14 @@ Item {
     // the band, then its two edges.
     Rectangle {
         // shadow
-        x: root.cx - root.wheelR - root.trackHalf + Theme.shadowOffset - 1
-        y: root.pivotY - root.trackHalf + Theme.shadowOffset
+        x: root.cx - root.wheelR - root.trackHalf + mt.shadowOffset - 1
+        y: root.pivotY - root.trackHalf + mt.shadowOffset
         width: 2 * (root.wheelR + root.trackHalf)
         height: 2 * (root.wheelR + root.trackHalf)
         radius: root.wheelR + root.trackHalf
         color: "transparent"
         border.width: 2 * root.trackHalf
-        border.color: Theme.pLineShadow
+        border.color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -419,7 +423,7 @@ Item {
         radius: root.wheelR + root.trackHalf
         color: "transparent"
         border.width: 2 * root.trackHalf
-        border.color: Theme.pSurface
+        border.color: mt.pSurface
         antialiasing: true
     }
 
@@ -432,7 +436,7 @@ Item {
         radius: root.wheelR + root.trackHalf
         color: "transparent"
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
     }
 
@@ -445,7 +449,7 @@ Item {
         radius: root.wheelR - root.trackHalf + 3
         color: "transparent"
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
     }
 
@@ -469,8 +473,8 @@ Item {
             size: 12
             lit: Math.abs(beat.deg) < root.stepDeg * 0.75
             litColor: root.markColor
-            offColor: Theme.pSurfaceHover
-            lineColor: Theme.pLine
+            offColor: mt.pSurfaceHover
+            lineColor: mt.pLine
         }
     }
 
@@ -596,7 +600,7 @@ Item {
                     // turned clockwise by this much, the line that points straight
                     // down ends dx to the left; so the left wire (dx < 0) turns +
                     rotation: -Math.atan2(wire.dx, wire.endY) * 180 / Math.PI
-                    color: Theme.pLine
+                    color: mt.pLine
                     antialiasing: true
                 }
             }
@@ -608,7 +612,7 @@ Item {
                 width: root.cardW
                 height: root.cardH
                 radius: 22
-                color: Theme.pLineShadow
+                color: mt.pLineShadow
             }
 
             Rectangle {
@@ -619,9 +623,9 @@ Item {
                 width: root.cardW
                 height: root.cardH
                 radius: 22
-                color: Theme.pSurface
+                color: mt.pSurface
                 border.width: 5
-                border.color: Qt.tint(Theme.pLine, Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, gon.glow))
+                border.color: Qt.tint(mt.pLine, Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, gon.glow))
 
                 Behavior on x {
                     NumberAnimation {
@@ -645,7 +649,7 @@ Item {
                     anchors.fill: parent
                     anchors.margins: 11
                     radius: 11
-                    color: Theme.pSurfaceHover
+                    color: mt.pSurfaceHover
 
                     Image {
                         id: thumb
@@ -684,7 +688,7 @@ Item {
                         visible: thumb.status !== Image.Ready
                         size: 56
                         name: gon.video ? "movie" : "image"
-                        color: Theme.pInkSub
+                        color: mt.pInkSub
                     }
 
                     // the further round, the paler
@@ -700,7 +704,7 @@ Item {
                         radius: 11
                         color: "transparent"
                         border.width: 2
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         opacity: 0.35
                         antialiasing: true
                     }
@@ -713,15 +717,15 @@ Item {
                         width: 40
                         height: 40
                         radius: 20
-                        color: Theme.pSurface
+                        color: mt.pSurface
                         border.width: 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
 
                         MaterialIcon {
                             anchors.centerIn: parent
                             size: 24
                             name: "play_arrow"
-                            color: Theme.colBorder
+                            color: mt.colBorder
                         }
                     }
                 }
@@ -744,7 +748,7 @@ Item {
                         radius: 31
                         color: "transparent"
                         border.width: 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
                     }
                 }
@@ -758,7 +762,7 @@ Item {
                     height: 46
                     radius: 23
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
@@ -771,7 +775,7 @@ Item {
                         size: 28
                         name: "check"
                         weight: 700
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                 }
 
@@ -791,7 +795,7 @@ Item {
                         width: parent.width
                         height: parent.height
                         radius: 17
-                        color: Theme.pLineShadow
+                        color: mt.pLineShadow
                     }
 
                     Rectangle {
@@ -799,7 +803,7 @@ Item {
                         radius: 17
                         color: root.otherColor
                         border.width: 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
 
                         Row {
@@ -813,17 +817,17 @@ Item {
                                 name: root.lockMode ? "desktop_windows" : "lock"
                                 size: 20
                                 weight: 650
-                                color: Theme.colBorder
+                                color: mt.colBorder
                             }
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: root.lockMode ? "Desktop" : "Lockscreen"
-                                color: Theme.colBorder
-                                font.family: Theme.fontFamily
+                                color: mt.colBorder
+                                font.family: mt.fontFamily
                                 font.pixelSize: 14
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
                         }
                     }
@@ -854,7 +858,7 @@ Item {
                 size: 44
                 name: "star"
                 rotation: -14
-                color: Theme.attributeColors[2]
+                color: mt.attributeColors[2]
                 opacity: Math.max(0, 1 - gon.near * 2.4)
             }
 
@@ -865,10 +869,10 @@ Item {
                 width: 22
                 height: 22
                 radius: 11
-                color: Qt.tint(Theme.pSurface, Qt.rgba(root.markColor.r, root.markColor.g, root.markColor.b,
+                color: Qt.tint(mt.pSurface, Qt.rgba(root.markColor.r, root.markColor.g, root.markColor.b,
                                                        1 - Math.min(1, gon.near * 1.6)))
                 border.width: 3
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
 
                 // the small round head of the bolt
@@ -877,7 +881,7 @@ Item {
                     width: 6
                     height: 6
                     radius: 3
-                    color: Theme.pLine
+                    color: mt.pLine
                 }
             }
 
@@ -1017,10 +1021,13 @@ Item {
     component Tag: Item {
         id: tag
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string text: ""
         property bool lit: false
-        property color litA: Theme.accentMint
-        property color litB: Theme.accentCyan
+        property color litA: mt.accentMint
+        property color litB: mt.accentCyan
 
         implicitWidth: tagKey.capW + 7
         implicitHeight: tagKey.capH + 4
@@ -1048,11 +1055,11 @@ Item {
 
                 anchors.centerIn: parent
                 text: tag.text
-                color: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, tagKey.litP))
-                font.family: Theme.fontFamily
+                color: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, tagKey.litP))
+                font.family: mt.fontFamily
                 font.pixelSize: 16
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

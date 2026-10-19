@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../../common/functions/Extras.js" as X
 import qs.modules.common
 import qs.modules.common.widgets
@@ -17,6 +18,9 @@ import qs.modules.sekai.phone
 // this card reports a new pick (`highlighted`).
 PhoneCard {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var entries: []
     property bool available: true
@@ -91,7 +95,7 @@ PhoneCard {
             copyRequested(e)
     }
 
-    readonly property color darkInk: Theme.colBorder
+    readonly property color darkInk: mt.colBorder
 
     // ===== the room =====
     readonly property real headH: 44
@@ -131,8 +135,8 @@ PhoneCard {
             anchors.verticalCenter: parent.verticalCenter
             elide: Text.ElideRight
             text: root.filter === "" ? "Clipboard" : "Matching \u201c" + X.oneLine(root.filter, 18) + "\u201d"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
         }
@@ -148,14 +152,14 @@ PhoneCard {
             radius: (height - shadow) / 2
             borderW: 2.5
             shadow: 3
-            fill: Theme.accentCyan
+            fill: mt.accentCyan
 
             Text {
                 id: countText
                 anchors.centerIn: parent
                 text: root.entries.length
                 color: root.darkInk
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
             }
@@ -193,7 +197,7 @@ PhoneCard {
                 anchors.fill: parent
                 radius: (height - shadow) / 2
                 borderW: row.sel ? 5 : 3
-                fill: row.sel ? Theme.accentMint : (rowArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface)
+                fill: row.sel ? mt.accentMint : (rowArea.containsMouse ? mt.pSurfaceHover : mt.pSurface)
 
                 Rectangle {
                     id: glyphDisc
@@ -202,14 +206,14 @@ PhoneCard {
                     width: 36
                     height: 36
                     radius: 18
-                    color: row.sel ? Qt.rgba(1, 1, 1, 0.55) : Theme.pSurfaceHover
+                    color: row.sel ? Qt.rgba(1, 1, 1, 0.55) : mt.pSurfaceHover
 
                     MaterialIcon {
                         anchors.centerIn: parent
                         name: row.modelData.image ? "image" : "notes"
                         size: 22
                         weight: 600
-                        color: row.sel ? root.darkInk : Theme.pInkSub
+                        color: row.sel ? root.darkInk : mt.pInkSub
                     }
                 }
 
@@ -221,8 +225,8 @@ PhoneCard {
                     anchors.verticalCenter: parent.verticalCenter
                     elide: Text.ElideRight
                     text: row.modelData.image ? X.imageLabel(row.modelData.preview) : X.oneLine(row.modelData.preview, 80)
-                    color: row.sel ? root.darkInk : Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: row.sel ? root.darkInk : mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 20
                     font.weight: row.sel ? Font.ExtraBold : Font.Bold
                 }
@@ -247,7 +251,7 @@ PhoneCard {
         width: 6
         height: Math.max(30, list.height * list.height / Math.max(1, list.contentHeight))
         radius: 3
-        color: Theme.pSurfaceRing
+        color: mt.pSurfaceRing
         antialiasing: true
     }
 
@@ -260,8 +264,8 @@ PhoneCard {
         visible: root.entries.length === 0
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
-        color: Theme.pInkSub
-        font.family: Theme.fontFamily
+        color: mt.pInkSub
+        font.family: mt.fontFamily
         font.pixelSize: 21
         font.weight: Font.Bold
         lineHeight: 1.25
@@ -288,7 +292,7 @@ PhoneCard {
             width: sheet.faceW - 28
             height: sheet.faceH - 28 - root.barH + 6
             radius: 20
-            color: Theme.pSurfaceHover
+            color: mt.pSurfaceHover
             clip: true
 
             // text entry: everything, selectable
@@ -313,8 +317,8 @@ PhoneCard {
                     wrapMode: TextEdit.Wrap
                     // the whole text; the short preview only when it could not be loaded
                     text: root.loading ? "" : (root.fullText !== "" || !root.failed ? root.fullText : (root.currentEntry ? root.currentEntry.preview : ""))
-                    color: Theme.pInk
-                    selectionColor: Theme.accentCyan
+                    color: mt.pInk
+                    selectionColor: mt.accentCyan
                     selectedTextColor: root.darkInk
                     font.family: "monospace"
                     font.pixelSize: 17
@@ -346,8 +350,8 @@ PhoneCard {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 wrapMode: Text.WordWrap
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 19
                 font.weight: Font.Bold
                 text: "This picture can\u2019t be shown here (its format is not supported).\nCopy still puts it back on the clipboard."
@@ -362,8 +366,8 @@ PhoneCard {
                 text: root.currentEntry === null ? "Pick something above"
                     : (root.loading ? "Loading\u2026"
                         : "Could not load this picture" + (root.error !== "" ? "\n" + X.oneLine(root.error, 120) : ""))
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 20
                 font.weight: Font.Bold
             }
@@ -376,7 +380,7 @@ PhoneCard {
                 width: 6
                 height: Math.max(24, flick.height * flick.height / Math.max(1, flick.contentHeight))
                 radius: 3
-                color: Theme.pSurfaceRing
+                color: mt.pSurfaceRing
                 antialiasing: true
             }
         }
@@ -395,8 +399,8 @@ PhoneCard {
                 anchors.rightMargin: 10
                 anchors.verticalCenter: parent.verticalCenter
                 elide: Text.ElideRight
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.Bold
                 text: {
@@ -438,7 +442,7 @@ PhoneCard {
                 height: 50
                 label: "Copy"
                 fontSize: 22
-                fill: Theme.accentMint
+                fill: mt.accentMint
                 ink: root.darkInk
                 enabled: root.currentEntry !== null
                 onClicked: root.activate()

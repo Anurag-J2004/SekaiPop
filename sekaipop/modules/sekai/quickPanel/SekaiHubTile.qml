@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -16,6 +17,9 @@ import qs.modules.sekai.phone
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string icon: ""
     property string label: ""
     property string subtitle: ""
@@ -30,7 +34,7 @@ Item {
     signal clicked()
 
     readonly property bool hovered: area.containsMouse
-    readonly property color accent: Theme.attributeColors[slot % Theme.attributeColors.length]
+    readonly property color accent: mt.attributeColors[slot % mt.attributeColors.length]
 
     implicitWidth: tileW + 9
     implicitHeight: tileH + 7
@@ -40,19 +44,19 @@ Item {
 
         capW: root.tileW
         capH: root.tileH
-        skew: 0.08 * Theme.settingsLean
+        skew: 0.08 * mt.settingsLean
         radius: 40
         lit: root.hovered
         hovered: root.hovered
         pressed: area.pressed
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         borderBase: 4
         borderLit: 4.5
         ringExtra: 7
         shadowBaseX: 6
         shadowBaseY: 5
 
-        readonly property color ink: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        readonly property color ink: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
 
         // the big number
         Text {
@@ -60,10 +64,10 @@ Item {
             y: 20
             text: "0" + root.number
             color: Qt.rgba(key.ink.r, key.ink.g, key.ink.b, 0.14)
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 68
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         // the diamond with the icon
@@ -76,7 +80,7 @@ Item {
             rotation: 45
             color: root.accent
             border.width: 4
-            border.color: key.litP > 0.5 ? Theme.colBorder : Theme.pLine
+            border.color: key.litP > 0.5 ? mt.colBorder : mt.pLine
             antialiasing: true
         }
 
@@ -85,10 +89,10 @@ Item {
             y: 100 - height / 2
             size: 40
             name: root.icon
-            weight: Theme.settingsIconWeight
+            weight: mt.settingsIconWeight
             // Outline like every other icon (Theme.iconFill); this one used to
             // be forced solid, which filled in Bar, Desktop, Hyprland and About.
-            color: Theme.colBorder
+            color: mt.colBorder
         }
 
         Rectangle {
@@ -100,7 +104,7 @@ Item {
             radius: 11
             color: ScrapbookTheme.accentPink
             border.width: 3.5
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
         }
 
@@ -111,10 +115,10 @@ Item {
             elide: Text.ElideRight
             text: root.label
             color: key.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 40
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             lineHeight: 44
             lineHeightMode: Text.FixedHeight
         }
@@ -125,8 +129,8 @@ Item {
             width: key.capW - 84
             elide: Text.ElideRight
             text: root.subtitle
-            color: key.litP > 0.5 ? Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.78) : Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: key.litP > 0.5 ? Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.78) : mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 19
             font.weight: Font.DemiBold
         }
@@ -144,7 +148,7 @@ Item {
                 height: 27
                 skew: 0.55
                 radius: 3
-                color: Theme.attributeColors[(root.slot + 1 + index) % Theme.attributeColors.length]
+                color: mt.attributeColors[(root.slot + 1 + index) % mt.attributeColors.length]
             }
         }
     }

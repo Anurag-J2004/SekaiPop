@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -32,6 +33,9 @@ import qs.modules.common.widgets
 // above follows it as soon as a keycap lands.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // The monitor this shelf is open on (the bar it edits when the bars are separate).
     readonly property string screenName: EditMode.screenName
@@ -464,9 +468,9 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: 16
-                    color: lane.hot ? Qt.alpha(Theme.accentMint, 0.2) : Theme.pSurfaceHover
+                    color: lane.hot ? Qt.alpha(mt.accentMint, 0.2) : mt.pSurfaceHover
                     border.width: 2
-                    border.color: lane.hot ? Theme.accentMint : Theme.pSurfaceDivider
+                    border.color: lane.hot ? mt.accentMint : mt.pSurfaceDivider
                     antialiasing: true
 
                     Behavior on color {
@@ -478,11 +482,11 @@ Item {
                     x: 16
                     y: 9
                     text: root.zoneTitles[lane.zone]
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 1.2
                 }
 
@@ -490,8 +494,8 @@ Item {
                     anchors.centerIn: parent
                     visible: root.idsIn(lane.zone).length === 0 && root.dragId === ""
                     text: lane.zone === "off" ? "nothing removed" : "drop modules here"
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }
@@ -541,7 +545,7 @@ Item {
                 ringWidth: 3
                 shadowDy: 3
                 pressed: resetArea.pressed
-                fillColor: resetArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+                fillColor: resetArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
 
                 Row {
                     anchors.centerIn: parent
@@ -552,17 +556,17 @@ Item {
                         name: "restart_alt"
                         size: 13
                         weight: 700
-                        color: Theme.pInk
+                        color: mt.pInk
                     }
 
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "RESET"
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 0.6
                     }
                 }
@@ -590,7 +594,7 @@ Item {
                 ringWidth: 3
                 shadowDy: 3
                 pressed: clearArea.pressed
-                fillColor: clearArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+                fillColor: clearArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
 
                 Row {
                     anchors.centerIn: parent
@@ -601,17 +605,17 @@ Item {
                         name: "delete_sweep"
                         size: 13
                         weight: 700
-                        color: Theme.pInk
+                        color: mt.pInk
                     }
 
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "CLEAR ALL"
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 0.6
                     }
                 }
@@ -636,9 +640,9 @@ Item {
         width: 4
         height: root.chipH + 4
         radius: 2
-        color: Theme.accentMint
+        color: mt.accentMint
         border.width: 1
-        border.color: Theme.pLine
+        border.color: mt.pLine
         z: 20
     }
 
@@ -662,7 +666,7 @@ Item {
         cornerRadius: 9
         ringWidth: 3
         shadowDy: 3
-        fillColor: Theme.pSurface
+        fillColor: mt.pSurface
         x: Math.max(0, Math.min(root.width - tip.width, root.tipX - tip.width / 2))
         y: root.tipY - tip.height - 8
         z: 40
@@ -671,11 +675,11 @@ Item {
             id: tipText
             anchors.centerIn: parent
             text: BarLayoutService.labelOf(root.tipId)
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 }

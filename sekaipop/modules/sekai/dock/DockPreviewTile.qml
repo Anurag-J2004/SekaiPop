@@ -19,6 +19,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // The window: an entry of Dock.qml's runningMaps `wins`
     // ({ address, workspaceId, active, toplevel }), or null for the instant
     // between it closing and the card noticing.
@@ -67,7 +70,7 @@ Item {
         width: root.width
         height: root.height
         radius: 12
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -76,7 +79,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 12
-        color: Theme.surfaceDivider
+        color: mt.surfaceDivider
         antialiasing: true
     }
 
@@ -86,7 +89,7 @@ Item {
     ScreencopyView {
         id: preview
         anchors.fill: parent
-        anchors.margins: Theme.borderWidth
+        anchors.margins: mt.borderWidth
         captureSource: (root.capture && root.toplevel) ? root.toplevel.wayland : null
         live: true
     }
@@ -108,8 +111,8 @@ Item {
     // Pointer on the tile: a pale cyan wash over the picture.
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.borderWidth
-        color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b,
+        anchors.margins: mt.borderWidth
+        color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b,
                        area.pressed ? 0.28 : (area.containsMouse ? 0.16 : 0))
         Behavior on color { ColorAnimation { duration: 90 } }
     }
@@ -122,7 +125,7 @@ Item {
         anchors.margins: 8
         height: 24
         radius: 7
-        color: Theme.surface
+        color: mt.surface
         opacity: 0.94
         visible: root.title !== ""
 
@@ -133,8 +136,8 @@ Item {
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
             text: root.title
-            color: Theme.ink
-            font.family: Theme.fontFamily
+            color: mt.ink
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }
@@ -145,9 +148,9 @@ Item {
         anchors.fill: parent
         radius: 12
         color: "transparent"
-        border.width: Theme.borderWidth
-        border.color: root.focusedWindow ? Theme.accentCyan
-            : (area.containsMouse ? Theme.accentMint : Theme.line)
+        border.width: mt.borderWidth
+        border.color: root.focusedWindow ? mt.accentCyan
+            : (area.containsMouse ? mt.accentMint : mt.line)
         antialiasing: true
     }
 
@@ -174,9 +177,9 @@ Item {
         width: 26
         height: 26
         radius: 8
-        color: Theme.surface
+        color: mt.surface
         border.width: 2
-        border.color: closeArea.containsMouse ? Theme.accentMint : Theme.line
+        border.color: closeArea.containsMouse ? mt.accentMint : mt.line
         opacity: area.containsMouse || closeArea.containsMouse ? 1 : 0
         visible: opacity > 0.01
         antialiasing: true
@@ -210,9 +213,9 @@ Item {
         width: 26
         height: 26
         radius: 8
-        color: Theme.surface
+        color: mt.surface
         border.width: 2
-        border.color: minArea.containsMouse ? Theme.accentMint : Theme.line
+        border.color: minArea.containsMouse ? mt.accentMint : mt.line
         opacity: area.containsMouse || closeArea.containsMouse || minArea.containsMouse ? 1 : 0
         visible: opacity > 0.01
         antialiasing: true
@@ -246,17 +249,17 @@ Item {
         height: 22
         width: minText.implicitWidth + 16
         radius: 7
-        color: Theme.accentCyan
+        color: mt.accentCyan
         border.width: 2
-        border.color: Theme.line
+        border.color: mt.line
         antialiasing: true
 
         Text {
             id: minText
             anchors.centerIn: parent
             text: "minimized"
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.ExtraBold
         }

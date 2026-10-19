@@ -18,6 +18,9 @@ import qs.modules.sekai.mediaControls
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     // One entry of shell.qml's bar model: { screen, position }. The edge is
     // part of the entry on purpose — this window is built for one edge and
     // never moves: when the bar is moved, the entry changes, this window
@@ -63,7 +66,7 @@ PanelWindow {
     readonly property real thickness: BarPositionService.thicknessFor(win.barPosition)
     // (The Capsule style is a slimmer bar: it reserves Theme.capStrip, or Theme.capStripV on
     // a standing bar, whatever the edge's usual thickness is.)
-    readonly property real stripSize: Math.round((win.barStyle === 3 ? (win.vertical ? Theme.capStripV : Theme.capStrip)
+    readonly property real stripSize: Math.round((win.barStyle === 3 ? (win.vertical ? mt.capStripV : mt.capStrip)
     : win.thickness) * win.uiScale)
 
     // ===== Edit Desktop =====
@@ -838,7 +841,7 @@ PanelWindow {
     // (Held on a plain Item so the Behavior has an Item to animate on.)
     Item {
         id: geometry
-        property real sideInset: (win.barStyle === 0 || win.barStyle === 3) ? Theme.barFloatInset : 0
+        property real sideInset: (win.barStyle === 0 || win.barStyle === 3) ? mt.barFloatInset : 0
         Behavior on sideInset {
             NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
         }
@@ -916,7 +919,7 @@ PanelWindow {
                 // The bar hugs the screen edge it's on (1px off it, except
                 // Straight which is flush), and runs along the edge inset by
                 // sideInset (only Float has an inset).
-                readonly property real edgeGap: win.barStyle === 1 ? 0 : (win.barStyle === 3 ? Theme.capEdgeGap : 1)
+                readonly property real edgeGap: win.barStyle === 1 ? 0 : (win.barStyle === 3 ? mt.capEdgeGap : 1)
                 // How far it is pushed off its edge while a preset swaps it
                 // (geometry.slide, 0..1): its own thickness, the gap and room
                 // for the shadow.
@@ -928,8 +931,8 @@ PanelWindow {
                 y: win.vertical
                 ? geometry.sideInset
                 : (win.barPosition === "bottom" ? parent.height - height - edgeGap + slideBy : edgeGap - slideBy)
-                width: win.vertical ? (win.barStyle === 3 ? Theme.capVBarFace : Theme.barVBody) : parent.width - 2 * geometry.sideInset
-                height: win.vertical ? parent.height - 2 * geometry.sideInset : (win.barStyle === 3 ? Theme.capBarHeight : 61)
+                width: win.vertical ? (win.barStyle === 3 ? mt.capVBarFace : mt.barVBody) : parent.width - 2 * geometry.sideInset
+                height: win.vertical ? parent.height - 2 * geometry.sideInset : (win.barStyle === 3 ? mt.capBarHeight : 61)
                 barStyle: win.barStyle
 
                 activeWorkspace: win.activeWorkspace

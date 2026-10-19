@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "Calc.js" as Calc
 import qs.modules.common
 import qs.modules.sekai.phone
@@ -22,6 +23,9 @@ import qs.modules.sekai.phone
 //           The taller the page, the more of them show.
 PhoneCard {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string expr: ""
     // Newest last: [{ expr: "12*3", result: "36" }, ...]
@@ -53,15 +57,15 @@ PhoneCard {
     readonly property real displayH: pageH - padH - 12
 
     // pale key, operator key (cyan), pink key, "=" (cyan -> mint like an ON tile)
-    readonly property color fnFill: Theme.pSurfaceHover
-    readonly property color opFill: Theme.accentCyan
+    readonly property color fnFill: mt.pSurfaceHover
+    readonly property color opFill: mt.accentCyan
     readonly property color clearFill: ScrapbookTheme.tapePink
-    readonly property color darkInk: Theme.colBorder
+    readonly property color darkInk: mt.colBorder
 
     Gradient {
         id: equalsGradient
-        GradientStop { position: 0.0; color: Theme.accentCyan }
-        GradientStop { position: 1.0; color: Theme.accentMint }
+        GradientStop { position: 0.0; color: mt.accentCyan }
+        GradientStop { position: 1.0; color: mt.accentMint }
     }
 
     // ===== the display =====
@@ -102,8 +106,8 @@ PhoneCard {
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideLeft
                         text: Calc.pretty(modelData.expr) + "  =  " + Calc.group(modelData.result)
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 20
                         font.weight: Font.Bold
                         opacity: histArea.containsMouse ? 1 : 0.8
@@ -128,7 +132,7 @@ PhoneCard {
             height: 52
             icon: "content_copy"
             iconSize: 24
-            fill: Theme.accentMint
+            fill: mt.accentMint
             ink: root.darkInk
             enabled: root.hasAnswer
             onClicked: root.copyResult()
@@ -146,8 +150,8 @@ PhoneCard {
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideLeft
             text: root.expr === "" ? "0" : Calc.pretty(root.expr)
-            color: root.expr === "" ? Theme.pInkSub : Theme.pInk
-            font.family: Theme.fontFamily
+            color: root.expr === "" ? mt.pInkSub : mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 32
             font.weight: Font.DemiBold
         }
@@ -165,8 +169,8 @@ PhoneCard {
             fontSizeMode: Text.HorizontalFit
             minimumPixelSize: 26
             text: root.res.ok ? "= " + Calc.group(root.res.text) : (root.res.error !== "" && root.expr !== "" ? root.res.error : "")
-            color: root.res.ok ? Theme.pInk : ScrapbookTheme.accentPink
-            font.family: Theme.fontFamily
+            color: root.res.ok ? mt.pInk : ScrapbookTheme.accentPink
+            font.family: mt.fontFamily
             font.pixelSize: root.res.ok ? 58 : 22
             font.weight: Font.ExtraBold
         }
@@ -241,9 +245,9 @@ PhoneCard {
             fill: kind === "op" ? root.opFill
                 : kind === "clear" ? root.clearFill
                 : kind === "fn" ? root.fnFill
-                : Theme.pSurface
+                : mt.pSurface
             fillGradient: kind === "go" ? equalsGradient : null
-            ink: kind === "op" || kind === "clear" || kind === "go" ? root.darkInk : Theme.pInk
+            ink: kind === "op" || kind === "clear" || kind === "go" ? root.darkInk : mt.pInk
 
             onClicked: {
                 switch (modelData.act) {

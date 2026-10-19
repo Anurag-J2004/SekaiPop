@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Widgets
 import qs.modules.common
 
@@ -19,14 +20,17 @@ import qs.modules.common
 Item {
     id: root
 
-    property color colorTop: Theme.accentMint
-    property color colorBottom: Theme.accentCyan
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
+    property color colorTop: mt.accentMint
+    property color colorBottom: mt.accentCyan
     property real cornerRadius: 16
     // Outline + the white line (Theme.whiteLine): the same as every block's.
-    property real ringWidth: Theme.borderWidth + Theme.whiteLine
+    property real ringWidth: mt.borderWidth + mt.whiteLine
     // The halftone and the light bands. Dark dots / white bands suit a light
     // plate; a dark plate wants the other way round (set dotColor).
-    property color dotColor: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.16)
+    property color dotColor: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.16)
     property color bandColor: Qt.rgba(1, 1, 1, 0.22)
     property string dotCorner: "tr"
     property real dotSpacing: 14
@@ -35,15 +39,15 @@ Item {
     // Big sticker numerals on the plate: a DARK fill inside the white ring. A
     // white fill merged into the white ring and the digits lost their shapes on
     // the pale plate. Used by every popup's number / month.
-    readonly property color numberFill: Qt.darker(Theme.colBorder, 1.8)
+    readonly property color numberFill: Qt.darker(mt.colBorder, 1.8)
     readonly property color numberRing: "#ffffff"
 
     // The part of the plate above its hard shadow.
-    readonly property real faceHeight: root.height - Theme.shadowOffset
+    readonly property real faceHeight: root.height - mt.shadowOffset
 
     default property alias content: layer.data
 
-    implicitHeight: 100 + Theme.shadowOffset
+    implicitHeight: 100 + mt.shadowOffset
 
     Gradient {
         id: plateGradient

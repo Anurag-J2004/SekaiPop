@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -17,6 +18,9 @@ import qs.modules.sekai.phone
 // seconds) that it's opt-in rather than run every time this opens.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool open: false
     property var networks: []          // [{ssid, signal, secured, connected}]
@@ -65,9 +69,9 @@ Item {
     // rather than a new look of its own.
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.phoneScreenInset
-        radius: Theme.phoneCornerRadius - Theme.phoneScreenInset
-        color: Theme.scrim
+        anchors.margins: mt.phoneScreenInset
+        radius: mt.phoneCornerRadius - mt.phoneScreenInset
+        color: mt.scrim
         opacity: root.open ? 0.55 : 0
         Behavior on opacity {
             NumberAnimation {
@@ -86,12 +90,12 @@ Item {
     // notifications card uses, just sized to sit over the toggles and
     // notifications area it covers.
     Rectangle {
-        x: 40 + (Theme.quickFlat ? 0 : 5)
+        x: 40 + (mt.quickFlat ? 0 : 5)
         y: 200 + 4
         width: 575
         height: 940
         radius: 41
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -102,9 +106,9 @@ Item {
         width: 575
         height: 940
         radius: 41
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         clip: true
 
         // Swallows clicks so tapping empty space in the card doesn't
@@ -115,11 +119,11 @@ Item {
             x: 28
             y: 26
             text: "Wi-Fi"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         // "Scan" — forces the slow rescan+list path. A plain text pill
@@ -132,17 +136,17 @@ Item {
             width: scanLabel.implicitWidth + 28
             height: 34
             radius: 17
-            color: scanArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+            color: scanArea.containsMouse ? mt.pSurfaceHover : "transparent"
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             opacity: root.manualScanning ? 0.5 : 1
 
             Text {
                 id: scanLabel
                 anchors.centerIn: parent
                 text: root.manualScanning ? "Scanning…" : "Scan"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
             }
@@ -166,16 +170,16 @@ Item {
             width: advancedLabel.implicitWidth + 28
             height: 34
             radius: 17
-            color: advancedArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+            color: advancedArea.containsMouse ? mt.pSurfaceHover : "transparent"
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
 
             Text {
                 id: advancedLabel
                 anchors.centerIn: parent
                 text: "Advanced"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
             }
@@ -199,7 +203,7 @@ Item {
             text: root.errorText
             wrapMode: Text.Wrap
             color: "#c0392b"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 14
         }
 
@@ -243,7 +247,7 @@ Item {
                     width: parent.width
                     height: 60
                     radius: 20
-                    color: mainArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+                    color: mainArea.containsMouse ? mt.pSurfaceHover : "transparent"
                     antialiasing: true
                 }
 
@@ -265,7 +269,7 @@ Item {
                             height: 8 + index * 6
                             anchors.bottom: parent.bottom
                             radius: 1.5
-                            color: lit ? Theme.pInk : Theme.pSurfaceDivider
+                            color: lit ? mt.pInk : mt.pSurfaceDivider
                             antialiasing: true
                         }
                     }
@@ -277,11 +281,11 @@ Item {
                     width: parent.width - 46 - 40
                     elide: Text.ElideRight
                     text: row.modelData.ssid
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 18
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -291,8 +295,8 @@ Item {
                         : row.modelData.connected ? "Connected — tap to disconnect"
                         : row.modelData.secured ? "Secured"
                         : "Open"
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                 }
 
@@ -337,9 +341,9 @@ Item {
                         width: parent.width - 90
                         height: 44
                         radius: 22
-                        color: Theme.pSurfaceHover
+                        color: mt.pSurfaceHover
                         border.width: 2
-                        border.color: passInput.activeFocus ? Theme.pLine : "transparent"
+                        border.color: passInput.activeFocus ? mt.pLine : "transparent"
 
                         TextInput {
                             id: passInput
@@ -348,8 +352,8 @@ Item {
                             anchors.rightMargin: 18
                             verticalAlignment: TextInput.AlignVCenter
                             echoMode: TextInput.Password
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 15
                             clip: true
                             focus: row.expanded
@@ -360,8 +364,8 @@ Item {
                                 visible: passInput.text === "" && !passInput.activeFocus
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: "Password"
-                                color: Theme.pInkSub
-                                font.family: Theme.fontFamily
+                                color: mt.pInkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 15
                             }
                         }
@@ -375,9 +379,9 @@ Item {
                         width: 82
                         height: 44
                         radius: 22
-                        color: connectArea.containsMouse ? Theme.accentMint : Theme.pSurface
+                        color: connectArea.containsMouse ? mt.accentMint : mt.pSurface
                         border.width: 2
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
 
                         function go() {
                             root.connectRequested(row.modelData.ssid, passInput.text)
@@ -386,8 +390,8 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: "Connect"
-                            color: connectArea.containsMouse ? Theme.colBorder : Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: connectArea.containsMouse ? mt.colBorder : mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.DemiBold
                         }
@@ -411,8 +415,8 @@ Item {
             visible: root.networks.length === 0 && !root.scanning
             anchors.centerIn: list
             text: "No networks found"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 16
         }
         antialiasing: true

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -8,6 +9,9 @@ import qs.modules.common.widgets
 // Drawn by DockShelfCard.qml, which sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property color tint
@@ -25,7 +29,7 @@ Item {
         radius: width / 2
         color: "#2B2D42"
         border.width: 2
-        border.color: Theme.line
+        border.color: mt.line
         antialiasing: true
 
         // grooves
@@ -58,7 +62,7 @@ Item {
         width: parent.width
         height: parent.height - root.sleeveTop
         radius: 5
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -69,8 +73,8 @@ Item {
         height: parent.height - root.sleeveTop
         radius: 5
         color: root.tint
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // a big circle, like the cover art
@@ -102,8 +106,8 @@ Item {
             elide: Text.ElideMiddle
             maximumLineCount: 1
             text: root.item.name
-            color: Theme.line
-            font.family: Theme.fontFamily
+            color: mt.line
+            font.family: mt.fontFamily
             font.pixelSize: 10
             font.weight: Font.ExtraBold
             opacity: root.lifted ? 0 : 1

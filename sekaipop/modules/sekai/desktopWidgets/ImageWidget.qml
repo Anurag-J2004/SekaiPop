@@ -66,6 +66,9 @@ import "../../common/functions/ImageMath.js" as IM
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     // The entry this window is for (Variants' modelData).
     required property string modelData
     readonly property string imageId: win.modelData
@@ -387,10 +390,10 @@ PanelWindow {
 
     readonly property color borderCol: {
         const c = win.rec ? win.rec.borderColor : "white"
-        return c === "navy" ? Theme.colBorder
-            : c === "mint" ? Theme.accentMint
-            : c === "cyan" ? Theme.accentCyan
-            : c === "pink" ? Theme.irisColorPink
+        return c === "navy" ? mt.colBorder
+            : c === "mint" ? mt.accentMint
+            : c === "cyan" ? mt.accentCyan
+            : c === "pink" ? mt.irisColorPink
             : c === "black" ? "#000000"
             : "#ffffff"
     }
@@ -528,7 +531,7 @@ PanelWindow {
                     width: win.shapeR.w
                     height: win.shapeR.h
                     radius: win.radiusPx
-                    color: Theme.colBorder
+                    color: mt.colBorder
                     opacity: win.picOpacity
                     antialiasing: true
                 }
@@ -648,10 +651,10 @@ PanelWindow {
                     visible: win.failed && win.recW > 0
                     z: 1
                     anchors.fill: parent
-                    radius: Theme.radiusOuter
-                    color: Theme.pSurface
-                    border.width: Theme.borderWidth
-                    border.color: Theme.pLine
+                    radius: mt.radiusOuter
+                    color: mt.pSurface
+                    border.width: mt.borderWidth
+                    border.color: mt.pLine
                     antialiasing: true
 
                     Column {
@@ -662,18 +665,18 @@ PanelWindow {
                             anchors.horizontalCenter: parent.horizontalCenter
                             name: "broken_image"
                             size: Math.max(16, Math.min(46, Math.min(missing.width, missing.height) * 0.4))
-                            color: Theme.pInkSub
+                            color: mt.pInkSub
                         }
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             visible: missing.width > 120 && missing.height > 90
                             text: "PICTURE MISSING"
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 10
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 1.2
                         }
                     }
@@ -694,14 +697,14 @@ PanelWindow {
                     readonly property bool roomy: width >= 170 && height >= 130
                     readonly property bool small: width < 110 || height < 90
                     readonly property real inset: 9
-                    readonly property real arc: Math.max(4, Math.min(Theme.radiusOuter - inset, Math.min(width, height) / 2 - inset))
+                    readonly property real arc: Math.max(4, Math.min(mt.radiusOuter - inset, Math.min(width, height) / 2 - inset))
 
                     Rectangle {
                         anchors.fill: parent
-                        radius: Theme.radiusOuter
-                        color: emptyFace.hot ? Theme.accentMint : Theme.pSurface
-                        border.width: Theme.borderWidth
-                        border.color: Theme.pLine
+                        radius: mt.radiusOuter
+                        color: emptyFace.hot ? mt.accentMint : mt.pSurface
+                        border.width: mt.borderWidth
+                        border.color: mt.pLine
                         antialiasing: true
 
                         Behavior on color { ColorAnimation { duration: 140 } }
@@ -721,7 +724,7 @@ PanelWindow {
                             readonly property real y1: emptyFace.height - emptyFace.inset
                             readonly property real r: emptyFace.arc
 
-                            strokeColor: emptyFace.hot ? Theme.colBorder : Theme.pInkSub
+                            strokeColor: emptyFace.hot ? mt.colBorder : mt.pInkSub
                             strokeWidth: 3
                             strokeStyle: ShapePath.DashLine
                             dashPattern: [3, 2.4]
@@ -757,7 +760,7 @@ PanelWindow {
                             name: emptyFace.hot ? "download" : "add_photo_alternate"
                             size: Math.max(18, Math.min(52, Math.min(emptyFace.width, emptyFace.height) * 0.28))
                             weight: 700
-                            color: emptyFace.hot ? Theme.colBorder : Theme.pInk
+                            color: emptyFace.hot ? mt.colBorder : mt.pInk
                         }
 
                         Text {
@@ -766,11 +769,11 @@ PanelWindow {
                             horizontalAlignment: Text.AlignHCenter
                             wrapMode: Text.WordWrap
                             text: emptyFace.hot ? "RELEASE TO ADD" : "DROP A PICTURE HERE"
-                            color: emptyFace.hot ? Theme.colBorder : Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: emptyFace.hot ? mt.colBorder : mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 12
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 1.2
                         }
 
@@ -779,11 +782,11 @@ PanelWindow {
                             width: parent.width
                             horizontalAlignment: Text.AlignHCenter
                             text: "PNG  JPG  WEBP  GIF  SVG"
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 9
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 1
                         }
                     }
@@ -822,20 +825,20 @@ PanelWindow {
                     width: win.shapeR.w
                     height: win.shapeR.h
                     radius: win.radiusPx
-                    color: Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, 0.4)
+                    color: Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, 0.4)
                     border.width: 4
-                    border.color: Theme.accentMint
+                    border.color: mt.accentMint
                     antialiasing: true
 
                     Text {
                         anchors.centerIn: parent
                         visible: parent.width > 110 && parent.height > 50
                         text: "DROP TO REPLACE"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 1.2
                     }
                 }
@@ -853,7 +856,7 @@ PanelWindow {
                     radius: 10
                     color: "#ff7a8c"
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
                     antialiasing: true
 
                     Text {
@@ -863,11 +866,11 @@ PanelWindow {
                         horizontalAlignment: Text.AlignHCenter
                         elide: Text.ElideRight
                         text: ImageService.rejectCount > 1 ? ImageService.rejectCount + " FILES SKIPPED" : "NOT A PICTURE"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 0.8
                     }
                 }
@@ -926,9 +929,9 @@ PanelWindow {
                     width: Math.min(parent.width - 16, pinText.implicitWidth + 24)
                     height: 28
                     radius: 10
-                    color: Theme.accentMint
+                    color: mt.accentMint
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
                     antialiasing: true
 
                     Text {
@@ -938,11 +941,11 @@ PanelWindow {
                         horizontalAlignment: Text.AlignHCenter
                         elide: Text.ElideRight
                         text: "PINNED ON TOP"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 0.8
                     }
                 }
@@ -1045,14 +1048,14 @@ PanelWindow {
                         anchors.fill: parent
                         cornerRadius: 10
                         ringWidth: 3
-                        fillColor: Theme.accentMint
+                        fillColor: mt.accentMint
 
                         MaterialIcon {
                             anchors.centerIn: parent
                             name: "open_with"
                             size: 16
                             weight: 700
-                            color: Theme.colBorder
+                            color: mt.colBorder
                         }
                     }
 
@@ -1101,9 +1104,9 @@ PanelWindow {
                             height: width
                             radius: 5
                             rotation: 45
-                            color: Theme.accentMint
+                            color: mt.accentMint
                             border.width: 3
-                            border.color: Theme.colBorder
+                            border.color: mt.colBorder
                             antialiasing: true
 
                             Behavior on width {

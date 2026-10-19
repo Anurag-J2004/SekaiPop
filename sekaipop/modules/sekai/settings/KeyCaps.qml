@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import "../../common/functions/KeyBinds.js" as KB
 
@@ -11,6 +12,9 @@ import "../../common/functions/KeyBinds.js" as KB
 //   KeyCaps { combos: [{ mods: 64, key: "" }]; large: true; waiting: "then a key"; held: true }
 Row {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var combos: []
     property bool large: false
@@ -28,13 +32,13 @@ Row {
     // Keycap colours follow the theme: white caps in Light, the surface lifted in
     // Dark and Darker; the modifiers a shade off the plain keys.
     readonly property color capColor: onColour ? "#ffffff"
-        : Theme.dark ? Qt.lighter(Theme.pSurface, 1.7) : "#ffffff"
+        : mt.dark ? Qt.lighter(mt.pSurface, 1.7) : "#ffffff"
     readonly property color modColor: onColour ? "#ffffff"
-        : Theme.dark ? Qt.lighter(Theme.pSurface, 2.4)
-                     : Qt.tint("#ffffff", Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.10))
-    readonly property color capInk: onColour ? Theme.colBorder : Theme.dark ? Theme.pInk : Theme.colBorder
-    readonly property color capLine: onColour ? Theme.colBorder : Theme.pLine
-    readonly property color capShadow: onColour ? Theme.colBorder : Theme.pLineShadow
+        : mt.dark ? Qt.lighter(mt.pSurface, 2.4)
+                     : Qt.tint("#ffffff", Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.10))
+    readonly property color capInk: onColour ? mt.colBorder : mt.dark ? mt.pInk : mt.colBorder
+    readonly property color capLine: onColour ? mt.colBorder : mt.pLine
+    readonly property color capShadow: onColour ? mt.colBorder : mt.pLineShadow
 
     // [{ k, mod }] per combination, plus the separators.
     readonly property var items: {
@@ -78,8 +82,8 @@ Row {
                 anchors.centerIn: parent
                 anchors.verticalCenterOffset: -cap.drop / 2
                 text: "or"
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: root.large ? 17 : 13
                 font.weight: Font.Bold
             }
@@ -120,8 +124,8 @@ Row {
                 antialiasing: true
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Theme.accentCyan }
-                    GradientStop { position: 1; color: Theme.accentMint }
+                    GradientStop { position: 0; color: mt.accentCyan }
+                    GradientStop { position: 1; color: mt.accentMint }
                 }
             }
 
@@ -152,8 +156,8 @@ Row {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: face.y + (cap.h - implicitHeight) / 2
                 text: cap.modelData.k
-                color: cap.lit ? Theme.colBorder : cap.none ? Theme.pInkSub : root.capInk
-                font.family: Theme.fontFamily
+                color: cap.lit ? mt.colBorder : cap.none ? mt.pInkSub : root.capInk
+                font.family: mt.fontFamily
                 font.pixelSize: cap.modelData.wait ? (root.large ? 18 : 14)
                               : root.large ? 22 : 14
                 font.weight: cap.none ? Font.ExtraBold : Font.Black

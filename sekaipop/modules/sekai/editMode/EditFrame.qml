@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 
@@ -22,6 +23,9 @@ import qs.modules.common
 // 0.29 x the card's corner radius; 14 against 22 leaves plenty to spare.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var screenObj: null
     property real uiScale: 1
@@ -59,7 +63,7 @@ Item {
         radius: root.cardR + to
         color: "transparent"
         border.width: Math.max(0, to - root.line)
-        border.color: Theme.pRingWhite
+        border.color: mt.pRingWhite
         antialiasing: true
     }
 
@@ -73,7 +77,7 @@ Item {
         radius: root.cardR + to
         color: "transparent"
         border.width: to
-        border.color: Theme.colBorder
+        border.color: mt.colBorder
         antialiasing: true
     }
 
@@ -87,7 +91,7 @@ Item {
         radius: root.cardR + to
         color: "transparent"
         border.width: root.line
-        border.color: Theme.colBorder
+        border.color: mt.colBorder
         antialiasing: true
     }
 }
