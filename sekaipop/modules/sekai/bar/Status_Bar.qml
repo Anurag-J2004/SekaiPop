@@ -24,7 +24,7 @@ Item {
     // named is shown. Bar.qml fills it from the Settings Panel's Bar page
     // (services/SettingsService.qml); this file stays free of services.
     property var modules: ({})
-
+    property var occupiedWorkspaces: []
     // Game Mode (fed by Bar.qml from GameModeService): a fixed bar with only the
     // date, the clock and the weather, whatever the modules above say. Written
     // as "only these three" rather than "hide the rest", so a module added later
@@ -650,7 +650,7 @@ Item {
             count: status_Bar.workspaceCount
             maxLength: status_Bar.badgesRoom
             onRequested: workspace => status_Bar.workspaceRequested(workspace)
-
+            occupied: status_Bar.occupiedWorkspaces
             // "Scroll to change workspace".
             ScrollHint {
                 anchors.top: parent.top
