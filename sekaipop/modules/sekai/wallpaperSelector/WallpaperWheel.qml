@@ -48,7 +48,9 @@ Item {
     clip: true
 
     // ===== given by WallpaperFace.qml =====
-    // [{ fileName, filePath, ... }] in the order shown (what the search lets through).
+    // [{ fileName, filePath, ... }] in the order shown (what the search lets through). On
+    // Wallhaven an entry also has `wh` (its thumbnail is online) and an empty filePath until
+    // it is downloaded; the set keys then go through WallpaperFace.setFromWheel.
     property var items: []
     // The applied picture of the side being marked, and the other side's.
     property string currentPath: ""
@@ -651,7 +653,8 @@ Item {
                         id: thumb
 
                         anchors.fill: parent
-                        source: gon.valid ? WallpaperService.thumbUrl(gon.path) : ""
+                        // A Wallhaven result (WallpaperFace.qml's `wh`) has its thumbnail online.
+                        source: !gon.valid ? "" : (gon.entry && gon.entry.wh ? gon.entry.wh.thumb : WallpaperService.thumbUrl(gon.path))
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                         sourceSize.width: Math.ceil((root.cardW - 22) * root.renderScale * 2)

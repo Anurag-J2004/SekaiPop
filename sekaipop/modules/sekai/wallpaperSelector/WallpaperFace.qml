@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Effects
 import Qt.labs.folderlistmodel
+import Quickshell
 import Quickshell.Widgets
 import qs.services
 import qs.modules.common
@@ -132,6 +133,85 @@ Item {
 
     readonly property bool viewIsVideo: face.viewPath !== "" && WallpaperService.isVideo(face.viewPath)
 
+    // ===== where the pictures come from: My folder or Wallhaven =====
+    // The header's switch (WallpaperSourceSwitch.qml), or Ctrl+Tab. On Wallhaven the gallery
+    // shows WallhavenService's results in the same `matched` list, each with a `wh` (the
+    // result: thumbnails, size, colours...); `filePath` is where its download is, once there
+    // is one, so the applied / other marks work for those as for any other picture. Setting
+    // one downloads it first (into the folder's Wallhaven/). Opens on the folder every time.
+    // The design: docs/handoffs/wallhaven; docs/WALLHAVEN.md says where it departs.
+    property string source: "folder"
+    readonly property bool onWallhaven: face.source === "wallhaven"
+    property bool filtersOpen: false
+    // The picture open in the viewer, when it is a Wallhaven one.
+    readonly property var viewWh: face.viewIndex >= 0 && face.viewIndex < face.matched.length
+        ? (face.matched[face.viewIndex].wh || null) : null
+    // This monitor in pixels: Wallhaven's "This screen" minimum size.
+    readonly property var screenObj: Quickshell.screens.find(sc => sc.name === face.screenName) ?? null
+    readonly property int screenPxW: face.screenObj ? Math.round(face.screenObj.width * (face.screenObj.devicePixelRatio ?? 1)) : 0
+    readonly property int screenPxH: face.screenObj ? Math.round(face.screenObj.height * (face.screenObj.devicePixelRatio ?? 1)) : 0
+
+    function setSource(src) {
+        if (src === face.source)
+            return
+        face.sortOpen = false
+        face.filtersOpen = false
+        face.closeViewer()
+        face.source = src
+        search.clear()
+        face.searchText = ""
+        whSearchDelay.stop()
+        if (face.onWallhaven && (WallhavenService.page === 0 || WallhavenService.query !== ""))
+            WallhavenService.search("", face.screenPxW, face.screenPxH)
+        face.recompute()
+        Qt.callLater(() => grid.positionViewAtBeginning())
+    }
+
+    // Wallhaven's results, in the gallery's item shape.
+    function wallhavenItems() {
+        const out = []
+        for (const it of WallhavenService.items) {
+            const have = WallhavenService.downloaded(it)
+            out.push({
+                fileName: "#" + it.id,
+                filePath: have ? WallhavenService.folder + "/" + WallhavenService.fileNameOf(it) : "",
+                fileSize: it.size,
+                fileModified: 0,
+                wh: it
+            })
+        }
+        return out
+    }
+
+    Connections {
+        target: WallhavenService
+        function onItemsChanged() {
+            if (face.onWallhaven)
+                face.recompute()
+        }
+        function onHaveChanged() {
+            if (!face.onWallhaven)
+                return
+            face.recompute()
+            // The picture open in the viewer was just downloaded: it is a file now.
+            if (face.viewIndex >= 0 && face.viewIndex < face.matched.length)
+                face.viewPath = face.matched[face.viewIndex].filePath
+        }
+    }
+
+    // Typing on Wallhaven searches it, a moment after the last key.
+    Timer {
+        id: whSearchDelay
+        interval: 450
+        onTriggered: WallhavenService.search(face.searchText, face.screenPxW, face.screenPxH)
+    }
+
+    // Near the end of what is loaded: the next page.
+    function nearEnd(i) {
+        if (face.onWallhaven && i >= face.matched.length - 6)
+            WallhavenService.more()
+    }
+
     // ===== the list =====
     // Same idea as the wallpaper picker's: the folder is read into a snapshot
     // (`items`, in the chosen order) and the gallery shows what matches the
@@ -256,12 +336,20 @@ Item {
     }
 
     function recompute() {
+        if (face.onWallhaven) {
+            face.matched = face.wallhavenItems()
+            return
+        }
         const q = face.searchText.trim().toLowerCase()
         face.matched = q === "" ? face.items
             : face.items.filter(it => it.fileName.toLowerCase().indexOf(q) !== -1)
     }
 
     onSearchTextChanged: {
+        if (face.onWallhaven) {
+            whSearchDelay.restart()
+            return
+        }
         face.recompute()
         Qt.callLater(() => grid.positionViewAtBeginning())
     }
@@ -310,6 +398,7 @@ Item {
         face.viewIndex = k
         face.viewPath = face.matched[k].filePath
         face.viewName = face.matched[k].fileName
+        face.nearEnd(k)
         grid.currentIndex = k
         // the wheel follows the viewer's Left / Right, so Gallery lands on it
         wheelView.rotateTo(k)
@@ -342,6 +431,10 @@ Item {
     function back() {
         if (face.sortOpen)
             face.sortOpen = false
+        else if (face.filtersOpen)
+            face.filtersOpen = false
+        else if (WallhavenService.fetching !== "")
+            WallhavenService.cancelFetch()
         else if (face.viewing)
             face.closeViewer()
         else if (face.searchText !== "")
@@ -354,6 +447,12 @@ Item {
     // `path`: the picture to set (the wheel passes the one in front); the
     // viewer's keys leave it out and mean the one it has open.
     function setDesktop(all, path) {
+        // A Wallhaven picture that isn't downloaded yet: download it, then this again.
+        if ((path === undefined || path === "") && face.viewWh && face.viewPath === "") {
+            const wh = face.viewWh
+            WallhavenService.fetch(wh, p => face.setDesktop(all, p))
+            return
+        }
         const p = (path !== undefined && path !== "") ? path : face.viewPath
         if (p === "")
             return
@@ -365,6 +464,11 @@ Item {
     }
 
     function setLock(all, path) {
+        if ((path === undefined || path === "") && face.viewWh && face.viewPath === "") {
+            const wh = face.viewWh
+            WallhavenService.fetch(wh, p => face.setLock(all, p))
+            return
+        }
         const p = (path !== undefined && path !== "") ? path : face.viewPath
         if (p === "")
             return
@@ -382,6 +486,20 @@ Item {
     function flash(which) {
         face.justSet = which
         flashTimer.restart()
+    }
+
+    // The wheel's set keys, for the picture in front (by its place, so a Wallhaven one
+    // that isn't downloaded yet can be).
+    function setFromWheel(which, all) {
+        const i = wheelView.shownIndex
+        if (i < 0 || i >= face.matched.length)
+            return
+        const it = face.matched[i]
+        const go = p => which === "lock" ? face.setLock(all, p) : face.setDesktop(all, p)
+        if (it.filePath !== "")
+            go(it.filePath)
+        else if (it.wh)
+            WallhavenService.fetch(it.wh, p => go(p))
     }
 
     // Spin the wheel in from the left again (the phone showing a gallery that was
@@ -417,6 +535,12 @@ Item {
                 face.setDesktop((event.modifiers & Qt.ShiftModifier) !== 0)
                 event.accepted = true
             }
+            return
+        }
+        // Ctrl+Tab flips My folder <-> Wallhaven.
+        if ((event.modifiers & Qt.ControlModifier) && (k === Qt.Key_Tab || k === Qt.Key_Backtab)) {
+            face.setSource(face.onWallhaven ? "folder" : "wallhaven")
+            event.accepted = true
             return
         }
         // Tab flips Desktop <-> Lockscreen (only there with Separate Lockscreen Wallpaper on).
@@ -625,6 +749,44 @@ Item {
         }
     }
 
+    // My folder | Wallhaven, beside the title (not in the viewer).
+    WallpaperSourceSwitch {
+        id: sourceSwitch
+        x: banner.x + banner.width + 22
+        y: banner.y + (bannerKey.capH - height) / 2
+        current: face.source
+        opacity: 1 - face.viewP
+        visible: opacity > 0.01
+        enabled: !face.viewing
+        onPicked: id => face.setSource(id)
+    }
+
+    // ...and the keys that flip it.
+    Pill {
+        x: sourceSwitch.x + sourceSwitch.width + 12
+        y: sourceSwitch.y + (sourceSwitch.height - height) / 2
+        width: ctrlTab.implicitWidth + 16
+        height: 26
+        cornerRadius: 8
+        ringWidth: 3
+        shadowDy: 3
+        fillColor: Theme.chipFill
+        opacity: sourceSwitch.opacity
+        visible: sourceSwitch.visible
+
+        Text {
+            id: ctrlTab
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: -1
+            text: "Ctrl Tab"
+            color: Theme.chipInk
+            font.family: Theme.fontFamily
+            font.pixelSize: 11
+            font.weight: Font.ExtraBold
+            font.styleName: Theme.fontStyleBold
+        }
+    }
+
     SekaiKey {
         id: clockChip
 
@@ -709,6 +871,12 @@ Item {
         visible: opacity > 0.01
         enabled: !face.viewing && !face.carousel
 
+        // Near the bottom of what is loaded: Wallhaven's next page.
+        onContentYChanged: {
+            if (face.onWallhaven && contentHeight > 0 && contentY + height > contentHeight - 2 * face.cellH)
+                WallhavenService.more()
+        }
+
         delegate: Item {
             id: cell
 
@@ -719,7 +887,9 @@ Item {
             height: grid.cellHeight
 
             readonly property string path: cell.modelData.filePath
-            readonly property bool applied: cell.path === face.currentPath
+            // A Wallhaven result (null for a picture in the folder).
+            readonly property var wh: cell.modelData.wh || null
+            readonly property bool applied: cell.path !== "" && cell.path === face.currentPath
             readonly property bool other: face.otherPath !== "" && cell.path === face.otherPath
             readonly property bool picked: face.keyNav && GridView.isCurrentItem
             readonly property bool hot: area.containsMouse || picked
@@ -775,13 +945,14 @@ Item {
                     anchors.fill: parent
                     anchors.margins: 4
                     radius: 12
-                    color: Theme.pSurfaceHover
+                    // A Wallhaven picture still on its way: its own main colour.
+                    color: cell.wh && cell.wh.colours.length > 0 ? cell.wh.colours[0] : Theme.pSurfaceHover
 
                     Image {
                         id: thumb
 
                         anchors.fill: parent
-                        source: WallpaperService.thumbUrl(cell.path)
+                        source: cell.wh ? cell.wh.thumb : WallpaperService.thumbUrl(cell.path)
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                         // Decoded as dense as the screen it lands in (the phone's
@@ -878,6 +1049,27 @@ Item {
                     }
                 }
 
+                // a Wallhaven picture that is already in the folder (when it isn't the
+                // applied one, which wears the check there instead)
+                Rectangle {
+                    visible: cell.wh !== null && cell.path !== "" && !cell.applied
+                    x: parent.width - width - 8
+                    y: 8
+                    width: 30
+                    height: 30
+                    radius: 15
+                    color: Theme.pSurface
+                    border.width: 3
+                    border.color: Theme.pLine
+
+                    MaterialIcon {
+                        anchors.centerIn: parent
+                        size: 16
+                        name: "folder"
+                        color: Theme.pInk
+                    }
+                }
+
                 // the name, while hot
                 Rectangle {
                     x: 10
@@ -900,7 +1092,7 @@ Item {
                         anchors.centerIn: parent
                         width: parent.width - 18
                         horizontalAlignment: Text.AlignHCenter
-                        text: face.baseName(cell.modelData.fileName)
+                        text: cell.wh ? cell.wh.resolution.replace("x", "\u00d7") : face.baseName(cell.modelData.fileName)
                         elide: Text.ElideMiddle
                         color: Theme.pInk
                         font.family: Theme.fontFamily
@@ -934,6 +1126,100 @@ Item {
         opacity: 1 - face.viewP
     }
 
+    // Wallhaven: the next page is on its way.
+    Rectangle {
+        visible: face.onWallhaven && WallhavenService.loading && WallhavenService.page > 0 && face.viewP < 0.5
+        x: face.pageX + (face.pageWidth - width) / 2
+        y: face.galleryTop + face.galleryHeight - height - 10
+        z: 3
+        width: pageRow.implicitWidth + 28
+        height: 34
+        radius: 17
+        color: Theme.pSurface
+        border.width: 3
+        border.color: Theme.pLine
+
+        Row {
+            id: pageRow
+            anchors.centerIn: parent
+            spacing: 7
+
+            MaterialIcon {
+                id: pageSpin
+                anchors.verticalCenter: parent.verticalCenter
+                name: "sync"
+                size: 15
+                weight: 700
+                color: Theme.pInk
+                transformOrigin: Item.Center
+                RotationAnimator on rotation {
+                    running: pageSpin.visible
+                    loops: Animation.Infinite
+                    from: 0
+                    to: 360
+                    duration: 800
+                }
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Page " + (WallhavenService.page + 1) + " of " + WallhavenService.lastPage
+                color: Theme.pInk
+                font.family: Theme.fontFamily
+                font.pixelSize: 13
+                font.weight: Font.ExtraBold
+                font.styleName: Theme.fontStyleBold
+            }
+        }
+    }
+
+    // Wallhaven's first page on its way: empty cards where the pictures will be.
+    Grid {
+        visible: face.onWallhaven && WallhavenService.loading && WallhavenService.page === 0 && face.viewP < 0.5
+        x: face.pageX
+        y: face.galleryTop
+        columns: face.columns
+
+        Repeater {
+            model: face.columns * 3
+            delegate: Item {
+                width: face.cellW
+                height: face.cellH
+
+                Rectangle {
+                    x: 9
+                    y: 9
+                    width: face.cellW - 22
+                    height: face.cellH - 22
+                    radius: 16
+                    color: Theme.pLineShadow
+                }
+                Rectangle {
+                    x: 4
+                    y: 4
+                    width: face.cellW - 22
+                    height: face.cellH - 22
+                    radius: 16
+                    color: Theme.pSurface
+                    border.width: 4
+                    border.color: Theme.pLine
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 4
+                        radius: 12
+                        color: Theme.pSurfaceHover
+                        SequentialAnimation on opacity {
+                            loops: Animation.Infinite
+                            NumberAnimation { from: 1; to: 0.55; duration: 700; easing.type: Easing.InOutSine }
+                            NumberAnimation { from: 0.55; to: 1; duration: 700; easing.type: Easing.InOutSine }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // ===== the wheel =====
     WallpaperWheel {
         id: wheelView
@@ -958,15 +1244,16 @@ Item {
         enabled: face.carousel && !face.viewing
 
         onOpened: index => face.showIndex(index)
-        onSetDesktopRequested: (path, all) => face.setDesktop(all, path)
-        onSetLockRequested: (path, all) => face.setLock(all, path)
+        onSetDesktopRequested: (path, all) => face.setFromWheel("desktop", all)
+        onSetLockRequested: (path, all) => face.setFromWheel("lock", all)
+        onCenterIndexChanged: face.nearEnd(centerIndex)
     }
 
     // an empty folder, or nothing matches the search
     Column {
         x: face.pageX + (face.pageWidth - width) / 2
         y: face.galleryTop + (face.galleryHeight - height) / 2
-        visible: face.listed && face.matched.length === 0 && face.viewP < 0.5
+        visible: !face.onWallhaven && face.listed && face.matched.length === 0 && face.viewP < 0.5
         spacing: 8
 
         MaterialIcon {
@@ -999,6 +1286,24 @@ Item {
             font.pixelSize: 17
             font.weight: Font.DemiBold
         }
+    }
+
+    // Wallhaven: nothing found, too many requests, offline, or not answering.
+    WallhavenMessage {
+        readonly property bool nothing: !WallhavenService.loading && WallhavenService.error === ""
+            && WallhavenService.page > 0 && WallhavenService.items.length === 0
+        visible: face.onWallhaven && face.viewP < 0.5 && (WallhavenService.error !== "" || nothing)
+        x: face.pageX + (face.pageWidth - width) / 2
+        y: face.galleryTop + (face.galleryHeight - height) / 2
+        maxWidth: Math.min(640, face.pageWidth - 120)
+        kind: WallhavenService.error !== "" ? WallhavenService.error : "empty"
+        query: WallhavenService.query
+        filters: WallhavenService.filters
+        retryIn: WallhavenService.retryIn
+        onRetry: WallhavenService.retry()
+        onClearFilters: WallhavenService.resetFilters()
+        onEditSearch: search.begin("")
+        onBackToFolder: face.setSource("folder")
     }
 
     // ===== the toolbar =====
@@ -1036,7 +1341,9 @@ Item {
             width: Math.max(0, controls.x - x - 14)
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
-            text: face.subtitle
+            text: !face.onWallhaven ? face.subtitle
+                : (WallhavenService.loading && WallhavenService.page === 0 ? "Searching Wallhaven\u2026"
+                : (WallhavenService.error !== "" ? "Wallhaven" : WallhavenService.description))
             color: Theme.pInkSub
             font.family: Theme.fontFamily
             font.pixelSize: 15
@@ -1054,7 +1361,7 @@ Item {
             SearchPill {
                 id: search
 
-                placeholder: "Search wallpapers"
+                placeholder: face.onWallhaven ? "Search Wallhaven: tags, -tag, @user" : "Search wallpapers"
                 onTextChanged: face.searchText = text
                 onLeave: face.forceActiveFocus()
             }
@@ -1062,15 +1369,30 @@ Item {
             SortChip {
                 id: sortChip
 
-                label: face.sortShort
+                label: face.onWallhaven ? WallhavenService.sortLabel : face.sortShort
                 active: face.sortOpen
-                onClicked: face.sortOpen = !face.sortOpen
+                onClicked: {
+                    face.filtersOpen = false
+                    face.sortOpen = !face.sortOpen
+                }
+            }
+
+            WallhavenFilterChip {
+                id: filterChip
+                visible: face.onWallhaven
+                count: WallhavenService.filterCount
+                active: face.filtersOpen
+                onClicked: {
+                    face.sortOpen = false
+                    face.filtersOpen = !face.filtersOpen
+                }
             }
 
             // Which folder the wallpapers come from. Lit while it is not the
             // default one. The phone steps aside while the chooser is open and comes
             // back on this same side (WallpaperService.pickFolder).
             MagnetButton {
+                visible: !face.onWallhaven
                 icon: "folder_open"
                 label: "Wallpaper folder"
                 active: WallpaperService.customFolder
@@ -1081,18 +1403,21 @@ Item {
             }
 
             MagnetButton {
+                visible: !face.onWallhaven
                 icon: "my_location"
                 label: "Jump to applied"
                 onClicked: face.jumpToApplied()
             }
 
             MagnetButton {
+                visible: !face.onWallhaven
                 icon: "shuffle"
                 label: "Shuffle"
                 onClicked: face.shuffle()
             }
 
             MagnetButton {
+                visible: !face.onWallhaven
                 icon: "refresh"
                 label: "Refresh"
                 badge: face.hasNew
@@ -1114,7 +1439,7 @@ Item {
         GallerySortCard {
             x: controls.x + sortChip.x + sortChip.width - width
             y: face.toolbarH + 6
-            shown: face.sortOpen
+            shown: face.sortOpen && !face.onWallhaven
             sortMode: face.sortMode
             options: face.sortOptions
             onSelected: mode => {
@@ -1122,14 +1447,44 @@ Item {
                 face.sortOpen = false
             }
         }
+
+        // Wallhaven's sort menu and Filters card, each under its own key, kept inside the
+        // page (never past its right edge).
+        WallhavenSortCard {
+            x: Math.min(toolbar.width - width, controls.x + sortChip.x + sortChip.width - width)
+            y: face.toolbarH + 6
+            shown: face.sortOpen && face.onWallhaven
+            sort: WallhavenService.sortInUse
+            range: WallhavenService.topRange
+            hasQuery: face.searchText.trim() !== ""
+            onSelected: (sort, range) => {
+                WallhavenService.setSort(sort, range)
+                if (sort !== "toplist")
+                    face.sortOpen = false
+            }
+        }
+
+        WallhavenFilterCard {
+            x: Math.max(0, Math.min(toolbar.width - width, controls.x + filterChip.x + filterChip.width - width))
+            y: face.toolbarH + 6
+            shown: face.filtersOpen && face.onWallhaven
+            filters: WallhavenService.filters
+            screenLabel: face.screenPxW > 0 ? face.screenPxW + "\u00d7" + face.screenPxH : ""
+            onCategoriesPicked: list => WallhavenService.setFilter("categories", list)
+            onPicked: (key, value) => WallhavenService.setFilter(key, value)
+            onResetRequested: WallhavenService.resetFilters()
+        }
     }
 
-    // Catches the click that closes the sort menu.
+    // Catches the click that closes the sort menu or the Filters card.
     MouseArea {
         anchors.fill: parent
         z: 4
-        enabled: face.sortOpen
-        onClicked: face.sortOpen = false
+        enabled: face.sortOpen || face.filtersOpen
+        onClicked: {
+            face.sortOpen = false
+            face.filtersOpen = false
+        }
     }
 
     // ===== the viewer =====
@@ -1176,11 +1531,20 @@ Item {
                 radius: 19
                 color: Theme.pSurfaceHover
 
+                // A Wallhaven picture: its thumbnail at once, the full picture over it.
+                Image {
+                    anchors.fill: parent
+                    visible: face.viewWh !== null
+                    source: face.viewWh ? face.viewWh.thumb : ""
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                }
+
                 Image {
                     id: bigPicture
 
                     anchors.fill: parent
-                    source: face.viewPath === "" ? ""
+                    source: face.viewPath === "" ? (face.viewWh ? face.viewWh.full : "")
                             : (face.viewIsVideo ? WallpaperService.thumbUrl(face.viewPath) : "file://" + face.viewPath)
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
@@ -1197,20 +1561,93 @@ Item {
 
                 MaterialIcon {
                     anchors.centerIn: parent
-                    visible: bigPicture.status !== Image.Ready
+                    visible: bigPicture.status !== Image.Ready && face.viewWh === null
                     size: 64
                     name: face.viewIsVideo ? "movie" : "image"
                     color: Theme.pInkSub
+                }
+
+                // where it comes from
+                Rectangle {
+                    visible: face.viewWh !== null
+                    x: 14
+                    y: 14
+                    width: whBadge.implicitWidth + 22
+                    height: 30
+                    radius: 15
+                    color: Theme.pSurface
+                    border.width: 3
+                    border.color: Theme.pLine
+
+                    Row {
+                        id: whBadge
+                        anchors.centerIn: parent
+                        spacing: 6
+                        MaterialIcon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            name: "travel_explore"
+                            size: 16
+                            color: Theme.pInk
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "Wallhaven"
+                            color: Theme.pInk
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            font.weight: Font.ExtraBold
+                            font.styleName: Theme.fontStyleBold
+                        }
+                    }
+                }
+
+                // downloading: a bar along the bottom of the picture
+                Rectangle {
+                    visible: face.viewWh !== null && WallhavenService.fetching === face.viewWh.id
+                    x: 18
+                    y: parent.height - height - 18
+                    width: parent.width - 36
+                    height: 12
+                    radius: 6
+                    color: Theme.pSurface
+                    border.width: 2
+                    border.color: Theme.pLine
+
+                    Rectangle {
+                        x: 2
+                        y: 2
+                        height: parent.height - 4
+                        width: (parent.width - 4) * WallhavenService.progress
+                        radius: height / 2
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: Theme.accentCyan }
+                            GradientStop { position: 1.0; color: Theme.accentMint }
+                        }
+                        Behavior on width { NumberAnimation { duration: 250 } }
+                    }
                 }
             }
         }
 
         // the name and what it is
         Column {
+            id: infoCol
             x: viewerArea.panelX
             y: 6
             width: viewerArea.panelW
             spacing: 8
+
+            Text {
+                visible: face.viewWh !== null
+                text: "WALLHAVEN"
+                color: Theme.pInkSub
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                font.weight: Font.ExtraBold
+                font.styleName: Theme.fontStyleBold
+                font.letterSpacing: 1.4
+            }
 
             Text {
                 width: parent.width
@@ -1226,11 +1663,96 @@ Item {
             }
 
             Text {
+                visible: face.viewWh === null
                 text: face.viewIsVideo ? "Video wallpaper" : "Picture"
                 color: Theme.pInkSub
                 font.family: Theme.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.DemiBold
+            }
+
+            // Wallhaven: what it is (wraps rather than run past the panel), its colours,
+            // and how liked it is.
+            Flow {
+                visible: face.viewWh !== null
+                width: parent.width
+                spacing: 6
+
+                Repeater {
+                    model: face.viewWh ? [
+                        face.viewWh.category ? face.viewWh.category.charAt(0).toUpperCase() + face.viewWh.category.slice(1) : "",
+                        face.viewWh.resolution.replace("x", " \u00d7 "),
+                        face.viewWh.type.toUpperCase(),
+                        WallhavenService.humanSize(face.viewWh.size)
+                    ].filter(t => t !== "") : []
+
+                    delegate: Rectangle {
+                        required property string modelData
+                        width: tag.implicitWidth + 20
+                        height: 28
+                        radius: 9
+                        color: Theme.pSurface
+                        border.width: 2.5
+                        border.color: Theme.pLine
+
+                        Text {
+                            id: tag
+                            anchors.centerIn: parent
+                            text: modelData
+                            color: Theme.pInk
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            font.weight: Font.ExtraBold
+                            font.styleName: Theme.fontStyleBold
+                        }
+                    }
+                }
+            }
+
+            Row {
+                visible: face.viewWh !== null && face.viewWh.colours.length > 0
+                spacing: 6
+                Repeater {
+                    model: face.viewWh ? face.viewWh.colours : []
+                    delegate: Rectangle {
+                        required property string modelData
+                        width: 26
+                        height: 26
+                        radius: 8
+                        color: modelData
+                        border.width: 2.5
+                        border.color: Theme.pLine
+                    }
+                }
+            }
+
+            Row {
+                visible: face.viewWh !== null
+                spacing: 14
+                Repeater {
+                    model: face.viewWh ? [
+                        { icon: "visibility", text: face.viewWh.views.toLocaleString() + " views" },
+                        { icon: "favorite", text: face.viewWh.favourites.toLocaleString() + " favourites" }
+                    ] : []
+                    delegate: Row {
+                        required property var modelData
+                        spacing: 4
+                        MaterialIcon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            name: modelData.icon
+                            size: 14
+                            color: Theme.pInkSub
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: modelData.text
+                            color: Theme.pInkSub
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                        }
+                    }
+                }
             }
 
             Row {
@@ -1280,30 +1802,40 @@ Item {
             }
         }
 
-        // the two actions
+        // the two actions. On Wallhaven everything below the details follows them down
+        // (they can wrap), instead of sitting at fixed heights.
+        readonly property bool whDownloading: face.viewWh !== null && WallhavenService.fetching === face.viewWh.id
+
         WallpaperActionKey {
+            id: deskKey
             x: viewerArea.panelX
-            y: 214
+            y: face.viewWh ? infoCol.y + infoCol.height + 14 : 214
             capW: viewerArea.panelW - 8
-            icon: "desktop_windows"
-            label: "Set as Desktop"
+            icon: viewerArea.whDownloading ? "download" : "desktop_windows"
+            label: viewerArea.whDownloading
+                ? "Downloading \u00b7 " + WallhavenService.humanSize(WallhavenService.fetched) + " of " + WallhavenService.humanSize(face.viewWh.size)
+                : "Set as Desktop"
+            progress: viewerArea.whDownloading ? WallhavenService.progress : -1
             done: face.justSet === "desktop"
             onClicked: all => face.setDesktop(all)
         }
 
         WallpaperActionKey {
+            id: lockKey
             x: viewerArea.panelX
-            y: 312
+            y: face.viewWh ? deskKey.y + deskKey.implicitHeight + 10 : 312
             capW: viewerArea.panelW - 8
             icon: "lock"
             label: "Set as Lockscreen"
+            available: !viewerArea.whDownloading
             done: face.justSet === "lock"
             onClicked: all => face.setLock(all)
         }
 
         Text {
+            id: viewerNote
             x: viewerArea.panelX
-            y: 410
+            y: face.viewWh ? lockKey.y + lockKey.implicitHeight + 10 : 410
             width: viewerArea.panelW
             wrapMode: Text.WordWrap
             color: Theme.pInkSub
@@ -1312,6 +1844,10 @@ Item {
             font.weight: Font.DemiBold
             text: {
                 const lines = []
+                if (viewerArea.whDownloading)
+                    lines.push("Esc stops the download. It goes on when it\u2019s done.")
+                else if (face.viewWh && face.viewPath !== "")
+                    lines.push("In your folder, sets at once: Wallhaven/" + WallhavenService.fileNameOf(face.viewWh))
                 if (WallpaperService.perMonitor && face.screenName !== "")
                     lines.push("Changes this monitor (" + face.screenName + ") only. Shift+click: every monitor.")
                 if (!WallpaperService.separateLock)
@@ -1320,10 +1856,32 @@ Item {
             }
         }
 
+        // Wallhaven: keep it without setting it, or see it on the site.
+        Row {
+            id: whRow
+            visible: face.viewWh !== null
+            x: viewerArea.panelX
+            y: viewerNote.y + (viewerNote.text !== "" ? viewerNote.height + 12 : 0)
+            spacing: 10
+
+            WallhavenChip {
+                icon: face.viewPath !== "" ? "check" : "download"
+                text: face.viewPath !== "" ? "Saved" : "Save to folder"
+                available: face.viewPath === "" && !viewerArea.whDownloading
+                onClicked: WallhavenService.fetch(face.viewWh, null)
+            }
+
+            WallhavenChip {
+                icon: "open_in_new"
+                text: "wallhaven.cc"
+                onClicked: Qt.openUrlExternally(face.viewWh.page)
+            }
+        }
+
         // previous / next (through what the search and sort show)
         Row {
             x: viewerArea.panelX
-            y: viewerArea.cardH - 40
+            y: face.viewWh ? Math.max(viewerArea.cardH - 40, whRow.y + whRow.height + 14) : viewerArea.cardH - 40
             spacing: 14
 
             SekaiNavKey {

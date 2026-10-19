@@ -29,6 +29,16 @@ Singleton {
     // Where downloads go: a subfolder of the picker's folder, so they show up in it.
     readonly property string folder: WallpaperService.directory + "/Wallhaven"
 
+    // `ipc call wallpaperpicker wallhaven` asks for the picker to open on Wallhaven; the
+    // picker takes it (takeSource) when it opens, and opens on the folder otherwise.
+    property string askedSource: ""
+
+    function takeSource() {
+        const s = root.askedSource !== "" ? root.askedSource : "folder"
+        root.askedSource = ""
+        return s
+    }
+
     // ===== the results =====
     property var items: []
     property int page: 0
@@ -214,6 +224,16 @@ Singleton {
 
     function downloaded(item) {
         return !!item && root.have[item.id] === true
+    }
+
+    // 1430892 -> "1.4 MB"
+    function humanSize(bytes) {
+        return WH.humanSize(bytes)
+    }
+
+    // The file name a download of `item` gets in `folder`.
+    function fileNameOf(item) {
+        return WH.fileName(item)
     }
 
     Process {

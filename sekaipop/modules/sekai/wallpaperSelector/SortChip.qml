@@ -14,8 +14,19 @@ Item {
 
     signal clicked()
 
-    width: 152
+    // 152 at least (the folder's orders all fit in that), wider when the label needs it
+    // (Wallhaven's "Top \u00b7 6 months"): the label is never cut.
+    width: Math.max(152, Math.ceil(labelMetrics.advanceWidth) + 44 + 36 + 4)
     height: 40
+
+    TextMetrics {
+        id: labelMetrics
+        text: root.label
+        font.family: Theme.fontFamily
+        font.styleName: Theme.fontStyleBold
+        font.weight: Font.ExtraBold
+        font.pixelSize: 14
+    }
 
     readonly property bool hot: area.containsMouse
     readonly property real press: area.pressed ? 2 : 0
