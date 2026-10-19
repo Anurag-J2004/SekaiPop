@@ -3,8 +3,16 @@
 # Helper for ThemeService.qml's "Wallpaper (matugen)" theme: runs matugen on
 # a wallpaper and leaves the colours where the shell reads them.
 #
-#   matugen-state.sh apply <image> [scheme-type] [name]
+#   matugen-state.sh apply <image> [scheme-type] [name] [seed] [contrast]
+#   matugen-state.sh sources <image>  the wallpaper's candidate seed colours, one
+#                                     "#rrggbb" per line (writes nothing)
+#   matugen-state.sh installed        exit 0 if matugen is on the PATH, 127 if not
 #   matugen-state.sh check            (prints what it found, for debugging)
+#
+# [seed] is which of the wallpaper's colours leads (an index into `sources`, 0 =
+# matugen's own first pick, the default) and [contrast] matugen's --contrast, -1 to 1
+# (none = matugen's default). Both come from Edit Desktop > THEME > Matugen's controls
+# (MatugenMath.js); anything that isn't a number is left out rather than passed on.
 #
 # It uses its own tiny matugen config (written on every run, next to the
 # output), so ONLY matugen-template.json is rendered: your own
@@ -44,6 +52,14 @@ case "$mode" in
         img="$2"
         type="${3:-scheme-tonal-spot}"
         name="${4:-colors}"
+        seed="${5:-0}"
+        case "$seed" in ''|*[!0-9]*) seed=0 ;; esac
+        contrast=""
+        case "$6" in
+            -1|-0.5|0|0.5|1|-1.0|1.0|0.0) contrast="$6" ;;
+        esac
+        # set -- is the only list a POSIX shell has: the optional --contrast pair.
+        if [ -n "$contrast" ]; then set -- --contrast "$contrast"; else set --; fi
         out="$cachedir/$name.json"
         [ -f "$img" ] || { echo "matugen-state: no such image: $img" >&2; exit 2; }
         command -v matugen >/dev/null 2>&1 || { echo "matugen-state: matugen is not installed (not on the shell's PATH)" >&2; exit 127; }
@@ -66,11 +82,17 @@ case "$mode" in
         # dominant colour without asking. Older matugen doesn't know that flag
         # (or --quiet), so if the first run fails the flags are dropped one
         # group at a time.
-        matugen image "$img" --config "$cfg" --mode dark --type "$type" --source-color-index 0 --quiet
+        matugen image "$img" --config "$cfg" --mode dark --type "$type" --source-color-index "$seed" "$@" --quiet
         rc=$?
+        if [ "$rc" -ne 0 ] && [ ! -s "$new" ] && [ "$seed" != 0 ]; then
+            echo "matugen-state: run failed (exit $rc), retrying with the wallpaper's first colour (seed $seed may not exist)" >&2
+            seed=0
+            matugen image "$img" --config "$cfg" --mode dark --type "$type" --source-color-index 0 "$@" --quiet
+            rc=$?
+        fi
         if [ "$rc" -ne 0 ] && [ ! -s "$new" ]; then
             echo "matugen-state: run failed (exit $rc), retrying without --quiet" >&2
-            matugen image "$img" --config "$cfg" --mode dark --type "$type" --source-color-index 0
+            matugen image "$img" --config "$cfg" --mode dark --type "$type" --source-color-index "$seed" "$@"
             rc=$?
         fi
         if [ "$rc" -ne 0 ] && [ ! -s "$new" ]; then
@@ -87,8 +109,18 @@ case "$mode" in
         fi
         mv -f "$new" "$out" || exit 1
         ;;
+    sources)
+        img="$2"
+        [ -f "$img" ] || { echo "matugen-state: no such image: $img" >&2; exit 2; }
+        command -v matugen >/dev/null 2>&1 || exit 127
+        matugen image "$img" --dry-run --show-source-colors --quiet 2>/dev/null \
+            || matugen image "$img" --dry-run --show-source-colors
+        ;;
+    installed)
+        command -v matugen >/dev/null 2>&1 || exit 127
+        ;;
     *)
-        echo "usage: $0 apply <image> [scheme-type] | check" >&2
+        echo "usage: $0 apply <image> [scheme-type] [name] [seed] [contrast] | sources <image> | installed | check" >&2
         exit 2
         ;;
 esac

@@ -21,11 +21,30 @@ import qs.modules.common.widgets
 //
 // Tile size lives in `tileW` / `tileH`. The shelf is 168 tall, so keep
 // tileH under about 140 (the selected badge pokes out above the tile).
+//
+// The Matugen tile has more (issue #28; docs/MATUGEN-CONTROLS.md):
+//   not the theme on   a small "tune" mark beside its name: it has options
+//   the theme on       a round tune key on its corner; clicking it, or the tile
+//                      again, swaps the row for its controls (EditMatugenControls.qml)
+//                      until Back or Esc (EditTray.qml) brings the tiles back
+//   accent pinned      a pin badge on the other top corner (EditPinBadge.qml)
+//   matugen missing    a dashed face saying so, faded, and no click
 Item {
     id: root
 
     readonly property real tileW: 150
     readonly property real tileH: 138
+
+    // The Matugen controls are up instead of the tiles.
+    property bool tuning: false
+    // The hex field in the controls gave the keyboard back (EditTray: Esc leaves again).
+    signal finished()
+
+    readonly property bool matugenOn: ThemeService.current === "matugen"
+
+    // Leaving the tab, or the theme no longer being Matugen, puts the tiles back.
+    onVisibleChanged: if (!visible) root.tuning = false
+    onMatugenOnChanged: if (!matugenOn) root.tuning = false
 
     // One group: the picture, its name, and a badge on the one that is on.
     component ThemeTile: Item {
@@ -35,6 +54,8 @@ Item {
 
         readonly property var c: group.c
         readonly property bool selected: ThemeService.current === group.id
+        readonly property bool isMatugen: group.id === "matugen"
+        readonly property bool missing: tile.isMatugen && !ThemeService.matugenInstalled
         readonly property bool dark: ThemeService.dark
 
         // What the picture's surfaces are in the current look: white in Light,
@@ -45,6 +66,7 @@ Item {
 
         width: root.tileW
         height: root.tileH
+        opacity: tile.missing ? 0.62 : 1
 
         Gradient {
             id: onFill
@@ -84,6 +106,7 @@ Item {
             // ===== the picture =====
             Item {
                 id: pic
+                visible: !tile.missing
                 x: 6
                 y: 6
                 width: body.capWidth - body.ringWidth * 2 - 12
@@ -250,19 +273,89 @@ Item {
                 }
             }
 
-            // ===== the name =====
-            Text {
-                x: 6
-                y: pic.y + pic.height + 6
+            // matugen isn't installed: a dashed face where the picture goes.
+            Canvas {
+                id: missingFace
+                visible: tile.missing
+                x: pic.x
+                y: pic.y
                 width: pic.width
-                horizontalAlignment: Text.AlignHCenter
-                elide: Text.ElideRight
-                text: tile.group.id === "matugen" ? "Matugen" : tile.group.name
-                color: tile.selected ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                height: pic.height - 3
+                // A Canvas only redraws when asked: again when the colours change.
+                property color lineColour: Theme.pLine
+                onLineColourChanged: requestPaint()
+                onVisibleChanged: if (visible) requestPaint()
+                onPaint: {
+                    const ctx = getContext("2d")
+                    ctx.reset()
+                    ctx.strokeStyle = missingFace.lineColour
+                    ctx.lineWidth = 2.5
+                    ctx.setLineDash([3, 2.5])
+                    ctx.beginPath()
+                    ctx.roundedRect(1.25, 1.25, width - 2.5, height - 2.5, 10, 10)
+                    ctx.stroke()
+                }
+
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 4
+
+                    MaterialIcon {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        name: "terminal"
+                        size: 20
+                        weight: 700
+                        color: Theme.pInkSub
+                    }
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "Needs matugen"
+                        color: Theme.pInk
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 12
+                        font.weight: Font.Black
+                        font.styleName: Theme.fontStyleBold
+                    }
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        text: "Install it to use\nthe wallpaper"
+                        color: Theme.pInkSub
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 11
+                        font.weight: Font.ExtraBold
+                    }
+                }
+            }
+
+            // ===== the name =====
+            Row {
+                x: 6 + (pic.width - width) / 2
+                y: pic.y + pic.height + 6
+                spacing: 5
+
+                Text {
+                    width: Math.min(implicitWidth, pic.width - (tuneMark.visible ? 17 : 0))
+                    elide: Text.ElideRight
+                    text: tile.isMatugen ? "Matugen" : tile.group.name
+                    color: tile.selected ? Theme.colBorder : Theme.pInk
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    font.weight: Font.ExtraBold
+                    font.styleName: Theme.fontStyleBold
+                }
+
+                // Matugen has options (shown while it isn't the theme on).
+                MaterialIcon {
+                    id: tuneMark
+                    visible: tile.isMatugen && !tile.selected && !tile.missing
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: "tune"
+                    size: 12
+                    weight: 700
+                    opacity: 0.8
+                    color: Theme.pInk
+                }
             }
         }
 
@@ -288,20 +381,79 @@ Item {
             }
         }
 
+        // An accent is pinned (Matugen only).
+        EditPinBadge {
+            visible: tile.isMatugen && !tile.missing && pins.length > 0
+            x: -9
+            y: -9
+        }
+
         MouseArea {
             id: tileArea
             anchors.fill: parent
+            enabled: !tile.missing
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: ThemeService.setTheme(tile.group.id)
+            // Matugen, clicked again while it is on: its controls.
+            onClicked: {
+                if (tile.isMatugen && tile.selected)
+                    root.tuning = true
+                else
+                    ThemeService.setTheme(tile.group.id)
+            }
         }
+
+        // Matugen is on: the round tune key on its corner opens the controls.
+        Item {
+            visible: tile.isMatugen && tile.selected && !tile.missing
+            x: tile.width - 34 + 10
+            y: tile.height - 34 + 10 - 3
+            width: 34
+            height: 37
+
+            Pill {
+                anchors.fill: parent
+                cornerRadius: 17
+                ringWidth: 0
+                shadowDx: 0
+                shadowDy: 3
+                pressed: tuneArea.pressed
+                fillColor: tuneArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+            }
+
+            MaterialIcon {
+                x: (34 - width) / 2
+                y: (34 - height) / 2
+                name: "tune"
+                size: 18
+                weight: 700
+                color: Theme.pInk
+            }
+
+            MouseArea {
+                id: tuneArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.tuning = true
+            }
+        }
+    }
+
+    // The Matugen controls, in the row's place while tuning.
+    EditMatugenControls {
+        anchors.fill: parent
+        visible: root.tuning
+        onBack: root.tuning = false
+        onFinished: root.finished()
     }
 
     // The row. Centred; if the tiles do not all fit, it scrolls sideways.
     Flickable {
         id: flick
         anchors.fill: parent
+        visible: !root.tuning
 
         contentWidth: Math.max(flick.width, row.width)
         contentHeight: flick.height
