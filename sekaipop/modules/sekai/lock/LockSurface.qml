@@ -36,6 +36,10 @@ Item {
     // default is off).
     property bool blurWallpaper: SettingsService.flag("lock.blur")
 
+    // The drifting sparkles. They loop forever, which keeps the GPU busy the
+    // whole time the screen is locked, so Settings can turn them off.
+    readonly property bool animations: SettingsService.flag("lock.animations")
+
     // This monitor's scale (scale.json / services/ShellScale.qml), handed
     // in by Lockscreen.qml / LockRing.qml. Everything below is sized off
     // `u`, so it is the one place the lockscreen needs to know about it.
@@ -344,28 +348,34 @@ Item {
 
         // Sparkles, scattered by fraction of the screen so they sit in
         // the same places at any size.
-        Repeater {
-            model: [
-                { fx: 0.19, fy: 0.09, s: 30, d: 0 },
-                { fx: 0.47, fy: 0.06, s: 20, d: 700 },
-                { fx: 0.62, fy: 0.22, s: 44, d: 1300 },
-                { fx: 0.33, fy: 0.46, s: 24, d: 400 },
-                { fx: 0.79, fy: 0.13, s: 26, d: 1900 },
-                { fx: 0.91, fy: 0.42, s: 34, d: 900 },
-                { fx: 0.55, fy: 0.64, s: 22, d: 1600 },
-                { fx: 0.27, fy: 0.70, s: 38, d: 300 },
-                { fx: 0.72, fy: 0.55, s: 18, d: 2200 },
-                { fx: 0.06, fy: 0.90, s: 26, d: 1100 }
-            ]
+        // They animate forever, so they live in a Loader: with
+        // "Lockscreen animations" off they are not built at all.
+        Loader {
+            anchors.fill: parent
+            active: root.animations
+            sourceComponent: Repeater {
+                model: [
+                    { fx: 0.19, fy: 0.09, s: 30, d: 0 },
+                    { fx: 0.47, fy: 0.06, s: 20, d: 700 },
+                    { fx: 0.62, fy: 0.22, s: 44, d: 1300 },
+                    { fx: 0.33, fy: 0.46, s: 24, d: 400 },
+                    { fx: 0.79, fy: 0.13, s: 26, d: 1900 },
+                    { fx: 0.91, fy: 0.42, s: 34, d: 900 },
+                    { fx: 0.55, fy: 0.64, s: 22, d: 1600 },
+                    { fx: 0.27, fy: 0.70, s: 38, d: 300 },
+                    { fx: 0.72, fy: 0.55, s: 18, d: 2200 },
+                    { fx: 0.06, fy: 0.90, s: 26, d: 1100 }
+                ]
 
-            delegate: Sparkle {
-                required property var modelData
-                required property int index
-                size: root.px(modelData.s)
-                delay: modelData.d
-                x: modelData.fx * content.width
-                y: modelData.fy * content.height
-                color: index % 3 === 0 ? LockPalette.sparkle : "white"
+                delegate: Sparkle {
+                    required property var modelData
+                    required property int index
+                    size: root.px(modelData.s)
+                    delay: modelData.d
+                    x: modelData.fx * content.width
+                    y: modelData.fy * content.height
+                    color: index % 3 === 0 ? LockPalette.sparkle : "white"
+                }
             }
         }
 

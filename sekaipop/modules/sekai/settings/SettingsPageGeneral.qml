@@ -297,6 +297,14 @@ SettingsPage {
             onToggled: SettingsService.toggle("lock.blur")
         }
 
+        SettingToggle {
+            icon: "auto_awesome"
+            label: "Lockscreen animations"
+            detail: SettingsService.flag("lock.animations") ? (SettingsService.get("lock.style") === "calendar" ? "Gacha lockscreen only" : "Sparkles on (turn off to save GPU)") : "OFF (no sparkles, lighter on the GPU)"
+            checked: SettingsService.flag("lock.animations")
+            onToggled: SettingsService.toggle("lock.animations")
+        }
+
         SettingAction {
             icon: "lock"
             label: "Lock now"

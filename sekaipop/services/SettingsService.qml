@@ -93,6 +93,8 @@ Singleton {
         // The Apps screen shows your wallpaper behind the apps, washed out and seen through an LCD's pixel mesh.
         "launcher.lcdWallpaper": true,
         "lock.blur": false,
+        // The gacha lockscreen's endless sparkle animations. Off = they are not built, which saves GPU while locked.
+        "lock.animations": true,
         // The lockscreen's look: gacha (the Project Sekai gacha screen) | calendar (framed pictures cut out of your wallpaper, the month, power keys).
         "lock.style": "gacha",
         // Calendar lockscreen: where each frame's picture comes from: auto (the interesting parts of the wallpaper) | fixed (always the same spots).

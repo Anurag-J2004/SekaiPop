@@ -135,6 +135,7 @@ Singleton {
         "lock.tone",
         "lock.powerButtons",
         "lock.sleepDesktop",
+        "lock.animations",
         "lock.lyrics",
         "panel.hotEdge",
         "panel.hotDwell",
