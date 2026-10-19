@@ -15,8 +15,8 @@ import qs.modules.sekai.quickPanel
 // button. There is no list of pages beside the page; the menu IS the list:
 //
 //   MENU     (camera)  <leaning title banner>                 clock   <x>
-//            (cut-out)  ╱ 01 Quick ╱    ╱ 02 General ╱    ╱ 03 Bar ╱
-//                          ╱ 04 Desktop ╱    ╱ 05 Hyprland ╱   ╱ 06 About ╱
+//            (cut-out)  ╱ 01 Quick ╱  ╱ 02 General ╱  ╱ 03 Bar ╱  ╱ 04 Desktop ╱
+//                              ╱ 05 Hyprland ╱  ╱ 06 Keys ╱  ╱ 07 About ╱
 //
 //   A PAGE   (camera)  <leaning title banner>        [Menu]  clock   <x>
 //            (cut-out) ┌────────────────────────────────────────────────┐
@@ -74,6 +74,7 @@ Item {
         { id: "bar", icon: "toast", label: "Bar", title: "Bar", sub: "Where it sits and what it carries" },
         { id: "desktop", icon: "desktop_windows", label: "Desktop", title: "Desktop", sub: "Wallpaper, widgets and effects" },
         { id: "hyprland", icon: "grid_view", label: "Hyprland", title: "Hyprland", sub: "Windows, workspaces and input" },
+        { id: "keys", icon: "keyboard", label: "Keys", title: "Keys", sub: "What each shortcut does", headerSub: "Change what each shortcut does" },
         { id: "about", icon: "info", label: "About", longLabel: "About / Update", title: "About / Update", sub: "Version, updates and credits" }
     ]
 
@@ -220,11 +221,14 @@ Item {
     readonly property real pageWidth: width - safeLeft - safeRight
     readonly property real pageHeight: 594
 
-    // The menu: three tiles across, two down, the second row pushed right.
+    // The menu: two rows, the first one the longer (seven pages: four over three),
+    // the second pushed right. With an odd count it sits half a tile in, like
+    // bricks; with an even one, a small step.
     readonly property real hubGapX: 26
     readonly property real hubGapY: 30
-    readonly property real hubStagger: 34
-    readonly property real hubTileW: Math.floor((pageWidth - hubStagger - 2 * hubGapX - 10) / 3)
+    readonly property int hubCols: Math.ceil(pages.length / 2)
+    readonly property real hubTileW: Math.floor((pageWidth - (pages.length % 2 ? 0 : 34) - (hubCols - 1) * hubGapX - 10) / hubCols)
+    readonly property real hubStagger: pages.length % 2 ? Math.floor((hubTileW + hubGapX) / 2) : 34
     readonly property real hubTileH: Math.floor((pageHeight - hubGapY - 16) / 2)
 
     // What the cards sit on (SettingsPage uses it for its fades).
@@ -386,7 +390,7 @@ Item {
 
                     Text {
                         id: subText
-                        text: face.shownInfo.sub
+                        text: face.shownInfo.headerSub !== undefined ? face.shownInfo.headerSub : face.shownInfo.sub
                         color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.78)
                         font.family: Theme.fontFamily
                         font.pixelSize: 13
@@ -470,10 +474,58 @@ Item {
         y: 38
         icon: "apps"
         label: "Menu"
-        opacity: 1 - face.hubP
+        opacity: (1 - face.hubP) * (KeybindService.paused ? 0 : 1)
         visible: opacity > 0.01
-        enabled: !face.hub
+        enabled: !face.hub && !KeybindService.paused
         onClicked: face.showHub()
+    }
+
+    // Settings > Keys is recording a combination: every shortcut is paused until
+    // it lands or Escape cancels (KeybindService). Where the Menu key was.
+    Item {
+        id: pausePill
+        x: clockChip.x - 24 - width
+        y: 40
+        width: pauseRow.implicitWidth + 36 + 3
+        height: 47
+        visible: KeybindService.paused && !face.hub
+
+        Rectangle {
+            x: 3
+            y: 3
+            width: parent.width - 3
+            height: 44
+            radius: 14
+            color: Theme.pLineShadow
+        }
+        Rectangle {
+            width: parent.width - 3
+            height: 44
+            radius: 14
+            color: Theme.attributeColors[2]
+            border.width: 3
+            border.color: Theme.pLine
+
+            Row {
+                id: pauseRow
+                anchors.centerIn: parent
+                spacing: 10
+                MaterialIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: "pause_circle"
+                    size: 18
+                    color: Theme.colBorder
+                }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Shortcuts paused while you record"
+                    color: Theme.colBorder
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 15
+                    font.weight: Font.Black
+                }
+            }
+        }
     }
 
     // ===== search =====
@@ -610,8 +662,8 @@ Item {
                 required property var modelData
                 required property int index
 
-                readonly property int col: index % 3
-                readonly property int row: Math.floor(index / 3)
+                readonly property int col: index % face.hubCols
+                readonly property int row: Math.floor(index / face.hubCols)
 
                 x: col * (face.hubTileW + face.hubGapX) + row * face.hubStagger
                 y: 4 + row * (face.hubTileH + face.hubGapY)
@@ -678,7 +730,8 @@ Item {
                     : slot.index === 1 ? generalPage
                     : slot.index === 2 ? barPage
                     : slot.index === 3 ? desktopPage
-                    : slot.index === 4 ? hyprlandPage : aboutPage
+                    : slot.index === 4 ? hyprlandPage
+                    : slot.index === 5 ? keysPage : aboutPage
             }
         }
     }
@@ -832,6 +885,15 @@ Item {
     Component {
         id: hyprlandPage
         SettingsPageHyprland {
+            host: face
+            width: pageArea.width
+            height: pageArea.height
+        }
+    }
+
+    Component {
+        id: keysPage
+        SettingsPageKeys {
             host: face
             width: pageArea.width
             height: pageArea.height

@@ -48,6 +48,12 @@ CTRL+SUPER+SHIFT+T theme picker, CTRL+SUPER+R restart shell, SUPER+L lock,
 SUPER+SHIFT+S / X / A / R region snip / OCR / Lens / record, volume and brightness keys through
 the shell's OSD (wpctl / brightnessctl if the shell is down). Window and workspace binds are II's.
 
+Settings > Keys changes SekaiPop's binds from the shell: it unbinds the old keys and binds the
+new ones in `sekaipop_overrides.lua` (between `sekaipop:keys:begin` and `end`), applied by a
+reload. It recognises a bind by its description, so the "Group: sentence" form below matters for
+your own shell binds too. On `hyprland.conf` instead of this Lua config, it needs
+`source = ~/.config/hypr/sekaipop_overrides.conf` at the end of `hyprland.conf`.
+
 Cheatsheet groups: Hyprland's Lua config reports every bind as `__lua`, so the shell's cheatsheet
 (SUPER+/) groups binds by their description, written `Group: sentence` (Shell, Utilities, Windows,
 Workspaces, Session, Screen, Media, Apps). `Group (more): sentence` keeps a bind out of the short list

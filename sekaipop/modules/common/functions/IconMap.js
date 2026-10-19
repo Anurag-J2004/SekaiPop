@@ -251,6 +251,7 @@ const map = {
     do_not_disturb_on: "forbidden-circle",
     block: "forbidden-circle",
     error: "danger-circle",
+    warning: "danger-triangle",
     priority_high: "danger-triangle",
     info: "info-circle",
     star: "star",

@@ -264,6 +264,8 @@ Edit the files in `~/.config/hypr/custom/` (`keybinds.lua`, `rules.lua`, `variab
 
 Press <kbd>Super</kbd> + <kbd>/</kbd> any time for the full list, grouped.
 
+To change one, open **Settings > Keys**, click the action and press the new keys. It works straight away, and **Reset** puts it back.
+
 | Keys | Action |
 |---|---|
 | <kbd>Super</kbd> (tap) or <kbd>Super</kbd> + <kbd>A</kbd> | Apps (launcher phone) |

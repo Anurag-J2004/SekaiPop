@@ -908,6 +908,10 @@ Scope {
 
     // Once you've taken hold of it, it's a normal open panel.
     onOpenChanged: {
+        // Settings > Keys may have paused every shortcut to record one: a panel
+        // that goes away must never leave them paused.
+        if (!open)
+            KeybindService.resume()
         if (open) {
             focusTimer.restart()
             alertUp = false
@@ -1724,7 +1728,7 @@ Scope {
         // takes the keyboard while that field itself holds focus, so
         // typing anywhere else on the desktop is unaffected the rest of
         // the time the panel's open.
-        // The Settings take it too (Escape, the arrow keys, 1-6).
+        // The Settings take it too (Escape, the arrow keys, 1-7).
         // The Apps screen's search box and typing a letter on Quick take it too
         // (Settings > General > Quick Panel > Type to search).
         //
@@ -1733,6 +1737,9 @@ Scope {
         // hands the keyboard over once the compositor focuses the window (pointer
         // over it / a click), so with the mouse elsewhere nothing could be typed.
         // While Apps is up it takes the keyboard Exclusive, like the Overview.
+        // (Settings > Keys records combinations without it: the focus grab already
+        // keeps the keyboard on the phone, and Exclusive would clear the grab,
+        // which closes the phone.)
         WlrLayershell.keyboardFocus: (root.open && root.launching) ? WlrKeyboardFocus.Exclusive
                                    : (panelFace.networkDialogOpen || root.settingsOpen || root.turningBack
                                       || root.phoneKeysWanted) ? WlrKeyboardFocus.OnDemand
@@ -2064,7 +2071,7 @@ Scope {
         implicitWidth: root.flat2d ? 2 * Math.ceil((baseW + 2 * padX) / 2) : baseW + 2 * padX
         implicitHeight: root.flat2d ? Math.ceil(baseH + padTop) : baseH + padTop
 
-        // Keys while the Settings are up: 1-6 open a page; inside a page Left /
+        // Keys while the Settings are up: 1-7 open a page; inside a page Left /
         // Right (or Up / Down, or Tab / Shift+Tab) move between the pages;
         // Escape (or Backspace) goes back to the menu of tiles, and from there
         // Escape turns the phone back into the Quick Panel.
@@ -2096,7 +2103,7 @@ Scope {
                     face.step(1)
                 } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Left || event.key === Qt.Key_Backtab) {
                     face.step(-1)
-                } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_6) {
+                } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_7) {
                     face.go(event.key - Qt.Key_1)
                 } else if (!(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
                            && event.text.length === 1 && event.text.charCodeAt(0) > 32 && event.text.charCodeAt(0) !== 127) {

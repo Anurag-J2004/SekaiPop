@@ -26,6 +26,9 @@ Item {
     property var host: null
 
     default property alias content: column.data
+    // Things that sit over the page instead of scrolling with it (a page's own
+    // modal, like the Keys page's editor): `overlay: [ Item { ... } ]`.
+    property alias overlay: overlayHost.data
 
     // Card width less its padding and shadow, split three ways with 16 between.
     readonly property real cardWidth: width - 14
@@ -184,6 +187,14 @@ Item {
             width: page.cardWidth
             spacing: 44
         }
+    }
+
+    // Above WheelScroll (z 50), so a modal's scrim gets the wheel and the page
+    // can't scroll under it.
+    Item {
+        id: overlayHost
+        anchors.fill: parent
+        z: 60
     }
 
     // The jump chips: a row of the same bouncy keycaps as the rest of the

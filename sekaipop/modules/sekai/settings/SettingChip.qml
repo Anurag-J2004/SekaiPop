@@ -37,6 +37,8 @@ Item {
 
     // 46 in the Settings pages; the jump chips at the top of a page use a smaller one.
     property real capH: 46
+    // The label's size: 18 at the full 46, 15 on the small 36 chips of the Keys page.
+    property real fontSize: 18
     readonly property real capW: Math.max(minWidth, row.implicitWidth + 50)
 
     // Sized for the ON look (cap + its shadow), like the tiles.
@@ -135,7 +137,7 @@ Item {
                 text: root.label
                 color: key.ink
                 font.family: Theme.fontFamily
-                font.pixelSize: 18
+                font.pixelSize: root.fontSize
                 font.weight: Font.ExtraBold
                 font.styleName: Theme.fontStyleBold
             }
