@@ -284,6 +284,9 @@ Item {
     // into the Settings (SettingsStage.qml) where it stands.
     signal settingsRequested()
     signal notificationDismissed(var key)
+    // A lone card in the list was clicked: QuickPanel.qml runs the app's own action for
+    // it, or dismisses the notification when it has none (what a click always did).
+    signal notificationActivated(var key)
     // A whole group (every notification from one source) swiped away.
     signal notificationsDismissed(var keys)
     signal notificationsCleared()
@@ -291,6 +294,9 @@ Item {
     // (dismiss that notification).
     signal alertActivated()
     signal alertDismissRequested(var key)
+    // A left click on the heads-up card: QuickPanel.qml runs the app's own action for that
+    // notification, or (when it has none) does what alertActivated() does.
+    signal alertClicked(var key)
     // Fired once the "Clear all" cards have finished sliding out and the
     // data behind them is actually gone -- QuickPanel.qml closes on this.
     signal panelCloseRequested()
@@ -1792,6 +1798,7 @@ Item {
                             face.notificationDismissed(row.key)
                     }
                     onToggled: face.toggleGroup(row.gid)
+                    onActivated: face.notificationActivated(row.key)
 
                     Connections {
                         target: notificationsCard
@@ -1826,6 +1833,7 @@ Item {
                             cardWidth: 512
                             blocked: notificationsCard.clearing
                             onDismissed: face.notificationDismissed(modelData.key)
+                            onActivated: face.notificationActivated(modelData.key)
                         }
                     }
                 }
@@ -2412,7 +2420,8 @@ Item {
             }
         }
 
-        // Left / middle click: keep the phone up. Right click: dismiss.
+        // Left click: the app's own action for it (Discord: the message), or keep the
+        // phone up when it has none. Middle click: keep the phone up. Right click: dismiss.
         MouseArea {
             anchors.fill: parent
             enabled: face.alertShown
@@ -2428,6 +2437,8 @@ Item {
             onClicked: mouse => {
                 if (mouse.button === Qt.RightButton && alertCard.e !== null)
                     face.alertDismissRequested(alertCard.e.key)
+                else if (mouse.button === Qt.LeftButton && alertCard.e !== null)
+                    face.alertClicked(alertCard.e.key)
                 else
                     face.alertActivated()
             }

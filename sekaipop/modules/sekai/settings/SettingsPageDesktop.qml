@@ -684,6 +684,23 @@ SettingsPage {
             }
         }
 
+        // Only while the dock hides (Auto-hide or Smart hide): how deep the strip along the
+        // edge is that brings it back. Lower = you have to push closer to the edge.
+        SettingSlider {
+            width: page.halfWidth
+            visible: (SettingsService.get("dock.hideMode") !== "off"
+                      ? SettingsService.get("dock.hideMode")
+                      : (SettingsService.flag("dock.autoHide") ? "auto" : "off")) !== "off"
+            icon: "height"
+            label: "Reveal zone"
+            from: 10
+            to: 100
+            step: 5
+            suffix: " %"
+            value: SettingsService.get("dock.hotZone")
+            onMoved: v => SettingsService.set("dock.hotZone", Math.round(v))
+        }
+
         SettingToggle {
             icon: "keep"
             label: "Pin on startup"

@@ -11,8 +11,11 @@ import qs.modules.common
 //
 // The layout is a list of ITEMS, in the order they stand in the dock:
 //
-//   { type: "app",    class, iconName }            a pinned app
-//   { type: "folder", name, apps: [ {class, iconName}, ... ] }
+//   { type: "app",    class, iconName, hidden? }   a pinned app. `hidden: true` = switched OFF in
+//                                                  Edit Desktop -> DOCK -> APPS: the app stays in
+//                                                  the layout (and in presets) but its key is not
+//                                                  drawn. The field is left out when the app is on.
+//   { type: "folder", name, apps: [ {class, iconName, hidden?}, ... ] }
 //                                                  a folder of apps (one key; click opens it)
 //   { type: "sep" }                                a separator, which is what makes GROUPS:
 //                                                  the apps between two separators are a group
@@ -69,6 +72,47 @@ Singleton {
 
     function copy(list) {
         return JSON.parse(JSON.stringify(list))
+    }
+
+    // ===== switching a pinned app off / on (it stays pinned, its key is not drawn) =====
+    function isHidden(cls) {
+        return root.allApps().some(a => a.class === cls && a.hidden === true)
+    }
+
+    function setHidden(cls, hidden) {
+        if (!root.isPinned(cls) || root.isHidden(cls) === (hidden === true))
+            return
+        const next = root.copy(root.pinned)
+        const mark = a => {
+            if (a.class !== cls)
+                return
+            if (hidden === true)
+                a.hidden = true
+            else
+                delete a.hidden
+        }
+        for (const it of next) {
+            const k = root.kindOf(it)
+            if (k === "app")
+                mark(it)
+            else if (k === "folder")
+                it.apps.forEach(mark)
+        }
+        root.commit(next)
+    }
+
+    function toggleHidden(cls) {
+        root.setHidden(cls, !root.isHidden(cls))
+    }
+
+    // How many pinned apps are switched on, and how many there are.
+    function shownCount() {
+        return root.allApps().filter(a => a.hidden !== true).length
+    }
+
+    // A folder whose apps are all switched off has nothing to show (the dock leaves it out).
+    function folderShown(item) {
+        return root.kindOf(item) === "folder" && item.apps.some(a => a.hidden !== true)
     }
 
     // ===== the built-in tools =====
@@ -243,7 +287,10 @@ Singleton {
         if (!app)
             return
         folder.apps = folder.apps.filter(a => a.class !== cls)
-        next.splice(folderIndex + 1, 0, { type: "app", class: app.class, iconName: app.iconName })
+        const out = { type: "app", class: app.class, iconName: app.iconName }
+        if (app.hidden === true)
+            out.hidden = true
+        next.splice(folderIndex + 1, 0, out)
         root.commit(next.filter(it => root.kindOf(it) !== "folder" || it.apps.length > 0))
     }
 
@@ -253,7 +300,12 @@ Singleton {
         const folder = next[folderIndex]
         if (!folder || root.kindOf(folder) !== "folder")
             return
-        const apps = folder.apps.map(a => ({ type: "app", class: a.class, iconName: a.iconName }))
+        const apps = folder.apps.map(a => {
+            const app = { type: "app", class: a.class, iconName: a.iconName }
+            if (a.hidden === true)
+                app.hidden = true
+            return app
+        })
         next.splice(folderIndex, 1, ...apps)
         root.commit(next)
     }

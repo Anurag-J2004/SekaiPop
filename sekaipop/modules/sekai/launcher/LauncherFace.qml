@@ -103,6 +103,9 @@ Item {
     // 0 = just arrived, 1 = settled.
     property real revealT: 1
     onEnabledChanged: {
+        // Opening the Apps screen: pick up apps installed since the list was built.
+        if (enabled && source)
+            source.sync()
         if (enabled && reveal) {
             revealT = 0
             revealAnim.restart()
@@ -629,16 +632,39 @@ Item {
             width: face.cellW
             height: face.cellH
 
+            // The path is looked up once per icon (AppSource.iconFor), not on
+            // every tile that is built. Empty = the app has no icon (or the theme has
+            // none by that name): the placeholder below stands in for it.
+            readonly property string iconPath: face.source ? face.source.iconFor(tile.modelData.icon) : ""
+            readonly property bool noIcon: tile.iconPath === "" || appIcon.status === Image.Error
+
             IconImage {
+                id: appIcon
+
                 x: Math.round((tile.width - implicitWidth) / 2)
                 y: tile.iconY + Math.round((tile.iconBox - implicitHeight) / 2)
                 implicitSize: 72
                 asynchronous: true
+                visible: !tile.noIcon
                 transformOrigin: Item.Center
                 scale: (1 + 0.10 * tile.litP) * (1 - 0.08 * tile.pressP)
-                // The path is looked up once per icon (AppSource.iconFor), not on
-                // every tile that is built.
-                source: face.source ? face.source.iconFor(tile.modelData.icon) : ""
+                source: tile.iconPath
+            }
+
+            // An app with no icon: a coloured key with its first letter (AppPlaceholder.qml),
+            // lit and pressed like a real icon.
+            Loader {
+                active: tile.noIcon
+                x: Math.round((tile.width - 72) / 2)
+                y: tile.iconY + Math.round((tile.iconBox - 72) / 2)
+                width: 72
+                height: 72
+                transformOrigin: Item.Center
+                scale: (1 + 0.10 * tile.litP) * (1 - 0.08 * tile.pressP)
+                sourceComponent: AppPlaceholder {
+                    size: 72
+                    name: tile.modelData.name
+                }
             }
 
             Text {
@@ -648,6 +674,13 @@ Item {
                 y: tile.iconY + tile.iconBox + 14
                 width: parent.width - 8
                 horizontalAlignment: Text.AlignHCenter
+                // Up to two lines (long names wrapped at a space, or anywhere when there is
+                // none), cut with "..." after that. A name that fits on one line sits exactly
+                // where it did. Two lines of this size end inside the cell (168 px tall).
+                wrapMode: Text.Wrap
+                maximumLineCount: 2
+                lineHeight: 0.88
+                lineHeightMode: Text.ProportionalHeight
                 elide: Text.ElideRight
                 text: tile.modelData.name
                 // Over the wallpaper there is no chip to read on any more, so the name

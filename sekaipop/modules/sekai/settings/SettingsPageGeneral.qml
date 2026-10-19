@@ -43,6 +43,14 @@ SettingsPage {
         }
 
         SettingToggle {
+            icon: "do_not_disturb_on"
+            label: "Quiet while fullscreen"
+            detail: "No popups or buzz while a window is fullscreen. They still wait in the list; urgent ones break through"
+            checked: SettingsService.flag("notify.quietFullscreen")
+            onToggled: SettingsService.toggle("notify.quietFullscreen")
+        }
+
+        SettingToggle {
             icon: "vibration"
             label: "Buzz on arrival"
             detail: SettingsService.get("notify.style") === "phone" ? "" : "Phone alert only"
@@ -261,6 +269,16 @@ SettingsPage {
             detail: SettingsService.flag("lock.powerButtons") ? "On the Calendar lockscreen" : "OFF (Ctrl + Enter still sleeps)"
             checked: SettingsService.flag("lock.powerButtons")
             onToggled: SettingsService.toggle("lock.powerButtons")
+        }
+
+        SettingToggle {
+            icon: "lyrics"
+            label: "Lyrics on the lockscreen"
+            detail: SettingsService.flag("lock.lyrics")
+                ? (SettingsService.get("lock.style") === "calendar" ? "Gacha lockscreen only" : "Asks the lyrics providers for the song that is playing")
+                : "OFF"
+            checked: SettingsService.flag("lock.lyrics")
+            onToggled: SettingsService.toggle("lock.lyrics")
         }
 
         SettingToggle {

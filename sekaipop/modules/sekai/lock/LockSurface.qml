@@ -611,6 +611,23 @@ Item {
                 outline: root.px(7)
             }
 
+            // The line of the song that is playing (Settings -> General -> Lyrics on the
+            // lockscreen). Nothing is built while it is off.
+            Loader {
+                id: lyricsLoader
+                // (a property of its own, so the capsule's `media` does not read itself)
+                property var player: media
+                active: SettingsService.flag("lock.lyrics")
+                x: root.px(8)
+                y: bigClock.y + bigClock.height + root.px(26)
+
+                sourceComponent: LockLyrics {
+                    media: lyricsLoader.player
+                    px: root.px
+                    maxWidth: Math.min(root.px(980), root.width - titleBlock.x - root.px(120))
+                }
+            }
+
             // AM / PM, as the mint tag the gacha screen uses for "Group Event Exclusive".
             Rectangle {
                 x: bigClock.width + root.px(10)

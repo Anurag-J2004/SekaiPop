@@ -2402,6 +2402,24 @@ Scope {
                             root.notificationSource.dismiss(key)
                             root.notificationSource.hideToast()
                         }
+                        // A click on a card of the list: the app's own action (it also
+                        // removes the notification, and the phone is put away so the app
+                        // it opens is in view); with none, the card is dismissed.
+                        onAlertClicked: key => {
+                            if (root.notificationSource.activate(key)) {
+                                root.notificationSource.hideToast()
+                                root.close()
+                            } else {
+                                root.claim()
+                                root.notificationSource.hideToast()
+                            }
+                        }
+                        onNotificationActivated: key => {
+                            if (root.notificationSource.activate(key))
+                                root.close()
+                            else
+                                root.notificationSource.dismiss(key)
+                        }
                         onNotificationDismissed: key => root.notificationSource.dismiss(key)
                         onNotificationsDismissed: keys => root.notificationSource.dismissMany(keys)
                         onNotificationsCleared: root.notificationSource.clearAll()

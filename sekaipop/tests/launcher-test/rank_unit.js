@@ -65,9 +65,9 @@ eval(oldFns.join('\n') + '\noldRoot.rank = rank; oldRoot.scoreApp = scoreApp;');
 
 // ---- new ----
 const newRoot = { query: '' };
-const names = ['buildEntries', 'rankEntries', 'rank', 'scoreEntry'];
+const names = ['signatureOf', 'buildEntries', 'rankEntries', 'rank', 'scoreEntry'];
 const newFns = names.map(n => grab(newSrc, n).replace(/root\./g, 'newRoot.'));
-eval(newFns.join('\n') + '\nnewRoot.buildEntries = buildEntries; newRoot.rankEntries = rankEntries; newRoot.rank = rank; newRoot.scoreEntry = scoreEntry;');
+eval(newFns.join('\n') + '\nnewRoot.signatureOf = signatureOf; newRoot.buildEntries = buildEntries; newRoot.rankEntries = rankEntries; newRoot.rank = rank; newRoot.scoreEntry = scoreEntry;');
 
 // ---- fake apps ----
 let seed = 12345; const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
@@ -87,8 +87,8 @@ const apps = Array.from({ length: 400 }, (_, i) => mk(i));
 // a few exact duplicates in name to exercise tie-breaks
 apps.push({ ...apps[3], id: 'dup1.desktop' }, { ...apps[3], id: 'dup2.desktop' });
 oldRoot.allApps = apps.slice().sort((a, b) => a.name.localeCompare(b.name));
-newRoot.entries = newRoot.buildEntries(apps);
 newRoot._cache = { rankKey: '', rankVal: [], iconSrc: null, icons: {} };
+newRoot.entries = newRoot.buildEntries(apps);
 
 let bad = 0, total = 0, nonEmpty = 0;
 const queries = new Set(words.concat(['f', 'fi', 'fir', 'fire', 'fire ', ' Fire', 'a', 'e', 'for your', 'a ', 'x', 'zzzz', '']));

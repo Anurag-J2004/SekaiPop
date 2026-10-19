@@ -29,7 +29,11 @@ import "../../common/functions/NotifyKinds.js" as NK
 //
 // Pure UI: it only reports what you did.
 //
-//   click          closed()      hide the popup; the notification stays in the
+//   click          activated()   the app's own click action (Discord: go to the
+//                                message). The stack runs it; when the
+//                                notification has none, the stack just hides the
+//                                popup, as a click always did
+//   middle click   closed()      hide the popup; the notification stays in the
 //                                Quick Panel's list
 //   right click    dismissed()   remove the notification altogether
 //   swipe          dismissed()   the same, with the card following the pointer
@@ -92,6 +96,7 @@ Item {
 
     signal closed()
     signal dismissed()
+    signal activated()
     signal hoverToggled(bool hovering)
     signal finished()
 
@@ -482,7 +487,7 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         enabled: !card.leaving && !card.swipedOut
         drag.target: slide
         drag.axis: Drag.XAxis
@@ -516,8 +521,10 @@ Item {
                 return
             if (mouse.button === Qt.RightButton)
                 card.dismissed()
-            else
+            else if (mouse.button === Qt.MiddleButton)
                 card.closed()
+            else
+                card.activated()
         }
     }
 }

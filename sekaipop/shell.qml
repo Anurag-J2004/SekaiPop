@@ -219,6 +219,7 @@ ShellRoot {
     NotificationSource {
         id: notificationState
         doNotDisturb: !quickState.notificationsOn
+        quietWhenFullscreen: SettingsService.flag("notify.quietFullscreen")
         alertStyle: SettingsService.get("notify.style")
         popupsSuppressed: panel.up
     }

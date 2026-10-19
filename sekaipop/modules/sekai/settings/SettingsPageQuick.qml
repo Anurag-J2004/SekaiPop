@@ -59,6 +59,14 @@ SettingsPage {
             ]
             onPicked: id => SettingsService.set("quick.flat", id === "flat")
         }
+
+        SettingToggle {
+            icon: "blur_on"
+            label: "Phone shadow"
+            detail: "A soft shadow under the phone (Quick Panel, Apps, Wallpapers, Settings)"
+            checked: SettingsService.flag("quick.phoneShadow")
+            onToggled: SettingsService.toggle("quick.phoneShadow")
+        }
     }
 
     SectionCard {

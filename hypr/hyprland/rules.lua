@@ -86,8 +86,8 @@ hl.window_rule({match = {title = ".*\\.exe" }, immediate = true})
 hl.window_rule({match = {title = ".*minecraft.*" }, immediate = true})
 hl.window_rule({match = {class = "^(steam_app).*" }, immediate = true})
 
--- No shadow for tiled windows
-hl.window_rule({match = {float = 0 }, no_shadow = true})
+-- Shadows: every window gets one (tiled ones too) while Settings -> Hyprland -> Shadows is on.
+-- This used to switch them off for tiled windows, which is why they looked missing.
 
 -- ######## Workspace rules ########
 hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })

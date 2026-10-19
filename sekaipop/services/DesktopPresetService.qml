@@ -114,6 +114,7 @@ Singleton {
     readonly property var keepExact: [
         "time.use24h",
         "notify.on",           // do-not-disturb is the person's, not the look's
+        "notify.quietFullscreen", // so is "quiet while a window is fullscreen"
         "weather.fahrenheit",
         "weather.location",
         "calendar.marks",
@@ -134,10 +135,12 @@ Singleton {
         "lock.tone",
         "lock.powerButtons",
         "lock.sleepDesktop",
+        "lock.lyrics",
         "panel.hotEdge",
         "panel.hotDwell",
         "panel.typeToSearch",
         "quick.flat",
+        "quick.phoneShadow",
         "tray.scroll",
         "discord.leftClick",
         "wallpaper.folder",

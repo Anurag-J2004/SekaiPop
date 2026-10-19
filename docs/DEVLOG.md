@@ -4,6 +4,15 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Nine-item batch: dock reveal zone, quiet fullscreen, notification clicks, shadows, lockscreen lyrics, dock apps on/off
+
+**Not run on a live Quickshell** (no `qs` / `qmllint` where this was done). Checked with node only: `tests/dock-test/hidden_apps_test.js` and `tests/lock-calendar-test/lock_lyrics_test.js` (new); the other JS tests give the same results as an untouched checkout (the same 6 fail). Fixed two tests the first six items had broken (`launcher-test/rank_unit.js` harness, and the fullscreen watcher in `NotificationSource.qml` moved out of the range `popup_logic.js` slices).
+
+- Dock apps on/off: `hidden` flag on pinned apps (`PinnedAppsService`), `Dock.slotFor` / `pinnedSlots` skip them and tidy separators, drag reorder goes by `pinIndex`, `EditAppKey.qml` + APPS group in `EditDockBoard.qml`.
+- Shadows: `hypr/hyprland/rules.lua` no longer sets `no_shadow` for tiled windows; `general.lua` shadow is range 24, offset 0/4, power 3, `rgba(0000005a)`; `PhoneBody.qml` has a soft shadow: one 9-sliced `BorderImage` (`assets/images/phone-shadow.png`, 282x282, black rounded rectangle fading over 40 units, baked once) on the back face's plane, outside the multisampled scene so the scene is no bigger; `shadowColor`'s alpha is its strength, `shadowDx`/`shadowDy` its offset. Not run on a live Quickshell; check by eye that the fade is not cut at the window edge and that it follows the phone while it moves.
+- Lockscreen lyrics: `LockLyrics.qml`, setting `lock.lyrics` (default off), gacha lockscreen only.
+- **To check by eye:** phone shadow not clipped at the window edge; window shadows after re-copying `hypr/`; lyrics changing on time while locked; APPS keys on a narrow shelf; Hyprland `hasfullscreen` for Quiet while fullscreen.
+
 ## Unreleased — The Notifications tile (do-not-disturb) is kept across restarts
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), partly: `notify.on` set to `false` with `ipc call options set`, the shell restarted twice, and `ipc call options get notify.on` still printed `false` after each. **Not checked by eye:** clicking the tile itself, that the phone stays down for a `notify-send` while it is off, and wearing a preset. Checked: `node tests/notify-dnd-test/dnd_persist_test.js` (new). The other JS tests give the same results as before the change (60 pass; the same 6 fail on `main` without it).

@@ -102,10 +102,10 @@ hl.config({
         },
         shadow = {
             enabled = true,
-            range = 20,
-            offset = {0, 2},
-            render_power = 10,
-            color = "rgba(00000020)"
+            range = 24,
+            offset = {0, 4},
+            render_power = 3,
+            color = "rgba(0000005a)"
         },
         -- Dim
         dim_inactive = true,

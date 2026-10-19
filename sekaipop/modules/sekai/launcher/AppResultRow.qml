@@ -64,15 +64,35 @@ Item {
         color: Theme.paperEdge
     }
 
+    // An app with no icon (none named, none in the theme, or one that fails to load) gets
+    // the coloured first-letter key instead of an empty square.
+    readonly property string iconPath: (row.app && !row.isAction) ? IconCursorService.path(row.app.icon, true) : ""
+    readonly property bool noIcon: !row.isAction && row.app !== null && (row.iconPath === "" || rowIcon.status === Image.Error)
+
     IconImage {
+        id: rowIcon
+
         anchors.left: parent.left
         anchors.leftMargin: row.leftPad
         anchors.verticalCenter: parent.verticalCenter
         width: row.iconSize
         height: row.iconSize
         asynchronous: true
-        visible: !row.isAction
-        source: (row.app && !row.isAction) ? IconCursorService.path(row.app.icon, true) : ""
+        visible: !row.isAction && !row.noIcon
+        source: row.iconPath
+    }
+
+    Loader {
+        active: row.noIcon
+        anchors.left: parent.left
+        anchors.leftMargin: row.leftPad
+        anchors.verticalCenter: parent.verticalCenter
+        width: row.iconSize
+        height: row.iconSize
+        sourceComponent: AppPlaceholder {
+            size: row.iconSize - 2
+            name: row.app ? row.app.name : ""
+        }
     }
 
     // an action's icon is a Material glyph on the same rounded tile

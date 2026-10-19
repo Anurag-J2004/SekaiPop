@@ -1,6 +1,7 @@
 import QtQuick
 import "../../common/functions/PhoneMath.js" as PM
 import qs.modules.common
+import qs.services
 
 // The phone the Quick Panel lives in — its "hardware". Whatever you put
 // inside a PhoneBody ends up on the phone's screen; this draws the body
@@ -90,6 +91,26 @@ Item {
     // it and the bezel are one shape (they are the same colour). Inside the glass:
     // it must stay under bezelWidth.
     readonly property real notchLead: Math.min(14, bezelWidth - 2)
+
+    // ===== drop shadow =====
+    // A soft, airbrushed shadow behind the whole body, and the cheapest kind there is: ONE
+    // 9-sliced picture (assets/images/phone-shadow.png, 282x282, built once: a black rounded
+    // rectangle fading out over 40 units), laid on the back face's plane. No blur, no shader,
+    // no layer of its own, no extra rectangles; it is drawn outside the phone's multisampled
+    // picture, so it does not make that picture any bigger. It sits low and barely to the
+    // right (the phone rests on the desktop, lit from above). Design units, so it scales with
+    // the phone. `shadow: false` leaves it out.
+    //   shadow       follows Settings > Quick > Phone shadow (`quick.phoneShadow`, on by default)
+    //   shadowColor  only its alpha is used: the darkest the shadow gets, at the body's edge
+    //                (the picture itself is black)
+    //   shadowDx/Dy  where it falls
+    // The picture is baked for the default corner radius (100) and fade (40).
+    property bool shadow: SettingsService.flag("quick.phoneShadow")
+    property real shadowDx: 3
+    property real shadowDy: 12
+    property color shadowColor: Qt.rgba(0, 0, 0, 0.17)
+    readonly property real shadowFade: 40
+    readonly property real shadowEdge: 140    // 100 corner radius + the 40 fade: the slices
 
     // ===== pose =====
     property real thickness: 92
@@ -502,6 +523,33 @@ Item {
     // the notch (those two belong to the 2.5D render). The Quick Panel's 2D look sets it.
     property bool plain: false
     readonly property int sliceCount: flat ? 0 : (wallFine ? fineSlices : coarseSlices)
+
+    // The drop shadow, painted first so everything else is on top of it. The back face's
+    // plane (the Item x / y shift it after the pose has been applied); the picture is
+    // `shadowFade` larger than the face on every side, so it is slid back by that to stay
+    // centred under the matrix.
+    BorderImage {
+        x: root.shadowDx
+        y: root.shadowDy
+        width: root.faceWidth + 2 * root.shadowFade
+        height: root.faceHeight + 2 * root.shadowFade
+        visible: root.shadow && !root.flat
+        opacity: root.shadowColor.a
+        source: "file://" + Directories.asset("images/phone-shadow.png")
+        smooth: true
+        cache: true
+        border.left: root.shadowEdge
+        border.right: root.shadowEdge
+        border.top: root.shadowEdge
+        border.bottom: root.shadowEdge
+        transform: Matrix4x4 {
+            matrix: root.matrixZ(-root.thickness).times(
+                        Qt.matrix4x4(1, 0, 0, -root.shadowFade,
+                                     0, 1, 0, -root.shadowFade,
+                                     0, 0, 1, 0,
+                                     0, 0, 0, 1))
+        }
+    }
 
     // ===== the whole phone as one picture =====
     Item {

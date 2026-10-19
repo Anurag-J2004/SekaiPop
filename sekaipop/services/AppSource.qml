@@ -36,9 +36,50 @@ Scope {
     // Every non-hidden, non-NoDisplay application on the system
     // (DesktopEntries.applications already filters those out), name-sorted
     // so there's a stable base order to rank from. `.values` views the
-    // ObjectModel as a real reactive JS list, so this keeps itself in sync if
-    // apps are installed/removed while the shell is running.
-    readonly property var entries: root.buildEntries(DesktopEntries.applications.values)
+    // ObjectModel as a real reactive JS list, so this is meant to keep itself in
+    // sync if apps are installed/removed while the shell is running.
+    //
+    // That was not enough on its own: an app added to ~/.local/share/applications
+    // after the shell started stayed missing from the Apps screen until the shell
+    // was reloaded. So the list is also re-read, on purpose, in two places that do
+    // not depend on the binding noticing (`sync()` below): when the model says its
+    // values changed, and every time the Apps screen opens. `_rev` is only there to
+    // make this binding run again when `sync()` finds the apps differ from the ones
+    // the list was last built from.
+    property int _rev: 0
+    readonly property var entries: {
+        root._rev
+        return root.buildEntries(DesktopEntries.applications.values)
+    }
+
+    // The apps (their desktop ids, in the model's order) the list was last built
+    // from. Plain scratch, like `_cache`: not reactive.
+    function signatureOf(list) {
+        let sig = list.length + ":"
+        for (let i = 0; i < list.length; i++)
+            sig += (list[i].id || list[i].name || "") + "|"
+        return sig
+    }
+
+    // Re-reads the system's apps and rebuilds `entries` if they are not the ones it
+    // was built from. Cheap when nothing changed (one pass over the ids); no rebuild
+    // and no new objects then, so the grid keeps its tiles.
+    function sync() {
+        const sig = root.signatureOf(DesktopEntries.applications.values)
+        if (sig !== root._cache.sig)
+            root._rev++
+    }
+
+    // The model says its apps changed: make sure the list followed. Deferred a beat so
+    // the binding above gets to rebuild first; `sync()` then finds nothing to do (the
+    // normal case) and only steps in when the binding did not.
+    Connections {
+        target: DesktopEntries.applications
+
+        function onValuesChanged() {
+            Qt.callLater(root.sync)
+        }
+    }
 
     // The same apps as plain DesktopEntry objects (what this file used to
     // hand out); kept for anything that still wants them.
@@ -50,6 +91,7 @@ Scope {
     readonly property var results: root.query.length === 0 ? [] : root.rank(root.query)
 
     function buildEntries(list) {
+        root._cache.sig = root.signatureOf(list)
         const apps = list.slice()
         apps.sort((a, b) => a.name.localeCompare(b.name))
         const seen = ({})

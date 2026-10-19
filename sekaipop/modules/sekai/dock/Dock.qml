@@ -376,7 +376,11 @@ PanelWindow {
     // Only what stays the same lives here; whether the app is running, how many
     // windows it has and whether it has the focus are read by each key itself, so a
     // change of focus never rebuilds the keys (a rebuilt key could not spring).
-    readonly property var pinnedSlots: PinnedAppsService.pinned.map((item, i) => {
+    //
+    // An app switched OFF in Edit Desktop -> DOCK -> APPS (`hidden`) leaves no key. Its
+    // `pinIndex` is still its place in the saved layout, so a key's row number and its
+    // pinIndex can differ: anything that edits the layout goes by pinIndex (see endDrag).
+    function slotFor(item, i) {
         const k = PinnedAppsService.kindOf(item)
         if (k === "sep")
             return { kind: "sep", key: "sep" + i, pinned: true, pinIndex: i }
@@ -386,21 +390,47 @@ PanelWindow {
                      tool: item.id, class: "", iconName: "", displayName: m.label }
         }
         if (k === "folder") {
+            const shown = item.apps.filter(a => a.hidden !== true)
+            if (shown.length === 0)
+                return null
             return {
                 kind: "folder", key: "folder" + i, pinned: true, pinIndex: i,
                 class: "", iconName: "folder", displayName: item.name, name: item.name,
-                apps: item.apps.map(a => ({
+                apps: shown.map(a => ({
                     class: a.class, iconName: a.iconName,
                     displayName: dockWindow.appName(a.class, a.iconName)
                 }))
             }
         }
+        if (item.hidden === true)
+            return null
         return {
             kind: "app", key: "app" + item.class, pinned: true, pinIndex: i,
             class: item.class, iconName: item.iconName,
             displayName: dockWindow.appName(item.class, item.iconName)
         }
-    })
+    }
+
+    readonly property var pinnedSlots: {
+        const out = []
+        // Something was left out since the last key. A separator that would then stand first,
+        // or right after another separator, or last, has nothing to divide: it is left out too.
+        let skipped = false
+        PinnedAppsService.pinned.forEach((item, i) => {
+            const s = dockWindow.slotFor(item, i)
+            if (s === null) {
+                skipped = true
+                return
+            }
+            if (s.kind === "sep" && skipped && (out.length === 0 || out[out.length - 1].kind === "sep"))
+                return
+            out.push(s)
+            skipped = false
+        })
+        if (skipped && out.length > 0 && out[out.length - 1].kind === "sep")
+            out.pop()
+        return out
+    }
 
     // One key per running app that ISN'T pinned. Icon + display name come from the
     // .desktop entry when there is one. Kept (not a binding) so the list is only
@@ -724,9 +754,16 @@ PanelWindow {
         } else if (folderRow >= 0) {
             PinnedAppsService.addToFolder(rows[folderRow].pinIndex, row.class, row.iconName)
         } else if (fromPinned) {
-            PinnedAppsService.move(from, target)
+            // Row numbers are not layout positions while an app is switched off: translate.
+            if (target >= 0 && target < rows.length)
+                PinnedAppsService.move(row.pinIndex, rows[target].pinIndex)
         } else if (row.kind === "app") {
-            PinnedAppsService.pin(row.class, row.iconName, target)
+            let at
+            if (target >= 0 && target < dockWindow.pinnedCount)
+                at = rows[target].pinIndex
+            else if (dockWindow.pinnedCount > 0)
+                at = rows[dockWindow.pinnedCount - 1].pinIndex + 1
+            PinnedAppsService.pin(row.class, row.iconName, at)
         }
     }
 
@@ -1060,7 +1097,7 @@ PanelWindow {
         rows.push({ id: "newfolder", label: "New folder with this app", icon: "create_new_folder" })
         let shown = 0
         PinnedAppsService.pinned.forEach((it, i) => {
-            if (PinnedAppsService.kindOf(it) === "folder" && shown < 4 && !it.apps.some(a => a.class === r.class)) {
+            if (PinnedAppsService.folderShown(it) && shown < 4 && !it.apps.some(a => a.class === r.class)) {
                 rows.push({ id: "tofolder:" + i, label: "Add to " + it.name, icon: "folder" })
                 shown++
             }
@@ -1663,7 +1700,16 @@ PanelWindow {
         readonly property bool on: dockWindow.autoHideOn && !dockWindow.editing
         // Real pixels: how far the resting pill is from the window's edge, and how thick it is.
         readonly property real gap: Math.round(dockWindow.innerGap * dockWindow.uiScale)
-        readonly property real thick: Math.ceil(dockWindow.pillThickness * dockWindow.uiScale)
+        // How deep the strip is: the pill's thickness at 100 % (the default), less when
+        // Settings -> Desktop -> Dock -> "Reveal zone" is lowered, so a pointer working
+        // near the edge (a chat box, a toolbar) does not bring the dock up. The strip
+        // keeps its edge-side boundary where it was (`gap`) and shrinks toward the
+        // middle of the screen, so the Quick Panel's hot edge is still left alone. It is
+        // only the strip that shrinks: once the dock is out, the pill itself (and the
+        // window's own hover handler) keep it out, at its full size.
+        readonly property real zoneFraction: Math.max(0.1, Math.min(1, SettingsService.get("dock.hotZone") / 100))
+        readonly property real fullThick: Math.ceil(dockWindow.pillThickness * dockWindow.uiScale)
+        readonly property real thick: Math.max(2, Math.min(fullThick, Math.round(fullThick * zoneFraction)))
         readonly property real slack: Math.round(8 * dockWindow.uiScale)
         readonly property real along: Math.min(dockWindow.vertical ? dockWindow.height : dockWindow.width,
             Math.ceil((dockWindow.rowLen + dockWindow.pillPaddingH * 2

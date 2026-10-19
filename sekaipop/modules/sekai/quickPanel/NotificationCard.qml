@@ -6,12 +6,15 @@ import qs.modules.sekai.phone
 // One notification card of the Quick Panel's list. The same card is used
 // three ways (QuickPanelFace.qml decides which):
 //
-//   - a lone notification:       tap or swipe it away (dismissed())
+//   - a lone notification:       tap it for the app's own action (activated(); the
+//                                panel dismisses it when the app has none), swipe
+//                                or middle / right click it away (dismissed())
 //   - the header of a group:     several notifications from one source
 //                                collapse into this single card with a
 //                                count pill and a chevron. Tap it to open
 //                                or close the dropdown (toggled()); swipe
-//                                it to clear the whole group (dismissed())
+//                                or middle / right click it to clear the
+//                                whole group (dismissed())
 //   - a row inside the dropdown: a lone card again, a little narrower
 //
 // Pure UI (no Quickshell imports), like QuickPanelFace itself.
@@ -49,6 +52,7 @@ Item {
 
     signal dismissed()
     signal toggled()
+    signal activated()
 
     // "Clear all": a purely cosmetic slide-out, staggered by position in
     // the list (capped at 5 so a long list still finishes quickly). The
@@ -296,6 +300,7 @@ Item {
         id: cardArea
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         enabled: !card.leaving && !card.blocked
         drag.target: slide
         drag.axis: Drag.XAxis
@@ -327,13 +332,15 @@ Item {
             }
         }
 
-        onClicked: {
+        onClicked: mouse => {
             if (card.swiped)
                 return
-            if (card.group)
+            if (mouse.button !== Qt.LeftButton)
+                card.dismissed()
+            else if (card.group)
                 card.toggled()
             else
-                card.dismissed()
+                card.activated()
         }
     }
 }

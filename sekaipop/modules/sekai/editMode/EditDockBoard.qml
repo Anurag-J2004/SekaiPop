@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -14,6 +15,8 @@ import qs.modules.common.widgets
 //   ABOVE WINDOWS  keep it pinned above windows     PinnedAppsService.dockPinned
 //   TOOLS          Search / Files / Clipboard /     PinnedAppsService.hasTool / toggleTool
 //                  Shelf / Timer on or off the dock
+//   APPS           one key per pinned app: lit = on PinnedAppsService.isHidden / toggleHidden
+//                  the dock, dark = switched off (still pinned, no key; it comes back with a click)
 //
 // (The style is drawn by Dock.qml: Float is the pill it always was, Transparent has no
 // background, only the keys, Capsule is a fully rounded body in a thin rim.)
@@ -59,6 +62,19 @@ Item {
     ]
 
     readonly property int toolsOn: root.toolOptions.filter(o => PinnedAppsService.hasTool(o.id)).length
+
+    // Every pinned app (the ones inside folders too), in the order they stand in the dock.
+    readonly property var pinnedApps: PinnedAppsService.allApps()
+    readonly property int appsOn: root.pinnedApps.filter(a => a.hidden !== true).length
+    property string appHover: ""
+
+    function appName(cls) {
+        let entry = null
+        try {
+            entry = DesktopEntries.heuristicLookup(cls)
+        } catch (e) {}
+        return (entry && entry.name) || cls
+    }
 
     property string toolHover: ""
     property string styleHover: ""
@@ -232,6 +248,42 @@ Item {
                                 root.toolHover = modelData.id
                             else if (root.toolHover === modelData.id)
                                 root.toolHover = ""
+                        }
+                    }
+                }
+            }
+        }
+
+        Column {
+            spacing: 9
+            visible: root.pinnedApps.length > 0
+
+            EditPickHead {
+                title: "APPS"
+                value: root.appHover !== ""
+                    ? root.appName(root.appHover) + (PinnedAppsService.isHidden(root.appHover) ? " · off" : " · on")
+                    : root.appsOn + " of " + root.pinnedApps.length + " on"
+            }
+
+            // Wraps inside the group when there are more apps than the shelf is wide.
+            Flow {
+                spacing: 6
+                width: Math.min(root.pinnedApps.length * 46 - 6, Math.max(46, groups.width))
+
+                Repeater {
+                    model: root.pinnedApps
+
+                    EditAppKey {
+                        required property var modelData
+
+                        iconName: modelData.iconName
+                        on: modelData.hidden !== true
+                        onPicked: PinnedAppsService.toggleHidden(modelData.class)
+                        onHoveredChanged: {
+                            if (hovered)
+                                root.appHover = modelData.class
+                            else if (root.appHover === modelData.class)
+                                root.appHover = ""
                         }
                     }
                 }

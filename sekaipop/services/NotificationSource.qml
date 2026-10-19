@@ -44,11 +44,24 @@ import QtQuick
 //             `popupsSuppressed` (the phone is up: its list already shows
 //             everything) keeps new ones off the stack.
 //
+// Clicking: `activate(key)` runs the notification's "default" action (the app
+// decides what that is: Discord opens the message) and removes it from the
+// history; it returns false, changing nothing, when there is no live action.
+// The cards call it on a left click and fall back to their old click when it
+// says false. Middle click hides a popup / heads-up card but keeps the
+// notification in the list; right click removes it.
+//
 // Do not disturb: shell.qml ties doNotDisturb to the Quick Panel's
 // Notifications tile — OFF means nothing announces itself (no popup, or no
 // rising / buzz / card in phone style). Notifications still arrive in the
 // panel's list, and "critical" ones (the app says it's urgent: low battery,
 // ...) always break through.
+//
+// Quiet while fullscreen: with Settings > General > "Quiet while fullscreen"
+// on (`quietWhenFullscreen`), the same hold-back applies for as long as the
+// focused monitor's active workspace has a fullscreen window (a game, a
+// video, a presentation) — and only then: leave fullscreen and the next
+// one announces itself again. Nothing is lost: they still land in the list.
 //
 // Only one program on the system can be the notification daemon at a
 // time. If dunst, mako or swaync is running, stop it (and stop it from
@@ -57,6 +70,20 @@ Scope {
     id: root
 
     property bool doNotDisturb: false
+
+    // shell.qml binds this to the "notify.quietFullscreen" setting.
+    property bool quietWhenFullscreen: false
+
+    // A fullscreen window is on the focused monitor's active workspace right
+    // now (what Hyprland says in `hasfullscreen`, the same field the video
+    // wallpaper reads). Quickshell refreshes a workspace's data on workspace
+    // events but not when a window goes fullscreen, so `fullscreenWatch` below
+    // asks again on those events — only while the setting is on.
+    readonly property var focusedWorkspace: Hyprland.focusedMonitor ? Hyprland.focusedMonitor.activeWorkspace : null
+    readonly property bool fullscreenNow: !!(root.focusedWorkspace && root.focusedWorkspace.lastIpcObject
+                                             && root.focusedWorkspace.lastIpcObject.hasfullscreen)
+    // Holds announcements back right now, apart from critical ones.
+    readonly property bool held: root.doNotDisturb || (root.quietWhenFullscreen && root.fullscreenNow)
 
     // Each entry: { key (unique, stable across restarts), nid (the
     //               daemon's id while that notification is still live,
@@ -262,6 +289,49 @@ Scope {
         return null
     }
 
+    // The "default" action of a live notification: what an app wants to happen when you
+    // click the notification itself (Discord: go to that message, a mail client: open the
+    // mail). Apps only send it when the daemon says it supports actions (see the
+    // NotificationServer at the bottom). Other actions (the apps' own "Reply" / "Mark as
+    // read" buttons) are not offered anywhere: a click only ever runs this one, so an app
+    // with several buttons never has to be chosen between. null when there is none, the
+    // notification is gone (closed by the app, or from before a restart) or has no id.
+    function defaultAction(entry) {
+        if (!entry || entry.nid < 0)
+            return null
+        const n = find(entry.nid)
+        if (n === null)
+            return null
+        const acts = n.actions
+        for (let i = 0; i < acts.length; i++) {
+            if (acts[i].identifier === "default")
+                return acts[i]
+        }
+        return null
+    }
+
+    // True when clicking this notification can do something (it has a live default action).
+    function canActivate(key) {
+        const i = indexOfKey(entries, key)
+        return i >= 0 && defaultAction(entries[i]) !== null
+    }
+
+    // A click on the notification. Runs its default action and, since it has been dealt
+    // with, takes it out of the history (and off the screen). Returns whether an action was
+    // run; false means there was nothing to run and NOTHING was changed, so the caller does
+    // what a click did before (hide the popup, dismiss the card).
+    function activate(key) {
+        const i = indexOfKey(entries, key)
+        if (i < 0)
+            return false
+        const action = defaultAction(entries[i])
+        if (action === null)
+            return false
+        action.invoke()
+        dismiss(key)
+        return true
+    }
+
     // Closes the app's side of a notification, if it's still live.
     function closeLive(entry) {
         if (entry.nid < 0)
@@ -316,7 +386,7 @@ Scope {
         // own "copied" / "saved" note (the preview card already says so), and
         // everything while Edit Desktop is open (it would sit on the board).
         const quiet = EditMode.active || isScreenshotNote(e)
-        if (!quiet && (!doNotDisturb || e.urgency === 2)) {
+        if (!quiet && (!root.held || e.urgency === 2)) {
             if (alertStyle === "popups") {
                 if (!popupsSuppressed)
                     pushPopup(e)
@@ -585,11 +655,45 @@ Scope {
             clearPopups()
     }
 
-    // Quickshell's defaults for what we tell apps we can display are
-    // already what this needs — plain text, no pictures, no buttons, no
-    // markup — and notifications are kept across a shell reload.
+    // Keeps `fullscreenNow` fresh. Hyprland says "fullscreen" when a window goes in
+    // or out of it, and the others when the active workspace or the focused monitor
+    // changes; the 150 ms beat collapses a burst of them into one refresh. Nothing
+    // here runs while the setting is off.
+    Connections {
+        target: Hyprland
+        enabled: root.quietWhenFullscreen
+
+        function onRawEvent(event) {
+            if (event.name === "fullscreen" || event.name === "workspace" || event.name === "workspacev2"
+                    || event.name === "focusedmon" || event.name === "focusedmonv2"
+                    || event.name === "openwindow" || event.name === "closewindow"
+                    || event.name === "movewindow" || event.name === "movewindowv2")
+                fullscreenWatch.restart()
+        }
+    }
+
+    Timer {
+        id: fullscreenWatch
+        interval: 150
+        onTriggered: Hyprland.refreshWorkspaces()
+    }
+
+    // Switched on while a window is already fullscreen: look once now.
+    onQuietWhenFullscreenChanged: {
+        if (quietWhenFullscreen)
+            Hyprland.refreshWorkspaces()
+    }
+
+    // Quickshell's defaults for what we tell apps we can display are what this needs —
+    // plain text, no pictures, no markup — and notifications are kept across a shell
+    // reload. The one thing switched on is `actionsSupported`: apps (Discord, Firefox,
+    // mail clients...) only attach a "default" action to a notification when the daemon
+    // advertises actions, and that is what a click on the notification runs (see
+    // `activate`). It only advertises: no action buttons are drawn.
     NotificationServer {
         id: server
+
+        actionsSupported: true
 
         onNotification: notification => root.received(notification)
     }

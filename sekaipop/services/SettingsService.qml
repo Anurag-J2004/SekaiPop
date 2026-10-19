@@ -74,12 +74,16 @@ Singleton {
         "notify.style": "phone",
         // The Quick Panel's Notifications tile: false is do-not-disturb (nothing announces itself).
         "notify.on": true,
+        // Hold announcements back (no popup / rising phone / buzz) while the focused monitor shows a fullscreen window. Same as do-not-disturb otherwise: they still land in the list, critical ones still break through.
+        "notify.quietFullscreen": false,
         "notify.buzz": true,
         "panel.hotEdge": true,
         "panel.hotDwell": 140,
         "panel.peek": 76,
         // The Quick Panel phone drawn flat (2D: no tilt, no side wall, buttons cast their shadow straight down like the bar's pills) instead of the 2.5D pose.
         "quick.flat": false,
+        // The soft shadow under every phone (Quick Panel, Apps, Wallpapers, Settings). Off = no shadow at all.
+        "quick.phoneShadow": true,
         // A plain letter typed while the phone is up on Quick starts a search on the Apps screen.
         "panel.typeToSearch": true,
         // Which window opens when you pick the avatar or banner: auto (kdialog, else zenity, else yad) | kdialog | zenity (the desktop portal's dialog) | yad.
@@ -100,6 +104,8 @@ Singleton {
         // While the screen is locked nothing but the lockscreen can be seen, so the desktop widgets are unloaded (their memory and
         // work come back) and the bar's audio tap stops; unlocking builds them again. Off = leave everything running while locked.
         "lock.sleepDesktop": true,
+        // Gacha lockscreen: the line of the song that is playing (and the next one) under the clock. Asks the lyrics providers for the song, like the desktop Lyrics widget.
+        "lock.lyrics": false,
         // ===== System updates =====
         "updates.nudgeAt": 30,          // from this many updates the badge asks for attention
         "updates.aur": true,            // count AUR updates too (yay / paru, when installed)
@@ -159,6 +165,7 @@ Singleton {
         "dock.style": "float",          // how the dock is drawn: float (the rounded, outlined pill) | transparent (no background: just the keys) | capsule (a fully rounded body in a thin rim)
         "dock.autoHide": false,         // (old switch, still counts as hideMode "auto")
         "dock.hideMode": "off",         // off | auto (always away until the pointer hits the edge) | smart (away only while a window is in the way)
+        "dock.hotZone": 100,            // how deep the strip that brings a hidden dock back is, percent of the dock's thickness (Auto-hide / Smart hide only)
         "dock.iconSize": 35,            // size of a key, design pixels
         "dock.magnify": true,           // keys grow under the pointer
         "dock.magnifyAmount": 160,      // how big the key under the pointer gets, percent

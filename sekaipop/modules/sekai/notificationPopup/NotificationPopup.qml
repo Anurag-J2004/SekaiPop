@@ -176,6 +176,12 @@ Variants {
                         if (root.source)
                             root.source.closePopup(key)
                     }
+                    // A click: the app's own action when it has one (that also removes
+                    // the notification); otherwise it just hides the popup, as before.
+                    onActivated: {
+                        if (root.source && !root.source.activate(key))
+                            root.source.closePopup(key)
+                    }
                     onDismissed: {
                         if (root.source)
                             root.source.dismiss(key)
