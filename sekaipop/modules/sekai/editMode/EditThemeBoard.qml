@@ -481,7 +481,10 @@ Item {
         anchors.fill: parent
         visible: !root.tuning
 
-        contentWidth: Math.max(flick.width, row.width)
+        // `edge` of room at each end of the row, so what pokes out of the end tiles (the
+        // pin badge on the left, Matugen's tune key on the right) isn't cut when it scrolls.
+        readonly property real edge: 12
+        contentWidth: Math.max(flick.width, row.width + 2 * flick.edge)
         contentHeight: flick.height
         flickableDirection: Flickable.HorizontalFlick
         boundsBehavior: Flickable.StopAtBounds
@@ -500,7 +503,7 @@ Item {
 
         Row {
             id: row
-            x: Math.max(0, (flick.width - row.width) / 2)
+            x: Math.max(flick.edge, (flick.width - row.width) / 2)
             y: (flick.height - row.height) / 2
             spacing: 16
 
