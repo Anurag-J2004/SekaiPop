@@ -340,13 +340,26 @@ Scope {
         // Opened from nothing: it starts on `entry`, with that as the floor.
         if (!open)
             setRoute(PR.open(entry || "quick"))
-        // The Quick Panel was asked for while the Settings stand on their own:
-        // they give way (at once: the phone is coming up in their place).
         if (settingsOpen) {
-            settingsOpen = false
-            settingsEnter.stop()
-            settingsExit.stop()
-            stage.flip = 0
+            if (open && (!screen || screen === targetScreen)) {
+                // The landscape phone is this very phone turned out of the
+                // Quick Panel / Apps, which is still up behind it: turn it
+                // back the way the Settings' X does (see settingsBack), rather
+                // than snapping it upright.
+                turningBack = true
+                backSettle.stop()
+                settingsOpen = false
+                setRoute(PR.go(phoneRoute, faceScreen))
+                turnTo(0)
+            } else {
+                // The Settings stand on their own (or the phone is being asked
+                // for on another monitor): they give way at once, the phone is
+                // coming up in their place.
+                settingsOpen = false
+                settingsEnter.stop()
+                settingsExit.stop()
+                stage.flip = 0
+            }
         }
         if (screen)
             targetScreen = screen
