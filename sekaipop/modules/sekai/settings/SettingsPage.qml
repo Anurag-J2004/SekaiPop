@@ -45,6 +45,19 @@ Item {
         flick.contentY = 0
     }
 
+    // The column the cards are in, for the Settings search.
+    readonly property Item cards: column
+
+    function scrollToItem(it) {
+        const max = Math.max(0, flick.contentHeight - flick.height)
+        const to = Math.max(0, Math.min(max, column.y + it.mapToItem(column, 0, 0).y - 90))
+        scrollAnim.stop()
+        page.pinned = -1
+        scrollAnim.from = flick.contentY
+        scrollAnim.to = to
+        scrollAnim.start()
+    }
+
     // ----- the jump chips -----
     // The titled cards that are showing, in order. Re-read when the column's
     // height or its children change (a card switched on or off).

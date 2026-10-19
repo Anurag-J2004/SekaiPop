@@ -95,6 +95,8 @@ Singleton {
         "lock.blur": false,
         // The gacha lockscreen's endless sparkle animations. Off = they are not built, which saves GPU while locked.
         "lock.animations": true,
+        // The Settings page you left off on (a page id from SettingsFace.qml), "" = the menu.
+        "settings.page": "",
         // The lockscreen's look: gacha (the Project Sekai gacha screen) | calendar (framed pictures cut out of your wallpaper, the month, power keys).
         "lock.style": "gacha",
         // Calendar lockscreen: where each frame's picture comes from: auto (the interesting parts of the wallpaper) | fixed (always the same spots).

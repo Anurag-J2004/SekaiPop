@@ -64,6 +64,8 @@ Item {
     // The picker, on its Lockscreen tab (Separate Lockscreen Wallpaper).
     signal lockWallpapersRequested()
     signal desktopEditRequested()
+    // The search field is done with the keyboard (give it back to the panel).
+    signal searchLeft()
 
     // ===== pages =====
     readonly property var pages: [
@@ -133,9 +135,36 @@ Item {
     onPageIndexChanged: {
         visit(pageIndex)
         swap.restart()
+        face.remember()
     }
 
-    onHubChanged: swap.restart()
+    onHubChanged: {
+        swap.restart()
+        face.remember()
+    }
+
+    function remember() {
+        SettingsService.set("settings.page", hub ? "" : pages[pageIndex].id)
+    }
+
+    function restorePage() {
+        const i = pages.findIndex(p => p.id === SettingsService.get("settings.page"))
+        if (i >= 0)
+            go(i)
+    }
+
+    Component.onCompleted: {
+        if (SettingsService.loaded)
+            face.restorePage()
+    }
+
+    Connections {
+        target: SettingsService
+        function onLoadedChanged() {
+            if (SettingsService.loaded)
+                face.restorePage()
+        }
+    }
 
     // Only counts while the panel is on screen.
     property bool active: true
@@ -151,8 +180,10 @@ Item {
     }
 
     onActiveChanged: {
-        if (active)
+        if (active && hub)
             face.scrollPagesToTop()
+        if (!active)
+            search.clear()
     }
 
     // False while the phone is still turning in / out or ringing out
@@ -445,6 +476,120 @@ Item {
         onClicked: face.showHub()
     }
 
+    // ===== search =====
+    property string searchText: ""
+    property var results: []
+    property int selected: 0
+    readonly property bool searching: searchText.trim() !== ""
+
+    onSearchTextChanged: {
+        if (searching) {
+            for (let i = 0; i < pages.length; i++)
+                visit(i)
+        }
+        searchTimer.restart()
+    }
+
+    Timer {
+        id: searchTimer
+        interval: 120
+        onTriggered: face.rebuildResults()
+    }
+
+    function indexItems(node, pageIdx, card, out) {
+        const kids = node.children
+        for (let i = 0; i < kids.length; i++) {
+            const c = kids[i]
+            const cardTitle = c.isSectionCard === true ? String(c.title) : card
+            if (typeof c.label === "string" && c.label !== "" && c.selected === undefined) {
+                out.push({
+                    item: c,
+                    page: pageIdx,
+                    card: cardTitle,
+                    label: c.label,
+                    icon: typeof c.icon === "string" ? c.icon : "",
+                    hay: (c.label + " " + (typeof c.detail === "string" ? c.detail : "") + " "
+                        + cardTitle + " " + pages[pageIdx].label).toLowerCase()
+                })
+            } else if (c.children && c.children.length > 0) {
+                indexItems(c, pageIdx, cardTitle, out)
+            }
+        }
+    }
+
+    function rebuildResults() {
+        const q = searchText.trim().toLowerCase()
+        if (q === "") {
+            results = []
+            return
+        }
+        const words = q.split(/\s+/)
+        const out = []
+        for (let i = 0; i < pageRepeater.count; i++) {
+            const slot = pageRepeater.itemAt(i)
+            if (!slot || !slot.item || !slot.item.cards)
+                continue
+            const all = []
+            indexItems(slot.item.cards, i, "", all)
+            for (const r of all) {
+                if (words.every(w => r.hay.indexOf(w) >= 0))
+                    out.push(r)
+            }
+        }
+        results = out
+    }
+
+    onResultsChanged: selected = 0
+
+    function stepResult(d) {
+        if (results.length === 0)
+            return
+        selected = Math.max(0, Math.min(results.length - 1, selected + d))
+        const top = 18 + selected * 82
+        if (top < resultsFlick.contentY)
+            resultsFlick.contentY = top - 18
+        else if (top + 68 > resultsFlick.contentY + resultsFlick.height)
+            resultsFlick.contentY = top + 68 + 18 - resultsFlick.height
+    }
+
+    function openResult(r) {
+        const slot = pageRepeater.itemAt(r.page)
+        search.clear()
+        go(r.page)
+        searchLeft()
+        Qt.callLater(() => {
+            if (slot && slot.item)
+                slot.item.scrollToItem(r.item)
+        })
+    }
+
+    function typeIntoSearch(character) {
+        search.begin(character)
+    }
+
+    SearchPill {
+        id: search
+        x: menuKey.x - 24 - width
+        y: 36
+        width: 280
+        height: 52
+        placeholder: "Search settings"
+        stepKeys: true
+        onTextChanged: face.searchText = text
+        onStepped: direction => face.stepResult(direction)
+        onLeave: {
+            if (face.results.length > 0)
+                face.openResult(face.results[Math.min(face.selected, face.results.length - 1)])
+            else
+                face.searchLeft()
+        }
+    }
+
+    Keys.onEscapePressed: {
+        search.clear()
+        face.searchLeft()
+    }
+
     // ===== the menu =====
     Item {
         id: hubArea
@@ -525,11 +670,125 @@ Item {
                 // The page you just asked for (pageIndex has already moved to it
                 // when it becomes active) is built at once, as before.
                 asynchronous: slot.index !== face.pageIndex
+                onLoaded: {
+                    if (face.searching)
+                        searchTimer.restart()
+                }
                 sourceComponent: slot.index === 0 ? quickPage
                     : slot.index === 1 ? generalPage
                     : slot.index === 2 ? barPage
                     : slot.index === 3 ? desktopPage
                     : slot.index === 4 ? hyprlandPage : aboutPage
+            }
+        }
+    }
+
+    // The search results: one row per setting that matches, over the pages.
+    Item {
+        id: searchArea
+        x: face.pageX
+        y: face.pageTop - 12
+        width: face.pageWidth
+        height: face.pageHeight + 12
+        clip: true
+        opacity: face.searching ? 1 : 0
+        visible: opacity > 0.01
+        enabled: face.searching
+
+        Behavior on opacity {
+            NumberAnimation { duration: 120 }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: face.backdropColor
+        }
+
+        Text {
+            visible: face.results.length === 0
+            anchors.centerIn: parent
+            text: "No settings found"
+            color: Theme.pInkSub
+            font.family: Theme.fontFamily
+            font.pixelSize: 20
+            font.weight: Font.DemiBold
+        }
+
+        WheelScroll { scroller: resultsFlick }
+        Flickable {
+            id: resultsFlick
+            anchors.fill: parent
+            contentWidth: width
+            contentHeight: resultsColumn.height + 40
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            flickableDirection: Flickable.VerticalFlick
+
+            Column {
+                id: resultsColumn
+                x: 4
+                y: 18
+                width: parent.width - 16
+                spacing: 14
+
+                Repeater {
+                    model: face.results
+
+                    delegate: Rectangle {
+                        id: row
+
+                        required property var modelData
+                        required property int index
+
+                        width: resultsColumn.width
+                        height: 68
+                        radius: 20
+                        color: row.index === face.selected ? Theme.pSurfaceHover : Theme.pSurface
+                        border.width: 3
+                        border.color: Theme.pLine
+                        antialiasing: true
+
+                        MaterialIcon {
+                            x: 26
+                            anchors.verticalCenter: parent.verticalCenter
+                            size: 28
+                            name: row.modelData.icon !== "" ? row.modelData.icon : "settings"
+                            weight: Theme.settingsIconWeight
+                            color: Theme.pInk
+                        }
+
+                        Column {
+                            x: 78
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            Text {
+                                text: row.modelData.label
+                                color: Theme.pInk
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 20
+                                font.weight: Font.ExtraBold
+                                font.styleName: Theme.fontStyleBold
+                            }
+
+                            Text {
+                                text: face.pages[row.modelData.page].label + (row.modelData.card !== "" ? "  ·  " + row.modelData.card : "")
+                                color: Theme.pInkSub
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                            }
+                        }
+
+                        MouseArea {
+                            id: rowArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onEntered: face.selected = row.index
+                            onClicked: face.openResult(row.modelData)
+                        }
+                    }
+                }
             }
         }
     }

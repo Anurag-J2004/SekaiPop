@@ -1299,10 +1299,8 @@ Scope {
         // started slowly and felt heavy.
         easing.type: Easing.OutCubic
         onFinished: {
-            // Back at the Quick Panel: the Settings are ready on their menu
-            // for next time.
+            // Back at the Quick Panel: the Settings stay on the page they were left on.
             if (!root.settingsOpen) {
-                sstage.face.showHub()
                 // Keyboard focus is let go a beat after the turn has landed.
                 backSettle.restart()
             }
@@ -1356,13 +1354,12 @@ Scope {
     // Going away: it eases out of rest, shrinks, and fades along the whole way,
     // then eases to a stop, so there is no sudden start and nothing solid
     // vanishing in the last moment. Once it is gone the phone is the Quick
-    // Panel again (flip 0) and the Settings are back on their menu.
+    // Panel again (flip 0) and the Settings keep the page they were left on.
     ParallelAnimation {
         id: settingsExit
 
         onFinished: {
             stage.flip = 0
-            sstage.face.showHub()
         }
 
         NumberAnimation {
@@ -1990,6 +1987,9 @@ Scope {
                     face.step(-1)
                 } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_6) {
                     face.go(event.key - Qt.Key_1)
+                } else if (!(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
+                           && event.text.length === 1 && event.text.charCodeAt(0) > 32 && event.text.charCodeAt(0) !== 127) {
+                    face.typeIntoSearch(event.text)
                 } else {
                     return
                 }
@@ -2683,6 +2683,8 @@ Scope {
                 onLockWallpapersRequested: root.swapLandscape("wallpapers", "lock")
 
                 onWallpapersCloseRequested: root.settingsBack()
+
+                onSearchLeft: root.focusLandscape()
 
                 onWallpapersLoaded: landscapeFocus.restart()
 

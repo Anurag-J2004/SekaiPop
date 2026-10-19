@@ -205,6 +205,8 @@ Item {
     signal wallpapersRequested()
     signal lockWallpapersRequested()
     signal desktopEditRequested()
+    // The Settings' search field is done with the keyboard.
+    signal searchLeft()
     // The Wallpapers' X, or Escape on their gallery.
     signal wallpapersCloseRequested()
     // The gallery has been built (it is built a beat after it is asked for).
@@ -362,6 +364,7 @@ Item {
                 onWallpapersRequested: root.wallpapersRequested()
                 onLockWallpapersRequested: root.lockWallpapersRequested()
                 onDesktopEditRequested: root.desktopEditRequested()
+                onSearchLeft: root.searchLeft()
             }
 
             // The Wallpapers: the gallery (WallpaperFace.qml) on the same screen.

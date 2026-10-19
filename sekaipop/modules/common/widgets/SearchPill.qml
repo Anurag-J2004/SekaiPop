@@ -19,6 +19,11 @@ Item {
 
     signal leave()
 
+    // true = Up / Down report stepped(-1 / 1) instead of Down handing the
+    // keyboard back (leave()).
+    property bool stepKeys: false
+    signal stepped(int direction)
+
     width: 240
     height: 40
 
@@ -116,7 +121,13 @@ Item {
             }
             Keys.onReturnPressed: root.leave()
             Keys.onEnterPressed: root.leave()
-            Keys.onDownPressed: root.leave()
+            Keys.onDownPressed: root.stepKeys ? root.stepped(1) : root.leave()
+            Keys.onUpPressed: event => {
+                if (root.stepKeys)
+                    root.stepped(-1)
+                else
+                    event.accepted = false
+            }
         }
 
         Rectangle {
