@@ -13,9 +13,6 @@ Item {
     // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
     readonly property var mt: Theme.of(QsWindow.window)
 
-    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
-    readonly property var mt: Theme.of(QsWindow.window)
-
     property string label: ""
     property bool active: false
 
