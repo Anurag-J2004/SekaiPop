@@ -40,7 +40,7 @@ SettingsPage {
         { key: "util.mic", icon: "mic", label: "Microphone" },
         { key: "util.darkMode", icon: "dark_mode", label: "Dark / light" },
         { key: "util.profile", icon: "speed", label: "Performance" },
-        { key: "util.record", icon: "fiber_manual_record", label: "Record" },
+        { key: "util.record", icon: "screen_record", label: "Record" },
         { key: "util.wallpapers", icon: "wallpaper", label: "Wallpapers" }
     ]
 

@@ -102,7 +102,7 @@ GridLayout {
     UtilKey {
         visible: SettingsService.flag("util.record")
         label: grid.src && grid.src.recording ? "Stop recording" : "Record screen"
-        icon: grid.src && grid.src.recording ? "stop" : "fiber_manual_record"
+        icon: grid.src && grid.src.recording ? "stop" : "screen_record"
         active: grid.src ? grid.src.recording : false
         activeFill: "#ff8fb3"
         keyWidth: grid.keyWidth; keyHeight: grid.keyHeight; iconSize: grid.iconSize

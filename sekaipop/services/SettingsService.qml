@@ -222,6 +222,8 @@ Singleton {
         "systemTheme.live": true,
         "systemTheme.bounceDark": true,
         // ===== Icons & cursor (empty = leave whatever the system has) =====
+        // The shell's own icons when they are not filled: outline | broken | line-duotone | bold-duotone (filled ones are always Bold).
+        "appearance.iconStyle": "outline",
         "appearance.iconTheme": "",
         "appearance.cursorTheme": "",
         "appearance.cursorSize": 24

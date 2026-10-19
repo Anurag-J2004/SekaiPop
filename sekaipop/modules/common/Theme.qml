@@ -368,14 +368,15 @@ QtObject {
     readonly property string fontFamily: "Google Sans Flex"
     readonly property int fontSize: 16
 
-    // Icons: Material Symbols Rounded (fonts.google.com/icons, Rounded),
-    // drawn by MaterialIcon.qml. These two knobs restyle every icon at
-    // once — iconFill 0 = outline, 1 = solid; iconWeight 100..700
-    // (400 is Google's default, ~500-600 sits closer to the bold
-    // outlines of the rest of the shell). Check the font is installed
-    // with:  fc-list | grep -i "material symbols"
+    // Icons: the Solar Icon Set (assets/icons, SVG), drawn by MaterialIcon.qml
+    // with the old Material Symbols names (functions/IconMap.js turns them into
+    // Solar files). iconFill restyles every icon at once — 0 = outline,
+    // 1 = solid (the Solar "Bold" set). iconWeight only reaches the Material
+    // Symbols Rounded font, which is what an icon with no Solar file falls back
+    // to (check it is installed with:  fc-list | grep -i "material symbols")
     readonly property string iconFont: "Material Symbols Rounded"
     readonly property real iconFill: 0
+    readonly property string iconStyle: SettingsService.get("appearance.iconStyle")
     readonly property real iconWeight: 400
     // The Settings panel's icons are heavier than the rest, so their outlines
     // hold up against the panel's thick borders (outline only: iconFill stays 0).

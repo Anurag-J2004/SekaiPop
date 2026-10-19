@@ -1083,6 +1083,19 @@ SettingsPage {
         Component.onCompleted: IconCursorService.refresh()
 
         SettingChoice {
+            label: "Shell icon style"
+            sublabel: "Filled icons are always Bold"
+            current: SettingsService.get("appearance.iconStyle")
+            options: [
+                { id: "outline", label: "Outline", icon: "palette" },
+                { id: "line-duotone", label: "Line Duotone", icon: "palette" },
+                { id: "broken", label: "Broken", icon: "palette" },
+                { id: "bold-duotone", label: "Bold Duotone", icon: "palette" }
+            ]
+            onPicked: id => SettingsService.set("appearance.iconStyle", id)
+        }
+
+        SettingChoice {
             label: "Icon theme"
             sublabel: IconCursorService.iconThemes.length === 0
                       ? "No icon themes found"
