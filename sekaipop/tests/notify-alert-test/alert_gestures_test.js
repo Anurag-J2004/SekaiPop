@@ -43,4 +43,10 @@ calls.length = 0
 root.notificationSource.toast = null
 removeIt()
 assert.deepStrictEqual(calls, ["hide"], "no card to remove: just put away")
+// Hovering the card opens the phone, but slowly enough to aim at it, and never mid-swipe.
+const face = read("modules/sekai/quickPanel/QuickPanelFace.qml")
+const hover = face.slice(face.indexOf("id: hoverOpen"), face.indexOf("id: hoverOpen") + 80)
+assert.ok(/interval: (\d+)/.test(hover) && Number(hover.match(/interval: (\d+)/)[1]) >= 800, "the card's hover-to-open waits long enough to right-click or swipe it")
+assert.ok(/onAlertActivated: \{[\s\S]{0,400}if \(alertTouch\.busy\)\s+return/.test(src), "no hover-open in the middle of a press or a swipe")
+assert.ok(/readonly property bool busy: leftTap\.pressed \|\| middleTap\.pressed \|\| rightTap\.pressed \|\| alertSwipe\.active/.test(layer))
 console.log("alert_gestures_test: all checks passed")

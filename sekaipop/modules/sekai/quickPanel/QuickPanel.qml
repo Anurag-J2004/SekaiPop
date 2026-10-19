@@ -2522,6 +2522,10 @@ Scope {
                         // had already claimed the phone), but a hover has no
                         // press, so the phone was lowered before it was claimed.
                         onAlertActivated: {
+                            // Not in the middle of a press or a swipe on the phone (the
+                            // card's hover timer can run out while you drag it away).
+                            if (alertTouch.busy)
+                                return
                             root.claim()
                             root.notificationSource.hideToast()
                         }
@@ -2761,6 +2765,9 @@ Scope {
 
                     // Down far enough to mean it (design px on the phone's face).
                     readonly property real swipeAway: 40
+                    // A button is held or a swipe is going on: the card's hover-to-open
+                    // waits (onAlertActivated).
+                    readonly property bool busy: leftTap.pressed || middleTap.pressed || rightTap.pressed || alertSwipe.active
 
                     function putAway() {
                         root.notificationSource.hideToast()
@@ -2776,6 +2783,7 @@ Scope {
                     // Passive: the button under it still gets the press, and a drag
                     // past the threshold cancels the tap.
                     TapHandler {
+                        id: leftTap
                         acceptedButtons: Qt.LeftButton
                         gesturePolicy: TapHandler.DragThreshold
                         onTapped: root.claim()
@@ -2783,12 +2791,14 @@ Scope {
 
                     // Exclusive: the card under it doesn't act on these as well.
                     TapHandler {
+                        id: middleTap
                         acceptedButtons: Qt.MiddleButton
                         gesturePolicy: TapHandler.ReleaseWithinBounds
                         onTapped: alertTouch.putAway()
                     }
 
                     TapHandler {
+                        id: rightTap
                         acceptedButtons: Qt.RightButton
                         gesturePolicy: TapHandler.ReleaseWithinBounds
                         onTapped: alertTouch.removeIt()
