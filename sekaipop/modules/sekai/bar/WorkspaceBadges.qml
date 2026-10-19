@@ -35,6 +35,27 @@ Item {
     property int active: 1      // 1-based number of the active workspace
     property int count: 5
 
+    // Workspace ids that currently have windows (fed in by the bar).
+    property var occupied: []
+
+    // The workspace number each badge stands for, in order: 1..count always,
+    // then any workspace above `count` that has windows or is the active one.
+    // So an empty 7th badge turns into the 8th when you move to 8.
+    readonly property var ids: {
+        const out = []
+        for (let i = 1; i <= root.count; i++)
+            out.push(i)
+            const extra = []
+            for (const w of root.occupied)
+                if (w > root.count && extra.indexOf(w) < 0)
+                    extra.push(w)
+                    if (root.active > root.count && extra.indexOf(root.active) < 0)
+                        extra.push(root.active)
+                        extra.sort((a, b) => a - b)
+                        return out.concat(extra)
+    }
+    readonly property int total: root.ids.length
+
     // In the Capsule bar style the badges are redrawn as small ringed dots, the
     // active one a wide pill: no numbers, no zoom, nothing shifts aside (see
     // `dotRow` below). On a standing bar the dots stack in a column and the active
@@ -62,15 +83,15 @@ Item {
     readonly property real slotLen: root.capsule ? Theme.capDot + Theme.capGap : root.idleSize + Theme.shadowOffset + root.gap
     readonly property int shown: {
         if (!root.vertical || root.maxLength < 0)
-            return root.count
-        // (Capsule: the active dot is longer than the rest by this much.)
-        const extra = root.capsule ? Theme.capDotActive - Theme.capDot : 0
-        const fit = Math.floor((root.maxLength - extra + root.gap) / root.slotLen)
-        return Math.max(Math.min(3, root.count), Math.min(root.count, fit))
+            return root.total
+            // (Capsule: the active dot is longer than the rest by this much.)
+            const extra = root.capsule ? Theme.capDotActive - Theme.capDot : 0
+            const fit = Math.floor((root.maxLength - extra + root.gap) / root.slotLen)
+            return Math.max(Math.min(3, root.total), Math.min(root.total, fit))
     }
     // 0-based index of the first badge drawn.
-    readonly property int first: Math.max(0, Math.min(root.count - root.shown,
-        root.active - 1 - Math.floor(root.shown / 2)))
+    readonly property int first: Math.max(0, Math.min(root.total - root.shown,
+                                                      root.active - 1 - Math.floor(root.shown / 2)))
 
     // How far (px) the workspace number sits below the middle of its
     // box. Digits have no descenders, so with the text centered by its
@@ -95,7 +116,7 @@ Item {
     // Standing bar: activeSize wide, as tall as the column.
     // Capsule: a column of dots, with the 4 px of shadow room every pill of a standing bar has.
     height: root.capsule ? (root.vertical ? dotRow.height + Theme.shadowOffset : Theme.capDot)
-                         : (root.vertical ? row.height : activeSize + Theme.shadowOffset)
+    : (root.vertical ? row.height : activeSize + Theme.shadowOffset)
     width: root.capsule ? (root.vertical ? Theme.capDot : dotRow.width) : (root.vertical ? activeSize : row.width)
     implicitHeight: height
     implicitWidth: width
@@ -104,10 +125,10 @@ Item {
     // wrapper below) so the same delegate can be a row or a column.
     Item {
         id: row
-        width: root.vertical ? root.idleSize : root.count * root.idleSize + (root.count - 1) * root.gap
+        width: root.vertical ? root.idleSize : root.total * root.idleSize + (root.total - 1) * root.gap
         height: root.vertical
-            ? root.shown * (root.idleSize + Theme.shadowOffset) + (root.shown - 1) * root.gap
-            : root.idleSize + Theme.shadowOffset
+        ? root.shown * (root.idleSize + Theme.shadowOffset) + (root.shown - 1) * root.gap
+        : root.idleSize + Theme.shadowOffset
         x: root.vertical ? (root.width - width) / 2 : 0
         // Flat bar: the row's bottom sits 6 above the bottom of this
         // item. Nudged up a touch so the badges line up with the other
@@ -119,7 +140,7 @@ Item {
 
         Repeater {
             id: repeater
-            model: root.capsule ? 0 : root.count
+            model: root.capsule ? 0 : root.total
 
             // Fixed-size wrapper: this is always exactly idleSize, so
             // the Row's layout never reflows when the active
@@ -129,11 +150,11 @@ Item {
                 id: wrap
 
                 required property int index
-                readonly property int number: index + 1
+                readonly property int number: root.ids[index]
                 readonly property bool isActive: root.active === number
                 readonly property real shift: number < root.active ? -root.neighborShift
-                    : number > root.active ? root.neighborShift
-                    : 0
+                : number > root.active ? root.neighborShift
+                : 0
                 // Which way the neighbours get out of the active one's
                 // way: sideways on a flat bar, up / down on a standing one.
                 readonly property real xOffset: root.vertical ? 0 : shift
@@ -197,8 +218,8 @@ Item {
                     cornerRadius: Theme.radiusBadge
                     ringWidth: 8
                     fillColor: wrap.isActive
-                        ? root.activeColors[wrap.index % root.activeColors.length]
-                        : Theme.accentCyan
+                    ? root.activeColors[(wrap.number - 1) % root.activeColors.length]
+                    : Theme.accentCyan
 
                     // Always the original 36px box — the "grows to
                     // 42px when selected" look comes entirely from
@@ -287,19 +308,19 @@ Item {
         visible: root.capsule
         // One row, or (standing bar) one column; dots outside the drawn window are hidden
         // and the grid skips them.
-        columns: root.vertical ? 1 : Math.max(1, root.count)
+        columns: root.vertical ? 1 : Math.max(1, root.total)
         anchors.verticalCenter: root.vertical ? undefined : parent.verticalCenter
         anchors.horizontalCenter: root.vertical ? parent.horizontalCenter : undefined
         spacing: Theme.capGap
 
         Repeater {
-            model: root.capsule ? root.count : 0
+            model: root.capsule ? root.total : 0
 
             delegate: Item {
                 id: dot
 
                 required property int index
-                readonly property int number: index + 1
+                readonly property int number: root.ids[index]
                 readonly property bool isActive: root.active === number
 
                 // Which dot of the drawn window this is (a standing bar may show only some).
@@ -333,7 +354,7 @@ Item {
                     anchors.fill: parent
                     anchors.margins: Theme.capDotRing
                     radius: height / 2
-                    color: Theme.capWsColors[dot.index % Theme.capWsColors.length]
+                    color: Theme.capWsColors[(dot.number - 1) % Theme.capWsColors.length]
                     antialiasing: true
                 }
 
@@ -370,12 +391,21 @@ Item {
         onWheel: wheel => {
             if (!ready)
                 return
-            const next = wheel.angleDelta.y < 0 ? root.active + 1 : root.active - 1
-            if (next >= 1 && next <= root.count) {
-                root.requested(next)
-                ready = false
-                cooldown.restart()
-            }
+                const dir = wheel.angleDelta.y < 0 ? 1 : -1
+                const i = root.ids.indexOf(root.active)
+                let next = -1
+                if (i >= 0 && i + dir >= 0 && i + dir < root.total) {
+                    next = root.ids[i + dir]
+                } else if (dir > 0 && (root.active <= root.count || root.occupied.indexOf(root.active) >= 0)) {
+                    // Past the last badge: open the next workspace, but only from a
+                    // real one, so scrolling can't pile up empty workspaces.
+                    next = root.active + 1
+                }
+                if (next >= 1) {
+                    root.requested(next)
+                    ready = false
+                    cooldown.restart()
+                }
         }
     }
 }
