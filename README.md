@@ -73,7 +73,7 @@ Most shells pick one look and theme it. SekaiPop starts from a single design lan
 <td valign="top"><b>Edit Desktop</b><br>A full-screen layout editor built from the same blocks, with tabs for Widgets, Bar, Dock, Views, Theme and Presets.</td>
 </tr>
 <tr>
-<td valign="top"><b>Presets that survive updates</b><br>Wearing an old preset doesn't drag in widgets that were added later. Lockscreen style, folder paths and other machine-specific choices are left alone.</td>
+<td valign="top"><b>Presets that survive updates</b><br>Wearing an old preset doesn't drag in widgets that were added later. Lockscreen style, folder paths and other machine-specific choices are left alone. Wore the wrong one, or deleted one? There's an Undo for both.</td>
 <td valign="top"><b>Themes with personality</b><br>Six character-unit themes (Virtual Singer, Leo/need, MORE MORE JUMP!, Vivid BAD SQUAD, Wonderlands×Showtime, Nightcord at 25:00), Monochrome, Wallpaper (matugen) and a Custom palette, each in Light, Dark and Darker. They reach window borders, GTK, Qt and KDE colours, the terminal and a Vencord (Discord) theme.</td>
 </tr>
 <tr>

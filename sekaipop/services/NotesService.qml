@@ -446,6 +446,64 @@ Singleton {
         root.commit()
     }
 
+    // ===== undo (DesktopPresetService's undoWear / undoRemove) =====
+    // The notes on the desktop and the preset they belong to, for the look a preset is
+    // about to replace. The notes themselves are kept, not just the name: notes that belong
+    // to no preset yet are simply replaced when one is worn, and are nowhere else.
+    function lookPart() {
+        if (!root.loaded)
+            return null
+        return { setName: root.setName, shown: root.shown, notes: root.currentNotes() }
+    }
+
+    // Puts lookPart()'s notes back on the desktop, belonging to the preset they belonged to
+    // (`setName`; "" = none, or that preset is gone). The notes worn now go to their own
+    // preset first, as when another preset is worn.
+    function wearLook(part, setName) {
+        if (!root.loaded || !part || typeof part !== "object" || !Array.isArray(part.notes))
+            return
+        const name = typeof setName === "string" ? setName : ""
+        root.stashCurrent()
+        const next = Object.assign({}, root.sets)
+        if (name !== "")
+            delete next[name]
+        root.sets = next
+        // Through the same checks as the file read at startup (it came back off disk).
+        root.fill(NM.cleanNotes(part.notes))
+        root.shown = part.shown === true && listModel.count > 0
+        root.setName = name
+        root.freshId = ""
+        root.recount()
+        root.commit()
+    }
+
+    // A preset is about to be deleted: its notes, so undoing the delete can give them back
+    // (restoreSet). `worn` = they are the ones on the desktop (dropSet leaves them there).
+    function setPart(name) {
+        if (root.setName === name)
+            return { worn: true, shown: root.shown, notes: root.currentNotes() }
+        const s = root.sets[name]
+        return s ? { worn: false, shown: s.shown, notes: s.notes } : null
+    }
+
+    // The deleted preset `name` is back: so are its notes. Notes still on the desktop that
+    // belong to no preset are its own again; otherwise the copy setPart() made comes back
+    // as its set. A preset that has notes already keeps them.
+    function restoreSet(name, part) {
+        if (!root.loaded || typeof name !== "string" || name === "" || !part || typeof part !== "object")
+            return
+        if (root.setName === name || root.sets[name] !== undefined)
+            return
+        if (part.worn === true && root.setName === "") {
+            root.setName = name
+        } else if (Array.isArray(part.notes)) {
+            const next = Object.assign({}, root.sets)
+            next[name] = { shown: part.shown === true, notes: NM.cleanNotes(part.notes) }
+            root.sets = next
+        }
+        root.commit()
+    }
+
     // Runs once, at startup.
     Process {
         running: true

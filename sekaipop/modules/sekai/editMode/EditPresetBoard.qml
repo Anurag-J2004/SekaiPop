@@ -9,7 +9,13 @@ import qs.modules.common.widgets
 // holds and what it leaves alone is written at the top of
 // services/DesktopPresetService.qml.
 //
-//   first tile       SAVE THIS LOOK: click, type a name, Enter. Esc cancels.
+//   first tile       SAVE THIS LOOK: click, type a name, Enter. Esc cancels. A NOT SAVED
+//                    badge on it: no preset is the desktop as it is now, so wearing one
+//                    would leave this look only in the UNDO tile.
+//   UNDO tiles       after the first tile, while there is something to undo: UNDO wears
+//                    the look the last preset replaced, and turns into REDO, which wears
+//                    the undone look again (and turns back into UNDO); UNDELETE brings
+//                    the last deleted preset back. See "Undo" in DesktopPresetService.qml.
 //   click a tile     wear that preset. The card above changes live (colours,
 //                    bar, widgets, wallpaper, Quick Panel buttons).
 //   hover a tile     a SAVE OVER button comes up on its picture: click it
@@ -67,6 +73,10 @@ Item {
         if (root.visible)
             DesktopPresetService.refresh()
     }
+
+    // No preset is the desktop as it is now (the NOT SAVED badge on the first tile).
+    readonly property bool unsaved: DesktopPresetService.loaded
+        && !DesktopPresetService.presets.some(p => DesktopPresetService.isCurrent(p.data))
 
     // ===== the first tile: save the desktop as it is =====
     component NewTile: Item {
@@ -240,6 +250,32 @@ Item {
             }
         }
 
+        // NOT SAVED: on the corner, where a preset tile has its star.
+        Rectangle {
+            visible: root.unsaved && !nt.naming
+            x: -8
+            y: -8
+            width: unsavedText.width + 16
+            height: 22
+            radius: 11
+            color: "#ffd04a"
+            border.width: 2
+            border.color: Theme.pLine
+            antialiasing: true
+
+            Text {
+                id: unsavedText
+                anchors.centerIn: parent
+                text: "NOT SAVED"
+                color: Theme.colBorder
+                font.family: Theme.fontFamily
+                font.pixelSize: 9
+                font.weight: Font.ExtraBold
+                font.styleName: Theme.fontStyleBold
+                font.letterSpacing: 0.5
+            }
+        }
+
         MouseArea {
             id: addArea
             anchors.fill: parent
@@ -248,6 +284,95 @@ Item {
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
             onClicked: nt.begin()
+        }
+    }
+
+    // ===== undo: the look before the last preset, or the last preset deleted =====
+    component UndoTile: Item {
+        id: ut
+
+        property string icon: "undo"
+        property string title: ""
+        property string sub: ""
+        signal activated()
+
+        width: root.tileW
+        height: root.tileH
+
+        Pill {
+            width: ut.width
+            height: ut.height
+            y: undoArea.containsMouse && !undoArea.pressed ? -3 : 0
+            cornerRadius: 15
+            ringWidth: 4
+            shadowDx: 0
+            shadowDy: 4
+            pressed: undoArea.pressed
+            fillColor: undoArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+
+            Behavior on y {
+                NumberAnimation {
+                    duration: 140
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            Column {
+                anchors.centerIn: parent
+                anchors.verticalCenterOffset: -2
+                width: root.tileW - 24
+                spacing: 6
+
+                Rectangle {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: 54
+                    height: 54
+                    radius: 27
+                    color: Theme.chipFill
+                    border.width: 3
+                    border.color: Theme.pLine
+                    antialiasing: true
+
+                    MaterialIcon {
+                        anchors.centerIn: parent
+                        name: ut.icon
+                        size: 30
+                        weight: 700
+                        color: Theme.chipInk
+                    }
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: ut.title
+                    color: Theme.pInk
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    font.weight: Font.ExtraBold
+                    font.styleName: Theme.fontStyleBold
+                    font.letterSpacing: 0.6
+                }
+
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    text: ut.sub
+                    color: Theme.pInkSub
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 10
+                    font.weight: Font.DemiBold
+                }
+            }
+        }
+
+        MouseArea {
+            id: undoArea
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton
+            cursorShape: Qt.PointingHandCursor
+            onClicked: ut.activated()
         }
     }
 
@@ -823,6 +948,28 @@ Item {
             spacing: 16
 
             NewTile {}
+
+            // Hidden once the desktop is that look again by other means.
+            UndoTile {
+                readonly property var prev: DesktopPresetService.previous
+                readonly property string last: prev && prev._meta && typeof prev._meta.last === "string"
+                    && DesktopPresetService.has(prev._meta.last) ? prev._meta.last : ""
+                readonly property bool redo: !!prev && !!prev._meta && prev._meta.undone === true
+                visible: !!prev && !DesktopPresetService.isCurrent(prev)
+                icon: redo ? "redo" : "undo"
+                title: redo ? "REDO" : "UNDO"
+                sub: last !== "" ? "back to " + last : "back to the look before"
+                onActivated: DesktopPresetService.undoWear()
+            }
+
+            UndoTile {
+                readonly property var gone: DesktopPresetService.trashed
+                visible: !!gone && !DesktopPresetService.has(gone.name)
+                icon: "restore_from_trash"
+                title: "UNDELETE"
+                sub: gone ? gone.name : ""
+                onActivated: DesktopPresetService.undoRemove()
+            }
 
             Repeater {
                 model: DesktopPresetService.presets
