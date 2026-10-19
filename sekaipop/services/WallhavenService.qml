@@ -7,7 +7,7 @@ import qs.modules.common
 import "../modules/common/functions/WallhavenMath.js" as WH
 
 // Wallhaven (wallhaven.cc) as a second source for the Wallpapers picker: search it, page
-// through the results, and download one into the wallpaper folder's Wallhaven/ subfolder
+// through the results, and download one straight into the wallpaper folder
 // before it is set, so from then on it is an ordinary wallpaper (per monitor, lockscreen,
 // presets and the Matugen colours just work). The rules are WallhavenMath.js; the requests
 // scripts/wallpapers/wallhaven.sh. docs/WALLHAVEN.md has the whole picture.
@@ -26,8 +26,10 @@ Singleton {
     id: root
 
     readonly property string script: Directories.script("wallpapers/wallhaven.sh")
-    // Where downloads go: a subfolder of the picker's folder, so they show up in it.
-    readonly property string folder: WallpaperService.directory + "/Wallhaven"
+    // Where downloads go: the picker's own folder, so they are in "My folder" like any other
+    // picture (the picker lists only the folder itself, not folders inside it). They are
+    // named wallhaven-<id>.<ext>, which is how "already downloaded" knows them again.
+    readonly property string folder: WallpaperService.directory
 
     // `ipc call wallpaperpicker wallhaven` asks for the picker to open on Wallhaven; the
     // picker takes it (takeSource) when it opens, and opens on the folder otherwise.

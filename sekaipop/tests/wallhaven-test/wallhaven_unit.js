@@ -134,7 +134,7 @@ printf '%s' "\${FAKE_CODE:-200}"
 const svc = read("services/WallhavenService.qml")
 assert.ok(/WH\.searchUrl\(o\)/.test(svc) && /WH\.parseSearch\(searcher\.out\)/.test(svc), "the service builds and reads through WallhavenMath")
 assert.ok(/WH\.waitFor\(root\.sent, Date\.now\(\)\)/.test(svc), "it keeps under the rate limit")
-assert.ok(/WallpaperService\.directory \+ "\/Wallhaven"/.test(svc), "downloads go into the picker's folder")
+assert.ok(/readonly property string folder: WallpaperService\.directory\n/.test(svc), "downloads go straight into the picker's folder (it doesn't list folders inside it)")
 const face = read("modules/sekai/wallpaperSelector/WallpaperFace.qml")
 assert.ok(/WallpaperSourceSwitch \{/.test(face) && /face\.setSource\(face\.onWallhaven \? "folder" : "wallhaven"\)/.test(face), "the switch and Ctrl+Tab flip the source")
 assert.ok(/WallhavenService\.fetch\(wh, p => face\.setDesktop\(all, p\)\)/.test(face), "Set as Desktop downloads a Wallhaven picture first")

@@ -138,7 +138,8 @@ Item {
     // shows WallhavenService's results in the same `matched` list, each with a `wh` (the
     // result: thumbnails, size, colours...); `filePath` is where its download is, once there
     // is one, so the applied / other marks work for those as for any other picture. Setting
-    // one downloads it first (into the folder's Wallhaven/). Opens on the folder every time.
+    // one downloads it first, into the folder itself (so it is in My folder from then on).
+    // Opens on the folder every time.
     // The design: docs/handoffs/wallhaven; docs/WALLHAVEN.md says where it departs.
     property string source: "folder"
     readonly property bool onWallhaven: face.source === "wallhaven"
@@ -163,7 +164,12 @@ Item {
         whSearchDelay.stop()
         if (face.onWallhaven && (WallhavenService.page === 0 || WallhavenService.query !== ""))
             WallhavenService.search("", face.screenPxW, face.screenPxH)
-        face.recompute()
+        // Back on the folder with something new in it (a Wallhaven download): read it again,
+        // so the download is there at once rather than behind the Refresh dot.
+        if (!face.onWallhaven && face.hasNew)
+            face.refresh()
+        else
+            face.recompute()
         Qt.callLater(() => grid.positionViewAtBeginning())
     }
 
@@ -1835,7 +1841,7 @@ Item {
                 if (viewerArea.whDownloading)
                     lines.push("Esc stops the download. It goes on when it\u2019s done.")
                 else if (face.viewWh && face.viewPath !== "")
-                    lines.push("In your folder, sets at once: Wallhaven/" + WallhavenService.fileNameOf(face.viewWh))
+                    lines.push("In your folder, sets at once: " + WallhavenService.fileNameOf(face.viewWh))
                 if (WallpaperService.perMonitor && face.screenName !== "")
                     lines.push("Changes this monitor (" + face.screenName + ") only. Shift+click: every monitor.")
                 if (!WallpaperService.separateLock)

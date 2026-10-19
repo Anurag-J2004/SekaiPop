@@ -284,7 +284,7 @@ function extOf(url) {
     return e === "jpeg" ? "jpg" : (e === "png" || e === "jpg" || e === "webp" ? e : "jpg")
 }
 
-// The file a download is saved as, in the Wallhaven/ subfolder: the id keeps it findable
+// The file a download is saved as, in the wallpaper folder: the id keeps it findable
 // ("already downloaded") and keeps two downloads of one picture from piling up.
 function fileName(item) {
     return "wallhaven-" + item.id + "." + (item.type || extOf(item.full))
