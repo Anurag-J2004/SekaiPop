@@ -744,11 +744,11 @@ PanelWindow {
 
     // This monitor's own workspace, falling back to the focused one
     readonly property var monitor: Hyprland.monitorFor(screen)
-    readonly property int activeWorkspace: monitor?.activeWorkspace?.id ?? Hyprland.focusedWorkspace?.id ?? 1
+    readonly property int activeWorkspace: NiriWorkspaces.running ? NiriWorkspaces.activeOn(screen?.name ?? "") : monitor?.activeWorkspace?.id ?? Hyprland.focusedWorkspace?.id ?? 1
 
     // Ids of workspaces that currently have windows. Lets the badges show the
     // ones above the configured count only while they are in use.
-    readonly property var occupiedWorkspaces: Hyprland.workspaces.values
+    readonly property var occupiedWorkspaces: NiriWorkspaces.running ? NiriWorkspaces.occupiedOn(screen?.name ?? "") : Hyprland.workspaces.values
     .filter(w => w.id > 0 && w.toplevels.values.length > 0)
     .map(w => w.id)
 
@@ -1076,6 +1076,11 @@ PanelWindow {
                 // this pre-focus step is skipped rather than sent, and only the
                 // workspace switch itself is dispatched.)
                 onWorkspaceRequested: workspace => {
+                    if (NiriWorkspaces.running) {
+                        NiriWorkspaces.focus(win.screen.name, workspace)
+                        return
+                    }
+
                     if (win.monitor && !win.monitor.focused) {
                         if (win.usingLua)
                             console.warn("Bar.qml: no Lua dispatcher for focusmonitor yet — skipping pre-focus on " + win.monitor.name)
