@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import qs.modules.common
 
 // The icon theme and the cursor theme, changed while everything is running.
@@ -483,6 +484,28 @@ Singleton {
     }
 
     Component.onCompleted: root.restoreAtStart()
+
+    // `hyprctl setcursor` only lasts until Hyprland next reloads its config, and then the
+    // default cursor is back. Anything can cause a reload: `hyprctl reload`, a keybind or
+    // Hyprland setting changed here, Game Mode off, a theme change, or Hyprland itself
+    // seeing one of its config files change (for instance after an update). So the saved
+    // cursor is put back after every reload, not just at start.
+    Timer {
+        id: reapplySoon
+        interval: 400
+        onTriggered: {
+            if (root.savedCursor !== "")
+                root.enqueue({ kind: "restore", argv: ["restore", root.savedCursor, String(root.savedSize)] })
+        }
+    }
+
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) {
+            if (event.name === "configreloaded")
+                reapplySoon.restart()
+        }
+    }
 
     IpcHandler {
         target: "appearance"
