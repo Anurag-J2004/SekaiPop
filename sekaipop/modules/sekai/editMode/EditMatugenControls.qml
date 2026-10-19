@@ -23,7 +23,9 @@ import "../../common/functions/MatugenMath.js" as MG
 //
 // Every change is a setting (SettingsService "matugen.*", cleaned by MatugenMath.js), so it
 // is saved, carried by presets, and re-runs matugen at once (ThemeService.matugenTuning).
-// The measurements are the handoff's own (hand-set px, not a scale); keep them.
+// The measurements are the handoff's own (hand-set px, not a scale); keep them. The rings are
+// not: Pill's ringWidth counts from the outer edge (outline included), and these follow the
+// shelf's own keys and tiles (a thin ring), not the handoff's 3 - 4 px insets.
 Item {
     id: root
 
@@ -140,7 +142,7 @@ Item {
     }
 
     // A key: outline 2.5, corner 10, hard shadow 3; lit with the accent gradient (and a
-    // 3 px ring) when it is the one on.
+    // thin ring, like the shelf's tabs) when it is the one on.
     component Key: Item {
         id: key
 
@@ -159,7 +161,7 @@ Item {
             anchors.fill: parent
             cornerRadius: 10
             borderWidth: 2.5
-            ringWidth: key.on ? 3 : 0
+            ringWidth: key.on ? 3.5 : 2.5
             shadowDx: 0
             shadowDy: 3
             pressed: keyArea.pressed
@@ -238,7 +240,7 @@ Item {
             y: sw.on ? -3 : 0
             cornerRadius: sw.radius
             borderWidth: sw.on ? 3 : 2.5
-            ringWidth: sw.on ? 4 : 3
+            ringWidth: sw.on ? 5 : 4
             shadowDx: 0
             shadowDy: sw.on ? 6 : 3
             pressed: swArea.pressed
@@ -494,16 +496,19 @@ Item {
             }
 
             // ===== Scheme =====
+            // Departs from the handoff: three rows of its 30 px keys under the header ran past
+            // the bottom of a 138 px block (and the grid 8 px past its right side), so the keys
+            // are 27 tall and the block 16 px wider. See docs/MATUGEN-CONTROLS.md.
             Block {
-                width: 262
+                width: 16 + 3 * 76 + 2 * 5 + 16
                 title: "Scheme"
 
                 Grid {
                     x: 16
-                    y: 36
+                    y: 34
                     columns: 3
                     columnSpacing: 5
-                    rowSpacing: 2
+                    rowSpacing: 1
 
                     Repeater {
                         model: MG.SCHEMES
@@ -511,6 +516,7 @@ Item {
                         delegate: Key {
                             required property var modelData
                             width: 76
+                            keyHeight: 27
                             text: modelData.label
                             on: ThemeService.matugenType === modelData.id
                             spinning: on && root.busy
@@ -522,7 +528,8 @@ Item {
 
             // ===== Seed =====
             Block {
-                width: 54 + root.sources.length * 50 + 26
+                // 16 px each side of Auto and the swatches (the handoff's 26 left 6 px poking out).
+                width: 16 + 54 + root.sources.length * 50 + 16
                 title: "Seed"
                 titleNote: "leading colour"
 
@@ -586,8 +593,9 @@ Item {
             }
 
             // ===== Contrast =====
+            // 16 px each side of the five keys (the handoff's 190 left 8 px poking out).
             Block {
-                width: 190
+                width: 16 + 5 * 30 + 4 * 4 + 16
                 title: "Contrast"
 
                 Row {
@@ -614,7 +622,7 @@ Item {
                     text: "Softer"
                 }
                 Cap {
-                    x: 190 - 18 - width
+                    x: 16 + 5 * 30 + 4 * 4 - 2 - width
                     y: 80
                     text: "Sharper"
                 }
@@ -649,7 +657,7 @@ Item {
                                 height: 32
                                 cornerRadius: 10
                                 borderWidth: 2.5
-                                ringWidth: 3
+                                ringWidth: 4
                                 shadowDy: 0
                                 fillColor: root.accentOf(ar.modelData)
 
@@ -774,7 +782,7 @@ Item {
                                     height: 20
                                     cornerRadius: 6
                                     borderWidth: 2
-                                    ringWidth: 0
+                                    ringWidth: 2
                                     shadowDy: 0
                                     fillColor: root.picking !== "" ? root.accentOf(root.picking) : "white"
                                 }

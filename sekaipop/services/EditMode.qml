@@ -92,6 +92,23 @@ Singleton {
         root.tabSerial = root.tabSerial + 1
     }
 
+    // `ipc call desktopedit matugen` asked for the Matugen theme's controls. The THEME tab
+    // (EditThemeBoard.qml) takes them up and clears this once it is showing; it is a flag, not
+    // a signal, because the shelf is only built when Edit Desktop opens.
+    property bool matugenAsked: false
+
+    function openMatugen() {
+        if (!ThemeService.matugenInstalled)
+            return
+        if (ThemeService.current !== "matugen")
+            ThemeService.setTheme("matugen")
+        root.matugenAsked = true
+        if (root.active)
+            root.showTab("theme")
+        else
+            root.open("", "theme")
+    }
+
     // ===== the selected widget =====
     property string editTarget: ""
 
@@ -657,6 +674,11 @@ Singleton {
         // Edit Desktop on its THEME tab (what `theme toggle` does too).
         function theme(): void {
             ThemeService.togglePicker();
+        }
+
+        // ...with the Matugen theme on and its controls up (scheme, seed, contrast, pins).
+        function matugen(): void {
+            root.openMatugen();
         }
 
         function close(): void {

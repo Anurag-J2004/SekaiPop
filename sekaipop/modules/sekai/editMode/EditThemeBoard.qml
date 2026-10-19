@@ -43,8 +43,34 @@ Item {
     readonly property bool matugenOn: ThemeService.current === "matugen"
 
     // Leaving the tab, or the theme no longer being Matugen, puts the tiles back.
-    onVisibleChanged: if (!visible) root.tuning = false
-    onMatugenOnChanged: if (!matugenOn) root.tuning = false
+    onVisibleChanged: {
+        if (!visible)
+            root.tuning = false
+        root.takeRequest()
+    }
+    onMatugenOnChanged: {
+        if (!matugenOn)
+            root.tuning = false
+        root.takeRequest()
+    }
+
+    // `ipc call desktopedit matugen` (EditMode.openMatugen): the controls, once this tab
+    // shows and Matugen is the theme on.
+    function takeRequest() {
+        if (EditMode.matugenAsked && root.visible && root.matugenOn) {
+            EditMode.matugenAsked = false
+            root.tuning = true
+        }
+    }
+
+    Connections {
+        target: EditMode
+        function onMatugenAskedChanged() {
+            root.takeRequest()
+        }
+    }
+
+    Component.onCompleted: root.takeRequest()
 
     // One group: the picture, its name, and a badge on the one that is on.
     component ThemeTile: Item {
@@ -415,7 +441,7 @@ Item {
             Pill {
                 anchors.fill: parent
                 cornerRadius: 17
-                ringWidth: 0
+                ringWidth: 3
                 shadowDx: 0
                 shadowDy: 3
                 pressed: tuneArea.pressed
