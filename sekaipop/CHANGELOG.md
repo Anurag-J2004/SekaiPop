@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Settings > Keys: change what each SekaiPop shortcut does. Click an action, press the new keys, and it works straight away; conflicts ask first, and every change can be reset. Works with the Lua config and with `hyprland.conf` (issue #16).
 - Phone: the turn between the Quick Panel and Settings / Wallpapers (both ways) is smooth instead of a snap: one 200 ms speed for every turn of the phone (Settings, Wallpapers, Apps), but on a soft curve, with the two screens dissolving over about 70 - 100 ms instead of swapping in 3 frames, and the turn waits for the phone to be redrawn before it moves so a slow first frame does not skip it.
 - Phone: the slide between Quick and Apps is the same 200 ms, softer, with a visible cross-fade.
 - Phone: SUPER + N while the Settings (or Wallpapers) are up turns the phone into the Quick Panel, whichever way the Settings were opened; it used to cut or close them.
