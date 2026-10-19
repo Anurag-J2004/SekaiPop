@@ -214,6 +214,15 @@ Singleton {
         "wallpaper.parallax": false,    // the wallpaper drifts with the workspace
         "wallpaper.parallaxAmount": 8,  // how much bigger than the screen it is (%)
         "wallpaper.parallaxWorkspaces": 5, // how many workspaces the drift is spread over
+        // ===== Matugen =====
+        // The Matugen theme's knobs (Edit Desktop > THEME > Matugen; MatugenMath.js): the
+        // scheme, which wallpaper colour leads (-1 = Auto), the contrast (-1 to 1), and
+        // accents kept fixed whatever the wallpaper says ("" = not pinned).
+        "matugen.scheme": "scheme-tonal-spot",
+        "matugen.seed": -1,
+        "matugen.contrast": 0,
+        "matugen.pinA": "",
+        "matugen.pinB": "",
         // ===== App colours =====
         "appTheme.kitty": false,
         "appTheme.foot": false,
