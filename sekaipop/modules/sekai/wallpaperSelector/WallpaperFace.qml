@@ -219,7 +219,7 @@ Item {
     }
 
     // A new search is on its way: what is shown is the previous one's, dimmed.
-    readonly property real staleK: face.onWallhaven && WallhavenService.refreshing && WallhavenService.items.length > 0 ? 0.5 : 1
+    property real staleK: face.onWallhaven && WallhavenService.refreshing && WallhavenService.items.length > 0 ? 0.5 : 1
     Behavior on staleK { NumberAnimation { duration: 160 } }
 
     // Near the end of what is loaded: the next page.
