@@ -7,6 +7,7 @@ import qs.services
 import qs.modules.common
 import "../modules/common/functions/PaletteMath.js" as PM
 import "../modules/common/functions/ScreenThemes.js" as ST
+import "../modules/common/functions/MatugenMath.js" as MG
 
 // Which Project Sekai group's colours the shell wears. One value for the
 // whole shell (every monitor follows it), remembered across restarts.
@@ -398,8 +399,10 @@ Singleton {
 
     function paletteFor(name) {
         const id = root.themeFor(name)
+        // A monitor's own matugen colours wear the pinned accents too (matugen.pinA / pinB),
+        // put on here so a pin change reaches every monitor at once.
         if (id === "matugen")
-            return root.screenMatugen[name] || root.palette
+            return root.screenMatugen[name] ? MG.applyPins(root.screenMatugen[name], root.matugenPinA, root.matugenPinB) : root.palette
         if (id === root.current)
             return root.palette
         const g = root.groups.find(x => x.id === id)
@@ -442,7 +445,7 @@ Singleton {
             const img = WallpaperService.imageFor(WallpaperService.pathFor(n))
             if (img === "" || img === mainImg)
                 continue
-            if (root.screenMatugen[n] !== undefined && root.screenMatugenFor[n] === img + "|" + root.matugenType)
+            if (root.screenMatugen[n] !== undefined && root.screenMatugenFor[n] === img + "|" + root.matugenType + "|" + root.matugenContrast)
                 keep[n] = root.screenMatugen[n]
             else
                 queue.push({ name: n, img: img })
@@ -459,8 +462,11 @@ Singleton {
         root.screenMatugenQueue = root.screenMatugenQueue.slice(1)
         screenMatugenProc.job = job
         const out = root.matugenPath.replace(/colors\.json$/, "screen-" + job.name + ".json")
-        screenMatugenProc.exec(["sh", "-c", 'sh "$0" apply "$1" "$2" "$3" && cat "$4"',
-            root.matugenScript, job.img, root.matugenType, "screen-" + job.name, out])
+        // The same scheme and contrast as the main monitor (Edit Desktop > THEME > Matugen), but
+        // its own first colour: the seed is an index into the MAIN wallpaper's colours.
+        const extra = MG.applyArgs(-1, root.matugenContrast)
+        screenMatugenProc.exec(["sh", "-c", 'sh "$0" apply "$1" "$2" "$3" "$5" "$6" && cat "$4"',
+            root.matugenScript, job.img, root.matugenType, "screen-" + job.name, out, extra[0], extra[1]])
     }
 
     Process {
@@ -479,7 +485,7 @@ Singleton {
                         next[job.name] = pal
                         root.screenMatugen = next
                         const done = Object.assign({}, root.screenMatugenFor)
-                        done[job.name] = job.img + "|" + root.matugenType
+                        done[job.name] = job.img + "|" + root.matugenType + "|" + root.matugenContrast
                         root.screenMatugenFor = done
                     }
                 } catch (e) {
@@ -503,18 +509,84 @@ Singleton {
         onTriggered: root.refreshScreenMatugen()
     }
     readonly property string screenMatugenKey: [root.perMonitor, root.current, JSON.stringify(root.screenGroups),
-        JSON.stringify(WallpaperService.screenPaths), WallpaperService.defaultPath, root.matugenType,
+        JSON.stringify(WallpaperService.screenPaths), WallpaperService.defaultPath, root.matugenType, root.matugenContrast,
         Quickshell.screens.map(sc => sc.name).join(",")].join("|")
     onScreenMatugenKeyChanged: screenMatugenDebounce.restart()
 
     // ===== matugen =====
-    property string matugenType: "scheme-tonal-spot"
+    // The knobs (Edit Desktop > THEME > Matugen's controls, EditMatugenControls.qml), each a
+    // setting, cleaned by MatugenMath.js. Changing one re-runs matugen (onMatugenTuningChanged).
+    readonly property string matugenType: MG.cleanScheme(SettingsService.get("matugen.scheme"))
+    // -1 = Auto. An index the current wallpaper has no colour for counts as Auto
+    // (matugenSources is that list; until it has been read, the index is trusted and
+    // matugen-state.sh falls back to the first colour if it is out of range).
+    readonly property int matugenSeed: root.matugenSources.length > 0
+        ? MG.cleanSeed(SettingsService.get("matugen.seed"), root.matugenSources.length)
+        : Math.max(-1, Math.floor(Number(SettingsService.get("matugen.seed")) || 0))
+    readonly property real matugenContrast: MG.cleanContrast(SettingsService.get("matugen.contrast"))
+    readonly property string matugenPinA: MG.cleanHex(SettingsService.get("matugen.pinA"))
+    readonly property string matugenPinB: MG.cleanHex(SettingsService.get("matugen.pinB"))
+    // One string for "any knob that changes what matugen makes" (the pins don't: they are
+    // put on afterwards, in matugenPalette).
+    readonly property string matugenTuning: root.matugenType + "|" + root.matugenSeed + "|" + root.matugenContrast
+    onMatugenTuningChanged: {
+        if (!SettingsService.loaded)
+            return
+        root.regenerate("", true)
+        root.regenerateLock(true)
+        if (root.current === "matugen")
+            systemDebounce.restart()
+    }
+
+    // A run is going on (the controls show "Working").
+    readonly property bool matugenBusy: matugenProc.running
+
+    // The current wallpaper's candidate seed colours (matugen-state.sh sources), read
+    // while the matugen theme is on; [] until then. The Seed swatches.
+    property var matugenSources: []
+    property string matugenSourcesFor: ""
+
+    function readSources() {
+        if (root.current !== "matugen" || !root.matugenInstalled)
+            return
+        const img = WallpaperService.imagePath
+        if (img === "" || img === root.matugenSourcesFor)
+            return
+        root.matugenSourcesFor = img
+        sourcesProc.exec(["sh", root.matugenScript, "sources", img])
+    }
+
+    Process {
+        id: sourcesProc
+
+        stdout: StdioCollector {
+            onStreamFinished: root.matugenSources = MG.parseSources(text)
+        }
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode !== 0)
+                root.matugenSourcesFor = ""
+        }
+    }
+
+    // Whether matugen is on the PATH at all: the Matugen tile says what is missing, and has
+    // no controls, when it isn't. Asked once at startup (installing it means a restart).
+    property bool matugenInstalled: true
+
+    Process {
+        running: true
+        command: ["sh", root.matugenScript, "installed"]
+        onExited: (exitCode, exitStatus) => {
+            root.matugenInstalled = exitCode === 0
+            root.readSources()
+        }
+    }
 
     // What matugen last wrote (scripts/theming/matugen-template.json), parsed, and
     // the shell palette derived from it. null until there is a valid one.
     property var matugenColors: null
     property string matugenRaw: ""
-    readonly property var matugenPalette: root.matugenColors ? root.buildMatugenPalette(root.matugenColors) : null
+    // ...with the pinned accents (matugen.pinA / pinB) in place of matugen's own.
+    readonly property var matugenPalette: root.matugenColors ? MG.applyPins(root.buildMatugenPalette(root.matugenColors), root.matugenPinA, root.matugenPinB) : null
 
     // The shell is a white-pill UI with dark ink on light accents whatever
     // the wallpaper, so the palette always takes the dark scheme's light
@@ -570,7 +642,10 @@ Singleton {
         matugenProc.run(img)
     }
 
-    onCurrentChanged: root.regenerate("", false)
+    onCurrentChanged: {
+        root.regenerate("", false)
+        root.readSources()
+    }
 
     // The wallpaper changed: start matugen straight away, so the colours are
     // ready around when the transition ends.
@@ -578,6 +653,7 @@ Singleton {
         target: WallpaperService
         function onTransitionStarted(from, to) {
             root.regenerate(to, false)
+            Qt.callLater(root.readSources)
             if (root.current === "matugen")
                 systemDebounce.restart()
         }
@@ -604,7 +680,7 @@ Singleton {
                 return
             }
             matugenProc.pending = ""
-            matugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType])
+            matugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType, "colors"].concat(MG.applyArgs(root.matugenSeed, root.matugenContrast)))
         }
 
         stderr: StdioCollector {
@@ -623,7 +699,7 @@ Singleton {
             if (matugenProc.pending !== "") {
                 const path = matugenProc.pending
                 matugenProc.pending = ""
-                matugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType])
+                matugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType, "colors"].concat(MG.applyArgs(root.matugenSeed, root.matugenContrast)))
             }
         }
     }
@@ -664,7 +740,7 @@ Singleton {
     property var lockMatugenColors: null
     property string lockMatugenRaw: ""
     property string lockMatugenFor: ""
-    readonly property var lockMatugenPalette: root.lockMatugenColors ? root.buildMatugenPalette(root.lockMatugenColors) : null
+    readonly property var lockMatugenPalette: root.lockMatugenColors ? MG.applyPins(root.buildMatugenPalette(root.lockMatugenColors), root.matugenPinA, root.matugenPinB) : null
 
     // What LockPalette.qml reads. Until matugen has produced the lockscreen's
     // colours (or if it fails) it keeps the shell palette, so it is never blank.
@@ -698,6 +774,8 @@ Singleton {
         return base + "/sekaipop/matugen/lock-colors.json"
     }
 
+    // The lockscreen's own picture: the same scheme and contrast as the desktop, but its own
+    // first colour (the seed is an index into the DESKTOP wallpaper's colours).
     Process {
         id: lockMatugenProc
 
@@ -709,7 +787,7 @@ Singleton {
                 return
             }
             lockMatugenProc.pending = ""
-            lockMatugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType, "lock-colors"])
+            lockMatugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType, "lock-colors"].concat(MG.applyArgs(-1, root.matugenContrast)))
         }
 
         stderr: StdioCollector {
@@ -728,7 +806,7 @@ Singleton {
             if (lockMatugenProc.pending !== "") {
                 const path = lockMatugenProc.pending
                 lockMatugenProc.pending = ""
-                lockMatugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType, "lock-colors"])
+                lockMatugenProc.exec(["sh", root.matugenScript, "apply", path, root.matugenType, "lock-colors"].concat(MG.applyArgs(-1, root.matugenContrast)))
             }
         }
     }

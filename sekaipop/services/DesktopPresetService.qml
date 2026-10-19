@@ -82,7 +82,8 @@ import "../modules/common/functions/PresetParts.js" as PP
 //                            and web-suggestion switches, update checks,
 //                            Pomodoro times, the screenshot picker, the
 //                            wallpaper video / thumbnail engine, app and system
-//                            colour sync (the Quick Panel phone's own style and
+//                            colour sync, Wallhaven's sort and filters in the
+//                            Wallpapers picker (the Quick Panel phone's own style and
 //                            settings are NOT here: they are the `phone` part below)
 //   each widget's `skip`     (PresetWidgets.qml) the visualizer's audio engine and
 //                            performance switches, the clock's 24-hour format, the
@@ -171,6 +172,7 @@ Singleton {
 
     readonly property var keepPrefix: [
         "updates.",
+        "wallhaven.",
         "focus.",
         "timer.",
         "region.",

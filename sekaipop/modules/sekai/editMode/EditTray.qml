@@ -152,6 +152,11 @@ PanelWindow {
         anchors.fill: parent
         focus: true
         Keys.onEscapePressed: {
+            // The Matugen controls are up: back to the theme tiles first.
+            if (win.tab === "theme" && themeBoard.tuning) {
+                themeBoard.tuning = false
+                return
+            }
             if (EditMode.editTarget !== "")
                 EditMode.select("")
             else
@@ -359,12 +364,36 @@ PanelWindow {
                         font.styleName: mt.fontStyleBold
                     }
 
+                    // Matugen re-running while its controls are up: the shell's busy glyph
+                    // in front of the line below.
+                    MaterialIcon {
+                        id: busyGlyph
+                        visible: win.tab === "theme" && themeBoard.tuning && ThemeService.matugenBusy
+                        y: 25
+                        name: "sync"
+                        size: 13
+                        weight: 700
+                        color: mt.pInk
+                        transformOrigin: Item.Center
+
+                        RotationAnimator on rotation {
+                            running: busyGlyph.visible
+                            loops: Animation.Infinite
+                            from: 0
+                            to: 360
+                            duration: 800
+                        }
+                    }
+
                     // What is going on, in a few words.
                     Text {
+                        x: busyGlyph.visible ? 19 : 0
                         y: 25
-                        width: parent.width
+                        width: parent.width - x
                         elide: Text.ElideRight
-                        text: win.tab === "theme"
+                        text: win.tab === "theme" && themeBoard.tuning
+                            ? (ThemeService.matugenBusy ? "Re-colouring from the wallpaper\u2026" : "Tune the wallpaper colours.")
+                            : win.tab === "theme"
                             ? "Pick the colours the shell wears."
                             : win.tab === "presets"
                             ? "Save the whole look, wear it again."
@@ -377,7 +406,8 @@ PanelWindow {
                             : (EditMode.editTarget !== ""
                             ? "Editing " + win.titleOf(EditMode.editTarget) + " \u2014 click the card to let go"
                             : "Pick it, place it, tweak it.")
-                        color: win.tab === "widgets" && EditMode.editTarget !== "" ? mt.pInk : mt.pInkSub
+                        color: (win.tab === "widgets" && EditMode.editTarget !== "") || (win.tab === "theme" && themeBoard.tuning && ThemeService.matugenBusy)
+                            ? mt.pInk : mt.pInkSub
                         font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
@@ -388,26 +418,34 @@ PanelWindow {
                     keyText: win.tab === "bar" ? "" : "L"
                     keyIcon: win.tab === "bar" ? "open_with" : ""
                     label: win.tab === "bar" ? "Drag: move, or into OFF"
-                        : (win.tab === "theme" ? "Click: wear this theme"
+                        : (win.tab === "theme" && themeBoard.tuning ? "Click: changes it live"
+                        : win.tab === "theme" ? "Click: wear this theme"
                         : (win.tab === "presets" ? "Click: wear this look"
                         : (win.pickTab ? "Click: change it" : "Left click: add / edit")))
                 }
 
                 HintRow {
-                    keyText: win.tab === "bar" ? "L" : (win.tab === "theme" || win.pickTab ? "" : "R")
-                    keyIcon: win.tab === "theme" || win.pickTab ? "mouse" : ""
+                    keyText: win.tab === "bar" ? "L" : (win.tab === "theme" && themeBoard.tuning ? "Esc" : (win.tab === "theme" || win.pickTab ? "" : "R"))
+                    keyIcon: win.tab === "theme" && themeBoard.tuning ? "" : (win.tab === "theme" || win.pickTab ? "mouse" : "")
                     label: win.tab === "bar" ? "Click: next zone / back on"
-                        : (win.tab === "theme" ? "Wheel: more themes"
+                        : (win.tab === "theme" && themeBoard.tuning ? "Back to the themes"
+                        : win.tab === "theme" ? "Wheel: more themes"
                         : (win.tab === "presets" ? "Right click twice: delete"
                         : (win.pickTab ? "Hover: see its name" : "Right click: remove")))
                 }
 
+                // THEME: "Matugen: from wallpaper", or, while it is the theme on, how to reach
+                // its controls; in the controls, what the pin does.
                 HintRow {
-                    keyText: win.tab === "bar" ? "R" : ""
+                    readonly property bool matugenOn: ThemeService.themeFor(themeBoard.screenName) === "matugen" && ThemeService.matugenInstalled
+                    keyText: win.tab === "bar" ? "R" : (win.tab === "theme" && !themeBoard.tuning && matugenOn ? "L" : "")
                     keyIcon: win.tab === "bar" ? ""
-                        : (win.tab === "theme" ? "wallpaper" : (win.tab === "presets" ? "sync" : (win.pickTab ? "check" : "open_with")))
+                        : (win.tab === "theme" ? (themeBoard.tuning ? "push_pin" : (matugenOn ? "" : "wallpaper"))
+                        : (win.tab === "presets" ? "sync" : (win.pickTab ? "check" : "open_with")))
                     label: win.tab === "bar" ? "Right click: remove"
-                        : (win.tab === "theme" ? "Matugen: from wallpaper"
+                        : (win.tab === "theme" && themeBoard.tuning ? "Pin: keep an accent"
+                        : win.tab === "theme" && matugenOn ? "Matugen again: tune it"
+                        : win.tab === "theme" ? "Matugen: from wallpaper"
                         : (win.tab === "presets" ? "Hover: save over it" : (win.pickTab ? "Applies at once" : "Drag: move")))
                 }
             }
@@ -674,6 +712,7 @@ PanelWindow {
 
             // ===== the theme tab =====
             EditThemeBoard {
+                id: themeBoard
                 visible: win.tab === "theme"
                 anchors.left: tabs.right
                 anchors.leftMargin: 14
@@ -681,6 +720,9 @@ PanelWindow {
                 anchors.rightMargin: 14
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
+
+                // The Matugen controls' hex field took the keyboard; give it back.
+                onFinished: escKeys.forceActiveFocus()
             }
 
             // ===== the presets tab =====

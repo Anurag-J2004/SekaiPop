@@ -1125,6 +1125,12 @@ Scope {
             root.toggleWallpapersOn(root.focusedScreen(), "lock")
         }
 
+        // The Wallpapers on Wallhaven (WallhavenService.qml) instead of your folder.
+        function wallhaven(): void {
+            WallhavenService.askedSource = "wallhaven"
+            root.openWallpapers(root.focusedScreen())
+        }
+
         function showlock(): void {
             root.openWallpapers(root.focusedScreen(), "lock")
         }

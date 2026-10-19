@@ -239,8 +239,12 @@ Item {
     // before that `initialTarget` is what it starts on).
     function setTarget(which) {
         root.initialTarget = which === "lock" ? "lock" : "desktop"
-        if (root.wallpaperFace)
+        if (root.wallpaperFace) {
             root.wallpaperFace.target = root.initialTarget
+            // Every open starts on My folder, unless Wallhaven was asked for
+            // (`ipc call wallpaperpicker wallhaven`).
+            root.wallpaperFace.setSource(WallhavenService.takeSource())
+        }
     }
 
     // ===== sharpness =====

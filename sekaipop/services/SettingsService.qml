@@ -191,6 +191,14 @@ Singleton {
         "timer.pomLong": 15,            // minutes of long break
         "timer.pomRounds": 4,           // focus rounds before the long break
         "dock.pinOnStartup": false,     // start every session with the dock pinned (kept shown)
+        // ===== Wallhaven in the Wallpapers picker (WallhavenService.qml, WallhavenMath.js) =====
+        // Remembered between visits; not part of a desktop preset (browsing, not the look).
+        "wallhaven.sort": "",           // "" = relevance for a search, the month's top without one
+        "wallhaven.topRange": "1M",
+        "wallhaven.categories": "general,anime,people",
+        "wallhaven.shape": "landscape",
+        "wallhaven.atLeast": "screen",  // "screen" = the monitor the picker is on
+        "wallhaven.colour": "",
         "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
         "theme.perMonitor": false,      // a monitor can wear its own theme on the bar / dock / widgets (off = one theme everywhere)
         "theme.screens": "",            // with theme.perMonitor: { monitor: theme id } as JSON (ScreenThemes.js); the main monitor has none
@@ -208,6 +216,15 @@ Singleton {
         "wallpaper.parallax": false,    // the wallpaper drifts with the workspace
         "wallpaper.parallaxAmount": 8,  // how much bigger than the screen it is (%)
         "wallpaper.parallaxWorkspaces": 5, // how many workspaces the drift is spread over
+        // ===== Matugen =====
+        // The Matugen theme's knobs (Edit Desktop > THEME > Matugen; MatugenMath.js): the
+        // scheme, which wallpaper colour leads (-1 = Auto), the contrast (-1 to 1), and
+        // accents kept fixed whatever the wallpaper says ("" = not pinned).
+        "matugen.scheme": "scheme-tonal-spot",
+        "matugen.seed": -1,
+        "matugen.contrast": 0,
+        "matugen.pinA": "",
+        "matugen.pinB": "",
         // ===== App colours =====
         "appTheme.kitty": false,
         "appTheme.foot": false,

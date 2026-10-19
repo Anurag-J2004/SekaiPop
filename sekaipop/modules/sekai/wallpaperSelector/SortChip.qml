@@ -13,13 +13,27 @@ Item {
     // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
     readonly property var mt: Theme.of(QsWindow.window)
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string label: ""
     property bool active: false
 
     signal clicked()
 
-    width: 152
+    // 152 at least (the folder's orders all fit in that), wider when the label needs it
+    // (Wallhaven's "Top \u00b7 6 months"): the label is never cut.
+    width: Math.max(152, Math.ceil(labelMetrics.advanceWidth) + 44 + 36 + 4)
     height: 40
+
+    TextMetrics {
+        id: labelMetrics
+        text: root.label
+        font.family: mt.fontFamily
+        font.styleName: mt.fontStyleBold
+        font.weight: Font.ExtraBold
+        font.pixelSize: 14
+    }
 
     readonly property bool hot: area.containsMouse
     readonly property real press: area.pressed ? 2 : 0
