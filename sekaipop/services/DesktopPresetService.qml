@@ -97,10 +97,23 @@ import "../modules/common/functions/PresetParts.js" as PP
 // the preset's own file (`_meta.favorite`), so it travels with the folder, and it
 // is not part of the look: it never affects the "you are wearing this one" tick.
 //
+// Undo: wearing a preset replaces the whole look at once, and each piece saves itself, so a
+// stray click used to cost every setting it touched. Now:
+//   wearing      first saves the look it replaces as the hidden preset ".previous"
+//                (keepPrevious(): pictures, frames and the sticky notes too, on disk, so it
+//                survives a restart). undoWear() wears it back, and the look it undoes takes
+//                its place, so Undo again is Redo. One level only. Wearing a preset that is
+//                already the look keeps the undo there was.
+//   deleting     moves the preset into presets/.trash/ (its notes with it) instead of
+//                removing it; undoRemove() brings it back. Only the last one deleted is kept.
+// Both show as tiles on the PRESETS tab while there is something to undo.
+//
 // Files: ${XDG_CONFIG_HOME:-~/.config}/sekaipop/presets/<name>.json
 // (scripts/state/preset-state.sh).
 //
 //   qs -c sekaipop ipc call presets list
+//   qs -c sekaipop ipc call presets undo                   (back to the look before the last preset)
+//   qs -c sekaipop ipc call presets undelete               (bring the last deleted preset back)
 //   qs -c sekaipop ipc call presets save "Night desk"      (replaces one of that name)
 //   qs -c sekaipop ipc call presets apply "Night desk"
 //   qs -c sekaipop ipc call presets rename "Night desk" "Late desk"
@@ -582,14 +595,77 @@ Singleton {
         return root.setFavorite(name, !root.isFavorite(root.find(name)))
     }
 
+    // Deleting goes to the trash (one deep), so undoRemove() can bring it back.
     function remove(name) {
         const p = root.find(name)
         if (!p)
             return
         if (root.lastName === name)
             root.lastName = ""
+        const notes = NotesService.setPart(name)
         NotesService.dropSet(name)
-        root.enqueue(["sh", root.script, "delete", name])
+        root.trashed = { name: p.name, data: p.data, notes: notes }
+        // The tile goes at once, so Undo can't be refused for a name still listed.
+        root.presets = root.presets.filter(q => q !== p)
+        root.enqueue(["sh", root.script, "trash", name].concat(notes ? [JSON.stringify(notes)] : []))
+    }
+
+    // ===== undo =====
+    // The look the last preset replaced (the hidden ".previous"), or null.
+    property var previous: null
+    // The last preset deleted, { name, data, notes }, or null.
+    property var trashed: null
+
+    // Saves the desktop as ".previous" before `target` goes on. Not when the desktop
+    // already is `target`: wearing it changes nothing, and the undo there is stays.
+    function keepPrevious(target) {
+        root.refreshLive()
+        if (root.isCurrent(target))
+            return
+        const data = root.capture()
+        // `last` / `notes`: what undoWear() needs that a preset doesn't hold (which preset
+        // was worn, and the sticky notes themselves, see NotesService.lookPart()).
+        data._meta = { name: "", saved: Date.now(), v: 1, last: root.lastName, notes: NotesService.lookPart() }
+        root.previous = data
+        root.enqueue(["sh", root.script, "save", ".previous", JSON.stringify(data),
+            data.images && PanelImages.avatarPath !== "" ? PanelImages.avatarPath : "-",
+            data.images && PanelImages.bannerPath !== "" ? PanelImages.bannerPath : "-"]
+            .concat(root.framePaths(data)))
+    }
+
+    // Wears ".previous" back. It is renamed ".undone" first and worn from there, so the look
+    // being undone can be saved as the new ".previous" (Undo again = Redo) without the two
+    // sets of pictures meeting.
+    function undoWear() {
+        const d = root.previous
+        if (!d || root.busy())
+            return
+        const meta = d._meta && typeof d._meta === "object" ? d._meta : {}
+        const notes = meta.notes && typeof meta.notes === "object" ? meta.notes : null
+        // A preset deleted since then gets neither the tick name nor the notes.
+        const back = {
+            notes: notes,
+            set: notes && typeof notes.setName === "string" && root.find(notes.setName) ? notes.setName : "",
+            last: typeof meta.last === "string" && root.find(meta.last) ? meta.last : ""
+        }
+        root.previous = null
+        root.enqueue(["sh", root.script, "delete", ".undone"])
+        root.enqueue(["sh", root.script, "rename", ".previous", ".undone", JSON.stringify(d)])
+        root.keepPrevious(d)
+        root.start(d, ".undone", back)
+    }
+
+    // Brings the last deleted preset back, its notes too. Returns its name, or "" (nothing
+    // in the trash, or a preset of that name has been saved since).
+    function undoRemove() {
+        const t = root.trashed
+        if (!t || root.has(t.name))
+            return ""
+        root.trashed = null
+        NotesService.restoreSet(t.name, t.notes)
+        root.presets = root.presets.concat([{ name: t.name, data: t.data }]).sort(root.byName)
+        root.enqueue(["sh", root.script, "untrash", t.name])
+        return t.name
     }
 
     // Gives a preset another name: its file, its pictures and the name saved
@@ -645,8 +721,11 @@ Singleton {
 
         onExited: {
             root.pump()
-            if (!job.running)
+            if (!job.running) {
+                if (root.waiting)
+                    root.proceed()
                 root.refresh()
+            }
         }
     }
 
@@ -672,6 +751,7 @@ Singleton {
         return x < y ? -1 : (x > y ? 1 : 0)
     }
 
+    // The presets. The undo slots (names with a leading dot) are parseSlots()'.
     function parseList(text) {
         const out = []
         for (const line of text.split("\n")) {
@@ -679,6 +759,8 @@ Singleton {
             if (tab <= 0)
                 continue
             const name = line.slice(0, tab)
+            if (name.charAt(0) === ".")
+                continue
             try {
                 const data = JSON.parse(line.slice(tab + 1))
                 if (data && typeof data === "object" && !Array.isArray(data))
@@ -691,12 +773,49 @@ Singleton {
         return out
     }
 
+    // { previous, trashed } out of the same listing: ".previous", ".trash/<name>" and
+    // ".trash/.notes" (preset-state.sh all). Either is null when it isn't there.
+    function parseSlots(text) {
+        const out = { previous: null, trashed: null }
+        let notes = null
+        for (const line of text.split("\n")) {
+            const tab = line.indexOf("\t")
+            if (tab <= 0 || line.charAt(0) !== ".")
+                continue
+            const name = line.slice(0, tab)
+            let data = null
+            try {
+                data = JSON.parse(line.slice(tab + 1))
+            } catch (e) {
+                continue
+            }
+            if (!data || typeof data !== "object" || Array.isArray(data))
+                continue
+            if (name === ".previous")
+                out.previous = data
+            else if (name === ".trash/.notes")
+                notes = data
+            else if (name.indexOf(".trash/") === 0 && name.length > 7)
+                out.trashed = { name: name.slice(7), data: data }
+        }
+        if (out.trashed)
+            out.trashed.notes = notes
+        return out
+    }
+
     Process {
         id: lister
 
         stdout: StdioCollector {
             onStreamFinished: {
                 root.presets = root.parseList(text)
+                const slots = root.parseSlots(text)
+                // While an undo is on its way the slots on disk are about to change: the
+                // ones in memory are already what they will be.
+                if (root.queue.length === 0 && !job.running) {
+                    root.previous = slots.previous
+                    root.trashed = slots.trashed
+                }
                 root.loaded = true
             }
         }
@@ -740,18 +859,45 @@ Singleton {
 
     property var pendingData: null
     property string pendingName: ""
+    // Set when undoWear() is wearing ".previous" back: { notes, set, last } (see wear()).
+    property var pendingBack: null
+    // A preset is waiting for the job queue (the look it replaces is being saved).
+    property bool waiting: false
 
-    // Puts the preset on. The only wait is for the wallpaper files to be
-    // checked (a moment): everything else changes at once, in the order that
-    // keeps the transitions from blending twice (switches first, because
-    // "one wallpaper per monitor" decides how the wallpaper is applied).
+    function busy() {
+        return LockState.locked || root.waiting || checker.running || imager.running || framer.running
+            || swap.running || comeBack.running
+    }
+
+    // Puts the preset on, after saving the look it replaces (keepPrevious()). The waits
+    // are for that save, which copies the avatar / banner / frame pictures that wearing
+    // the preset then deletes, and for the wallpaper files to be checked (a moment):
+    // everything else changes at once, in the order that keeps the transitions from
+    // blending twice (switches first, because "one wallpaper per monitor" decides how
+    // the wallpaper is applied).
     function apply(name) {
         const p = root.find(name)
-        if (!p || LockState.locked || checker.running || imager.running || framer.running || swap.running || comeBack.running)
+        if (!p || root.busy())
             return
-        root.pendingData = p.data
+        root.keepPrevious(p.data)
+        root.start(p.data, name, null)
+    }
+
+    // `name` is the file the preset's pictures are in; `back` is undoWear()'s.
+    function start(d, name, back) {
+        root.pendingData = d
         root.pendingName = name
-        const paths = root.wallpaperPaths(p.data.wallpaper)
+        root.pendingBack = back
+        root.waiting = true
+        if (!job.running && root.queue.length === 0)
+            root.proceed()
+    }
+
+    function proceed() {
+        root.waiting = false
+        if (!root.pendingData)
+            return
+        const paths = root.wallpaperPaths(root.pendingData.wallpaper)
         if (paths.length === 0) {
             root.finishApply({})
             return
@@ -847,6 +993,7 @@ Singleton {
 
     property var swapData: null
     property string swapName: ""
+    property var swapBack: null
     property var swapFound: ({})
 
     // The bar / dock are off their edge by now: put the preset on, then bring
@@ -858,7 +1005,7 @@ Singleton {
             const d = root.swapData
             root.swapData = null
             if (d)
-                root.wear(d, root.swapName, root.swapFound)
+                root.wear(d, root.swapName, root.swapFound, root.swapBack)
             comeBack.restart()
         }
     }
@@ -872,24 +1019,29 @@ Singleton {
     function finishApply(found) {
         const d = root.pendingData
         const name = root.pendingName
+        const back = root.pendingBack
         root.pendingData = null
         root.pendingName = ""
+        root.pendingBack = null
         if (!d)
             return
 
         const plan = root.motionPlan(d)
         if (!Object.keys(plan).some(k => plan[k] === true)) {
-            root.wear(d, name, found)
+            root.wear(d, name, found, back)
             return
         }
         root.swapData = d
         root.swapName = name
+        root.swapBack = back
         root.swapFound = found
         PresetMotion.begin(plan)
         swap.restart()
     }
 
-    function wear(d, name, found) {
+    // `back` (undoWear()) wears ".previous": its notes and its tick go to the preset that
+    // was worn then, not to `name`, which is only where its pictures are.
+    function wear(d, name, found, back) {
         // 1. The Settings Panel's switches (and the per-monitor wallpaper mode).
         if (d.settings && typeof d.settings === "object")
             SettingsService.applyPreset(d.settings, root.keeps)
@@ -920,7 +1072,10 @@ Singleton {
 
         // 3b. The sticky notes: this preset's own come back (before the widgets, so the
         // notes' on / off below applies to them).
-        NotesService.switchSet(name)
+        if (back)
+            NotesService.wearLook(back.notes, back.set)
+        else
+            NotesService.switchSet(name)
 
         // 4. The widgets, all through the registry (PresetWidgets.qml). A preset that holds
         // a widget wears it; one saved before the widget existed has no part for it, so the
@@ -949,7 +1104,7 @@ Singleton {
         // its transition starts, and with matugen the palette follows it.
         root.applyWallpaper(d.wallpaper, found)
 
-        root.lastName = name
+        root.lastName = back ? back.last : name
         liveTimer.restart()
     }
 
@@ -1125,6 +1280,14 @@ Singleton {
 
         function remove(name: string): void {
             root.remove(name)
+        }
+
+        function undo(): void {
+            root.undoWear()
+        }
+
+        function undelete(): string {
+            return root.undoRemove()
         }
 
         function rename(name: string, to: string): string {
