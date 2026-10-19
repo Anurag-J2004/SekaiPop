@@ -192,6 +192,7 @@ Singleton {
         "timer.pomRounds": 4,           // focus rounds before the long break
         "dock.pinOnStartup": false,     // start every session with the dock pinned (kept shown)
         "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
+        "theme.perMonitor": false,      // a monitor can wear its own theme on the bar / dock / widgets (off = one theme everywhere)
         "wallpaper.separateLock": false, // the lockscreen has a wallpaper of its own (off = it shows the desktop's)
         "wallpaper.folder": "",         // the folder the picker lists ("" = ~/Pictures/Wallpapers)
         "wallpaper.transition": "sekaiRing",

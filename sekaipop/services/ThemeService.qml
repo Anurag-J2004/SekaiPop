@@ -369,6 +369,31 @@ Singleton {
         saver.save(id)
     }
 
+    // ===== one theme per monitor (Theme.of(), setting theme.perMonitor) =====
+    // { monitor name: group id }. A monitor not named here wears the shell's theme.
+    // SPIKE: kept in memory only (set it with `qs -c sekaipop ipc call theme screen NAME ID`).
+    property var screenGroups: ({})
+
+    function hasScreenTheme(name) {
+        const id = root.screenGroups[name]
+        return typeof id === "string" && root.has(id)
+    }
+
+    function paletteFor(name) {
+        const g = root.groups.find(x => x.id === root.screenGroups[name])
+        return g ? g.c : root.palette
+    }
+
+    // "" (or an unknown id) puts the monitor back on the shell's theme.
+    function setScreenTheme(name, id) {
+        const next = Object.assign({}, root.screenGroups)
+        if (root.has(id))
+            next[name] = id
+        else
+            delete next[name]
+        root.screenGroups = next
+    }
+
     // ===== matugen =====
     property string matugenType: "scheme-tonal-spot"
 
@@ -1128,6 +1153,15 @@ Singleton {
 
         function list(): string {
             return root.groups.map(g => g.id).join(" ")
+        }
+
+        // A monitor's own theme (needs theme.perMonitor on); "" for the shell's.
+        function screen(name: string, id: string): void {
+            root.setScreenTheme(name, id)
+        }
+
+        function screens(): string {
+            return Object.keys(root.screenGroups).map(n => n + "=" + root.screenGroups[n]).join(" ")
         }
     }
 }
