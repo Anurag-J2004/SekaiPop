@@ -214,12 +214,15 @@ Singleton {
             onStreamFinished: root.updateMessage = text.trim().split("\n").slice(-1)[0] || ""
         }
         onExited: code => {
-            root.updating = false
-            if (code === 0)
-                // The new files are on disk: rebuild the shell from them.
+            if (code === 0) {
+                // The new files are on disk: rebuild the shell from them. `updating`
+                // stays true on purpose, so the file watcher (see shell.qml) stays
+                // paused until this reload replaces everything.
                 Quickshell.reload(true)
-            else
+            } else {
+                root.updating = false
                 root.updateMessage = root.updateMessage || "the update didn't apply"
+            }
         }
     }
 

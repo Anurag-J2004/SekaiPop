@@ -27,9 +27,12 @@ import qs.modules.sekai.welcome
 ShellRoot {
     id: shellRoot
 
-    // Keep hot reload for development, but allow a deployed rice to disable
-    // the file watcher entirely. This removes filesystem-watch bookkeeping
-    // without changing the UI or runtime behavior.
+    // Keep hot reload for development, but pause the file watcher while an
+    // update from Settings is writing files. Otherwise Quickshell reloads on
+    // the first changed file, sees half old and half new QML and shows
+    // "Failed to load configuration" (e.g. "UndoTile is not a type"). When the
+    // update finishes, UpdateService does one hard reload from the new files.
+    settings.watchFiles: !UpdateService.updating
 
     // The Wayland background itself — one per screen, owning
     // WlrLayer.Background directly (see WallpaperLayer.qml's header
