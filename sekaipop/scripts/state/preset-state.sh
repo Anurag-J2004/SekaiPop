@@ -9,8 +9,9 @@
 #                                       (nothing at all if there are none),
 #                                       then the undo slots, if there are any:
 #                                       ".previous<TAB><json>" and
-#                                       ".trash/<name><TAB><json>" and
-#                                       ".trash/.notes<TAB><json>" (see below)
+#                                       ".trash/<name><TAB><json>",
+#                                       ".trash/.notes<TAB><json>" and
+#                                       ".trash/.at<TAB><seconds>" (see below)
 #   preset-state.sh save <name> <json> [avatar|-] [banner|-] [frame file...]
 #                                       write (or replace) a preset; the two
 #                                       optional paths are the pictures
@@ -41,7 +42,10 @@
 #                                       move a preset (and its pictures) into
 #                                       .trash/, in place of the one deleted
 #                                       before it; the notes json is kept
-#                                       there too (its sticky notes)
+#                                       there too (its sticky notes), and the
+#                                       time it was deleted (.trash/.at)
+#   preset-state.sh purge-trash <secs>  empty .trash/ if it is that old (or
+#                                       has no time: it can't say)
 #   preset-state.sh untrash <name>      put the preset in .trash/ back (the
 #                                       service gives its notes back itself).
 #                                       Exit 3 when another preset has its
@@ -73,7 +77,8 @@
 # the look it replaces first, as the hidden preset ".previous" (pictures and
 # all, with "save"), and Undo wears that back: it is renamed ".undone" first
 # and worn from there, so the look being undone can take ".previous" over
-# (Undo again = Redo). Deleting moves the preset into .trash/ instead of
+# (Undo again = Redo). Deleting moves the preset into .trash/ for ten minutes
+# (the service purges it after that, or at the next start) instead of
 # removing it; only the last one deleted is kept. Hidden = a leading dot, so
 # "all" never lists them as presets and a name typed in the shell can never be
 # one (the service strips leading dots).
@@ -174,6 +179,11 @@ case "$mode" in
         if [ -f "$dir/.trash/.notes" ]; then
             printf '.trash/.notes\t'
             tr -d '\n\r' < "$dir/.trash/.notes"
+            printf '\n'
+        fi
+        if [ -f "$dir/.trash/.at" ]; then
+            printf '.trash/.at\t'
+            tr -d '\n\r' < "$dir/.trash/.at"
             printf '\n'
         fi
         ;;
@@ -313,6 +323,7 @@ case "$mode" in
             fi
         done
         [ -n "$3" ] && printf '%s\n' "$3" > "$dir/.trash.tmp/.notes"
+        date +%s > "$dir/.trash.tmp/.at"
         mv -- "$dir/$2.json" "$dir/.trash.tmp/$2.json" || exit 1
         rm -rf -- "$dir/.trash"
         mv -- "$dir/.trash.tmp" "$dir/.trash"
@@ -331,6 +342,18 @@ case "$mode" in
         rm -rf -- "$dir/.trash"
         exit 0
         ;;
+    purge-trash)
+        case "$2" in
+            ''|*[!0-9]*) exit 2 ;;
+        esac
+        [ -d "$dir/.trash" ] || exit 0
+        at=$(cat "$dir/.trash/.at" 2>/dev/null)
+        case "$at" in
+            ''|*[!0-9]*) at=0 ;;
+        esac
+        [ $(( $(date +%s) - at )) -ge "$2" ] && rm -rf -- "$dir/.trash"
+        exit 0
+        ;;
     exists)
         shift
         for p in "$@"; do
@@ -339,7 +362,7 @@ case "$mode" in
         exit 0
         ;;
     *)
-        echo "usage: $0 all|save <name> <json> [avatar|-] [banner|-] [frame file...]|restore-frames <name> <file>...|restore <name> <kind> <file> <as>...|rename <old> <new> <json>|delete <name>|trash <name> [notes json]|untrash <name>|exists <path>..." >&2
+        echo "usage: $0 all|save <name> <json> [avatar|-] [banner|-] [frame file...]|restore-frames <name> <file>...|restore <name> <kind> <file> <as>...|rename <old> <new> <json>|delete <name>|trash <name> [notes json]|untrash <name>|purge-trash <secs>|exists <path>..." >&2
         exit 2
         ;;
 esac

@@ -106,7 +106,9 @@ import "../modules/common/functions/PresetParts.js" as PP
 //                level only. Wearing a preset that is
 //                already the look keeps the undo there was.
 //   deleting     moves the preset into presets/.trash/ (its notes with it) instead of
-//                removing it; undoRemove() brings it back. Only the last one deleted is kept.
+//                removing it; undoRemove() brings it back. Only the last one deleted is
+//                kept, for `trashMinutes`: then it is gone for good (and the UNDELETE tile
+//                with it), at once or at the next start if the shell wasn't running.
 // Both show as tiles on the PRESETS tab while there is something to undo.
 //
 // Files: ${XDG_CONFIG_HOME:-~/.config}/sekaipop/presets/<name>.json
@@ -605,7 +607,7 @@ Singleton {
             root.lastName = ""
         const notes = NotesService.setPart(name)
         NotesService.dropSet(name)
-        root.trashed = { name: p.name, data: p.data, notes: notes }
+        root.trashed = { name: p.name, data: p.data, notes: notes, at: Date.now() }
         // The tile goes at once, so Undo can't be refused for a name still listed.
         root.presets = root.presets.filter(q => q !== p)
         root.enqueue(["sh", root.script, "trash", name].concat(notes ? [JSON.stringify(notes)] : []))
@@ -614,8 +616,28 @@ Singleton {
     // ===== undo =====
     // The look the last preset replaced (the hidden ".previous"), or null.
     property var previous: null
-    // The last preset deleted, { name, data, notes }, or null.
+    // The last preset deleted, { name, data, notes, at }, or null. `at` is when, in ms.
     property var trashed: null
+    readonly property int trashMinutes: 10
+
+    // Empties the trash when its time is up. The script checks the time it wrote itself
+    // (a couple of seconds later than `at`, hence the slack).
+    onTrashedChanged: {
+        if (!root.trashed) {
+            trashTimer.stop()
+            return
+        }
+        trashTimer.interval = Math.max(0, root.trashed.at + root.trashMinutes * 60000 - Date.now()) + 3000
+        trashTimer.restart()
+    }
+
+    Timer {
+        id: trashTimer
+        onTriggered: {
+            root.trashed = null
+            root.enqueue(["sh", root.script, "purge-trash", String(root.trashMinutes * 60)])
+        }
+    }
 
     // Saves the desktop as ".previous" before `target` goes on. Not when the desktop
     // already is `target`: wearing it changes nothing, and the undo there is stays.
@@ -777,11 +799,13 @@ Singleton {
         return out
     }
 
-    // { previous, trashed } out of the same listing: ".previous", ".trash/<name>" and
-    // ".trash/.notes" (preset-state.sh all). Either is null when it isn't there.
+    // { previous, trashed } out of the same listing: ".previous", ".trash/<name>",
+    // ".trash/.notes" and ".trash/.at" (preset-state.sh all). Either is null when it isn't
+    // there. A trash with no time counts as old (it is purged at once).
     function parseSlots(text) {
         const out = { previous: null, trashed: null }
         let notes = null
+        let at = 0
         for (const line of text.split("\n")) {
             const tab = line.indexOf("\t")
             if (tab <= 0 || line.charAt(0) !== ".")
@@ -793,6 +817,11 @@ Singleton {
             } catch (e) {
                 continue
             }
+            if (name === ".trash/.at") {
+                if (typeof data === "number" && data > 0)
+                    at = data * 1000
+                continue
+            }
             if (!data || typeof data !== "object" || Array.isArray(data))
                 continue
             if (name === ".previous")
@@ -802,8 +831,10 @@ Singleton {
             else if (name.indexOf(".trash/") === 0 && name.length > 7)
                 out.trashed = { name: name.slice(7), data: data }
         }
-        if (out.trashed)
+        if (out.trashed) {
             out.trashed.notes = notes
+            out.trashed.at = at
+        }
         return out
     }
 

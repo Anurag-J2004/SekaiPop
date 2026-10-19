@@ -45,7 +45,12 @@ r = sh("trash", "Night", JSON.stringify({ worn: false, shown: true, notes: [] })
 assert.strictEqual(r.status, 0, r.stderr)
 assert.ok(!fs.existsSync(path.join(dir, "Night.json")) && !fs.existsSync(path.join(dir, "Night.images")), "gone from the presets")
 assert.ok(fs.existsSync(path.join(dir, ".trash", "Night.images", "avatar.png")), "pictures in the trash")
-assert.deepStrictEqual(listed(), ["Day", ".previous", ".trash/Night", ".trash/.notes"])
+assert.deepStrictEqual(listed(), ["Day", ".previous", ".trash/Night", ".trash/.notes", ".trash/.at"])
+const at = Number(fs.readFileSync(path.join(dir, ".trash", ".at"), "utf8"))
+assert.ok(Math.abs(at - Date.now() / 1000) < 5, "the time it was deleted")
+assert.strictEqual(sh("purge-trash", "600").status, 0)
+assert.ok(fs.existsSync(path.join(dir, ".trash", "Night.json")), "not yet ten minutes: kept")
+assert.strictEqual(sh("purge-trash", "x").status, 2, "bad age refused")
 assert.strictEqual(sh("trash", "Nope").status, 1, "no such preset")
 assert.strictEqual(sh("trash", "Day").status, 0, "a second delete")
 assert.ok(!fs.existsSync(path.join(dir, ".trash", "Night.json")), "only the last one deleted is kept")
@@ -62,7 +67,14 @@ assert.ok(!fs.readdirSync(dir).some(f => f.endsWith(".tmp")), "no temp files lef
 // a preset called "notes" is not mistaken for the trash's notes
 assert.strictEqual(sh("save", "notes", json("notes")).status, 0)
 assert.strictEqual(sh("trash", "notes").status, 0)
-assert.deepStrictEqual(listed(), ["Day", ".previous", ".trash/notes"])
+assert.deepStrictEqual(listed(), ["Day", ".previous", ".trash/notes", ".trash/.at"])
+fs.writeFileSync(path.join(dir, ".trash", ".at"), String(Math.floor(Date.now() / 1000) - 601))
+assert.strictEqual(sh("purge-trash", "600").status, 0)
+assert.ok(!fs.existsSync(path.join(dir, ".trash")), "ten minutes on: gone for good")
+assert.strictEqual(sh("purge-trash", "600").status, 0, "no trash: fine")
+fs.mkdirSync(path.join(dir, ".trash")); fs.writeFileSync(path.join(dir, ".trash", "Old.json"), "{}")
+assert.strictEqual(sh("purge-trash", "600").status, 0)
+assert.ok(!fs.existsSync(path.join(dir, ".trash")), "no time written: counts as old")
 } finally {
 fs.rmSync(tmp, { recursive: true, force: true })
 }
@@ -90,13 +102,15 @@ const make = (names, ctx) => {
         ".previous\t" + JSON.stringify({ theme: 2, _meta: { last: "Day" } }),
         ".trash/Night\t" + JSON.stringify({ theme: 3 }),
         ".trash/.notes\t" + JSON.stringify({ worn: false, notes: [] }),
+        ".trash/.at\t1700000000",
         ".trash/\t{}",
         ".bogus\tnot json"
     ].join("\n")
     assert.deepStrictEqual(root.parseList(text).map(p => p.name), ["Day"], "slots are not presets")
     const s = root.parseSlots(text)
     assert.strictEqual(s.previous.theme, 2)
-    assert.deepStrictEqual(s.trashed, { name: "Night", data: { theme: 3 }, notes: { worn: false, notes: [] } })
+    assert.deepStrictEqual(s.trashed, { name: "Night", data: { theme: 3 }, notes: { worn: false, notes: [] }, at: 1700000000000 })
+    assert.strictEqual(root.parseSlots(".trash/X\t{}").trashed.at, 0, "no time: old")
     assert.deepStrictEqual(root.parseSlots("Day\t{}"), { previous: null, trashed: null })
 }
 
@@ -119,6 +133,7 @@ const make = (names, ctx) => {
     assert.deepStrictEqual(JSON.parse(jobs[0][4]).notes, [{ id: "a" }], "its notes go with it")
     assert.deepStrictEqual(notes.slice(0, 2), [["part", "Night"], ["drop", "Night"]], "notes read before they are dropped")
     assert.strictEqual(root.trashed.name, "Night")
+    assert.ok(Math.abs(root.trashed.at - Date.now()) < 1000, "when it was deleted")
 
     root.presets = root.presets.concat([{ name: "night", data: {} }])
     assert.strictEqual(root.undoRemove(), "", "a preset of that name (any capitals) was saved since")
@@ -227,6 +242,8 @@ const make = (names, ctx) => {
 }
 
 // ---------- the wiring ----------
+assert.ok(/onTriggered: \{\n\s*root\.trashed = null\n\s*root\.enqueue\(\["sh", root\.script, "purge-trash", String\(root\.trashMinutes \* 60\)\]\)/.test(src), "the timer purges")
+assert.ok(src.includes("readonly property int trashMinutes: 10"))
 assert.ok(src.includes("function undo(): void") && src.includes("function undelete(): string"), "ipc undo / undelete")
 assert.ok(/function apply\(name\)[\s\S]*?root\.keepPrevious\(p\.data\)\n\s*root\.start\(/.test(src), "apply saves the look first")
 assert.ok(/if \(back\)\n\s*NotesService\.wearLook\(back\.notes, back\.set\)\n\s*else\n\s*NotesService\.switchSet\(name\)/.test(src), "wear: notes from the undo slot")
