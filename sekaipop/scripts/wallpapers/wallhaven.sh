@@ -17,7 +17,8 @@
 # Only https://wallhaven.cc/api/ (search) and https://w.wallhaven.cc/full/
 # (images) are fetched, so a bad URL can't make this download anything else. A
 # download is written to <name>.part and moved into place when it is complete,
-# so a picture is never half there.
+# so a picture is never half there; stopped (TERM), it takes curl and the .part
+# with it.
 
 mode="$1"
 
@@ -66,8 +67,27 @@ case "$mode" in
             exit 0
         fi
         mkdir -p "$dir" || exit 1
-        fetch "$url" "$dir/$name.part"
-        rc=$?
+        # Stopped (Esc in the viewer: the shell sends TERM): stop curl too, and leave
+        # nothing behind. curl runs in the background so the trap can run at once.
+        # curl itself is the background job (not a subshell around it), so the kill
+        # reaches it; its HTTP status goes to a file for the same codes as fetch().
+        part="$dir/$name.part"
+        codef="$part.code"
+        trap 'kill "$child" 2>/dev/null; rm -f "$part" "$codef"; exit 143' TERM INT
+        curl -sS -L --max-time 300 --connect-timeout 10 -A "SekaiPop" -o "$part" -w '%{http_code}' -- "$url" > "$codef" &
+        child=$!
+        if wait "$child"; then
+            case "$(cat "$codef" 2>/dev/null)" in
+                200) rc=0 ;;
+                429) echo "wallhaven: too many requests" >&2; rc=3 ;;
+                *) echo "wallhaven: HTTP $(cat "$codef" 2>/dev/null) for $url" >&2; rc=4 ;;
+            esac
+        else
+            echo "wallhaven: could not reach $url" >&2
+            rc=5
+        fi
+        rm -f "$codef"
+        trap - TERM INT
         if [ "$rc" -ne 0 ] || [ ! -s "$dir/$name.part" ]; then
             rm -f "$dir/$name.part"
             [ "$rc" -ne 0 ] && exit "$rc"

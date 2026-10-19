@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.services
 import qs.modules.common
 import "../modules/common/functions/WallhavenMath.js" as WH
 
@@ -11,11 +12,14 @@ import "../modules/common/functions/WallhavenMath.js" as WH
 // presets and the Matugen colours just work). The rules are WallhavenMath.js; the requests
 // scripts/wallpapers/wallhaven.sh. docs/WALLHAVEN.md has the whole picture.
 //
-//   search(query, opts)   a new search (opts: sort, topRange, categories, minWidth,
-//                         minHeight, landscape, colour; see WallhavenMath.searchUrl)
+//   search(query, w, h)   a new search, with the remembered sort and filters; w x h is the
+//                         monitor the picker is on (the "This screen" minimum size)
 //   more()                the next page, added to `items` (the picker calls it near the end)
-//   retry()               the last request again, after `error`
-//   fetch(item, then)     download `item` (one of `items`) and call then(path)
+//   retry()               the last request again, after `error` (after `retryIn` for "limited")
+//   fetch(item, then)     download `item` (one of `items`) and call then(path); `progress`
+//                         follows it, cancelFetch() stops it (Esc in the viewer)
+//   setSort / setFilter / resetFilters   the sort menu and the Filters card: remembered
+//                         (settings wallhaven.*) and searched again at once
 //
 // SFW only, no account. Requests stay under Wallhaven's 45 a minute by themselves.
 Singleton {
@@ -37,16 +41,64 @@ Singleton {
 
     // What the current results are for (a new search replaces them, more() adds to them).
     property string query: ""
-    property var opts: ({})
+    property int screenW: 0
+    property int screenH: 0
     property string seed: ""
+
+    // ===== the sort and the filters (remembered: settings wallhaven.*) =====
+    readonly property string sort: String(SettingsService.get("wallhaven.sort") || "")
+    readonly property string topRange: String(SettingsService.get("wallhaven.topRange") || "1M")
+    readonly property var filters: ({
+        categories: String(SettingsService.get("wallhaven.categories") || "").split(",").filter(c => WH.CATEGORIES.indexOf(c) >= 0),
+        shape: String(SettingsService.get("wallhaven.shape") || "landscape"),
+        atLeast: String(SettingsService.get("wallhaven.atLeast") || "screen"),
+        colour: String(SettingsService.get("wallhaven.colour") || "")
+    })
+    readonly property int filterCount: WH.filterCount(root.filters)
+    // The sort actually in use ("" means it depends on whether there is text).
+    readonly property string sortInUse: root.sort !== "" ? root.sort : WH.defaultSort(root.query)
+    readonly property string sortLabel: WH.sortLabel(root.sortInUse, root.topRange)
+    readonly property var opts: Object.assign({ sort: root.sortInUse, topRange: root.topRange,
+        minWidth: root.screenW, minHeight: root.screenH }, root.filters)
+    // The line under the toolbar.
+    readonly property string description: WH.describe(Object.assign({ query: root.query }, root.opts))
+
+    function setSort(sort, range) {
+        SettingsService.set("wallhaven.sort", sort === "relevance" && root.query.trim() === "" ? "" : sort)
+        if (range)
+            SettingsService.set("wallhaven.topRange", range)
+        root.again()
+    }
+
+    // key: "categories" (an array), "shape", "atLeast", "colour".
+    function setFilter(key, value) {
+        SettingsService.set("wallhaven." + key, Array.isArray(value) ? value.join(",") : String(value))
+        root.again()
+    }
+
+    function resetFilters() {
+        SettingsService.set("wallhaven.categories", WH.DEFAULT_FILTERS.categories.join(","))
+        SettingsService.set("wallhaven.shape", WH.DEFAULT_FILTERS.shape)
+        SettingsService.set("wallhaven.atLeast", WH.DEFAULT_FILTERS.atLeast)
+        SettingsService.set("wallhaven.colour", WH.DEFAULT_FILTERS.colour)
+        root.again()
+    }
+
+    // The same search with the new sort / filters, from page 1. Bindings settle first.
+    function again() {
+        Qt.callLater(() => root.search(root.query, root.screenW, root.screenH))
+    }
 
     // Wallhaven ids already in the folder (the "downloaded" mark).
     property var have: ({})
 
-    function search(query, opts) {
+    function search(query, w, h) {
         root.query = String(query || "")
-        root.opts = opts || {}
+        root.screenW = Math.floor(Number(w)) || 0
+        root.screenH = Math.floor(Number(h)) || 0
         root.seed = ""
+        root.error = ""
+        root.retryAt = 0
         root.items = []
         root.page = 0
         root.lastPage = 0
@@ -62,8 +114,22 @@ Singleton {
     }
 
     function retry() {
+        if (root.error === "limited" && root.retryIn > 0)
+            return
         root.error = ""
         root.request(root.page + 1)
+    }
+
+    // "Too many requests": when trying again makes sense (ms since the epoch; 0 = now), and
+    // the time left, ticking (the "Try again in 0:22" key).
+    property real retryAt: 0
+    property real now: Date.now()
+    readonly property real retryIn: Math.max(0, root.retryAt - root.now)
+    Timer {
+        running: root.retryAt > root.now
+        interval: 250
+        repeat: true
+        onTriggered: root.now = Date.now()
     }
 
     // ===== requests, under the rate limit =====
@@ -118,6 +184,11 @@ Singleton {
             root.loading = false
             if (exitCode !== 0) {
                 root.error = exitCode === 3 ? "limited" : (exitCode === 5 ? "offline" : "failed")
+                if (exitCode === 3) {
+                    // Wallhaven doesn't say how long: our own window, at least half a minute.
+                    root.retryAt = Date.now() + Math.max(30000, WH.waitFor(root.sent, Date.now()))
+                    root.now = Date.now()
+                }
                 return
             }
             const r = WH.parseSearch(searcher.out)
@@ -164,16 +235,55 @@ Singleton {
     // replaces what happens when it is done, not the download.
     property string fetching: ""
     property var fetchThen: null
+    property var fetchItem: null
+    // Bytes so far and 0..1 (from the .part file's size against the size Wallhaven gave).
+    property real fetched: 0
+    readonly property real progress: root.fetchItem ? WH.progress(root.fetched, root.fetchItem.size) : 0
+    property bool cancelled: false
 
     function fetch(item, then) {
         if (!item || typeof item.full !== "string")
             return
         root.fetchThen = then || null
-        if (root.fetching === item.id)
+        if (root.fetching === item.id || fetcher.running)
             return
         root.fetching = item.id
+        root.fetchItem = item
+        root.fetched = 0
+        root.cancelled = false
         root.error = ""
         fetcher.exec(["sh", root.script, "download", item.full, root.folder, WH.fileName(item)])
+    }
+
+    // Esc while downloading: stop, and set nothing (the script's .part is removed below).
+    function cancelFetch() {
+        if (!fetcher.running)
+            return
+        root.cancelled = true
+        root.fetchThen = null
+        fetcher.signal(15)
+    }
+
+    // How far the download is: the size of its .part file, a few times a second.
+    Timer {
+        running: fetcher.running
+        interval: 300
+        repeat: true
+        onTriggered: {
+            if (!sizer.running && root.fetchItem)
+                sizer.exec(["sh", "-c", 'stat -c %s "$0" 2>/dev/null || echo 0', root.folder + "/" + WH.fileName(root.fetchItem) + ".part"])
+        }
+    }
+
+    Process {
+        id: sizer
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const n = Number(text.trim())
+                if (fetcher.running && n > root.fetched)
+                    root.fetched = n
+            }
+        }
     }
 
     Process {
@@ -186,7 +296,14 @@ Singleton {
 
         onExited: (exitCode, exitStatus) => {
             const id = root.fetching
+            const item = root.fetchItem
             root.fetching = ""
+            root.fetchItem = null
+            if (root.cancelled) {
+                // Stopped: the script killed its curl and removed the .part itself.
+                root.cancelled = false
+                return
+            }
             if (exitCode !== 0 || fetcher.out === "") {
                 root.error = exitCode === 3 ? "limited" : (exitCode === 5 ? "offline" : "failed")
                 return
