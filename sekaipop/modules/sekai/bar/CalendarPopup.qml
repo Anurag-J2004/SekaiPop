@@ -73,7 +73,7 @@ SekaiPopup {
     // Weekends. The old flat red (#e0575b) sank into dark surfaces; on Dark and
     // Darker it is a lighter coral-pink that stays readable and sits closer to
     // the attribute pinks. Light mode keeps the red.
-    readonly property color weekendInk: Theme.dark ? "#ff8fa3" : "#e0575b"
+    readonly property color weekendInk: mt.dark ? "#ff8fa3" : "#e0575b"
 
     // Where today is: its weekday column (for the header) and its cell (for the
     // ribbon under this week), -1 when the page on show does not have it.
@@ -201,8 +201,8 @@ SekaiPopup {
 
     Gradient {
         id: accentGradient
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     Column {
@@ -234,18 +234,18 @@ SekaiPopup {
                 scale: root.heroPop
                 transformOrigin: Item.Center
                 pressed: stickerArea.pressed
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     y: 7
                     text: CM.weekdayShort(root.fDow).toUpperCase()
-                    color: Theme.chipInk
+                    color: mt.chipInk
                     opacity: 0.8
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 1.2
                 }
 
@@ -253,11 +253,11 @@ SekaiPopup {
                     anchors.horizontalCenter: parent.horizontalCenter
                     y: 18
                     text: root.fD
-                    color: root.focusIsToday ? (Theme.dark ? Theme.accentMint : Theme.colBorder) : Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: root.focusIsToday ? (mt.dark ? mt.accentMint : mt.colBorder) : mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 40
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     Behavior on color { ColorAnimation { duration: 160 } }
                 }
             }
@@ -298,16 +298,16 @@ SekaiPopup {
                         fill: 0
                         size: 14
                         weight: 700
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "TODAY"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 0.5
                     }
                 }
@@ -358,11 +358,11 @@ SekaiPopup {
                 width: plate.width - 108 - 12
                 elide: Text.ElideRight
                 text: root.readout[0]
-                color: Theme.colBorder
-                font.family: Theme.fontFamily
+                color: mt.colBorder
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Text {
@@ -371,9 +371,9 @@ SekaiPopup {
                 width: plate.width - 108 - 12
                 elide: Text.ElideRight
                 text: root.readout[1]
-                color: Theme.colBorder
+                color: mt.colBorder
                 opacity: 0.8
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.DemiBold
             }
@@ -391,17 +391,17 @@ SekaiPopup {
                     shadowDy: 3
                     cornerRadius: 11
                     ringWidth: 3
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
                     pressed: yearArea.pressed
 
                     Text {
                         anchors.centerIn: parent
                         text: root.viewYear
-                        color: Theme.chipInk
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -424,9 +424,9 @@ SekaiPopup {
             width: root.gridW
             height: 28
             radius: 14
-            color: Theme.surfaceHover
+            color: mt.surfaceHover
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             // Today's weekday: a slanted gradient key behind its name.
@@ -438,7 +438,7 @@ SekaiPopup {
                 skew: 0.22
                 radius: 8
                 gradient: accentGradient
-                borderColor: Theme.line
+                borderColor: mt.line
                 borderWidth: 2
             }
 
@@ -460,13 +460,13 @@ SekaiPopup {
                     Text {
                         anchors.centerIn: parent
                         text: parent.modelData
-                        color: parent.isTodayCol ? Theme.colBorder
+                        color: parent.isTodayCol ? mt.colBorder
                              : (parent.weekend ? root.weekendInk
-                                               : Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.9))
-                        font.family: Theme.fontFamily
+                                               : Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.9))
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
             }
@@ -506,7 +506,7 @@ SekaiPopup {
                 height: root.cell + 4
                 y: row * (root.cell + root.gap) - 2
                 radius: 18
-                color: Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, 0.12)
+                color: Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, 0.12)
                 opacity: Math.min(1, root.wave * 2)
             }
 
@@ -518,7 +518,7 @@ SekaiPopup {
                 height: root.cell + 4
                 y: row * (root.cell + root.gap) - 2
                 radius: 18
-                color: Theme.surfaceHover
+                color: mt.surfaceHover
                 opacity: root.hoverIndex >= 0 ? 1 : 0
                 Behavior on y {
                     NumberAnimation { duration: 130; easing.type: Easing.OutQuad }
@@ -571,7 +571,7 @@ SekaiPopup {
                                 width: parent.width
                                 height: parent.height - 3
                                 radius: 15
-                                color: Theme.lineShadow
+                                color: mt.lineShadow
                                 antialiasing: true
                             }
 
@@ -583,9 +583,9 @@ SekaiPopup {
                                 y: hit.pressed ? 3 : 0
                                 radius: 15
                                 antialiasing: true
-                                border.width: dayCell.modelData.isToday ? Theme.borderWidth : 2
-                                border.color: Theme.line
-                                color: dayCell.modelData.isToday ? "transparent" : Theme.surface
+                                border.width: dayCell.modelData.isToday ? mt.borderWidth : 2
+                                border.color: mt.line
+                                color: dayCell.modelData.isToday ? "transparent" : mt.surface
                                 gradient: dayCell.modelData.isToday ? accentGradient : null
 
                                 Behavior on y {
@@ -601,18 +601,18 @@ SekaiPopup {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 y: (dayCell.raised ? face.y : 0) + (parent.height - 3 - height) / 2 + 1
                                 text: dayCell.modelData.day
-                                font.family: Theme.fontFamily
+                                font.family: mt.fontFamily
                                 font.pixelSize: 15
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                                 color: {
                                     if (dayCell.modelData.isToday)
-                                        return Theme.colBorder
+                                        return mt.colBorder
                                     if (!dayCell.modelData.inMonth)
-                                        return Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.4)
+                                        return Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.4)
                                     if (dayCell.modelData.isWeekend)
                                         return root.weekendInk
-                                    return Theme.ink
+                                    return mt.ink
                                 }
                             }
 
@@ -629,8 +629,8 @@ SekaiPopup {
                                     anchors.centerIn: parent
                                     size: 10
                                     lit: true
-                                    litColor: dayCell.mark > 0 ? Theme.attributeColors[dayCell.mark - 1] : Theme.accentMint
-                                    lineColor: Theme.line
+                                    litColor: dayCell.mark > 0 ? mt.attributeColors[dayCell.mark - 1] : mt.accentMint
+                                    lineColor: mt.line
                                 }
                             }
                         }
@@ -687,8 +687,8 @@ SekaiPopup {
                         cornerRadius: 13
                         // Navy outline + the 2 px white line every block has, same as
                         // the calendar card's page keys (CalendarNavKey.qml).
-                        ringWidth: Theme.borderWidth + Theme.whiteLine
-                        fillColor: Theme.chipFill
+                        ringWidth: mt.borderWidth + mt.whiteLine
+                        fillColor: mt.chipFill
                         pressed: navArea.pressed
 
                         MaterialIcon {
@@ -696,7 +696,7 @@ SekaiPopup {
                             name: navButton.modelData.icon
                             fill: 0
                             size: 20
-                            color: Theme.chipInk
+                            color: mt.chipInk
                             weight: 600
                         }
                     }
@@ -717,9 +717,9 @@ SekaiPopup {
                 width: root.gridW - 92
                 height: 28
                 radius: 14
-                color: Theme.surfaceHover
+                color: mt.surfaceHover
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
             }
 
@@ -760,8 +760,8 @@ SekaiPopup {
                                 anchors.centerIn: parent
                                 size: 10
                                 lit: slot.viewed || slot.nowM
-                                litColor: slot.viewed ? Theme.accentMint : Theme.accentCyan
-                                offColor: Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.38)
+                                litColor: slot.viewed ? mt.accentMint : mt.accentCyan
+                                offColor: Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.38)
                             }
                         }
 
@@ -786,7 +786,7 @@ SekaiPopup {
                     width: 14
                     height: 3
                     radius: 1.5
-                    color: Theme.ink
+                    color: mt.ink
                     x: root.viewMonth * lane.pitch + (lane.pitch - width) / 2
                     Behavior on x {
                         NumberAnimation { duration: 320; easing.type: Easing.OutBack; easing.overshoot: 2.2 }

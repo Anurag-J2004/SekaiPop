@@ -87,6 +87,16 @@ SettingsPage {
             onToggled: WallpaperService.setPerMonitor(!SettingsService.flag("wallpaper.perMonitor"))
         }
 
+        // ThemeService, "one theme per monitor": the bar, dock, widgets and Quick Panel on a
+        // monitor wear its theme; the theme pickers set the monitor they are open on.
+        SettingToggle {
+            icon: "palette"
+            label: "One theme per monitor"
+            detail: SettingsService.flag("theme.perMonitor") ? "The theme picker sets the monitor it is on" : "Same theme on every monitor"
+            checked: SettingsService.flag("theme.perMonitor")
+            onToggled: SettingsService.set("theme.perMonitor", !SettingsService.flag("theme.perMonitor"))
+        }
+
         SettingToggle {
             icon: "lock"
             label: "Separate Lockscreen Wallpaper"

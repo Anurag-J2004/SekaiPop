@@ -11,7 +11,9 @@ import qs.modules.common.widgets
 // (ThemePopup.qml).
 //
 //   click a tile     the whole shell, the card above included, re-colours live
-//                    (ThemeService.setTheme); the pick is remembered
+//                    (ThemeService.pickTheme); the pick is remembered. With one theme
+//                    per monitor (Settings > Desktop) it is this monitor's theme; on the
+//                    main monitor, the shell's (ThemeService, "one theme per monitor")
 //   mouse wheel      scrolls the row sideways, if the tiles do not all fit
 //
 // The pictures are drawn from each group's own palette (`group.c`), not from
@@ -27,6 +29,9 @@ Item {
 
     // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
     readonly property var mt: Theme.of(QsWindow.window)
+    // The monitor Edit Desktop is open on: with one theme per monitor, a tile picks for it
+    // (ThemeService.pickTheme; the main monitor's is the shell's theme).
+    readonly property string screenName: QsWindow.window && QsWindow.window.screen ? String(QsWindow.window.screen.name) : ""
 
     readonly property real tileW: 150
     readonly property real tileH: 138
@@ -41,7 +46,7 @@ Item {
         required property var group
 
         readonly property var c: group.c
-        readonly property bool selected: ThemeService.current === group.id
+        readonly property bool selected: ThemeService.themeFor(root.screenName) === group.id
         readonly property bool dark: ThemeService.dark
 
         // What the picture's surfaces are in the current look: white in Light,
@@ -301,7 +306,7 @@ Item {
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: ThemeService.setTheme(tile.group.id)
+            onClicked: ThemeService.pickTheme(root.screenName, tile.group.id)
         }
     }
 

@@ -61,11 +61,11 @@ SekaiPopup {
             elide: Text.ElideRight
             text: keys.hint !== "" ? keys.hint : "Utility keys"
             opacity: keys.hint !== "" ? 1 : 0.55
-            color: Theme.ink
-            font.family: Theme.fontFamily
+            color: mt.ink
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 }

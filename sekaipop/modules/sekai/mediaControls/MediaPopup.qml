@@ -127,7 +127,7 @@ SekaiPopup {
 
     // One of the five SEKAI attribute colours per app, the same one every time.
     function toneFor(name) {
-        return Theme.attributeColors[MM.pickIndex(name, Theme.attributeColors.length)]
+        return mt.attributeColors[MM.pickIndex(name, mt.attributeColors.length)]
     }
 
     readonly property string appName: root.labelFor(root.hasPlayer ? root.p : null)
@@ -251,8 +251,8 @@ SekaiPopup {
         enabled: root.hasTrack
     }
     readonly property var coverColors: cover.palette
-    readonly property color tone: root.coverColors ? Qt.lighter(root.coverColors[0], 1.06) : Theme.accentMint
-    readonly property color tone2: root.coverColors ? root.coverColors[1] : Theme.accentCyan
+    readonly property color tone: root.coverColors ? Qt.lighter(root.coverColors[0], 1.06) : mt.accentMint
+    readonly property color tone2: root.coverColors ? root.coverColors[1] : mt.accentCyan
 
     // The plate wears the same two colours, easing from one song's to the next.
     property color plateTop: root.tone
@@ -402,10 +402,10 @@ SekaiPopup {
                 x: 14
                 y: 14
                 width: root.coverSize
-                height: root.coverSize + Theme.shadowOffset
+                height: root.coverSize + mt.shadowOffset
                 cornerRadius: 18
                 ringWidth: 5
-                fillColor: Theme.surfaceHover
+                fillColor: mt.surfaceHover
                 pressed: jacketArea.pressed || !root.playing
                 rotation: -4
                 transformOrigin: Item.Center
@@ -413,7 +413,7 @@ SekaiPopup {
                 ClippingRectangle {
                     anchors.fill: parent
                     radius: Math.max(0, jacket.cornerRadius - jacket.ringWidth)
-                    color: Theme.surfaceHover
+                    color: mt.surfaceHover
 
                     MaterialIcon {
                         anchors.centerIn: parent
@@ -421,7 +421,7 @@ SekaiPopup {
                         name: root.hasTrack ? "music_note" : "music_off"
                         size: 36
                         fill: 0
-                        color: Theme.inkSub
+                        color: mt.inkSub
                     }
 
                     Image {
@@ -455,7 +455,7 @@ SekaiPopup {
                             size: 38
                             fill: 0
                             weight: 500
-                            color: Theme.textWhite
+                            color: mt.textWhite
                         }
                     }
                 }
@@ -486,19 +486,19 @@ SekaiPopup {
                     anchors.verticalCenter: parent.verticalCenter
                     size: 7
                     lit: true
-                    litColor: Theme.textWhite
-                    lineColor: Theme.colBorder
+                    litColor: mt.textWhite
+                    lineColor: mt.colBorder
                 }
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     width: Math.min(implicitWidth, 100)
                     elide: Text.ElideRight
                     text: root.appName.toUpperCase()
-                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.82)
-                    font.family: Theme.fontFamily
+                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.82)
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 1.4
                 }
             }
@@ -513,7 +513,7 @@ SekaiPopup {
                 height: 32
                 cornerRadius: 11
                 ringWidth: 5
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
                 rotation: 3
                 transformOrigin: Item.Center
 
@@ -531,11 +531,11 @@ SekaiPopup {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.playing ? "PLAYING" : (root.hasTrack ? "PAUSED" : "IDLE")
-                        color: Theme.chipInk
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         font.letterSpacing: 1
                     }
                 }
@@ -556,11 +556,11 @@ SekaiPopup {
                     maximumLineCount: 2
                     elide: Text.ElideRight
                     lineHeight: 0.95
-                    color: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 18
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -568,8 +568,8 @@ SekaiPopup {
                     visible: root.line2 !== ""
                     text: root.line2
                     elide: Text.ElideRight
-                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.8)
-                    font.family: Theme.fontFamily
+                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.8)
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }
@@ -592,7 +592,7 @@ SekaiPopup {
                 height: 34
                 cornerRadius: 12
                 ringWidth: 5
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
                 rotation: -3
                 transformOrigin: Item.Center
                 // Sinks like a key while you hold the playhead.
@@ -603,11 +603,11 @@ SekaiPopup {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     text: root.elapsedText
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
 
@@ -629,9 +629,9 @@ SekaiPopup {
                     width: parent.width
                     height: 12
                     radius: 6
-                    color: Theme.surfaceDivider
+                    color: mt.surfaceDivider
                     border.width: 2
-                    border.color: Theme.line
+                    border.color: mt.line
                     antialiasing: true
                 }
 
@@ -666,7 +666,7 @@ SekaiPopup {
                     rotation: 45
                     color: root.tone
                     border.width: 2
-                    border.color: Theme.line
+                    border.color: mt.line
                     antialiasing: true
                     scale: root.scrubbing ? 1.35 : (seekArea.containsMouse ? 1.15 : 1)
                     Behavior on x {
@@ -720,7 +720,7 @@ SekaiPopup {
                 height: 34
                 cornerRadius: 12
                 ringWidth: 5
-                fillColor: totalArea.containsMouse && root.hasLength ? Theme.surfaceHover : Theme.chipFill
+                fillColor: totalArea.containsMouse && root.hasLength ? mt.surfaceHover : mt.chipFill
                 rotation: 3
                 transformOrigin: Item.Center
                 pressed: totalArea.pressed && root.hasLength
@@ -730,11 +730,11 @@ SekaiPopup {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     text: root.totalText
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
             MouseArea {
