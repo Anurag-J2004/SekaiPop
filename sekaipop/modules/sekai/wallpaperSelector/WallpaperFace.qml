@@ -1226,7 +1226,15 @@ Item {
         onOpened: index => face.showIndex(index)
         onSetDesktopRequested: (path, all) => face.setFromWheel("desktop", all)
         onSetLockRequested: (path, all) => face.setFromWheel("lock", all)
-        onCenterIndexChanged: face.nearEnd(centerIndex)
+        // Wallhaven: an open-ended list (no wrapping, no fresh spin when a page is added),
+        // and the next page only once the wheel has come to rest near the end, never while
+        // it is turning (a deal spins in from "before the start").
+        allowWrap: !face.onWallhaven
+        keepOnGrow: face.onWallhaven
+        onRestedChanged: {
+            if (rested)
+                face.nearEnd(centerIndex)
+        }
     }
 
     // an empty folder, or nothing matches the search
