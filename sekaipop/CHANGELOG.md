@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Wallpapers: Wallhaven as a second source (My folder | Wallhaven, or Ctrl+Tab). Search it, sort it (Top over a day to a year, Latest, Views, Favourites, Random), filter it (categories, shape, minimum size, colour), and set a picture: it is downloaded into your wallpaper folder first, with progress, and Esc stops it. SFW only, no account. `ipc call wallpaperpicker wallhaven` opens it there (docs/WALLHAVEN.md).
 - Presets: wearing a preset can be undone. The look it replaced (settings, pictures, image frames and sticky notes) is kept, and an UNDO tile on the PRESETS tab puts it back, then turns into REDO. Deleting a preset can be undone too, for ten minutes (UNDELETE, the last one deleted). The save tile says NOT SAVED when no preset is the current look. IPC: `presets undo`, `presets undelete`.
 - Settings > Keys: change what each SekaiPop shortcut does. Click an action, press the new keys, and it works straight away; conflicts ask first, and every change can be reset. Works with the Lua config and with `hyprland.conf` (issue #16).
 - Phone: the turn between the Quick Panel and Settings / Wallpapers (both ways) is smooth instead of a snap: one 200 ms speed for every turn of the phone (Settings, Wallpapers, Apps), but on a soft curve, with the two screens dissolving over about 70 - 100 ms instead of swapping in 3 frames, and the turn waits for the phone to be redrawn before it moves so a slow first frame does not skip it.
