@@ -1598,8 +1598,8 @@ Item {
 
         readonly property bool empty: face.notifications.length === 0
 
-        // Nothing waiting: just the card's own plain white background --
-        // no separate empty-state art.
+        // Nothing waiting: a quiet line in the card (emptyNote, below the list)
+        // instead of a blank card (issue #41).
 
         // True for the short animated stretch after "Clear all" is
         // tapped: the cards are sliding themselves out but the data
@@ -1623,6 +1623,67 @@ Item {
                 face.notificationsCleared()
                 notificationsCard.clearing = false
                 face.panelCloseRequested()
+            }
+        }
+
+        // Nothing waiting: a muted line, a little cheeky, instead of a blank card. A
+        // new one is picked each time the list empties. Placed in the part of the
+        // list that is on the monitor (only the top of the phone shows when it is up,
+        // so the middle of the whole card can be off-screen), and faded rather than
+        // popped so "Clear all"'s slide-out isn't cut short.
+        Column {
+            id: emptyNote
+
+            readonly property bool shown: notificationsCard.empty && !notificationsCard.clearing
+            readonly property var lines: [
+                "Nothing here. Suspiciously quiet.",
+                "All caught up. Go touch some grass.",
+                "No notifications. Even the group chat is asleep.",
+                "Inbox zero. The phone is proud of you.",
+                "Nothing new. Miku says hi anyway.",
+                "Silence. Enjoy it while it lasts."
+            ]
+            property string line: lines[0]
+
+            function pick() {
+                let next = emptyNote.line
+                // Not the same one twice in a row.
+                while (emptyNote.lines.length > 1 && next === emptyNote.line)
+                    next = emptyNote.lines[Math.floor(Math.random() * emptyNote.lines.length)]
+                emptyNote.line = next
+            }
+
+            onShownChanged: if (shown) pick()
+            Component.onCompleted: pick()
+
+            x: (notificationsCard.width - width) / 2
+            y: list.y + Math.max(10, (Math.min(list.height, 200) - height) / 2)
+            width: 460
+            spacing: 6
+            opacity: emptyNote.shown ? 1 : 0
+            visible: opacity > 0.01
+
+            Behavior on opacity {
+                NumberAnimation { duration: 220 }
+            }
+
+            MaterialIcon {
+                anchors.horizontalCenter: parent.horizontalCenter
+                name: "bedtime"
+                size: 26
+                color: Theme.pInkSub
+                opacity: 0.8
+            }
+
+            Text {
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: emptyNote.line
+                color: Theme.pInkSub
+                font.family: Theme.fontFamily
+                font.pixelSize: 16
+                font.weight: Font.DemiBold
             }
         }
 
