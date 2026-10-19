@@ -133,6 +133,7 @@ const map = {
     sort: "sort-from-top-to-bottom",
     sort_by_alpha: "sort-by-alphabet",
     undo: "undo-left",
+    redo: "undo-right",
     wallpaper: "wallpaper",
     image: "gallery",
     image_search: "gallery-minimalistic",

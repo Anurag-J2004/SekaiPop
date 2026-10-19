@@ -163,6 +163,8 @@ const make = (names, ctx) => {
     assert.deepStrictEqual(jobs.map(j => j.slice(2, 5)), [["delete", ".undone"], ["rename", ".previous", ".undone"], ["save", ".previous", jobs[2][4]]],
         "slot moved aside before the look being undone takes it")
     assert.strictEqual(JSON.parse(jobs[2][4])._meta.last, "Other", "Undo again goes back to the preset worn now")
+    assert.strictEqual(JSON.parse(jobs[2][4])._meta.undone, true, "...and is a redo")
+    assert.strictEqual(saved._meta.undone, undefined, "a plain wear saves an undo, not a redo")
     assert.strictEqual(started[0][0], prev); assert.strictEqual(started[0][1], ".undone")
     assert.deepStrictEqual(started[0][2], { notes: prev._meta.notes, set: "Day", last: "Day" })
 
@@ -171,6 +173,12 @@ const make = (names, ctx) => {
     root.undoWear()
     assert.deepStrictEqual(started[1][2], { notes: { setName: "Gone", notes: [] }, set: "", last: "" })
     root.previous = null; const n = started.length; root.undoWear(); assert.strictEqual(started.length, n, "nothing to undo")
+
+    // redo: the look it redoes away from is an undo again (the tile flips back to UNDO)
+    jobs.length = 0
+    root.previous = { theme: "y", _meta: { last: "Day", undone: true } }
+    root.undoWear()
+    assert.strictEqual(JSON.parse(jobs[2][4])._meta.undone, undefined, "after a redo: UNDO")
 }
 
 // ---------- the notes ----------
@@ -225,6 +233,6 @@ assert.ok(/if \(back\)\n\s*NotesService\.wearLook\(back\.notes, back\.set\)\n\s*
 assert.ok(src.includes("root.lastName = back ? back.last : name"))
 assert.ok(/if \(root\.waiting\)\n\s*root\.proceed\(\)/.test(src), "the wear waits for the queue")
 const board = read("EditPresetBoard.qml")
-for (const t of ["component UndoTile", "DesktopPresetService.undoWear()", "DesktopPresetService.undoRemove()", "readonly property bool unsaved", "\"NOT SAVED\""])
+for (const t of ["component UndoTile", "title: redo ? \"REDO\" : \"UNDO\"", "DesktopPresetService.undoWear()", "DesktopPresetService.undoRemove()", "readonly property bool unsaved", "\"NOT SAVED\""])
     assert.ok(board.includes(t), "board: " + t)
 console.log("undo_unit: all checks passed")

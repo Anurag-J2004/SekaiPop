@@ -13,7 +13,8 @@ import qs.modules.common.widgets
 //                    badge on it: no preset is the desktop as it is now, so wearing one
 //                    would leave this look only in the UNDO tile.
 //   UNDO tiles       after the first tile, while there is something to undo: UNDO wears
-//                    the look the last preset replaced (again = redo); UNDELETE brings
+//                    the look the last preset replaced, and turns into REDO, which wears
+//                    the undone look again (and turns back into UNDO); UNDELETE brings
 //                    the last deleted preset back. See "Undo" in DesktopPresetService.qml.
 //   click a tile     wear that preset. The card above changes live (colours,
 //                    bar, widgets, wallpaper, Quick Panel buttons).
@@ -953,9 +954,10 @@ Item {
                 readonly property var prev: DesktopPresetService.previous
                 readonly property string last: prev && prev._meta && typeof prev._meta.last === "string"
                     && DesktopPresetService.has(prev._meta.last) ? prev._meta.last : ""
+                readonly property bool redo: !!prev && !!prev._meta && prev._meta.undone === true
                 visible: !!prev && !DesktopPresetService.isCurrent(prev)
-                icon: "undo"
-                title: "UNDO"
+                icon: redo ? "redo" : "undo"
+                title: redo ? "REDO" : "UNDO"
                 sub: last !== "" ? "back to " + last : "back to the look before"
                 onActivated: DesktopPresetService.undoWear()
             }

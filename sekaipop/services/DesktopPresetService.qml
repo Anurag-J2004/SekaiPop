@@ -102,7 +102,8 @@ import "../modules/common/functions/PresetParts.js" as PP
 //   wearing      first saves the look it replaces as the hidden preset ".previous"
 //                (keepPrevious(): pictures, frames and the sticky notes too, on disk, so it
 //                survives a restart). undoWear() wears it back, and the look it undoes takes
-//                its place, so Undo again is Redo. One level only. Wearing a preset that is
+//                its place, so Undo again is Redo (the tile says so: `_meta.undone`). One
+//                level only. Wearing a preset that is
 //                already the look keeps the undo there was.
 //   deleting     moves the preset into presets/.trash/ (its notes with it) instead of
 //                removing it; undoRemove() brings it back. Only the last one deleted is kept.
@@ -618,7 +619,8 @@ Singleton {
 
     // Saves the desktop as ".previous" before `target` goes on. Not when the desktop
     // already is `target`: wearing it changes nothing, and the undo there is stays.
-    function keepPrevious(target) {
+    // `undone`: undoWear() is saving the look it undoes, so the tile says REDO.
+    function keepPrevious(target, undone) {
         root.refreshLive()
         if (root.isCurrent(target))
             return
@@ -626,6 +628,8 @@ Singleton {
         // `last` / `notes`: what undoWear() needs that a preset doesn't hold (which preset
         // was worn, and the sticky notes themselves, see NotesService.lookPart()).
         data._meta = { name: "", saved: Date.now(), v: 1, last: root.lastName, notes: NotesService.lookPart() }
+        if (undone === true)
+            data._meta.undone = true
         root.previous = data
         root.enqueue(["sh", root.script, "save", ".previous", JSON.stringify(data),
             data.images && PanelImages.avatarPath !== "" ? PanelImages.avatarPath : "-",
@@ -651,7 +655,7 @@ Singleton {
         root.previous = null
         root.enqueue(["sh", root.script, "delete", ".undone"])
         root.enqueue(["sh", root.script, "rename", ".previous", ".undone", JSON.stringify(d)])
-        root.keepPrevious(d)
+        root.keepPrevious(d, !(meta.undone === true))
         root.start(d, ".undone", back)
     }
 
