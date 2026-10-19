@@ -167,9 +167,17 @@ Item {
         Qt.callLater(() => grid.positionViewAtBeginning())
     }
 
-    // Wallhaven's results, in the gallery's item shape.
+    // Wallhaven's results, in the gallery's item shape. Nothing to show yet (the first search
+    // on its way): empty frames instead, in whichever look is on (the wheel's or the grid's),
+    // so the gallery is never a blank screen while it loads.
     function wallhavenItems() {
         const out = []
+        if (WallhavenService.items.length === 0 && WallhavenService.loading) {
+            for (let i = 0; i < face.columns * 3; i++)
+                out.push({ fileName: "", filePath: "", fileSize: 0, fileModified: 0,
+                           wh: { placeholder: true, id: "", thumb: "", colours: [], resolution: "" } })
+            return out
+        }
         for (const it of WallhavenService.items) {
             const have = WallhavenService.downloaded(it)
             out.push({
@@ -189,6 +197,10 @@ Item {
             if (face.onWallhaven)
                 face.recompute()
         }
+        function onLoadingChanged() {
+            if (face.onWallhaven)
+                face.recompute()
+        }
         function onHaveChanged() {
             if (!face.onWallhaven)
                 return
@@ -205,6 +217,10 @@ Item {
         interval: 450
         onTriggered: WallhavenService.search(face.searchText, face.screenPxW, face.screenPxH)
     }
+
+    // A new search is on its way: what is shown is the previous one's, dimmed.
+    readonly property real staleK: face.onWallhaven && WallhavenService.refreshing && WallhavenService.items.length > 0 ? 0.5 : 1
+    Behavior on staleK { NumberAnimation { duration: 160 } }
 
     // Near the end of what is loaded: the next page.
     function nearEnd(i) {
@@ -394,6 +410,9 @@ Item {
         if (n <= 0)
             return
         const k = ((i % n) + n) % n
+        // an empty frame while Wallhaven loads: nothing to open
+        if (face.matched[k].wh && face.matched[k].wh.placeholder)
+            return
         face.sortOpen = false
         face.viewIndex = k
         face.viewPath = face.matched[k].filePath
@@ -866,7 +885,7 @@ Item {
         keyNavigationEnabled: false
         maximumFlickVelocity: 3200
 
-        opacity: (1 - face.viewP) * (1 - face.carouselP)
+        opacity: (1 - face.viewP) * (1 - face.carouselP) * face.staleK
         scale: 0.97 + 0.03 * (1 - face.viewP)
         visible: opacity > 0.01
         enabled: !face.viewing && !face.carousel
@@ -948,6 +967,14 @@ Item {
                     // A Wallhaven picture still on its way: its own main colour.
                     color: cell.wh && cell.wh.colours.length > 0 ? cell.wh.colours[0] : Theme.pSurfaceHover
 
+                    // an empty frame while Wallhaven loads: it breathes
+                    SequentialAnimation on opacity {
+                        running: cell.wh !== null && cell.wh.placeholder === true
+                        loops: Animation.Infinite
+                        NumberAnimation { from: 1; to: 0.55; duration: 700; easing.type: Easing.InOutSine }
+                        NumberAnimation { from: 0.55; to: 1; duration: 700; easing.type: Easing.InOutSine }
+                    }
+
                     Image {
                         id: thumb
 
@@ -970,7 +997,7 @@ Item {
                     // a video with no thumbnail yet
                     MaterialIcon {
                         anchors.centerIn: parent
-                        visible: thumb.status !== Image.Ready
+                        visible: thumb.status !== Image.Ready && !(cell.wh && cell.wh.placeholder)
                         size: 40
                         name: cell.video ? "movie" : "image"
                         color: Theme.pInkSub
@@ -1080,7 +1107,7 @@ Item {
                     color: Theme.pSurface
                     border.width: 3
                     border.color: Theme.pLine
-                    opacity: cell.hot ? 1 : 0
+                    opacity: cell.hot && nameText.text !== "" ? 1 : 0
                     visible: opacity > 0.01
 
                     Behavior on opacity {
@@ -1173,53 +1200,6 @@ Item {
         }
     }
 
-    // Wallhaven's first page on its way: empty cards where the pictures will be.
-    Grid {
-        visible: face.onWallhaven && WallhavenService.loading && WallhavenService.page === 0 && face.viewP < 0.5
-        x: face.pageX
-        y: face.galleryTop
-        columns: face.columns
-
-        Repeater {
-            model: face.columns * 3
-            delegate: Item {
-                width: face.cellW
-                height: face.cellH
-
-                Rectangle {
-                    x: 9
-                    y: 9
-                    width: face.cellW - 22
-                    height: face.cellH - 22
-                    radius: 16
-                    color: Theme.pLineShadow
-                }
-                Rectangle {
-                    x: 4
-                    y: 4
-                    width: face.cellW - 22
-                    height: face.cellH - 22
-                    radius: 16
-                    color: Theme.pSurface
-                    border.width: 4
-                    border.color: Theme.pLine
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        radius: 12
-                        color: Theme.pSurfaceHover
-                        SequentialAnimation on opacity {
-                            loops: Animation.Infinite
-                            NumberAnimation { from: 1; to: 0.55; duration: 700; easing.type: Easing.InOutSine }
-                            NumberAnimation { from: 0.55; to: 1; duration: 700; easing.type: Easing.InOutSine }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     // ===== the wheel =====
     WallpaperWheel {
         id: wheelView
@@ -1238,7 +1218,7 @@ Item {
         renderScale: face.renderScale
         active: face.carousel && !face.viewing
 
-        opacity: face.carouselP * (1 - face.viewP)
+        opacity: face.carouselP * (1 - face.viewP) * face.staleK
         scale: 0.97 + 0.03 * (1 - face.viewP)
         visible: opacity > 0.01
         enabled: face.carousel && !face.viewing
@@ -1361,7 +1341,7 @@ Item {
             SearchPill {
                 id: search
 
-                placeholder: face.onWallhaven ? "Search Wallhaven: tags, -tag, @user" : "Search wallpapers"
+                placeholder: face.onWallhaven ? "Search Wallhaven" : "Search wallpapers"
                 onTextChanged: face.searchText = text
                 onLeave: face.forceActiveFocus()
             }

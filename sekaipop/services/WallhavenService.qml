@@ -48,6 +48,8 @@ Singleton {
     // "" | "offline" | "limited" (too many requests) | "failed"
     property string error: ""
     readonly property bool hasMore: root.page > 0 && root.page < root.lastPage
+    // A new search is on its way (the results shown are the previous search's).
+    readonly property bool refreshing: root.loading && root.page === 0
 
     // What the current results are for (a new search replaces them, more() adds to them).
     property string query: ""
@@ -109,7 +111,8 @@ Singleton {
         root.seed = ""
         root.error = ""
         root.retryAt = 0
-        root.items = []
+        // The results stay until the new ones arrive (the picker dims them meanwhile), so
+        // the gallery is never an empty screen while it searches.
         root.page = 0
         root.lastPage = 0
         root.total = 0

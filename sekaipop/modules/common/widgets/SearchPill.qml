@@ -87,11 +87,15 @@ Item {
             color: Theme.ink
         }
 
+        // Ends in "..." at the field's edge rather than running past it, whatever it says.
         Text {
             visible: input.text.length === 0
             anchors.left: glass.right
             anchors.leftMargin: 8
+            anchors.right: parent.right
+            anchors.rightMargin: 16
             anchors.verticalCenter: parent.verticalCenter
+            elide: Text.ElideRight
             text: root.placeholder
             color: ScrapbookTheme.inkSoft
             font.family: Theme.fontFamily
