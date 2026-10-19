@@ -54,6 +54,7 @@ Scope {
     // which one the shell shows.
     // (Settings -> General -> Fahrenheit.)
     property bool useFahrenheit: SettingsService.flag("weather.fahrenheit")
+    property bool use24h: SettingsService.flag("time.use24h")
 
     // The last answer from Open-Meteo, kept so a change of unit can redraw it
     // at once instead of waiting for the next fetch (up to 15 minutes).
@@ -64,6 +65,21 @@ Scope {
             return
         // apply() also stamps "Updated hh:mm" and the stale-check time;
         // switching units isn't a new reading, so put those back.
+        const keepMs = root.lastFetchMs
+        const keepText = root.updatedText
+        try {
+            root.apply(root.lastData)
+        } catch (e) {
+            return
+        }
+        root.lastFetchMs = keepMs
+        root.updatedText = keepText
+    }
+    // js copied the above format :3
+
+    onUse24hChanged: {
+        if (!root.lastData)
+            return
         const keepMs = root.lastFetchMs
         const keepText = root.updatedText
         try {
@@ -203,6 +219,7 @@ Scope {
     function apply(data) {
         const r = OM.buildReading(data, {
             fahrenheit: root.useFahrenheit,
+            use24h: root.use24h,
             // The weekday names follow the system language, as they always did.
             dayLabel: function (iso, i) {
                 if (i === 0)
