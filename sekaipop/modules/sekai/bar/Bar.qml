@@ -64,7 +64,7 @@ PanelWindow {
     // (The Capsule style is a slimmer bar: it reserves Theme.capStrip, or Theme.capStripV on
     // a standing bar, whatever the edge's usual thickness is.)
     readonly property real stripSize: Math.round((win.barStyle === 3 ? (win.vertical ? Theme.capStripV : Theme.capStrip)
-                                                                      : win.thickness) * win.uiScale)
+    : win.thickness) * win.uiScale)
 
     // ===== Edit Desktop =====
     readonly property bool editing: win.screen !== null && EditMode.editing(win.screen.name)
@@ -113,13 +113,13 @@ PanelWindow {
     // Hyprland to composite; if a popup ever looks mis-placed, raise the 8.)
     readonly property real windowRoom: Math.ceil(8 * win.uiScale)
     implicitHeight: win.vertical ? 0 : (win.screen
-        ? (win.compactWindow ? Math.min(Math.round(win.screen.height), win.stripSize + win.windowRoom)
-                             : Math.round(win.screen.height))
-        : win.stripSize)
+    ? (win.compactWindow ? Math.min(Math.round(win.screen.height), win.stripSize + win.windowRoom)
+    : Math.round(win.screen.height))
+    : win.stripSize)
     implicitWidth: win.vertical ? (win.screen
-        ? (win.compactWindow ? Math.min(Math.round(win.screen.width), win.stripSize + win.windowRoom)
-                             : Math.round(win.screen.width))
-        : win.stripSize) : 0
+    ? (win.compactWindow ? Math.min(Math.round(win.screen.width), win.stripSize + win.windowRoom)
+    : Math.round(win.screen.width))
+    : win.stripSize) : 0
     // Auto would reserve the whole window: spell out the strip.
     exclusionMode: ExclusionMode.Normal
     // The equalizer card has text fields (preset name, Last.fm key). A popup only
@@ -140,11 +140,11 @@ PanelWindow {
     // Capsule takes only the gaps_out off (no extra): its strip already holds an 8 px
     // gap under the bar, so the windows end up that far below the bar's shadow.
     readonly property real transparentTrim: win.barStyle === 2
-        ? Math.min(Math.max(0, HyprlandSettings.num("general.gaps_out")) + Math.round(win.transparentExtraGap * win.uiScale),
-                   Math.round(win.stripSize * 0.6))
-        : (win.barStyle === 3
-            ? Math.min(Math.max(0, HyprlandSettings.num("general.gaps_out")), Math.round(win.stripSize * 0.6))
-            : 0)
+    ? Math.min(Math.max(0, HyprlandSettings.num("general.gaps_out")) + Math.round(win.transparentExtraGap * win.uiScale),
+               Math.round(win.stripSize * 0.6))
+    : (win.barStyle === 3
+    ? Math.min(Math.max(0, HyprlandSettings.num("general.gaps_out")), Math.round(win.stripSize * 0.6))
+    : 0)
     exclusiveZone: win.stripSize - win.transparentTrim
     color: "transparent"
 
@@ -170,7 +170,7 @@ PanelWindow {
     Item {
         id: hotCut
         readonly property bool on: win.barPosition === "bottom" && !win.passive
-            && win.quickPanel !== null && win.quickPanel.hotEdge
+        && win.quickPanel !== null && win.quickPanel.hotEdge
         width: on ? Math.min(win.width, win.quickPanel.hotWidth) : 0
         height: on ? win.quickPanel.hotHeight : 0
         x: (win.width - width) / 2
@@ -191,15 +191,15 @@ PanelWindow {
         function onEnabledChanged() {
             if (!GameModeService.enabled)
                 return
-            win.trayOpen = false
-            win.batteryPopupOpen = false
-            win.utilPopupOpen = false
-            win.resourcePopupOpen = false
-            win.calendarPopupOpen = false
-            win.weatherPopupOpen = false
-            win.mediaPopupOpen = false
-            win.eqPopupOpen = false
-            win.discordPopupOpen = false
+                win.trayOpen = false
+                win.batteryPopupOpen = false
+                win.utilPopupOpen = false
+                win.resourcePopupOpen = false
+                win.calendarPopupOpen = false
+                win.weatherPopupOpen = false
+                win.mediaPopupOpen = false
+                win.eqPopupOpen = false
+                win.discordPopupOpen = false
         }
     }
 
@@ -209,15 +209,15 @@ PanelWindow {
         function onActiveChanged() {
             if (!EditMode.active || !win.editing)
                 return
-            win.trayOpen = false
-            win.batteryPopupOpen = false
-            win.utilPopupOpen = false
-            win.resourcePopupOpen = false
-            win.calendarPopupOpen = false
-            win.weatherPopupOpen = false
-            win.mediaPopupOpen = false
-            win.eqPopupOpen = false
-            win.discordPopupOpen = false
+                win.trayOpen = false
+                win.batteryPopupOpen = false
+                win.utilPopupOpen = false
+                win.resourcePopupOpen = false
+                win.calendarPopupOpen = false
+                win.weatherPopupOpen = false
+                win.mediaPopupOpen = false
+                win.eqPopupOpen = false
+                win.discordPopupOpen = false
         }
     }
 
@@ -227,21 +227,21 @@ PanelWindow {
     function popupX(cx, cy, w, h) {
         if (win.vertical)
             return win.barPosition === "left" ? win.stripSize + win.popupGap : win.width - win.stripSize - win.popupGap
-        const maxX = win.width - w - 8
-        return Math.max(8, Math.min(cx - w / 2, maxX))
+            const maxX = win.width - w - 8
+            return Math.max(8, Math.min(cx - w / 2, maxX))
     }
     function popupY(cx, cy, w, h) {
         if (!win.vertical)
             return win.barPosition === "bottom" ? win.height - win.stripSize : win.stripSize
-        const maxY = win.height - h - 8
-        return Math.max(8, Math.min(cy - h / 2, maxY))
+            const maxY = win.height - h - 8
+            return Math.max(8, Math.min(cy - h / 2, maxY))
     }
     readonly property int popupGravity: {
         if (win.vertical)
             return win.barPosition === "left" ? (Edges.Bottom | Edges.Right)
-                                              : (Edges.Bottom | Edges.Left)
-        return win.barPosition === "bottom" ? (Edges.Top | Edges.Right)
-                                            : (Edges.Bottom | Edges.Right)
+            : (Edges.Bottom | Edges.Left)
+            return win.barPosition === "bottom" ? (Edges.Top | Edges.Right)
+            : (Edges.Bottom | Edges.Right)
     }
 
     SystemClock {
@@ -301,8 +301,8 @@ PanelWindow {
         function sync() {
             if (statusDemand.want === statusDemand.counted)
                 return
-            statusDemand.counted = statusDemand.want
-            StatusIconsService.watch(statusDemand.want ? 1 : -1)
+                statusDemand.counted = statusDemand.want
+                StatusIconsService.watch(statusDemand.want ? 1 : -1)
         }
 
         Component.onCompleted: statusDemand.sync()
@@ -376,12 +376,12 @@ PanelWindow {
             const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : ""
             if (win.screen === null || (name !== "" && win.screen.name !== name))
                 return
-            if (win.eqPopupOpen) {
-                EqualizerService.discardIfPending()
-                win.eqPopupOpen = false
-            } else {
-                win.openEqPopup()
-            }
+                if (win.eqPopupOpen) {
+                    EqualizerService.discardIfPending()
+                    win.eqPopupOpen = false
+                } else {
+                    win.openEqPopup()
+                }
         }
     }
 
@@ -534,8 +534,8 @@ PanelWindow {
             muted: DiscordVoiceService.muted
             deafened: DiscordVoiceService.deafened
             hint: SettingsService.get("discord.leftClick") === "panel"
-                ? "Right-click the pill to deafen · middle-click to mute"
-                : "Left-click the pill to mute · right-click to deafen"
+            ? "Right-click the pill to deafen · middle-click to mute"
+            : "Left-click the pill to mute · right-click to deafen"
             onMuteRequested: DiscordVoiceService.setMuted(!DiscordVoiceService.muted)
             onDeafenRequested: DiscordVoiceService.setDeafened(!DiscordVoiceService.deafened)
             onOpenClientRequested: {
@@ -677,7 +677,7 @@ PanelWindow {
     property string xkbLayoutName: ""
     property int xkbLayoutCount: 0
     readonly property string xkbLayoutCode: xkbLayoutCount > 1 && xkbLayoutName !== ""
-        ? xkbLayoutName.slice(0, 2).toUpperCase() : ""
+    ? xkbLayoutName.slice(0, 2).toUpperCase() : ""
 
     Process {
         id: xkbFetch
@@ -706,11 +706,11 @@ PanelWindow {
             // Hyprland sends "activelayout" as "<device>,<layout name>"
             if (event.name === "activelayout" && win.xkbLayoutCount > 1)
                 win.xkbLayoutName = event.data.substring(event.data.indexOf(",") + 1)
-            // A reload can add or drop layouts (kb_layout = "us,ru"), so ask again.
-            else if (event.name === "configreloaded") {
-                xkbFetch.running = false
-                xkbFetch.running = true
-            }
+                // A reload can add or drop layouts (kb_layout = "us,ru"), so ask again.
+                else if (event.name === "configreloaded") {
+                    xkbFetch.running = false
+                    xkbFetch.running = true
+                }
         }
     }
 
@@ -746,6 +746,12 @@ PanelWindow {
     readonly property var monitor: Hyprland.monitorFor(screen)
     readonly property int activeWorkspace: monitor?.activeWorkspace?.id ?? Hyprland.focusedWorkspace?.id ?? 1
 
+    // Ids of workspaces that currently have windows. Lets the badges show the
+    // ones above the configured count only while they are in use.
+    readonly property var occupiedWorkspaces: Hyprland.workspaces.values
+    .filter(w => w.id > 0 && w.toplevels.values.length > 0)
+    .map(w => w.id)
+
     // Hyprland.usingLua is documented as a real property, but on some
     // Quickshell builds it comes back as plain `undefined` rather than
     // `false` (property missing, not just "not yet initialized").
@@ -761,30 +767,30 @@ PanelWindow {
     // monitor's bar — so only treat it as *this* bar's window if it's
     // actually on this monitor's active workspace.
     readonly property var focusedWindow: Hyprland.activeToplevel?.workspace?.id === activeWorkspace
-        ? Hyprland.activeToplevel
-        : null
+    ? Hyprland.activeToplevel
+    : null
 
     // The window's class / app id ("org.mozilla.firefox", "kitty"...)
     readonly property string windowClass: focusedWindow
-        ? (focusedWindow.wayland?.appId
-            || focusedWindow.lastIpcObject?.class
-            || focusedWindow.lastIpcObject?.initialClass
-            || "")
-        : ""
+    ? (focusedWindow.wayland?.appId
+    || focusedWindow.lastIpcObject?.class
+    || focusedWindow.lastIpcObject?.initialClass
+    || "")
+    : ""
 
     // Display name for it: the .desktop entry's Name when there is one
     // ("Firefox", "Visual Studio Code"), else a tidied-up class.
     function appDisplayName(cls) {
         if (cls === "")
             return ""
-        try {
-            const entry = DesktopEntries.heuristicLookup(cls)
-            if (entry && entry.name)
-                return entry.name
-        } catch (e) {}
-        // "org.mozilla.firefox" -> "Firefox", "code-oss" -> "Code-oss"
-        const last = cls.split(".").pop()
-        return last.charAt(0).toUpperCase() + last.slice(1)
+            try {
+                const entry = DesktopEntries.heuristicLookup(cls)
+                if (entry && entry.name)
+                    return entry.name
+            } catch (e) {}
+            // "org.mozilla.firefox" -> "Firefox", "code-oss" -> "Code-oss"
+            const last = cls.split(".").pop()
+            return last.charAt(0).toUpperCase() + last.slice(1)
     }
 
     // The same app's icon as a file url, for the standing bar's Active window
@@ -793,12 +799,12 @@ PanelWindow {
     readonly property string windowIconSource: {
         if (win.windowClass === "")
             return ""
-        try {
-            const entry = DesktopEntries.heuristicLookup(win.windowClass)
-            if (entry && entry.icon)
-                return IconCursorService.path(entry.icon, "application-x-executable")
-        } catch (e) {}
-        return ""
+            try {
+                const entry = DesktopEntries.heuristicLookup(win.windowClass)
+                if (entry && entry.icon)
+                    return IconCursorService.path(entry.icon, "application-x-executable")
+            } catch (e) {}
+            return ""
     }
 
     function pad(n) {
@@ -810,9 +816,9 @@ PanelWindow {
         // 24-hour time (Settings -> General): "21:05".
         if (SettingsService.flag("time.use24h"))
             return pad(d.getHours()) + ":" + pad(d.getMinutes())
-        const h = d.getHours()
-        const h12 = h % 12 === 0 ? 12 : h % 12
-        return pad(h12) + ":" + pad(d.getMinutes()) + " " + (h < 12 ? "AM" : "PM")
+            const h = d.getHours()
+            const h12 = h % 12 === 0 ? 12 : h % 12
+            return pad(h12) + ":" + pad(d.getMinutes()) + " " + (h < 12 ? "AM" : "PM")
     }
 
     // "Mon, Sep 28" for the date pill.
@@ -917,16 +923,17 @@ PanelWindow {
                 readonly property real slideDist: (win.vertical ? width : height) + edgeGap + 20
                 readonly property real slideBy: geometry.slide * statusBar.slideDist
                 x: win.vertical
-                    ? (win.barPosition === "right" ? parent.width - width - edgeGap + slideBy : edgeGap - slideBy)
-                    : geometry.sideInset
+                ? (win.barPosition === "right" ? parent.width - width - edgeGap + slideBy : edgeGap - slideBy)
+                : geometry.sideInset
                 y: win.vertical
-                    ? geometry.sideInset
-                    : (win.barPosition === "bottom" ? parent.height - height - edgeGap + slideBy : edgeGap - slideBy)
+                ? geometry.sideInset
+                : (win.barPosition === "bottom" ? parent.height - height - edgeGap + slideBy : edgeGap - slideBy)
                 width: win.vertical ? (win.barStyle === 3 ? Theme.capVBarFace : Theme.barVBody) : parent.width - 2 * geometry.sideInset
                 height: win.vertical ? parent.height - 2 * geometry.sideInset : (win.barStyle === 3 ? Theme.capBarHeight : 61)
                 barStyle: win.barStyle
 
                 activeWorkspace: win.activeWorkspace
+                occupiedWorkspaces: win.occupiedWorkspaces
                 workspaceCount: Math.max(1, Math.min(10, Math.round(Number(SettingsService.get("bar.workspaceCount")) || 5)))
                 gameMode: win.gameMode
                 modules: BarLayoutService.modulesFor(win.screen ? win.screen.name : "")
@@ -1000,9 +1007,9 @@ PanelWindow {
                     const lines = []
                     if (PrivacyService.screenLive)
                         lines.push("Screen shared with: " + PrivacyService.screenApps.join(", "))
-                    if (PrivacyService.micLive)
-                        lines.push("Microphone in use by: " + PrivacyService.micApps.join(", "))
-                    return lines.join("\n")
+                        if (PrivacyService.micLive)
+                            lines.push("Microphone in use by: " + PrivacyService.micApps.join(", "))
+                            return lines.join("\n")
                 }
 
                 // The Discord voice call you are in (DiscordVoiceService).
@@ -1027,7 +1034,7 @@ PanelWindow {
                 updatesBusy: PackageUpdatesService.status === "checking" || PackageUpdatesService.upgrading
                 updatesLoading: PackageUpdatesService.loadingBadge
                 updatesTip: PackageUpdatesService.breakdown
-                    + (PackageUpdatesService.total > 0 ? " — click to update, right-click to recheck" : " — right-click to recheck")
+                + (PackageUpdatesService.total > 0 ? " — click to update, right-click to recheck" : " — right-click to recheck")
                 onUpdatesClicked: PackageUpdatesService.runUpdate()
                 onUpdatesRefreshRequested: PackageUpdatesService.refresh(true)
 
@@ -1072,12 +1079,12 @@ PanelWindow {
                     if (win.monitor && !win.monitor.focused) {
                         if (win.usingLua)
                             console.warn("Bar.qml: no Lua dispatcher for focusmonitor yet — skipping pre-focus on " + win.monitor.name)
-                        else
-                            Hyprland.dispatch("focusmonitor " + win.monitor.name)
+                            else
+                                Hyprland.dispatch("focusmonitor " + win.monitor.name)
                     }
                     Hyprland.dispatch(win.usingLua
-                        ? "hl.dsp.focus({ workspace = " + workspace + " })"
-                        : "workspace " + workspace)
+                    ? "hl.dsp.focus({ workspace = " + workspace + " })"
+                    : "workspace " + workspace)
                 }
             }
         }
