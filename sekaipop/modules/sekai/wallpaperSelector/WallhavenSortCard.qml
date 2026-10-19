@@ -25,8 +25,8 @@ Item {
     readonly property real headH: 30
     readonly property var notes: ({ relevance: "needs a search", random: "new each time" })
 
-    width: Math.ceil(Math.max(220, widest.width + 36 + 16 + 12, ranges.implicitWidth + 36 + 12))
-    height: headH + WH.SORTS.length * rowH + ranges.height + 6 + 12
+    width: Math.ceil(Math.max(220, widest.width + 36 + 16 + 12, rangesSize.implicitWidth + 30 + 6 + 12))
+    height: headH + WH.SORTS.length * rowH + rangesSize.implicitHeight + 6 + 12
 
     visible: opacity > 0.01
     opacity: root.shown ? 1 : 0
@@ -35,6 +35,21 @@ Item {
 
     Behavior on opacity { NumberAnimation { duration: 120 } }
     Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+
+    // The row of Top ranges, measured once out here (the one in the menu is inside a
+    // repeated row, where the card can't see it).
+    Row {
+        id: rangesSize
+        visible: false
+        spacing: 4
+        Repeater {
+            model: WH.TOP_RANGES
+            delegate: WallhavenChip {
+                required property var modelData
+                text: modelData.id.toUpperCase()
+            }
+        }
+    }
 
     // The widest "label   note" there is, to size the card by.
     TextMetrics {
@@ -147,10 +162,9 @@ Item {
                     Item {
                         visible: entry.modelData.id === "toplist"
                         width: parent.width
-                        height: visible ? ranges.height + 6 : 0
+                        height: visible ? rangesSize.implicitHeight + 6 : 0
 
                         Row {
-                            id: ranges
                             x: 30
                             spacing: 4
 
