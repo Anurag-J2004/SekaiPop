@@ -234,7 +234,7 @@ SettingsPage {
             label: "Focused window opacity"
             from: 0.5
             to: 1
-            step: 0.05
+            step: 0.01
             decimals: 2
             value: HyprlandSettings.num("decoration.active_opacity", 1)
             onMoved: v => page.setFloat("decoration.active_opacity", v)
@@ -246,7 +246,7 @@ SettingsPage {
             label: "Other windows opacity"
             from: 0.5
             to: 1
-            step: 0.05
+            step: 0.01
             decimals: 2
             value: HyprlandSettings.num("decoration.inactive_opacity", 1)
             onMoved: v => page.setFloat("decoration.inactive_opacity", v)
