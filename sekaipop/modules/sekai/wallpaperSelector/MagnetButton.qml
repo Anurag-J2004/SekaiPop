@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -9,6 +10,9 @@ import qs.modules.common.widgets
 // pink dot (`badge`) means "something's waiting" (used on Refresh).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""       // tooltip
@@ -25,12 +29,12 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.shadowOffset - 1 - root.press
-        y: Theme.shadowOffset - 1 - root.press
+        x: mt.shadowOffset - 1 - root.press
+        y: mt.shadowOffset - 1 - root.press
         width: root.width
         height: root.height
         radius: width / 2
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -41,9 +45,9 @@ Item {
         width: root.width
         height: root.height
         radius: width / 2
-        color: root.hot && !root.active ? Theme.colHoverTint : "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        color: root.hot && !root.active ? mt.colHoverTint : "#ffffff"
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         Behavior on color { ColorAnimation { duration: 100 } }
@@ -57,8 +61,8 @@ Item {
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.accentCyan }
-                GradientStop { position: 1.0; color: Theme.accentMint }
+                GradientStop { position: 0.0; color: mt.accentCyan }
+                GradientStop { position: 1.0; color: mt.accentMint }
             }
         }
 
@@ -67,7 +71,7 @@ Item {
             name: root.icon
             size: 24
             weight: 550
-            color: Theme.colBorder
+            color: mt.colBorder
         }
 
         Rectangle {
@@ -79,7 +83,7 @@ Item {
             radius: 7.5
             color: ScrapbookTheme.accentPink
             border.width: 3
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
         }
     }
@@ -91,7 +95,7 @@ Item {
         width: tipText.implicitWidth + 22
         height: 26
         radius: 8
-        color: Theme.colBorder
+        color: mt.colBorder
         opacity: root.hot && root.label !== "" ? 1 : 0
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: 120 } }
@@ -101,8 +105,8 @@ Item {
             anchors.centerIn: parent
             text: root.label
             color: "#ffffff"
-            font.family: Theme.fontFamily
-            font.styleName: Theme.fontStyleBold
+            font.family: mt.fontFamily
+            font.styleName: mt.fontStyleBold
             font.weight: Font.ExtraBold
             font.pixelSize: 12
         }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The red count bubble on a dock key (Dock.qml): how many notifications from
@@ -7,6 +8,9 @@ import qs.modules.common
 // arrives and out when the last is gone; over 9 it reads "9+".
 Rectangle {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property int count: 0
 
@@ -27,7 +31,7 @@ Rectangle {
     radius: height / 2
     color: "#e0575b"
     border.width: 2
-    border.color: Theme.ringWhite
+    border.color: mt.ringWhite
     antialiasing: true
 
     // Keeps the last number while it springs out.
@@ -42,9 +46,9 @@ Rectangle {
         anchors.centerIn: parent
         text: root.shownCount > 9 ? "9+" : root.shownCount
         color: "#ffffff"
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 10
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 }

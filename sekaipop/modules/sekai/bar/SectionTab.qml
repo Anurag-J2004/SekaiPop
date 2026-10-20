@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -10,10 +11,13 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string text: ""
-    property color tabColor: Theme.chipFill
-    property color inkColor: Theme.chipInk
-    property color gemColor: Theme.dark ? Theme.accentMint : Theme.colBorder
+    property color tabColor: mt.chipFill
+    property color inkColor: mt.chipInk
+    property color gemColor: mt.dark ? mt.accentMint : mt.colBorder
 
     implicitWidth: Math.ceil(label.implicitWidth + 40 + tab.lean)
     implicitHeight: 24
@@ -24,7 +28,7 @@ Item {
         skew: 0.22
         radius: 8
         color: root.tabColor
-        borderColor: Theme.line
+        borderColor: mt.line
         borderWidth: 2
     }
 
@@ -43,10 +47,10 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         text: root.text.toUpperCase()
         color: root.inkColor
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 10
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
         font.letterSpacing: 1.2
     }
 }

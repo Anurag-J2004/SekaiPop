@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "PadMath.js" as PM
 import qs.modules.common
 
@@ -7,6 +8,9 @@ import qs.modules.common
 // part above the edge shows.
 Item {
     id: key
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property real kx: 0.30
@@ -93,7 +97,7 @@ Item {
             y: 8 * key.u
             text: key.label
             color: PadPalette.pearlText
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 10 * key.u
             font.weight: Font.Bold
             font.letterSpacing: 1.4 * key.u

@@ -29,6 +29,9 @@ import qs.modules.common.widgets
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     readonly property string wantedScreen: EditMode.menuScreen
     screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
 
@@ -89,14 +92,14 @@ PanelWindow {
 
             readonly property real innerWidth: 204
 
-            cornerRadius: Theme.radiusOuter
-            ringWidth: Theme.borderWidth
+            cornerRadius: mt.radiusOuter
+            ringWidth: mt.borderWidth
             // Dark and Darker: the white (dim grey) inner ring just inside the
             // outline, like the bar's popups and pills. 0 in Light.
-            innerRing: Theme.cardRing
-            fillColor: Theme.surface
+            innerRing: mt.cardRing
+            fillColor: mt.surface
             implicitWidth: card.innerWidth + 10 + card.ringWidth * 2
-            implicitHeight: col.implicitHeight + 2 + card.ringWidth * 2 + Theme.shadowOffset
+            implicitHeight: col.implicitHeight + 2 + card.ringWidth * 2 + mt.shadowOffset
             width: implicitWidth
             height: implicitHeight
 
@@ -147,7 +150,7 @@ PanelWindow {
                         name: "edit"
                         size: 18
                         weight: 600
-                        color: Theme.ink
+                        color: mt.ink
                     }
                 }
 
@@ -165,7 +168,7 @@ PanelWindow {
                         name: "keep_off"
                         size: 18
                         weight: 600
-                        color: Theme.ink
+                        color: mt.ink
                     }
                 }
 
@@ -187,7 +190,7 @@ PanelWindow {
                         name: "wallpaper"
                         size: 18
                         weight: 600
-                        color: Theme.ink
+                        color: mt.ink
                     }
                 }
 
@@ -204,7 +207,7 @@ PanelWindow {
                         name: "palette"
                         size: 18
                         weight: 600
-                        color: Theme.ink
+                        color: mt.ink
                     }
                 }
             }

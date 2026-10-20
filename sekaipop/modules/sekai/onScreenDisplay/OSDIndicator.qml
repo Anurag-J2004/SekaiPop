@@ -68,7 +68,7 @@ Pill {
     readonly property real shown: Math.max(0, Math.min(100, root.value))
 
     // The ink on the plate: dark, like every plate's icon and name.
-    readonly property color plateInk: Theme.colBorder
+    readonly property color plateInk: mt.colBorder
 
     readonly property color mutedColor: "#B39DDB"
     readonly property color overColor: "#FF9ECB"
@@ -81,14 +81,14 @@ Pill {
     // outline + the wide pale ring; the plate sits `pad` inside it. The room
     // inside the ring is the plate, its hard shadow, and `pad` all round.
     cornerRadius: 28
-    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-    ringColorTop: Theme.surfaceRing
-    ringColorBottom: Theme.surfaceRing
-    fillColor: Theme.surface
+    ringWidth: mt.borderWidth + mt.outerRingWidth
+    ringColorTop: mt.surfaceRing
+    ringColorBottom: mt.surfaceRing
+    fillColor: mt.surface
     shadowDx: 0
-    shadowDy: Theme.shadowOffset
+    shadowDy: mt.shadowOffset
     width: root.plateW + 2 * root.pad + 2 * root.ringWidth
-    height: root.plateFace + Theme.shadowOffset + 2 * root.pad + 2 * root.ringWidth + root.shadowDy
+    height: root.plateFace + mt.shadowOffset + 2 * root.pad + 2 * root.ringWidth + root.shadowDy
 
     // ===== the hits =====
     // The plate dips onto its shadow and springs back (Pill's own press
@@ -143,13 +143,13 @@ Pill {
         x: root.pad
         y: root.pad
         width: root.plateW
-        height: root.plateFace + Theme.shadowOffset
+        height: root.plateFace + mt.shadowOffset
         pressed: root.pulse
 
         colorTop: root.showsMuted ? Qt.lighter(root.mutedColor, 1.16)
-            : (root.over ? Qt.lighter(root.overColor, 1.16) : Theme.accentMint)
+            : (root.over ? Qt.lighter(root.overColor, 1.16) : mt.accentMint)
         colorBottom: root.showsMuted ? root.mutedColor
-            : (root.over ? root.overColor : Theme.accentCyan)
+            : (root.over ? root.overColor : mt.accentCyan)
         Behavior on colorTop { ColorAnimation { duration: 160 } }
         Behavior on colorBottom { ColorAnimation { duration: 160 } }
 
@@ -164,7 +164,7 @@ Pill {
             ringWidth: 3
             shadowDx: 0
             shadowDy: 3
-            fillColor: Theme.chipFill
+            fillColor: mt.chipFill
             pressed: root.pulse
 
             MaterialIcon {
@@ -172,7 +172,7 @@ Pill {
                 name: root.iconName
                 size: 22
                 weight: 600
-                color: Theme.chipInk
+                color: mt.chipInk
             }
         }
 
@@ -182,10 +182,10 @@ Pill {
             y: badge.y + 20 - implicitHeight / 2
             text: root.labelText.toUpperCase()
             color: root.plateInk
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             font.letterSpacing: 1.2
         }
 
@@ -225,10 +225,10 @@ Pill {
             id: stampProbe
             visible: false
             text: "MUTE"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             font.letterSpacing: 0.6
         }
 
@@ -246,18 +246,18 @@ Pill {
             rotation: 6
             transformOrigin: Item.Center
             scale: stamp.popValue
-            fillColor: Theme.chipFill
+            fillColor: mt.chipFill
 
             property real popValue: 1
 
             Text {
                 anchors.centerIn: parent
                 text: "MUTE"
-                color: Theme.dark ? "#ff8a92" : "#c93a40"
-                font.family: Theme.fontFamily
+                color: mt.dark ? "#ff8a92" : "#c93a40"
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 0.6
             }
         }
@@ -318,8 +318,8 @@ Pill {
                         anchors.fill: parent
                         skew: gauge.skew
                         radius: 7
-                        color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.28)
-                        borderColor: Theme.line
+                        color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.28)
+                        borderColor: mt.line
                         borderWidth: 2
                     }
 
@@ -331,8 +331,8 @@ Pill {
                             : gauge.lean + Math.max(8, (parent.width - gauge.lean) * seg.f)
                         skew: gauge.skew
                         radius: 7
-                        color: Theme.textWhite
-                        borderColor: Theme.line
+                        color: mt.textWhite
+                        borderColor: mt.line
                         borderWidth: 2
                         opacity: seg.f > 0 ? (root.showsMuted ? 0.5 : 1) : 0
                         Behavior on opacity {

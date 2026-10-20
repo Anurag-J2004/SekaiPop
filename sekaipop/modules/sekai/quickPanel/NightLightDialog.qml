@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -18,6 +19,9 @@ import qs.modules.common.widgets
 // into calls on QuickSource.qml (via QuickPanel.qml).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool open: false
     property bool nightOn: false
@@ -55,9 +59,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.phoneScreenInset
-        radius: Theme.phoneCornerRadius - Theme.phoneScreenInset
-        color: Theme.scrim
+        anchors.margins: mt.phoneScreenInset
+        radius: mt.phoneCornerRadius - mt.phoneScreenInset
+        color: mt.scrim
         opacity: root.open ? 0.55 : 0
         Behavior on opacity {
             NumberAnimation {
@@ -73,12 +77,12 @@ Item {
     }
 
     Rectangle {
-        x: 40 + (Theme.quickFlat ? 0 : 5)
+        x: 40 + (mt.quickFlat ? 0 : 5)
         y: 200 + 4
         width: 575
         height: card.height
         radius: 41
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -89,9 +93,9 @@ Item {
         width: 575
         height: 470
         radius: 41
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         clip: true
 
         MouseArea { anchors.fill: parent }
@@ -100,11 +104,11 @@ Item {
             x: 28
             y: 26
             text: "Night Light"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         // ON / OFF, the same as clicking the tile.
@@ -115,19 +119,19 @@ Item {
             width: powerLabel.implicitWidth + 28
             height: 34
             radius: 17
-            color: root.nightOn ? Theme.accentMint : (powerArea.containsMouse ? Theme.pSurfaceHover : "transparent")
+            color: root.nightOn ? mt.accentMint : (powerArea.containsMouse ? mt.pSurfaceHover : "transparent")
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
 
             Text {
                 id: powerLabel
                 anchors.centerIn: parent
                 text: root.nightOn ? "ON" : "OFF"
-                color: root.nightOn ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
+                color: root.nightOn ? mt.colBorder : mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             MouseArea {
@@ -145,19 +149,19 @@ Item {
             x: 28
             y: 88
             text: "Intensity"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
             x: card.width - 28 - width
             y: 90
             text: root.temperature + "K  ·  " + root.intensityPercent + "%"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 14
             font.weight: Font.DemiBold
         }
@@ -186,7 +190,7 @@ Item {
                 height: 16
                 radius: 8
                 border.width: 2
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
                 opacity: root.nightOn ? 1 : 0.6
                 gradient: Gradient {
@@ -207,9 +211,9 @@ Item {
                 radius: 15
                 x: slider.ratio * (slider.width - width)
                 anchors.verticalCenter: parent.verticalCenter
-                color: Theme.pSurface
+                color: mt.pSurface
                 border.width: 3
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
                 scale: sliderArea.pressed ? 1.12 : 1
                 Behavior on scale {
@@ -233,8 +237,8 @@ Item {
             x: 28
             y: 166
             text: "Cool"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 12
         }
 
@@ -242,8 +246,8 @@ Item {
             x: card.width - 28 - width
             y: 166
             text: "Warm"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 12
         }
 
@@ -252,7 +256,7 @@ Item {
             y: 202
             width: card.width - 56
             height: 2
-            color: Theme.pSurfaceDivider
+            color: mt.pSurfaceDivider
         }
 
         // ===== automatic =====
@@ -260,19 +264,19 @@ Item {
             x: 28
             y: 224
             text: "Automatic"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
             x: 28
             y: 250
             text: "Turn on by itself between two times"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 13
         }
 
@@ -285,12 +289,12 @@ Item {
             height: 32
             radius: 16
             border.width: 3
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: root.autoOn ? Theme.accentMint : Theme.pSurfaceDivider }
-                GradientStop { position: 1.0; color: root.autoOn ? Theme.accentCyan : Theme.pSurfaceDivider }
+                GradientStop { position: 0.0; color: root.autoOn ? mt.accentMint : mt.pSurfaceDivider }
+                GradientStop { position: 1.0; color: root.autoOn ? mt.accentCyan : mt.pSurfaceDivider }
             }
 
             Rectangle {
@@ -299,9 +303,9 @@ Item {
                 radius: 11
                 y: 3
                 x: root.autoOn ? parent.width - width - 5 : 3
-                color: Theme.pSurface
+                color: mt.pSurface
                 border.width: 2
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
                 Behavior on x {
                     NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
@@ -349,8 +353,8 @@ Item {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: timeRow.modelData.label
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 16
                     font.weight: Font.DemiBold
                 }
@@ -365,16 +369,16 @@ Item {
                         height: 40
                         radius: 20
                         anchors.verticalCenter: parent.verticalCenter
-                        color: minusArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+                        color: minusArea.containsMouse ? mt.pSurfaceHover : "transparent"
                         border.width: 2
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
 
                         MaterialIcon {
                             anchors.centerIn: parent
                             name: "remove"
                             size: 22
-                            color: Theme.pInk
+                            color: mt.pInk
                         }
 
                         MouseArea {
@@ -392,11 +396,11 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         horizontalAlignment: Text.AlignHCenter
                         text: root.hourLabel(timeRow.hour)
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 17
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     Rectangle {
@@ -404,16 +408,16 @@ Item {
                         height: 40
                         radius: 20
                         anchors.verticalCenter: parent.verticalCenter
-                        color: plusArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+                        color: plusArea.containsMouse ? mt.pSurfaceHover : "transparent"
                         border.width: 2
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
 
                         MaterialIcon {
                             anchors.centerIn: parent
                             name: "add"
                             size: 22
-                            color: Theme.pInk
+                            color: mt.pInk
                         }
 
                         MouseArea {
@@ -435,8 +439,8 @@ Item {
             width: card.width - 56
             wrapMode: Text.Wrap
             text: "A click on the tile overrides Automatic until the next start or end time."
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 12
         }
     }

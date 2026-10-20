@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -10,6 +11,9 @@ import qs.modules.sekai.phone
 // a page uses directly.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""
@@ -64,14 +68,14 @@ Item {
 
         capW: root.tileWidth
         capH: root.capH
-        skew: 0.2 * Theme.settingsLean
+        skew: 0.2 * mt.settingsLean
         radius: 26
         lit: root.lit || (root.hoverLights && root.hovered)
         hovered: root.hovered
         pressed: (area.pressed && root.clickable) || root.keyPulse
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
 
-        readonly property color ink: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        readonly property color ink: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
         readonly property real badgeX: 48
 
         // the diamond badge
@@ -82,9 +86,9 @@ Item {
             height: 33
             radius: 9
             rotation: 45
-            color: Qt.tint(Theme.pSurfaceDivider, Qt.rgba(1, 1, 1, key.litP))
+            color: Qt.tint(mt.pSurfaceDivider, Qt.rgba(1, 1, 1, key.litP))
             border.width: 3
-            border.color: key.litP > 0.5 ? Theme.colBorder : Theme.pLine
+            border.color: key.litP > 0.5 ? mt.colBorder : mt.pLine
             antialiasing: true
         }
 
@@ -94,7 +98,7 @@ Item {
             y: (key.capH - height) / 2
             size: 22
             name: root.icon
-            fill: Theme.iconFill
+            fill: mt.iconFill
             color: key.ink
         }
 
@@ -108,10 +112,10 @@ Item {
                 elide: Text.ElideRight
                 text: root.label
                 color: key.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 lineHeight: 22
                 lineHeightMode: Text.FixedHeight
             }
@@ -121,8 +125,8 @@ Item {
                 elide: Text.ElideRight
                 visible: root.subtitle !== ""
                 text: root.subtitle
-                color: key.litP > 0.5 ? Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.78) : Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: key.litP > 0.5 ? Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.78) : mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.DemiBold
                 lineHeight: 20

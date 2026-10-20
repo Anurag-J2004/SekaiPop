@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -10,6 +11,9 @@ import "../../common/functions/WallhavenMath.js" as WH
 // gallery by WallpaperFace.qml; the text wraps, and the keys are as wide as their words.
 Column {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // "empty" | "limited" | "offline" | "failed"
     property string kind: "empty"
@@ -39,9 +43,9 @@ Column {
             height: 46
             radius: 12
             rotation: 45
-            color: Theme.pSurface
+            color: mt.pSurface
             border.width: 3
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
         }
 
@@ -49,7 +53,7 @@ Column {
             anchors.centerIn: parent
             size: 26
             weight: 700
-            color: Theme.pInk
+            color: mt.pInk
             name: root.kind === "limited" ? "timer"
                 : root.kind === "offline" ? "cloud_off"
                 : root.kind === "failed" ? "error" : "search_off"
@@ -65,11 +69,11 @@ Column {
             : root.kind === "offline" ? "You’re offline"
             : root.kind === "failed" ? "Wallhaven isn’t answering"
             : (root.query.trim() !== "" ? "Nothing on Wallhaven for “" + root.query.trim() + "”" : "Nothing on Wallhaven")
-        color: Theme.pInk
-        font.family: Theme.fontFamily
+        color: mt.pInk
+        font.family: mt.fontFamily
         font.pixelSize: 24
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 
     Text {
@@ -85,8 +89,8 @@ Column {
             ? "The site may be down for a moment. Try again shortly."
             : (root.sentence !== "" ? root.sentence + " Fewer filters, or a shorter search, usually turns something up."
                                     : "A shorter search, or other words, usually turns something up.")
-        color: Theme.pInkSub
-        font.family: Theme.fontFamily
+        color: mt.pInkSub
+        font.family: mt.fontFamily
         font.pixelSize: 15
         font.weight: Font.DemiBold
         lineHeight: 1.2

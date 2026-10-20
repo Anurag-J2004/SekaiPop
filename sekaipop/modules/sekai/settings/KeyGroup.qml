@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The rows of one group card on the Keys page (Shell, Utilities, Media, Session),
@@ -8,6 +9,9 @@ import qs.modules.common
 // keeps back), and "Ready, no key yet" (actions that ship without a key).
 Column {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var rows: []               // KeyBinds.rows() entries of this group (already searched)
     property bool showApps: false       // the fixed Super tap leads the Shell card
@@ -107,7 +111,7 @@ Column {
                 id: dash
                 width: parent.width
                 height: 3
-                property color c: Theme.pSurfaceDivider
+                property color c: mt.pSurfaceDivider
                 onCChanged: requestPaint()
                 onPaint: {
                     const g = getContext("2d")
@@ -129,8 +133,8 @@ Column {
                 Text {
                     anchors.baseline: sub.baseline
                     text: "Ready, no key yet"
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.Black
                     font.letterSpacing: 1.4
@@ -139,8 +143,8 @@ Column {
                 Text {
                     id: sub
                     text: "These come with the shell but ship without a key. Give them one."
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.Bold
                 }

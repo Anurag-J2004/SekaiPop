@@ -55,6 +55,9 @@ import qs.modules.sekai.phone
 Item {
     id: face
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // Keeps the classic (white) look in the first dark mode; see Theme.classicFor.
     readonly property bool classicPanel: true
 
@@ -723,9 +726,9 @@ Item {
                 height: 34
                 radius: 10
                 rotation: 45
-                color: Theme.colBg
+                color: mt.colBg
                 border.width: 3
-                border.color: Theme.colBorder
+                border.color: mt.colBorder
                 antialiasing: true
             }
 
@@ -734,7 +737,7 @@ Item {
                 y: (bannerKey.capH - height) / 2
                 size: 24
                 name: face.lockMode ? "lock" : "wallpaper"
-                color: Theme.colBorder
+                color: mt.colBorder
             }
 
             Column {
@@ -743,19 +746,19 @@ Item {
 
                 Text {
                     text: "Wallpapers"
-                    color: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 28
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     lineHeight: 29
                     lineHeightMode: Text.FixedHeight
                 }
 
                 Text {
                     text: face.viewing ? "Preview" : (face.carousel ? "Spin the wheel" : "Pick a picture")
-                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.78)
-                    font.family: Theme.fontFamily
+                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.78)
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
                     lineHeight: 17
@@ -769,7 +772,7 @@ Item {
                 size: 24
                 name: "star"
                 rotation: 14
-                color: Theme.colBg
+                color: mt.colBg
             }
         }
     }
@@ -795,7 +798,7 @@ Item {
         cornerRadius: 8
         ringWidth: 3
         shadowDy: 3
-        fillColor: Theme.chipFill
+        fillColor: mt.chipFill
         opacity: sourceSwitch.opacity
         visible: sourceSwitch.visible
 
@@ -804,11 +807,11 @@ Item {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -1
             text: "Ctrl Tab"
-            color: Theme.chipInk
-            font.family: Theme.fontFamily
+            color: mt.chipInk
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -828,11 +831,11 @@ Item {
                 id: clockLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: face.clockText
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 21
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 lineHeight: 24
                 lineHeightMode: Text.FixedHeight
             }
@@ -841,8 +844,8 @@ Item {
                 id: dateLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: face.dateText
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
                 lineHeight: 16
@@ -923,8 +926,8 @@ Item {
             readonly property real th: cell.height - 22
 
             // The side being marked wears its own colour (the lockscreen's, on its tab).
-            readonly property color markColor: face.lockMode ? LockPalette.pink : Theme.accentMint
-            readonly property color otherColor: face.lockMode ? Theme.accentCyan : LockPalette.pink
+            readonly property color markColor: face.lockMode ? LockPalette.pink : mt.accentMint
+            readonly property color otherColor: face.lockMode ? mt.accentCyan : LockPalette.pink
 
             // pushes into its shadow while pressed, lifts a hair when hot
             readonly property real push: area.pressed ? 5 : (cell.hot ? -2 : 0)
@@ -935,7 +938,7 @@ Item {
                 width: cell.tw
                 height: cell.th
                 radius: 16
-                color: Theme.pLineShadow
+                color: mt.pLineShadow
             }
 
             Rectangle {
@@ -946,9 +949,9 @@ Item {
                 width: cell.tw
                 height: cell.th
                 radius: 16
-                color: Theme.pSurface
+                color: mt.pSurface
                 border.width: 4
-                border.color: cell.hot ? Theme.accentCyan : Theme.pLine
+                border.color: cell.hot ? mt.accentCyan : mt.pLine
 
                 Behavior on x {
                     NumberAnimation {
@@ -971,7 +974,7 @@ Item {
                     anchors.margins: 4
                     radius: 12
                     // A Wallhaven picture still on its way: its own main colour.
-                    color: cell.wh && cell.wh.colours.length > 0 ? cell.wh.colours[0] : Theme.pSurfaceHover
+                    color: cell.wh && cell.wh.colours.length > 0 ? cell.wh.colours[0] : mt.pSurfaceHover
 
                     // an empty frame while Wallhaven loads: it breathes
                     SequentialAnimation on opacity {
@@ -1006,7 +1009,7 @@ Item {
                         visible: thumb.status !== Image.Ready && !(cell.wh && cell.wh.placeholder)
                         size: 40
                         name: cell.video ? "movie" : "image"
-                        color: Theme.pInkSub
+                        color: mt.pInkSub
                     }
 
                     // a video wears a play badge
@@ -1017,15 +1020,15 @@ Item {
                         width: 30
                         height: 30
                         radius: 15
-                        color: Theme.pSurface
+                        color: mt.pSurface
                         border.width: 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
 
                         MaterialIcon {
                             anchors.centerIn: parent
                             size: 18
                             name: "play_arrow"
-                            color: Theme.colBorder
+                            color: mt.colBorder
                         }
                     }
                 }
@@ -1051,14 +1054,14 @@ Item {
                     radius: 17
                     color: cell.markColor
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
 
                     MaterialIcon {
                         anchors.centerIn: parent
                         size: 20
                         name: "check"
                         weight: 700
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                 }
 
@@ -1072,13 +1075,13 @@ Item {
                     radius: 17
                     color: cell.otherColor
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
 
                     MaterialIcon {
                         anchors.centerIn: parent
                         size: 19
                         name: face.lockMode ? "desktop_windows" : "lock"
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                 }
 
@@ -1091,15 +1094,15 @@ Item {
                     width: 30
                     height: 30
                     radius: 15
-                    color: Theme.pSurface
+                    color: mt.pSurface
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
 
                     MaterialIcon {
                         anchors.centerIn: parent
                         size: 16
                         name: "folder"
-                        color: Theme.pInk
+                        color: mt.pInk
                     }
                 }
 
@@ -1110,9 +1113,9 @@ Item {
                     width: Math.min(parent.width - 20 - (cell.video ? 40 : 0), nameText.implicitWidth + 22)
                     height: 28
                     radius: 14
-                    color: Theme.pSurface
+                    color: mt.pSurface
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     opacity: cell.hot && nameText.text !== "" ? 1 : 0
                     visible: opacity > 0.01
 
@@ -1127,8 +1130,8 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         text: cell.wh ? cell.wh.resolution.replace("x", "\u00d7") : face.baseName(cell.modelData.fileName)
                         elide: Text.ElideMiddle
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                     }
@@ -1155,7 +1158,7 @@ Item {
         width: 6
         height: Math.max(40, grid.visibleArea.heightRatio * grid.height)
         radius: 3
-        color: Theme.pSurfaceRing
+        color: mt.pSurfaceRing
         opacity: 1 - face.viewP
     }
 
@@ -1168,9 +1171,9 @@ Item {
         width: pageRow.implicitWidth + 28
         height: 34
         radius: 17
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
 
         Row {
             id: pageRow
@@ -1183,7 +1186,7 @@ Item {
                 name: "sync"
                 size: 15
                 weight: 700
-                color: Theme.pInk
+                color: mt.pInk
                 transformOrigin: Item.Center
                 RotationAnimator on rotation {
                     running: pageSpin.visible
@@ -1197,11 +1200,11 @@ Item {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Page " + (WallhavenService.page + 1) + " of " + WallhavenService.lastPage
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }
@@ -1254,7 +1257,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             size: 54
             name: face.items.length === 0 ? "photo_library" : "search_off"
-            color: Theme.pInkSub
+            color: mt.pInkSub
         }
 
         Text {
@@ -1262,11 +1265,11 @@ Item {
             width: Math.min(implicitWidth, Math.max(120, face.pageWidth - 120))
             elide: Text.ElideMiddle
             text: face.items.length === 0 ? "No wallpapers yet" : "No wallpapers match \u201c" + face.searchText + "\u201d"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
@@ -1275,8 +1278,8 @@ Item {
             width: Math.min(implicitWidth, Math.max(120, face.pageWidth - 120))
             elide: Text.ElideMiddle
             text: "Put pictures or videos in " + WallpaperService.directoryShort + ", or choose another folder"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.DemiBold
         }
@@ -1338,8 +1341,8 @@ Item {
             text: !face.onWallhaven ? face.subtitle
                 : (WallhavenService.loading && WallhavenService.page === 0 ? "Searching Wallhaven\u2026"
                 : (WallhavenService.error !== "" ? "Wallhaven" : WallhavenService.description))
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.DemiBold
         }
@@ -1506,7 +1509,7 @@ Item {
             width: viewerArea.cardW
             height: viewerArea.cardH
             radius: 24
-            color: Theme.pLineShadow
+            color: mt.pLineShadow
         }
 
         Rectangle {
@@ -1515,15 +1518,15 @@ Item {
             width: viewerArea.cardW
             height: viewerArea.cardH
             radius: 24
-            color: Theme.pSurface
+            color: mt.pSurface
             border.width: 5
-            border.color: Theme.pLine
+            border.color: mt.pLine
 
             ClippingRectangle {
                 anchors.fill: parent
                 anchors.margins: 5
                 radius: 19
-                color: Theme.pSurfaceHover
+                color: mt.pSurfaceHover
 
                 // A Wallhaven picture: its thumbnail at once, the full picture over it.
                 Image {
@@ -1558,7 +1561,7 @@ Item {
                     visible: bigPicture.status !== Image.Ready && face.viewWh === null
                     size: 64
                     name: face.viewIsVideo ? "movie" : "image"
-                    color: Theme.pInkSub
+                    color: mt.pInkSub
                 }
 
                 // where it comes from
@@ -1569,9 +1572,9 @@ Item {
                     width: whBadge.implicitWidth + 22
                     height: 30
                     radius: 15
-                    color: Theme.pSurface
+                    color: mt.pSurface
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
 
                     Row {
                         id: whBadge
@@ -1581,16 +1584,16 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             name: "travel_explore"
                             size: 16
-                            color: Theme.pInk
+                            color: mt.pInk
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Wallhaven"
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }
@@ -1603,9 +1606,9 @@ Item {
                     width: parent.width - 36
                     height: 12
                     radius: 6
-                    color: Theme.pSurface
+                    color: mt.pSurface
                     border.width: 2
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
 
                     Rectangle {
                         x: 2
@@ -1615,8 +1618,8 @@ Item {
                         radius: height / 2
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: Theme.accentCyan }
-                            GradientStop { position: 1.0; color: Theme.accentMint }
+                            GradientStop { position: 0.0; color: mt.accentCyan }
+                            GradientStop { position: 1.0; color: mt.accentMint }
                         }
                         Behavior on width { NumberAnimation { duration: 250 } }
                     }
@@ -1635,22 +1638,22 @@ Item {
             Text {
                 visible: face.viewWh !== null
                 text: "WALLHAVEN"
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 1.4
             }
 
             Text {
                 width: parent.width
                 text: face.viewName
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 28
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 wrapMode: Text.WrapAnywhere
                 maximumLineCount: 2
                 elide: Text.ElideRight
@@ -1659,8 +1662,8 @@ Item {
             Text {
                 visible: face.viewWh === null
                 text: face.viewIsVideo ? "Video wallpaper" : "Picture"
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.DemiBold
             }
@@ -1685,19 +1688,19 @@ Item {
                         width: tag.implicitWidth + 20
                         height: 28
                         radius: 9
-                        color: Theme.pSurface
+                        color: mt.pSurface
                         border.width: 2.5
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
 
                         Text {
                             id: tag
                             anchors.centerIn: parent
                             text: modelData
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }
@@ -1715,7 +1718,7 @@ Item {
                         radius: 8
                         color: modelData
                         border.width: 2.5
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                     }
                 }
             }
@@ -1735,13 +1738,13 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             name: modelData.icon
                             size: 14
-                            color: Theme.pInkSub
+                            color: mt.pInkSub
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: modelData.text
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.DemiBold
                         }
@@ -1757,19 +1760,19 @@ Item {
                     width: onDesk.implicitWidth + 28
                     height: 32
                     radius: 16
-                    color: Theme.accentMint
+                    color: mt.accentMint
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
 
                     Text {
                         id: onDesk
                         anchors.centerIn: parent
                         text: "On your desktop"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -1780,17 +1783,17 @@ Item {
                     radius: 16
                     color: LockPalette.pink
                     border.width: 3
-                    border.color: Theme.colBorder
+                    border.color: mt.colBorder
 
                     Text {
                         id: onLock
                         anchors.centerIn: parent
                         text: "On your lockscreen"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
             }
@@ -1832,8 +1835,8 @@ Item {
             y: face.viewWh ? lockKey.y + lockKey.implicitHeight + 10 : 410
             width: viewerArea.panelW
             wrapMode: Text.WordWrap
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.DemiBold
             text: {

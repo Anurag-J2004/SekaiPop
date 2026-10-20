@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,9 @@ import qs.modules.common.widgets
 // Refresh dot).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string sortMode: "date_desc"
     property var options: []     // [{ mode, label, short }]
@@ -33,20 +37,20 @@ Item {
     Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
 
     Rectangle {
-        x: Theme.shadowOffset
-        y: Theme.shadowOffset
+        x: mt.shadowOffset
+        y: mt.shadowOffset
         width: parent.width
         height: parent.height
-        radius: Theme.radiusOuter
-        color: Theme.lineShadow
+        radius: mt.radiusOuter
+        color: mt.lineShadow
     }
 
     Rectangle {
         anchors.fill: parent
-        radius: Theme.radiusOuter
+        radius: mt.radiusOuter
         color: "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // eats clicks on the card's own padding
@@ -57,8 +61,8 @@ Item {
             y: 9
             text: "SORT BY"
             color: ScrapbookTheme.inkSoft
-            font.family: Theme.fontFamily
-            font.styleName: Theme.fontStyleBold
+            font.family: mt.fontFamily
+            font.styleName: mt.fontStyleBold
             font.weight: Font.ExtraBold
             font.pixelSize: 11
             font.letterSpacing: 1.2
@@ -79,7 +83,7 @@ Item {
                     width: parent.width
                     height: root.rowH
                     radius: 8
-                    color: rowArea.containsMouse ? Theme.colHoverTint : "transparent"
+                    color: rowArea.containsMouse ? mt.colHoverTint : "transparent"
 
                     MaterialIcon {
                         x: 8
@@ -87,7 +91,7 @@ Item {
                         name: "check"
                         size: 20
                         weight: 600
-                        color: Theme.colBorder
+                        color: mt.colBorder
                         visible: row.active
                     }
 
@@ -95,9 +99,9 @@ Item {
                         x: 36
                         anchors.verticalCenter: parent.verticalCenter
                         text: row.modelData.label
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
-                        font.styleName: row.active ? Theme.fontStyleBold : ""
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
+                        font.styleName: row.active ? mt.fontStyleBold : ""
                         font.weight: row.active ? Font.ExtraBold : Font.Medium
                         font.pixelSize: 13
                     }

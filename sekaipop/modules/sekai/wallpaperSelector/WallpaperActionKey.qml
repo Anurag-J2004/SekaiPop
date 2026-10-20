@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Widgets
 import qs.modules.common
 import qs.modules.common.widgets
@@ -16,6 +17,9 @@ import qs.modules.sekai.phone
 // Pure UI: whoever places it turns clicked(all) into an action.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""
@@ -45,7 +49,7 @@ Item {
         pressed: area.pressed
         ringExtra: 6
 
-        readonly property color ink: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        readonly property color ink: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
 
         // the download, filling the key from the left
         ClippingRectangle {
@@ -60,8 +64,8 @@ Item {
                 height: parent.height
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: Theme.accentCyan }
-                    GradientStop { position: 1.0; color: Theme.accentMint }
+                    GradientStop { position: 0.0; color: mt.accentCyan }
+                    GradientStop { position: 1.0; color: mt.accentMint }
                 }
                 Behavior on width { NumberAnimation { duration: 250 } }
             }
@@ -86,10 +90,10 @@ Item {
                 minimumPixelSize: 14
                 text: root.done ? root.doneLabel : root.label
                 color: key.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 25
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

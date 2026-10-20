@@ -55,9 +55,9 @@ Pill {
     property real minWidth: 220
     property real maxWidth: 360
 
-    property int titleSize: Theme.fontSizeTitle
-    property int artistSize: Theme.fontSizeSub
-    property int idleSize: Theme.fontSizeIdle
+    property int titleSize: mt.fontSizeTitle
+    property int artistSize: mt.fontSizeSub
+    property int idleSize: mt.fontSizeIdle
 
     // true: a left click opens the media panel (middle click plays / pauses);
     // false: the old clicks (left plays / pauses, middle goes back).
@@ -117,15 +117,15 @@ Pill {
     readonly property real artWidth: root.capsule ? 24 : 35
     readonly property real dividerWidth: root.capsule ? 0 : 2
     readonly property real textMargin: 10
-    readonly property color ink: root.capsule ? Theme.capInk : Theme.colBorder
+    readonly property color ink: root.capsule ? mt.capInk : mt.colBorder
 
-    cornerRadius: Theme.radiusBadge
+    cornerRadius: mt.radiusBadge
     ringWidth: 5
-    fillColor: Theme.surface
+    fillColor: mt.surface
 
     readonly property Gradient mediaGradient: Gradient {
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
     fillGradient: mediaGradient
 
@@ -140,12 +140,12 @@ Pill {
 
     implicitWidth: artWidth + dividerWidth + textMargin * 2 + root.vizReserve
         + Math.max(titleText.implicitWidth, artistText.visible ? artistText.implicitWidth : 0)
-    width: root.vertical ? (root.capsule ? Theme.capVChip : Theme.barVPillWidth - 4) : Math.max(minWidth, Math.min(maxWidth, implicitWidth))
+    width: root.vertical ? (root.capsule ? mt.capVChip : mt.barVPillWidth - 4) : Math.max(minWidth, Math.min(maxWidth, implicitWidth))
     // Standing bar: as tall as it is wide (plus the shadow), so the art
     // is square.
     // (Capsule: a round chip with the media glyph in it.)
-    implicitHeight: root.vertical ? (root.capsule ? Theme.capVChip : Theme.barVPillWidth - 4) + Theme.shadowOffset
-                                  : Theme.pillHeight + Theme.shadowOffset
+    implicitHeight: root.vertical ? (root.capsule ? mt.capVChip : mt.barVPillWidth - 4) + mt.shadowOffset
+                                  : mt.pillHeight + mt.shadowOffset
 
     Behavior on width {
         NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
@@ -241,7 +241,7 @@ Pill {
                         radius: root.cornerRadius
                         color: "transparent"
                         border.width: root.ringWidth
-                        border.color: Theme.ringWhite
+                        border.color: mt.ringWhite
                         antialiasing: true
                     }
                     Rectangle {
@@ -255,8 +255,8 @@ Pill {
                         height: parent.height + root.ringWidth * 2
                         radius: root.cornerRadius
                         color: "transparent"
-                        border.width: Theme.borderWidth
-                        border.color: Theme.line
+                        border.width: mt.borderWidth
+                        border.color: mt.line
                         antialiasing: true
                     }
                 }
@@ -271,7 +271,7 @@ Pill {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: root.dividerWidth
-            color: Theme.surface
+            color: mt.surface
         }
 
         // ===== text =====
@@ -301,10 +301,10 @@ Pill {
                     elide: Text.ElideRight
                     text: root.active ? root.title : "Nothing Playing"
                     color: root.ink
-                    font.family: Theme.fontFamily
-                    font.pixelSize: root.capsule ? Theme.fontSizeInfo : (root.active ? root.titleSize : root.idleSize)
+                    font.family: mt.fontFamily
+                    font.pixelSize: root.capsule ? mt.fontSizeInfo : (root.active ? root.titleSize : root.idleSize)
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -314,8 +314,8 @@ Pill {
                     elide: Text.ElideRight
                     visible: root.active && root.artist !== "" && !root.capsule
                     text: root.artist
-                    color: Theme.colSubText
-                    font.family: Theme.fontFamily
+                    color: mt.colSubText
+                    font.family: mt.fontFamily
                     font.pixelSize: root.artistSize
                     font.weight: Font.Medium
                 }

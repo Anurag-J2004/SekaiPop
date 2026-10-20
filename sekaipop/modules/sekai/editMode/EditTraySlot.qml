@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -22,6 +23,9 @@ import qs.modules.common.widgets
 // instead of being shrunk to nothing.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string widgetId: ""
     property string title: ""
@@ -111,8 +115,8 @@ Item {
             shadowDx: 0
             shadowDy: 4
             pressed: area.pressed
-            fillColor: Theme.pSurface
-            ringColorTop: root.editing ? Theme.accentMint : Theme.pSurfaceRing
+            fillColor: mt.pSurface
+            ringColorTop: root.editing ? mt.accentMint : mt.pSurfaceRing
             ringColorBottom: ringColorTop
 
             // The little screen the widget is shown on: the same deep navy the
@@ -124,8 +128,8 @@ Item {
                 radius: 10
                 antialiasing: true
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: Qt.darker(Theme.colBorder, 2.1) }
-                    GradientStop { position: 1.0; color: Qt.darker(Theme.colBorder, 2.9) }
+                    GradientStop { position: 0.0; color: Qt.darker(mt.colBorder, 2.1) }
+                    GradientStop { position: 1.0; color: Qt.darker(mt.colBorder, 2.9) }
                 }
 
                 // The widget's own picture, cut off at the box if it is taller.
@@ -164,7 +168,7 @@ Item {
                     name: root.icon
                     size: 44
                     weight: 600
-                    color: Theme.accentMint
+                    color: mt.accentMint
                     opacity: 0.8
                 }
             }
@@ -182,7 +186,7 @@ Item {
             y: root.mountH - 9
             cornerRadius: 9
             ringWidth: 3
-            fillColor: root.lift > 0.5 ? Theme.accentMint : Theme.chipFill
+            fillColor: root.lift > 0.5 ? mt.accentMint : mt.chipFill
             rotation: root.slotIndex % 2 === 0 ? 2 : -2
             transformOrigin: Item.Center
 
@@ -194,11 +198,11 @@ Item {
                 id: tagText
                 anchors.centerIn: parent
                 text: root.lift > 0.5 ? tag.verb : root.title.toUpperCase()
-                color: root.lift > 0.5 ? Theme.colBorder : Theme.chipInk
-                font.family: Theme.fontFamily
+                color: root.lift > 0.5 ? mt.colBorder : mt.chipInk
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 0.8
             }
         }
@@ -223,7 +227,7 @@ Item {
                 width: 28
                 height: 28
                 radius: 14
-                color: Theme.pLineShadow
+                color: mt.pLineShadow
                 antialiasing: true
             }
 
@@ -231,9 +235,9 @@ Item {
                 width: 28
                 height: 28
                 radius: 14
-                color: root.editing ? Theme.accentCyan : Theme.accentMint
-                border.width: Theme.borderWidth
-                border.color: Theme.pLine
+                color: root.editing ? mt.accentCyan : mt.accentMint
+                border.width: mt.borderWidth
+                border.color: mt.pLine
                 antialiasing: true
 
                 MaterialIcon {
@@ -241,7 +245,7 @@ Item {
                     name: root.editing ? "edit" : (root.placed ? "check" : "add")
                     size: 18
                     weight: 700
-                    color: Theme.colBorder
+                    color: mt.colBorder
                 }
             }
         }
@@ -264,9 +268,9 @@ Item {
             visible: root.burstT > 0.001 && root.burstT < 0.999
             opacity: 1 - root.burstT
             scale: 1.25 - 0.6 * root.burstT
-            color: index % 2 === 0 ? Theme.accentMint : Theme.accentCyan
+            color: index % 2 === 0 ? mt.accentMint : mt.accentCyan
             border.width: 2
-            border.color: Theme.colBorder
+            border.color: mt.colBorder
             antialiasing: true
             x: root.width / 2 + Math.cos(ang) * 64 * root.burstT - width / 2
             y: root.mountH / 2 + Math.sin(ang) * 50 * root.burstT - height / 2

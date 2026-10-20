@@ -57,6 +57,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         UserCardService.posX = -1;
         UserCardService.posY = -1;
@@ -495,12 +498,15 @@ PanelWindow {
     component MaskedPhoto: Item {
         id: mp
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property url source: ""
         property real radius: 10                       // radius of this item's own edge (the outline's inner edge)
         property real bleed: 2                         // how far the picture runs under the outline
-        property real frameWidth: Theme.borderWidth    // the Pill's outline width
+        property real frameWidth: mt.borderWidth    // the Pill's outline width
         property real frameRadius: mp.radius + mp.frameWidth
-        property color frameColor: Theme.pLine
+        property color frameColor: mt.pLine
 
         readonly property bool ready: img.status === Image.Ready
         readonly property real texel: win.uiScale * (win.screen ? win.screen.devicePixelRatio : 1)
@@ -582,6 +588,9 @@ PanelWindow {
     component StatKey: Item {
         id: sk
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string label: ""
         property string value: ""
         property bool gradientFill: false
@@ -605,18 +614,18 @@ PanelWindow {
 
         Gradient {
             id: keyFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         Pill {
             id: keyPill
             anchors.fill: parent
             cornerRadius: 15
-            ringWidth: Theme.borderWidth + Theme.whiteLine
+            ringWidth: mt.borderWidth + mt.whiteLine
             shadowDx: 3
             shadowDy: 4
-            fillColor: Theme.chipFill
+            fillColor: mt.chipFill
             fillGradient: sk.gradientFill ? keyFill : null
 
             Column {
@@ -628,12 +637,12 @@ PanelWindow {
                     width: parent.width
                     horizontalAlignment: Text.AlignHCenter
                     text: sk.label
-                    color: sk.gradientFill ? Theme.colBorder : Theme.chipInk
+                    color: sk.gradientFill ? mt.colBorder : mt.chipInk
                     opacity: 0.7
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 9
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 1.5
                 }
 
@@ -643,13 +652,13 @@ PanelWindow {
                     width: parent.width
                     horizontalAlignment: Text.AlignHCenter
                     text: sk.value
-                    color: sk.gradientFill ? Theme.colBorder : Theme.chipInk
+                    color: sk.gradientFill ? mt.colBorder : mt.chipInk
                     fontSizeMode: Text.HorizontalFit
                     minimumPixelSize: 10
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 19
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -659,6 +668,9 @@ PanelWindow {
     // the one before (`order`), so the minute tick runs across the banner.
     component SparkDiamond: Rectangle {
         id: sp
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property int order: 0
         property real size: 12
@@ -670,9 +682,9 @@ PanelWindow {
         radius: sp.size / 4
         rotation: 45
         scale: sp.pop
-        color: sp.solid ? Theme.colBorder : "#ffffff"
+        color: sp.solid ? mt.colBorder : "#ffffff"
         border.width: 2
-        border.color: Theme.colBorder
+        border.color: mt.colBorder
         antialiasing: true
 
         SequentialAnimation {
@@ -742,10 +754,10 @@ PanelWindow {
                 // the hard shadow underneath.
                 readonly property int contentW: 286
                 readonly property int contentH: 238
-                readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 10
+                readonly property int inset: mt.borderWidth + mt.outerRingWidth + 10
 
                 width: card.contentW + card.inset * 2
-                height: card.contentH + card.inset * 2 + Theme.shadowOffset
+                height: card.contentH + card.inset * 2 + mt.shadowOffset
 
                 // How much attitude the keys have. 0 / 0 = a flat, level row.
                 readonly property real tilt: 2.5       // degrees, outer keys
@@ -753,7 +765,7 @@ PanelWindow {
 
                 // On the navy chip: bright accent in the dark modes, navy ink in
                 // Light (where the chip is pale and mint would vanish).
-                readonly property color glow: Theme.dark ? Theme.accentMint : Theme.colBorder
+                readonly property color glow: mt.dark ? mt.accentMint : mt.colBorder
 
                 scale: Math.max(0, win.reveal) * (win.placed ? 1 : 0) * (0.7 + 0.3 * Math.max(0, win.swapK))
                 opacity: Math.max(0, Math.min(1, win.swapK))
@@ -793,11 +805,11 @@ PanelWindow {
                 // hard shadow as the bar, the dock, the To-Do card and the clock.
                 Pill {
                     anchors.fill: parent
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-                    ringColorTop: Theme.pSurfaceRing
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth + mt.outerRingWidth
+                    ringColorTop: mt.pSurfaceRing
                     ringColorBottom: ringColorTop
-                    fillColor: Theme.pSurface
+                    fillColor: mt.pSurface
                 }
 
                 // Edit Desktop: outline, corner diamonds, a tag and a drag
@@ -873,11 +885,11 @@ PanelWindow {
                         width: card.contentW
                         height: 88                     // 84 cap + 4 shadow
                         cornerRadius: 16
-                        ringWidth: Theme.borderWidth   // no white ring: the picture meets the outline
+                        ringWidth: mt.borderWidth   // no white ring: the picture meets the outline
                         fillGradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: Theme.accentMint }
-                            GradientStop { position: 1.0; color: Theme.accentCyan }
+                            GradientStop { position: 0.0; color: mt.accentMint }
+                            GradientStop { position: 1.0; color: mt.accentCyan }
                         }
 
                         // The Quick Panel's banner picture, when one is picked.
@@ -888,7 +900,7 @@ PanelWindow {
                             radius: Math.max(0, banner.cornerRadius - banner.ringWidth)
                             frameWidth: banner.borderWidth
                             frameRadius: banner.cornerRadius
-                            frameColor: banner.classicScope ? Theme.pLine : Theme.line
+                            frameColor: banner.classicScope ? mt.pLine : mt.line
                         }
 
                         // Otherwise: diamonds, kept clear of the avatar (bottom
@@ -918,8 +930,8 @@ PanelWindow {
                         x: card.contentW - greetChip.width - 14
                         y: 10
                         cornerRadius: 10
-                        ringWidth: Theme.borderWidth + Theme.whiteLine
-                        fillColor: Theme.chipFill
+                        ringWidth: mt.borderWidth + mt.whiteLine
+                        fillColor: mt.chipFill
                         rotation: 3
                         transformOrigin: Item.Center
 
@@ -927,11 +939,11 @@ PanelWindow {
                             id: greetText
                             anchors.centerIn: parent
                             text: win.greeting
-                            color: Theme.chipInk
-                            font.family: Theme.fontFamily
+                            color: mt.chipInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 1.2
                         }
                     }
@@ -973,10 +985,10 @@ PanelWindow {
                             id: avatarPill
                             anchors.fill: parent
                             cornerRadius: 26
-                            ringWidth: Theme.borderWidth   // no white ring: the picture meets the outline
+                            ringWidth: mt.borderWidth   // no white ring: the picture meets the outline
                             shadowDx: 3
                             shadowDy: 4
-                            fillColor: Theme.chipFill
+                            fillColor: mt.chipFill
                             pressed: card.avatarDown
 
                             // No picture picked yet: your initial.
@@ -985,10 +997,10 @@ PanelWindow {
                                 visible: !avatarPhoto.ready
                                 text: win.userName.charAt(0).toUpperCase()
                                 color: card.glow
-                                font.family: Theme.fontFamily
+                                font.family: mt.fontFamily
                                 font.pixelSize: 46
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             // The Quick Panel's avatar picture.
@@ -999,7 +1011,7 @@ PanelWindow {
                                 radius: Math.max(0, avatarPill.cornerRadius - avatarPill.ringWidth)
                                 frameWidth: avatarPill.borderWidth
                                 frameRadius: avatarPill.cornerRadius
-                                frameColor: avatarPill.classicScope ? Theme.pLine : Theme.line
+                                frameColor: avatarPill.classicScope ? mt.pLine : mt.line
                             }
                         }
                     }
@@ -1043,9 +1055,9 @@ PanelWindow {
                                 y: Math.sin(ang) * dist - height / 2
                                 scale: 1.15 - burst.t * 0.85
                                 opacity: 1 - burst.t * burst.t
-                                color: index % 3 === 0 ? Theme.accentMint : (index % 3 === 1 ? Theme.accentCyan : "#ffffff")
+                                color: index % 3 === 0 ? mt.accentMint : (index % 3 === 1 ? mt.accentCyan : "#ffffff")
                                 border.width: 2
-                                border.color: Theme.colBorder
+                                border.color: mt.colBorder
                                 antialiasing: true
                             }
                         }
@@ -1059,11 +1071,11 @@ PanelWindow {
                         width: card.contentW - 112
                         elide: Text.ElideRight
                         text: win.userName
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 22
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     Text {
@@ -1073,8 +1085,8 @@ PanelWindow {
                         width: card.contentW - 112
                         elide: Text.ElideRight
                         text: win.hostName !== "" ? "@" + win.hostName : ""
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
                     }
@@ -1126,7 +1138,7 @@ PanelWindow {
                             height: 30
                             cornerRadius: 10
                             ringWidth: 3
-                            fillColor: Theme.chipFill
+                            fillColor: mt.chipFill
                             rotation: 3
                             transformOrigin: Item.Center
 
@@ -1136,10 +1148,10 @@ PanelWindow {
                                 verticalAlignment: Text.AlignVCenter
                                 text: Math.round(win.dayFrac * 100) + "%"
                                 color: card.glow
-                                font.family: Theme.fontFamily
+                                font.family: mt.fontFamily
                                 font.pixelSize: 15
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
                         }
 
@@ -1150,11 +1162,11 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.verticalCenterOffset: -2
                             text: "TODAY"
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 10
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 1.5
                         }
 
@@ -1180,9 +1192,9 @@ PanelWindow {
                                 width: parent.width
                                 height: 12
                                 radius: 6
-                                color: Theme.pSurfaceDivider
+                                color: mt.pSurfaceDivider
                                 border.width: 2
-                                border.color: Theme.pLine
+                                border.color: mt.pLine
                             }
 
                             // What is gone of today.
@@ -1195,8 +1207,8 @@ PanelWindow {
 
                                 gradient: Gradient {
                                     orientation: Gradient.Horizontal
-                                    GradientStop { position: 0.0; color: Theme.accentMint }
-                                    GradientStop { position: 1.0; color: Theme.accentCyan }
+                                    GradientStop { position: 0.0; color: mt.accentMint }
+                                    GradientStop { position: 1.0; color: mt.accentCyan }
                                 }
 
                                 Behavior on width {
@@ -1216,7 +1228,7 @@ PanelWindow {
                                     width: 3
                                     height: 12
                                     radius: 1.5
-                                    color: Theme.pLine
+                                    color: mt.pLine
                                     opacity: 0.45
                                 }
                             }
@@ -1228,9 +1240,9 @@ PanelWindow {
                                 height: track.headSize
                                 radius: 3
                                 rotation: 45
-                                color: Theme.accentMint
+                                color: mt.accentMint
                                 border.width: 2
-                                border.color: Theme.pLine
+                                border.color: mt.pLine
                                 x: track.headX
 
                                 Behavior on x {

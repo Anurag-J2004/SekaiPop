@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -17,6 +18,9 @@ import qs.modules.common.widgets
 // where the switches are.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool vertical: false
     // Which edge the bar is on, so the tag opens towards the screen.
@@ -52,15 +56,15 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: 6   // the bar's pills all share the Utility pill's ring
-        fillColor: Theme.chipFill
+        fillColor: mt.chipFill
         pressed: area.pressed
 
         implicitWidth: root.vertical ? pill.barVWidth
                                      : row.implicitWidth + 2 * ringWidth + 14
-        implicitHeight: root.vertical ? col.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + Theme.shadowOffset
-                                      : Theme.pillHeight + Theme.shadowOffset
+        implicitHeight: root.vertical ? col.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + mt.shadowOffset
+                                      : mt.pillHeight + mt.shadowOffset
 
         Row {
             id: row
@@ -74,7 +78,7 @@ Item {
                 name: root.networkIcon
                 size: 18
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 opacity: root.strength(root.networkState)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }
@@ -84,7 +88,7 @@ Item {
                 name: root.bluetoothIcon
                 size: 18
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 opacity: root.strength(root.bluetoothState)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }
@@ -94,7 +98,7 @@ Item {
                 name: root.speakerIcon
                 size: 18
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 opacity: root.strength(root.speakerState)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }
@@ -112,7 +116,7 @@ Item {
                 name: root.networkIcon
                 size: 18
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 opacity: root.strength(root.networkState)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }
@@ -122,7 +126,7 @@ Item {
                 name: root.bluetoothIcon
                 size: 18
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 opacity: root.strength(root.bluetoothState)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }
@@ -132,7 +136,7 @@ Item {
                 name: root.speakerIcon
                 size: 18
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 opacity: root.strength(root.speakerState)
                 Behavior on opacity { NumberAnimation { duration: 180 } }
             }

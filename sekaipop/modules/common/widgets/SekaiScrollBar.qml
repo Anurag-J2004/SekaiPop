@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The shell's scroll bar: the slim round bar the Quick Panel's notification
@@ -18,6 +19,9 @@ import qs.modules.common
 Rectangle {
     id: bar
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // The Flickable / ListView / GridView it belongs to (default: the one it
     // sits in; a child of a Flickable has the content item as its parent).
     property var view: parent ? parent.parent : null
@@ -35,7 +39,7 @@ Rectangle {
     z: 100
     width: 6
     radius: 3
-    color: Theme.pSurfaceRing
+    color: mt.pSurfaceRing
     antialiasing: true
 
     x: flickable ? view.contentX + view.width - width - inset : 0

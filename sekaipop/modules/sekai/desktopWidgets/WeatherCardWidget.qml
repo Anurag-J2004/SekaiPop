@@ -74,6 +74,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         WeatherCardService.posX = -1;
         WeatherCardService.posY = -1;
@@ -282,8 +285,8 @@ PanelWindow {
     // The accent as INK (icons, arrow): on the classic white card it is the navy;
     // otherwise the mint is right on the dark looks but washes out on Light's
     // pale surfaces, so it is darkened there.
-    readonly property color iconInk: Theme.classic ? Theme.colBorder
-        : (Theme.dark ? Theme.accentMint : Qt.darker(Theme.accentMint, 1.5))
+    readonly property color iconInk: mt.classic ? mt.colBorder
+        : (mt.dark ? mt.accentMint : Qt.darker(mt.accentMint, 1.5))
 
     readonly property var temp: WM.splitTemp(win.hasData ? wx.temperatureText : "")
     readonly property var today: win.hasData && wx.forecast.length > 0 ? wx.forecast[0] : null
@@ -346,8 +349,8 @@ PanelWindow {
 
     Gradient {
         id: accentGradient
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     // ===== placement =====
@@ -540,6 +543,9 @@ PanelWindow {
     // (already eased), `corner` is the Pill's inner radius. (WeatherPopup's.)
     component Water: Rectangle {
         id: water
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
         property real level: 0
         property real corner: 10
 
@@ -550,8 +556,8 @@ PanelWindow {
         radius: water.corner
         antialiasing: true
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.36) }
-            GradientStop { position: 1.0; color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.12) }
+            GradientStop { position: 0.0; color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.36) }
+            GradientStop { position: 1.0; color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.12) }
         }
 
         Rectangle {
@@ -561,17 +567,20 @@ PanelWindow {
             width: Math.max(0, water.width - water.corner * 1.4)
             height: 2
             radius: 1
-            color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.85)
+            color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.85)
         }
     }
 
     // The small caps label every gauge tile carries. (WeatherPopup's.)
     component TileLabel: Text {
-        color: Qt.rgba(Theme.pInk.r, Theme.pInk.g, Theme.pInk.b, 0.78)
-        font.family: Theme.fontFamily
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+        color: Qt.rgba(mt.pInk.r, mt.pInk.g, mt.pInk.b, 0.78)
+        font.family: mt.fontFamily
         font.pixelSize: 9
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
         font.letterSpacing: 0.8
         elide: Text.ElideRight
     }
@@ -619,10 +628,10 @@ PanelWindow {
                 // the hard shadow underneath.
                 readonly property int contentW: 286
                 readonly property int contentH: 238
-                readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 10
+                readonly property int inset: mt.borderWidth + mt.outerRingWidth + 10
 
                 width: card.contentW + card.inset * 2
-                height: card.contentH + card.inset * 2 + Theme.shadowOffset
+                height: card.contentH + card.inset * 2 + mt.shadowOffset
 
                 scale: Math.max(0, win.reveal) * (win.placed ? 1 : 0) * (0.7 + 0.3 * Math.max(0, win.swapK))
                 opacity: Math.max(0, Math.min(1, win.swapK))
@@ -645,11 +654,11 @@ PanelWindow {
                 // hard shadow as the bar, the dock, the To-Do card and the clock.
                 Pill {
                     anchors.fill: parent
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-                    ringColorTop: Theme.pSurfaceRing
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth + mt.outerRingWidth
+                    ringColorTop: mt.pSurfaceRing
                     ringColorBottom: ringColorTop
-                    fillColor: Theme.pSurface
+                    fillColor: mt.pSurface
                 }
 
                 // Edit Desktop: outline, corner diamonds, a tag and a drag
@@ -755,7 +764,7 @@ PanelWindow {
                                         y: 9
                                         width: 188
                                         text: win.readout !== "" ? win.readout : condLabel.toUpperCase()
-                                        color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.82)
+                                        color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.82)
                                         font.pixelSize: 10
                                         font.letterSpacing: win.readout !== "" ? 0.3 : 1.3
 
@@ -793,29 +802,29 @@ PanelWindow {
 
                                         Row {
                                             spacing: 0
-                                            MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_upward"; size: 13; weight: 700; color: Theme.colBorder; fill: 0 }
+                                            MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_upward"; size: 13; weight: 700; color: mt.colBorder; fill: 0 }
                                             Text {
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text: win.today ? win.today.high : ""
-                                                color: Theme.colBorder
-                                                font.family: Theme.fontFamily
+                                                color: mt.colBorder
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 12
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                             }
                                         }
                                         Row {
                                             spacing: 0
-                                            MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_downward"; size: 13; weight: 700; color: Theme.colBorder; fill: 0 }
+                                            MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_downward"; size: 13; weight: 700; color: mt.colBorder; fill: 0 }
                                             Text {
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text: win.today ? win.today.low : ""
-                                                color: Theme.colBorder
+                                                color: mt.colBorder
                                                 opacity: 0.8
-                                                font.family: Theme.fontFamily
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 12
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                             }
                                         }
                                     }
@@ -828,12 +837,12 @@ PanelWindow {
                                         width: 68
                                         height: 70
                                         cornerRadius: 34
-                                        ringWidth: Theme.borderWidth + Theme.whiteLine
+                                        ringWidth: mt.borderWidth + mt.whiteLine
                                         shadowDy: 4
                                         rotation: 6
                                         transformOrigin: Item.Center
                                         pressed: discArea.pressed
-                                        fillColor: Theme.chipFill
+                                        fillColor: mt.chipFill
 
                                         property real sx: 1
                                         property real sy: 1
@@ -849,7 +858,7 @@ PanelWindow {
                                             anchors.centerIn: parent
                                             name: wx.iconName
                                             size: 42
-                                            color: Theme.dark ? (win.night ? Theme.accentCyan : Theme.accentMint) : Theme.colBorder
+                                            color: mt.dark ? (win.night ? mt.accentCyan : mt.accentMint) : mt.colBorder
                                             scale: 0.5 + 0.5 * Math.min(win.wave * 1.2, 1.15)
                                         }
                                     }
@@ -894,10 +903,10 @@ PanelWindow {
                                     id: placeProbe
                                     visible: false
                                     text: placeTab.label
-                                    font.family: Theme.fontFamily
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 11
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
 
                                 Slant {
@@ -909,8 +918,8 @@ PanelWindow {
                                     height: 26
                                     skew: 0.2
                                     radius: 9
-                                    color: Theme.chipFill
-                                    borderColor: Theme.pLine
+                                    color: mt.chipFill
+                                    borderColor: mt.pLine
                                     borderWidth: 3
                                 }
 
@@ -927,18 +936,18 @@ PanelWindow {
                                         fill: 0
                                         size: 15
                                         weight: 700
-                                        color: Theme.dark ? Theme.accentMint : Theme.colBorder
+                                        color: mt.dark ? mt.accentMint : mt.colBorder
                                     }
                                     Text {
                                         anchors.verticalCenter: parent.verticalCenter
                                         width: Math.max(0, placeTab.width - placeTab.lean - 36)
                                         elide: Text.ElideRight
                                         text: placeTab.label
-                                        color: Theme.chipInk
-                                        font.family: Theme.fontFamily
+                                        color: mt.chipInk
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 11
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                     }
                                 }
 
@@ -954,8 +963,8 @@ PanelWindow {
                                         anchors.fill: parent
                                         shadowDy: 3
                                         cornerRadius: 11
-                                        ringWidth: Theme.borderWidth + Theme.whiteLine
-                                        fillColor: Theme.chipFill
+                                        ringWidth: mt.borderWidth + mt.whiteLine
+                                        fillColor: mt.chipFill
                                         pressed: viewArea.pressed
 
                                         MaterialIcon {
@@ -964,7 +973,7 @@ PanelWindow {
                                             fill: 0
                                             size: 17
                                             weight: 600
-                                            color: Theme.chipInk
+                                            color: mt.chipInk
                                         }
                                     }
 
@@ -988,8 +997,8 @@ PanelWindow {
                                         anchors.fill: parent
                                         shadowDy: 3
                                         cornerRadius: 11
-                                        ringWidth: Theme.borderWidth + Theme.whiteLine
-                                        fillColor: Theme.chipFill
+                                        ringWidth: mt.borderWidth + mt.whiteLine
+                                        fillColor: mt.chipFill
                                         pressed: refreshArea.pressed
 
                                         MaterialIcon {
@@ -999,7 +1008,7 @@ PanelWindow {
                                             fill: 0
                                             size: 18
                                             weight: 600
-                                            color: Theme.chipInk
+                                            color: mt.chipInk
 
                                             RotationAnimator on rotation {
                                                 from: 0
@@ -1053,7 +1062,7 @@ PanelWindow {
                                             shadowDy: 4
                                             cornerRadius: 13
                                             ringWidth: 3
-                                            fillColor: Theme.pSurfaceHover
+                                            fillColor: mt.pSurfaceHover
 
                                             Water {
                                                 level: humTile.value / 100 * WM.outBack(humTile.t, 1.4)
@@ -1066,11 +1075,11 @@ PanelWindow {
                                                 width: parent.width - 12
                                                 elide: Text.ElideRight
                                                 text: win.hasData ? wx.humidityText : ""
-                                                color: Theme.pInk
-                                                font.family: Theme.fontFamily
+                                                color: mt.pInk
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 19
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                             }
                                         }
                                     }
@@ -1097,7 +1106,7 @@ PanelWindow {
                                             shadowDy: 4
                                             cornerRadius: 13
                                             ringWidth: 3
-                                            fillColor: Theme.pSurfaceHover
+                                            fillColor: mt.pSurfaceHover
 
                                             TileLabel {
                                                 x: 8
@@ -1113,17 +1122,17 @@ PanelWindow {
                                                 Text {
                                                     id: windBig
                                                     text: win.hasData ? String(win.windNum) : ""
-                                                    color: Theme.pInk
-                                                    font.family: Theme.fontFamily
+                                                    color: mt.pInk
+                                                    font.family: mt.fontFamily
                                                     font.pixelSize: 19
                                                     font.weight: Font.ExtraBold
-                                                    font.styleName: Theme.fontStyleBold
+                                                    font.styleName: mt.fontStyleBold
                                                 }
                                                 Text {
                                                     anchors.baseline: windBig.baseline
                                                     text: win.windUnit
-                                                    color: Theme.pInkSub
-                                                    font.family: Theme.fontFamily
+                                                    color: mt.pInkSub
+                                                    font.family: mt.fontFamily
                                                     font.pixelSize: 9
                                                     font.weight: Font.Bold
                                                 }
@@ -1140,9 +1149,9 @@ PanelWindow {
                                                 Rectangle {
                                                     anchors.fill: parent
                                                     radius: width / 2
-                                                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.35)
+                                                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.35)
                                                     border.width: 2
-                                                    border.color: Theme.pLine
+                                                    border.color: mt.pLine
                                                     antialiasing: true
                                                 }
                                                 DiamondDot {
@@ -1150,8 +1159,8 @@ PanelWindow {
                                                     y: -3
                                                     size: 6
                                                     lit: true
-                                                    litColor: Theme.accentMint
-                                                    lineColor: Theme.pLine
+                                                    litColor: mt.accentMint
+                                                    lineColor: mt.pLine
                                                 }
                                                 MaterialIcon {
                                                     anchors.centerIn: parent
@@ -1188,18 +1197,18 @@ PanelWindow {
                                             shadowDy: 4
                                             cornerRadius: 13
                                             ringWidth: 3
-                                            fillColor: Theme.pSurfaceHover
+                                            fillColor: mt.pSurfaceHover
 
                                             TileLabel { x: 8; y: 5; width: parent.width - 12; text: "UV INDEX" }
                                             Text {
                                                 x: 8
                                                 y: 13
                                                 text: win.hasData ? wx.uvText : ""
-                                                color: Theme.pInk
-                                                font.family: Theme.fontFamily
+                                                color: mt.pInk
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 19
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                             }
                                             Row {
                                                 x: 9
@@ -1210,9 +1219,9 @@ PanelWindow {
                                                     delegate: DiamondDot {
                                                         required property int index
                                                         size: 6
-                                                        offColor: Qt.rgba(Theme.pInk.r, Theme.pInk.g, Theme.pInk.b, 0.2)
+                                                        offColor: Qt.rgba(mt.pInk.r, mt.pInk.g, mt.pInk.b, 0.2)
                                                         lit: index < WM.uvLit(win.uv)
-                                                        litColor: index < 2 ? Theme.accentMint : (index < 4 ? "#FFE066" : "#ff6f78")
+                                                        litColor: index < 2 ? mt.accentMint : (index < 4 ? "#FFE066" : "#ff6f78")
                                                     }
                                                 }
                                             }
@@ -1239,9 +1248,9 @@ PanelWindow {
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 13
-                                    color: Theme.classic ? Theme.pSurfaceHover : Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.28)
+                                    color: mt.classic ? mt.pSurfaceHover : Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.28)
                                     border.width: 2
-                                    border.color: Theme.pLine
+                                    border.color: mt.pLine
                                     antialiasing: true
                                 }
 
@@ -1250,8 +1259,8 @@ PanelWindow {
                                     id: curve
                                     anchors.fill: parent
                                     opacity: Math.min(1, win.wave * 2)
-                                    property color edge: Theme.pLine
-                                    property color core: Theme.classic ? Qt.darker(Theme.accentCyan, 1.25) : win.iconInk
+                                    property color edge: mt.pLine
+                                    property color core: mt.classic ? Qt.darker(mt.accentCyan, 1.25) : win.iconInk
                                     property var pts: hourly.pts
                                     onEdgeChanged: requestPaint()
                                     onCoreChanged: requestPaint()
@@ -1309,7 +1318,7 @@ PanelWindow {
                                             anchors.fill: parent
                                             anchors.margins: 3
                                             radius: 10
-                                            color: Theme.pSurfaceHover
+                                            color: mt.pSurfaceHover
                                             opacity: note.hovered ? 1 : 0
                                             Behavior on opacity {
                                                 NumberAnimation { duration: 120 }
@@ -1330,11 +1339,11 @@ PanelWindow {
                                             anchors.horizontalCenter: parent.horizontalCenter
                                             y: note.pt.y - 19
                                             text: note.modelData.temp
-                                            color: Theme.pInk
-                                            font.family: Theme.fontFamily
+                                            color: mt.pInk
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 11
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                             opacity: Math.min(1, note.t * 2.5)
                                         }
 
@@ -1353,8 +1362,8 @@ PanelWindow {
                                                 anchors.centerIn: parent
                                                 size: 10
                                                 lit: true
-                                                litColor: note.index === 0 ? Theme.accentMint : Theme.pSurface
-                                                lineColor: Theme.pLine
+                                                litColor: note.index === 0 ? mt.accentMint : mt.pSurface
+                                                lineColor: mt.pLine
                                             }
                                         }
 
@@ -1362,8 +1371,8 @@ PanelWindow {
                                             anchors.horizontalCenter: parent.horizontalCenter
                                             y: 59
                                             text: note.modelData.label
-                                            color: Theme.pInkSub
-                                            font.family: Theme.fontFamily
+                                            color: mt.pInkSub
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 10
                                             font.weight: Font.DemiBold
                                         }
@@ -1417,9 +1426,9 @@ PanelWindow {
                                             Rectangle {
                                                 anchors.fill: parent
                                                 radius: 11
-                                                color: Theme.pSurfaceHover
+                                                color: mt.pSurfaceHover
                                                 border.width: 2
-                                                border.color: dayRow.hovered ? Theme.accentMint : Theme.pLine
+                                                border.color: dayRow.hovered ? mt.accentMint : mt.pLine
                                                 antialiasing: true
                                                 Behavior on border.color { ColorAnimation { duration: 120 } }
 
@@ -1430,7 +1439,7 @@ PanelWindow {
                                                     height: parent.height - 4
                                                     width: Math.max(0, (parent.width - 4) * Math.min(1, dayRow.modelData.rain / 100) * WM.outBack(dayRow.t, 1.4))
                                                     radius: 9
-                                                    color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.2)
+                                                    color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.2)
                                                 }
                                             }
 
@@ -1442,9 +1451,9 @@ PanelWindow {
                                                 height: 16
                                                 skew: 0.2
                                                 radius: 6
-                                                color: dayRow.isToday ? "transparent" : Theme.chipFill
+                                                color: dayRow.isToday ? "transparent" : mt.chipFill
                                                 gradient: dayRow.isToday ? accentGradient : null
-                                                borderColor: Theme.pLine
+                                                borderColor: mt.pLine
                                                 borderWidth: 2
                                             }
                                             Text {
@@ -1456,11 +1465,11 @@ PanelWindow {
                                                 verticalAlignment: Text.AlignVCenter
                                                 elide: Text.ElideRight
                                                 text: dayRow.modelData.label + (!dayRow.isToday && dayRow.modelData.date ? " " + dayRow.modelData.date : "")
-                                                color: dayRow.isToday ? Theme.colBorder : Theme.chipInk
-                                                font.family: Theme.fontFamily
+                                                color: dayRow.isToday ? mt.colBorder : mt.chipInk
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 10
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                             }
 
                                             WeatherGlyph {
@@ -1477,17 +1486,17 @@ PanelWindow {
                                                 spacing: 4
                                                 Text {
                                                     text: dayRow.modelData.high
-                                                    color: Theme.pInk
-                                                    font.family: Theme.fontFamily
+                                                    color: mt.pInk
+                                                    font.family: mt.fontFamily
                                                     font.pixelSize: 13
                                                     font.weight: Font.ExtraBold
-                                                    font.styleName: Theme.fontStyleBold
+                                                    font.styleName: mt.fontStyleBold
                                                 }
                                                 Text {
                                                     anchors.baseline: parent.children[0].baseline
                                                     text: dayRow.modelData.low
-                                                    color: Theme.pInkSub
-                                                    font.family: Theme.fontFamily
+                                                    color: mt.pInkSub
+                                                    font.family: mt.fontFamily
                                                     font.pixelSize: 10
                                                     font.weight: Font.DemiBold
                                                 }
@@ -1501,7 +1510,7 @@ PanelWindow {
                                                 width: 70
                                                 height: 5
                                                 radius: 2.5
-                                                color: Qt.rgba(Theme.pInk.r, Theme.pInk.g, Theme.pInk.b, 0.16)
+                                                color: Qt.rgba(mt.pInk.r, mt.pInk.g, mt.pInk.b, 0.16)
 
                                                 Rectangle {
                                                     x: (dayRow.lo - win.span.lo) / (win.span.hi - win.span.lo) * (track.width - width)
@@ -1523,16 +1532,16 @@ PanelWindow {
                                                     fill: 0
                                                     size: 12
                                                     weight: 700
-                                                    color: Theme.pInk
+                                                    color: mt.pInk
                                                 }
                                                 Text {
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     text: dayRow.modelData.rain + "%"
-                                                    color: Theme.pInk
-                                                    font.family: Theme.fontFamily
+                                                    color: mt.pInk
+                                                    font.family: mt.fontFamily
                                                     font.pixelSize: 10
                                                     font.weight: Font.ExtraBold
-                                                    font.styleName: Theme.fontStyleBold
+                                                    font.styleName: mt.fontStyleBold
                                                 }
                                             }
                                         }
@@ -1588,7 +1597,7 @@ PanelWindow {
                                     y: 9
                                     width: 176
                                     text: condLabel.toUpperCase()
-                                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.82)
+                                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.82)
                                     font.pixelSize: 10
                                     font.letterSpacing: 1.3
 
@@ -1625,12 +1634,12 @@ PanelWindow {
                                     width: 76
                                     height: 78
                                     cornerRadius: 38
-                                    ringWidth: Theme.borderWidth + Theme.whiteLine
+                                    ringWidth: mt.borderWidth + mt.whiteLine
                                     shadowDy: 4
                                     rotation: 6
                                     transformOrigin: Item.Center
                                     pressed: mdiscArea.pressed
-                                    fillColor: Theme.chipFill
+                                    fillColor: mt.chipFill
 
                                     property real sx: 1
                                     property real sy: 1
@@ -1646,7 +1655,7 @@ PanelWindow {
                                         anchors.centerIn: parent
                                         name: wx.iconName
                                         size: 50
-                                        color: Theme.dark ? (win.night ? Theme.accentCyan : Theme.accentMint) : Theme.colBorder
+                                        color: mt.dark ? (win.night ? mt.accentCyan : mt.accentMint) : mt.colBorder
                                         scale: 0.5 + 0.5 * Math.min(win.wave * 1.2, 1.15)
                                     }
                                 }
@@ -1694,29 +1703,29 @@ PanelWindow {
 
                                     Row {
                                         spacing: 0
-                                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_upward"; size: 14; weight: 700; color: Theme.colBorder; fill: 0 }
+                                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_upward"; size: 14; weight: 700; color: mt.colBorder; fill: 0 }
                                         Text {
                                             anchors.verticalCenter: parent.verticalCenter
                                             text: win.today ? win.today.high : ""
-                                            color: Theme.colBorder
-                                            font.family: Theme.fontFamily
+                                            color: mt.colBorder
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 13
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                     }
                                     Row {
                                         spacing: 0
-                                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_downward"; size: 14; weight: 700; color: Theme.colBorder; fill: 0 }
+                                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_downward"; size: 14; weight: 700; color: mt.colBorder; fill: 0 }
                                         Text {
                                             anchors.verticalCenter: parent.verticalCenter
                                             text: win.today ? win.today.low : ""
-                                            color: Theme.colBorder
+                                            color: mt.colBorder
                                             opacity: 0.8
-                                            font.family: Theme.fontFamily
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 13
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                     }
                                 }
@@ -1727,10 +1736,10 @@ PanelWindow {
                                 id: mplaceProbe
                                 visible: false
                                 text: mplaceTab.label
-                                font.family: Theme.fontFamily
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             Slant {
@@ -1742,8 +1751,8 @@ PanelWindow {
                                 height: 26
                                 skew: 0.2
                                 radius: 9
-                                color: Theme.chipFill
-                                borderColor: Theme.pLine
+                                color: mt.chipFill
+                                borderColor: mt.pLine
                                 borderWidth: 3
                             }
 
@@ -1760,18 +1769,18 @@ PanelWindow {
                                     fill: 0
                                     size: 15
                                     weight: 700
-                                    color: Theme.dark ? Theme.accentMint : Theme.colBorder
+                                    color: mt.dark ? mt.accentMint : mt.colBorder
                                 }
                                 Text {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: Math.max(0, mplaceTab.width - mplaceTab.lean - 36)
                                     elide: Text.ElideRight
                                     text: mplaceTab.label
-                                    color: Theme.chipInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.chipInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 11
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                             }
 
@@ -1786,8 +1795,8 @@ PanelWindow {
                                     anchors.fill: parent
                                     shadowDy: 3
                                     cornerRadius: 11
-                                    ringWidth: Theme.borderWidth + Theme.whiteLine
-                                    fillColor: Theme.chipFill
+                                    ringWidth: mt.borderWidth + mt.whiteLine
+                                    fillColor: mt.chipFill
                                     pressed: mrefreshArea.pressed
 
                                     MaterialIcon {
@@ -1797,7 +1806,7 @@ PanelWindow {
                                         fill: 0
                                         size: 18
                                         weight: 600
-                                        color: Theme.chipInk
+                                        color: mt.chipInk
 
                                         RotationAnimator on rotation {
                                             from: 0
@@ -1832,9 +1841,9 @@ PanelWindow {
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 13
-                                    color: Theme.classic ? Theme.pSurfaceHover : Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.28)
+                                    color: mt.classic ? mt.pSurfaceHover : Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.28)
                                     border.width: 2
-                                    border.color: Theme.pLine
+                                    border.color: mt.pLine
                                     antialiasing: true
                                 }
 
@@ -1843,8 +1852,8 @@ PanelWindow {
                                     visible: !win.hasData
                                     anchors.centerIn: parent
                                     text: wx.loading ? "Fetching the forecast\u2026" : "Press refresh to try again"
-                                    color: Theme.pInkSub
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInkSub
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 11
                                     font.weight: Font.DemiBold
                                 }
@@ -1873,10 +1882,10 @@ PanelWindow {
                                             anchors.fill: parent
                                             anchors.margins: 1
                                             radius: 10
-                                            color: col.index === 0 ? Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, 0.26)
-                                                : Theme.pSurfaceHover
+                                            color: col.index === 0 ? Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, 0.26)
+                                                : mt.pSurfaceHover
                                             border.width: col.index === 0 ? 2 : 0
-                                            border.color: Theme.pLine
+                                            border.color: mt.pLine
                                             opacity: col.index === 0 ? 1 : (col.hovered ? 1 : 0)
                                             antialiasing: true
                                             Behavior on opacity {
@@ -1888,8 +1897,8 @@ PanelWindow {
                                             anchors.horizontalCenter: parent.horizontalCenter
                                             y: 8
                                             text: col.modelData.label
-                                            color: Theme.pInkSub
-                                            font.family: Theme.fontFamily
+                                            color: mt.pInkSub
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 11
                                             font.weight: Font.DemiBold
                                             opacity: Math.min(1, col.t * 2.5)
@@ -1909,11 +1918,11 @@ PanelWindow {
                                             anchors.horizontalCenter: parent.horizontalCenter
                                             y: 55
                                             text: col.modelData.temp
-                                            color: Theme.pInk
-                                            font.family: Theme.fontFamily
+                                            color: mt.pInk
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 16
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                             opacity: Math.min(1, col.t * 2.5)
                                         }
 
@@ -1938,11 +1947,11 @@ PanelWindow {
                                         TileLabel { text: "HUMIDITY" }
                                         Text {
                                             text: wx.humidityText
-                                            color: Theme.pInk
-                                            font.family: Theme.fontFamily
+                                            color: mt.pInk
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 19
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                     }
                                     Column {
@@ -1950,11 +1959,11 @@ PanelWindow {
                                         TileLabel { text: "WIND" }
                                         Text {
                                             text: win.windP.speed
-                                            color: Theme.pInk
-                                            font.family: Theme.fontFamily
+                                            color: mt.pInk
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 19
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                     }
                                 }

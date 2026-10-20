@@ -53,7 +53,7 @@ SekaiPopup {
     // The judgement on show: the real one, or the one for the level you point at.
     readonly property int shownPct: root.scrubbing ? root.scrubTarget : root.percentage
     readonly property int tierIdx: BM.tier(root.shownPct, root.plugged && !root.scrubbing)
-    readonly property var tierFill: ["#FFE066", Theme.accentMint, "#FF9ECB", "#A5E6A5", "#B39DDB", "#e0575b"]
+    readonly property var tierFill: ["#FFE066", mt.accentMint, "#FF9ECB", "#A5E6A5", "#B39DDB", "#e0575b"]
 
     readonly property string scrubText: {
         if (Math.abs(root.scrubTarget - root.percentage) <= 1)
@@ -134,12 +134,12 @@ SekaiPopup {
 
     Gradient {
         id: accentGradient
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     // The ink on the plate: dark, except on the red MISS plate.
-    readonly property color plateInk: root.tierIdx === 5 ? Theme.textWhite : Theme.colBorder
+    readonly property color plateInk: root.tierIdx === 5 ? mt.textWhite : mt.colBorder
 
     Column {
         id: stack
@@ -155,8 +155,8 @@ SekaiPopup {
             height: 106
             // The plate wears the colour of the judgement (the accent
             // gradient for PERFECT), so the level reads before the number.
-            colorTop: root.tierIdx === 1 ? Theme.accentMint : Qt.lighter(root.tierFill[root.tierIdx], 1.16)
-            colorBottom: root.tierIdx === 1 ? Theme.accentCyan : root.tierFill[root.tierIdx]
+            colorTop: root.tierIdx === 1 ? mt.accentMint : Qt.lighter(root.tierFill[root.tierIdx], 1.16)
+            colorBottom: root.tierIdx === 1 ? mt.accentCyan : root.tierFill[root.tierIdx]
             Behavior on colorTop { ColorAnimation { duration: 160 } }
             Behavior on colorBottom { ColorAnimation { duration: 160 } }
 
@@ -199,7 +199,7 @@ SekaiPopup {
                             required property int index
                             size: 9
                             lit: root.charging ? (root.sweepPhase >= 0 && root.sweepPhase % 3 === index) : true
-                            litColor: Theme.textWhite
+                            litColor: mt.textWhite
                             offColor: Qt.rgba(1, 1, 1, 0.25)
                             lineColor: root.plateInk
                         }
@@ -219,10 +219,10 @@ SekaiPopup {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.statusLabel
                     color: root.plateInk
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
 
@@ -231,10 +231,10 @@ SekaiPopup {
                 id: stampProbe
                 visible: false
                 text: BM.word(root.tierIdx)
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 16
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 0.6
             }
 
@@ -252,19 +252,19 @@ SekaiPopup {
                 transformOrigin: Item.Center
                 scale: stampPopValue
                 pressed: stampArea.pressed
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
 
                 property real stampPopValue: 1
 
                 Text {
                     anchors.centerIn: parent
                     text: BM.word(root.tierIdx)
-                    color: Theme.dark ? (root.tierIdx === 5 ? "#ff8a92" : Theme.accentMint)
-                                   : (root.tierIdx === 5 ? "#c93a40" : Theme.colBorder)
-                    font.family: Theme.fontFamily
+                    color: mt.dark ? (root.tierIdx === 5 ? "#ff8a92" : mt.accentMint)
+                                   : (root.tierIdx === 5 ? "#c93a40" : mt.colBorder)
+                    font.family: mt.fontFamily
                     font.pixelSize: 16
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.6
                 }
             }
@@ -316,8 +316,8 @@ SekaiPopup {
                 anchors.rightMargin: 4
                 anchors.verticalCenter: parent.verticalCenter
                 text: "slide along it to forecast"
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 10
                 font.weight: Font.DemiBold
             }
@@ -328,9 +328,9 @@ SekaiPopup {
             width: root.innerW
             height: 68
             radius: 18
-            color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.28)
+            color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.28)
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             Item {
@@ -384,8 +384,8 @@ SekaiPopup {
                                     anchors.fill: parent
                                     skew: gauge.skew
                                     radius: 9
-                                    color: Theme.surfaceHover
-                                    borderColor: Theme.line
+                                    color: mt.surfaceHover
+                                    borderColor: mt.line
                                     borderWidth: 3
                                 }
 
@@ -399,7 +399,7 @@ SekaiPopup {
                                     radius: 9
                                     color: root.low ? "#e0575b" : "transparent"
                                     gradient: root.low ? null : accentGradient
-                                    borderColor: Theme.line
+                                    borderColor: mt.line
                                     borderWidth: 3
                                     opacity: seg.f > 0 ? 1 : 0
                                     Behavior on opacity {
@@ -422,7 +422,7 @@ SekaiPopup {
                     width: 3
                     height: gauge.height + 2
                     radius: 1.5
-                    color: Theme.ink
+                    color: mt.ink
                 }
 
                 MouseArea {
@@ -442,11 +442,11 @@ SekaiPopup {
                     x: 10 + modelData.at * (track.width - 20) - width * modelData.at
                     y: 51
                     text: modelData.v
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 9
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -475,16 +475,16 @@ SekaiPopup {
                     shadowDy: 4
                     cornerRadius: 14
                     ringWidth: 4
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
 
                     Text {
                         anchors.centerIn: parent
                         text: String(Math.floor(root.minutes / 60))
-                        color: Theme.chipInk
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 24
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -492,11 +492,11 @@ SekaiPopup {
                     visible: hourKey.visible
                     anchors.verticalCenter: parent.verticalCenter
                     text: "h"
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Pill {
@@ -510,22 +510,22 @@ SekaiPopup {
                     Text {
                         anchors.centerIn: parent
                         text: ((root.minutes % 60) < 10 ? "0" : "") + (root.minutes % 60)
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 24
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "m"
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Column {
@@ -535,16 +535,16 @@ SekaiPopup {
 
                     Text {
                         text: root.charging ? "until full" : "remaining"
-                        color: Theme.ink
-                        font.family: Theme.fontFamily
+                        color: mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                     Text {
                         text: "at the pace it has now"
-                        color: Theme.inkSub
-                        font.family: Theme.fontFamily
+                        color: mt.inkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                     }
                 }
@@ -567,7 +567,7 @@ SekaiPopup {
                     shadowDy: 4
                     cornerRadius: 14
                     ringWidth: 4
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
 
                     MaterialIcon {
                         anchors.centerIn: parent
@@ -575,7 +575,7 @@ SekaiPopup {
                         fill: 0
                         size: 24
                         weight: 600
-                        color: Theme.chipInk
+                        color: mt.chipInk
                     }
                 }
 
@@ -589,11 +589,11 @@ SekaiPopup {
                         elide: Text.ElideRight
                         text: root.full ? "Topped up"
                             : (root.plugged ? "Plugged in" : "Working it out…")
-                        color: Theme.ink
-                        font.family: Theme.fontFamily
+                        color: mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                     Text {
                         width: parent.width
@@ -601,8 +601,8 @@ SekaiPopup {
                         text: root.full ? "Unplug whenever you like."
                             : (root.plugged ? "Not charging right now."
                                             : "Waiting for a reading of the pace.")
-                        color: Theme.inkSub
-                        font.family: Theme.fontFamily
+                        color: mt.inkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                     }
                 }
@@ -621,18 +621,18 @@ SekaiPopup {
 
                 Text {
                     text: "At " + root.scrubTarget + "%"
-                    color: Theme.ink
-                    font.family: Theme.fontFamily
+                    color: mt.ink
+                    font.family: mt.fontFamily
                     font.pixelSize: 22
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
                 Text {
                     width: parent.width
                     elide: Text.ElideRight
                     text: root.scrubText
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                 }
             }
@@ -648,9 +648,9 @@ SekaiPopup {
             width: root.innerW
             height: 56
             radius: 18
-            color: Theme.surfaceHover
+            color: mt.surfaceHover
             border.width: 3
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             readonly property var defs: [
@@ -677,7 +677,7 @@ SekaiPopup {
                 radius: 15
                 gradient: accentGradient
                 border.width: 3
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
                 Behavior on x {
                     NumberAnimation { duration: 300; easing.type: Easing.OutBack; easing.overshoot: 1.8 }
@@ -706,16 +706,16 @@ SekaiPopup {
                             fill: 0
                             size: 20
                             weight: 600
-                            color: modeKey.active ? Theme.colBorder : Theme.ink
+                            color: modeKey.active ? mt.colBorder : mt.ink
                         }
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: modeKey.modelData.label
-                            color: modeKey.active ? Theme.colBorder : Theme.ink
-                            font.family: Theme.fontFamily
+                            color: modeKey.active ? mt.colBorder : mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
 

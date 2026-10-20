@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // Shared building block: a thick navy outline with a white "ring"
@@ -27,12 +28,15 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // Inside the Capsule bar (Theme.capsuleFor): draw as a flat chip instead.
-    readonly property bool capsule: Theme.capsuleFor(root)
+    readonly property bool capsule: mt.capsuleFor(root)
     // ...on a bar standing on the left / right edge.
-    readonly property bool capsuleV: root.capsule && Theme.capsuleVerticalFor(root)
+    readonly property bool capsuleV: root.capsule && mt.capsuleVerticalFor(root)
     // The width of a pill on a standing bar: the Capsule bar's chips are narrower.
-    readonly property real barVWidth: root.capsule ? Theme.capVChip : Theme.barVPillWidth
+    readonly property real barVWidth: root.capsule ? mt.capVChip : mt.barVPillWidth
     // A chip normally takes the capsule's chip colour. A pill whose colour means
     // something (a Discord call, the mic in use, updates waiting) sets this to keep
     // its own fillColor there.
@@ -49,9 +53,9 @@ Item {
     property bool flat: false
 
     // Inside the Quick Panel / To-Do in the first dark mode: the classic look.
-    readonly property bool classicScope: Theme.classicFor(root)
+    readonly property bool classicScope: mt.classicFor(root)
 
-    property color fillColor: classicScope ? Theme.pSurface : Theme.surface
+    property color fillColor: classicScope ? mt.pSurface : mt.surface
     property Gradient fillGradient: null
     property real cornerRadius: height / 2
     property real ringWidth: 8
@@ -65,17 +69,17 @@ Item {
     // only ever drop it straight down (shadowDy 4, shadowDx 0); the Quick
     // Panel's buttons cast it down-right and change all three between
     // their OFF and ON looks, which is why they're properties here.
-    property real borderWidth: Theme.borderWidth
+    property real borderWidth: mt.borderWidth
     property real shadowDx: 0
-    property real shadowDy: Theme.shadowOffset
+    property real shadowDy: mt.shadowOffset
 
     // Ring color, as the top/bottom stops of a vertical gradient. Both
     // default to plain white, so every existing Pill (badges, QuickToggle,
     // the launcher's search pill) looks exactly like it always has — set
     // these when a Pill's *ring* itself needs to carry color, like the
     // dock's hover/running glow (see Dock.qml), rather than just its fill.
-    property color ringColorTop: classicScope ? Theme.pRingWhite : Theme.ringWhite
-    property color ringColorBottom: classicScope ? Theme.pRingWhite : Theme.ringWhite
+    property color ringColorTop: classicScope ? mt.pRingWhite : mt.ringWhite
+    property color ringColorBottom: classicScope ? mt.pRingWhite : mt.ringWhite
 
     // The raised part of the pill — the size without its shadow.
     readonly property real capWidth: width - shadowDx
@@ -89,7 +93,7 @@ Item {
     // completed click.
     property bool pressed: false
 
-    implicitHeight: Theme.pillHeight + shadowDy
+    implicitHeight: mt.pillHeight + shadowDy
 
     // Fixed hard shadow — never moves. It's what the cap below either
     // reveals (raised) or fully covers (pressed).
@@ -100,8 +104,8 @@ Item {
         width: root.capWidth
         height: root.capHeight
         radius: root.cornerRadius
-        color: root.capRim ? Theme.capShade
-            : (root.classicScope ? Theme.pLineShadow : Theme.lineShadow)
+        color: root.capRim ? mt.capShade
+            : (root.classicScope ? mt.pLineShadow : mt.lineShadow)
         antialiasing: true
     }
 
@@ -123,7 +127,7 @@ Item {
                         : (root.pressed ? (root.flat ? 1 : root.shadowDy) : 0)
         width: root.capsule ? root.width : root.capWidth
         height: root.capsule ? (root.capsuleV ? Math.max(0, root.height - root.shadowDy)
-                                              : Math.min(root.height, Theme.capChipHeight))
+                                              : Math.min(root.height, mt.capChipHeight))
                              : root.capHeight
 
         Behavior on x {
@@ -162,19 +166,19 @@ Item {
             anchors.fill: parent
             radius: root.cornerRadius
             border.width: root.borderWidth
-            border.color: root.capRim ? Theme.capRim
-                : (root.classicScope ? Theme.pLine : Theme.line)
+            border.color: root.capRim ? mt.capRim
+                : (root.classicScope ? mt.pLine : mt.line)
             antialiasing: true
 
             gradient: Gradient {
                 GradientStop {
                     position: 0.0
-                    color: root.capRim ? Theme.capBody : root.ringColorTop
+                    color: root.capRim ? mt.capBody : root.ringColorTop
                     Behavior on color { ColorAnimation { duration: 150 } }
                 }
                 GradientStop {
                     position: 1.0
-                    color: root.capRim ? Theme.capBody : root.ringColorBottom
+                    color: root.capRim ? mt.capBody : root.ringColorBottom
                     Behavior on color { ColorAnimation { duration: 150 } }
                 }
             }
@@ -187,8 +191,8 @@ Item {
             radius: root.capsule ? Math.min(width, height) / 2 : Math.max(0, root.cornerRadius - root.ringWidth)
             color: root.bare ? "transparent"
                 : (root.capsule
-                    ? (root.capKeepsFill ? root.fillColor : Theme.capChip)
-                    : (root.capRim ? Theme.capBody
+                    ? (root.capKeepsFill ? root.fillColor : mt.capChip)
+                    : (root.capRim ? mt.capBody
                         : (root.fillGradient ? "transparent" : root.fillColor)))
             gradient: (root.capsule || root.capRim || root.bare) ? null : root.fillGradient
 
@@ -206,7 +210,7 @@ Item {
             radius: fill.radius
             color: "transparent"
             border.width: root.innerRing
-            border.color: root.capRim ? Theme.capBody : root.ringColorTop
+            border.color: root.capRim ? mt.capBody : root.ringColorTop
             visible: root.innerRing > 0 && !root.capsule && !root.bare
             antialiasing: true
         }

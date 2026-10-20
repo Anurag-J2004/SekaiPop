@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -7,6 +8,9 @@ import qs.modules.common.widgets
 // DockShelfCard.qml, which sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property color tint
@@ -19,7 +23,7 @@ Item {
         width: parent.width
         height: parent.height
         radius: 4
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -28,20 +32,20 @@ Item {
         anchors.fill: parent
         radius: 4
         color: "#3A3D5C"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // a coloured band at each end
         Repeater {
-            model: [Theme.borderWidth + 2, shell.height - Theme.borderWidth - 8]
+            model: [mt.borderWidth + 2, shell.height - mt.borderWidth - 8]
 
             Rectangle {
                 required property real modelData
 
-                x: Theme.borderWidth + 2
+                x: mt.borderWidth + 2
                 y: modelData
-                width: shell.width - 2 * (Theme.borderWidth + 2)
+                width: shell.width - 2 * (mt.borderWidth + 2)
                 height: 6
                 radius: 2
                 color: root.tint
@@ -65,7 +69,7 @@ Item {
             text: "VHS"
             color: "white"
             opacity: root.lifted ? 0 : 0.85
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 9
             font.weight: Font.ExtraBold
 
@@ -84,7 +88,7 @@ Item {
             radius: 3
             color: "#FFFFFF"
             border.width: 1.5
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
             opacity: root.lifted ? 0 : 1
 
@@ -105,7 +109,7 @@ Item {
                 maximumLineCount: 1
                 text: root.item.name
                 color: "#2B2D42"
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 9
                 font.weight: Font.ExtraBold
             }

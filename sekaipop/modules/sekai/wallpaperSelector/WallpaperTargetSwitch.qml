@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -17,6 +18,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string current: "desktop"      // "desktop" | "lock"
     signal picked(string id)
 
@@ -24,8 +28,8 @@ Item {
     readonly property real slot: (root.width - 6) / 2
 
     // What the thumb is filled with. Animated, so the colour glides over with it.
-    property color thumbA: root.lock ? LockPalette.pink : Theme.accentCyan
-    property color thumbB: root.lock ? LockPalette.mint : Theme.accentMint
+    property color thumbA: root.lock ? LockPalette.pink : mt.accentCyan
+    property color thumbB: root.lock ? LockPalette.mint : mt.accentMint
     Behavior on thumbA { ColorAnimation { duration: 220 } }
     Behavior on thumbB { ColorAnimation { duration: 220 } }
 
@@ -34,12 +38,12 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.shadowOffset - 1
-        y: Theme.shadowOffset - 1
+        x: mt.shadowOffset - 1
+        y: mt.shadowOffset - 1
         width: root.width
         height: root.height
         radius: height / 2
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -48,8 +52,8 @@ Item {
         anchors.fill: parent
         radius: height / 2
         color: "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
     }
 
@@ -98,16 +102,16 @@ Item {
                     name: seg.modelData.icon
                     size: 20
                     weight: 600
-                    color: seg.on ? Theme.colBorder : Theme.colSubText
+                    color: seg.on ? mt.colBorder : mt.colSubText
                     Behavior on color { ColorAnimation { duration: 140 } }
                 }
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: seg.modelData.label
-                    color: seg.on ? Theme.colBorder : Theme.colSubText
-                    font.family: Theme.fontFamily
-                    font.styleName: Theme.fontStyleBold
+                    color: seg.on ? mt.colBorder : mt.colSubText
+                    font.family: mt.fontFamily
+                    font.styleName: mt.fontStyleBold
                     font.weight: Font.ExtraBold
                     font.pixelSize: 14
                     Behavior on color { ColorAnimation { duration: 140 } }

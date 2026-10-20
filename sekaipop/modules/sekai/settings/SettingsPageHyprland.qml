@@ -137,8 +137,8 @@ SettingsPage {
                 width: parent.width
                 wrapMode: Text.WordWrap
                 text: "Changes apply now, but Hyprland forgets them on its next reload until hyprland.lua loads the override file. Add this line to it once:"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 17
             }
 
@@ -146,14 +146,14 @@ SettingsPage {
                 width: codeText.implicitWidth + 28
                 height: 36
                 radius: 18
-                color: Theme.pSurfaceDivider
+                color: mt.pSurfaceDivider
                 antialiasing: true
 
                 Text {
                     id: codeText
                     anchors.centerIn: parent
                     text: page.linkLine
-                    color: Theme.pInk
+                    color: mt.pInk
                     font.family: "monospace"
                     font.pixelSize: 16
                 }
@@ -520,8 +520,8 @@ SettingsPage {
                 : (ScrollOverviewService.loading
                    ? "Loading the ScrollOverview plugin (hyprpm reload)..."
                    : "The ScrollOverview plugin is not loaded in Hyprland (the shell already tried hyprpm reload), so your overview key opens the film strip for now. Install and enable it once, then press Check again:")
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 17
         }
 
@@ -532,7 +532,7 @@ SettingsPage {
             maximumLineCount: 4
             elide: Text.ElideRight
             text: "hyprpm said: " + ScrollOverviewService.loadLog
-            color: Theme.pInk
+            color: mt.pInk
             opacity: 0.7
             font.family: "monospace"
             font.pixelSize: 13
@@ -543,7 +543,7 @@ SettingsPage {
             width: page.fullWidth
             height: installText.implicitHeight + 22
             radius: 18
-            color: Theme.pSurfaceDivider
+            color: mt.pSurfaceDivider
             antialiasing: true
 
             Text {
@@ -555,7 +555,7 @@ SettingsPage {
                 anchors.rightMargin: 16
                 wrapMode: Text.WrapAnywhere
                 text: overviewCard.installLine
-                color: Theme.pInk
+                color: mt.pInk
                 font.family: "monospace"
                 font.pixelSize: 14
             }
@@ -631,8 +631,8 @@ SettingsPage {
             text: DisplayService.confirming
                 ? "Keep these display settings? If you don't answer, the screens go back to how they were in " + DisplayService.secondsLeft + " s."
                 : "Change what you need (move, resize, switch screens on or off), then press Apply. You get " + DisplayService.confirmSeconds + " seconds to keep it before it goes back, so a wrong mode can't leave you with a black screen."
-            color: DisplayService.confirming ? Theme.pInk : Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: DisplayService.confirming ? mt.pInk : mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 16
             font.weight: DisplayService.confirming ? Font.ExtraBold : Font.Normal
         }
@@ -642,8 +642,8 @@ SettingsPage {
             width: displayCard.innerWidth
             wrapMode: Text.WordWrap
             text: "Drag a screen to move it. It snaps to the edges of the others and can't sit on top of one."
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 16
         }
 
@@ -658,8 +658,8 @@ SettingsPage {
             width: displayCard.innerWidth
             wrapMode: Text.WordWrap
             text: cut.join(", ") + (cut.length > 1 ? " don't" : " doesn't") + " touch the other screens, so the pointer can't get there. Drag it against an edge."
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 16
             font.weight: Font.ExtraBold
         }
@@ -689,11 +689,11 @@ SettingsPage {
                     width: parent.width
                     elide: Text.ElideRight
                     text: scr.modelData + (scr.d && scr.d.desc !== "" ? "  \u00b7  " + scr.d.desc : "")
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 19
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 SettingToggle {
@@ -708,8 +708,8 @@ SettingsPage {
                     width: parent.width
                     wrapMode: Text.WordWrap
                     text: scr.d ? "Sits at " + scr.d.x + ", " + scr.d.y + " px  \u00b7  takes " + Math.round(DisplayService.sizeOf(scr.d).w) + " \u00d7 " + Math.round(DisplayService.sizeOf(scr.d).h) : ""
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                 }
 
@@ -804,8 +804,8 @@ SettingsPage {
             width: kbCard.innerWidth
             wrapMode: Text.WordWrap
             text: "Pick every layout you type in. With two or more, a layout key appears on the bar: click it to switch. The first one you pick is the one you start on."
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 16
         }
 

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Effects
 import qs.services
 import qs.modules.common
@@ -27,6 +28,9 @@ import qs.modules.common.widgets
 // no room (`visible` is false once it has finished shrinking).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool vertical: false
     // Which edge the bar is on, so the tag opens towards the screen.
@@ -122,7 +126,7 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: vertical ? 6 : 8
         capKeepsFill: true   // Capsule bar: the blurple is the state, keep it
         fillColor: root.blurple
@@ -130,8 +134,8 @@ Item {
 
         implicitWidth: root.vertical ? pill.barVWidth
                                      : row.implicitWidth + 2 * ringWidth + 14
-        implicitHeight: root.vertical ? col.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + Theme.shadowOffset
-                                      : Theme.pillHeight + Theme.shadowOffset
+        implicitHeight: root.vertical ? col.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + mt.shadowOffset
+                                      : mt.pillHeight + mt.shadowOffset
 
         // ===== flat bar =====
         Row {
@@ -150,8 +154,8 @@ Item {
                 width: Math.min(implicitWidth, 150)
                 text: root.labelText
                 elide: Text.ElideRight
-                color: Theme.textWhite
-                font.family: Theme.fontFamily
+                color: mt.textWhite
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }
@@ -180,8 +184,8 @@ Item {
                 visible: !root.shownAuth
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: root.countText
-                color: Theme.textWhite
-                font.family: Theme.fontFamily
+                color: mt.textWhite
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: Font.Bold
             }
@@ -201,7 +205,7 @@ Item {
         MaterialIcon {
             name: "headset"
             size: 18
-            color: Theme.textWhite
+            color: mt.textWhite
         }
     }
 
@@ -257,7 +261,7 @@ Item {
         MaterialIcon {
             name: root.deafened ? "headset_off" : (root.muted ? "mic_off" : "mic")
             size: 18
-            color: Theme.textWhite
+            color: mt.textWhite
             opacity: root.muted || root.deafened ? 1 : 0.8
         }
     }
@@ -268,6 +272,9 @@ Item {
     // needs comes in as a property.)
     component Avatar: Item {
         id: av
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
         property var user: null
         property color base: "#5865f2"
         property real diameter: 24
@@ -281,7 +288,7 @@ Item {
             radius: width / 2
             color: av.base
             border.width: 2
-            border.color: av.talking ? Theme.textWhite : av.base
+            border.color: av.talking ? mt.textWhite : av.base
             Behavior on border.color { ColorAnimation { duration: 120 } }
         }
 
@@ -296,8 +303,8 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: av.user ? String(av.user.nick || "?").charAt(0).toUpperCase() : "?"
-                color: Theme.textWhite
-                font.family: Theme.fontFamily
+                color: mt.textWhite
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.Bold
             }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -18,6 +19,9 @@ import qs.modules.common.widgets
 // at all.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string name: ""
     property url source
@@ -79,7 +83,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 7
-            color: Theme.surface
+            color: mt.surface
             antialiasing: true
         }
 
@@ -104,9 +108,9 @@ Item {
             width: Math.max(12, root.iconSize * 0.36)
             height: width
             radius: width / 2
-            color: Theme.surface
+            color: mt.surface
             border.width: 1.5
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             MaterialIcon {
@@ -114,7 +118,7 @@ Item {
                 name: "play_arrow"
                 size: parent.width * 0.74
                 fill: 1
-                color: Theme.ink
+                color: mt.ink
             }
         }
 
@@ -124,7 +128,7 @@ Item {
             radius: 7
             color: "transparent"
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
         }
     }

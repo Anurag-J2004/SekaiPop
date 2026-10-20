@@ -29,6 +29,9 @@ import "../../common/functions/MatugenMath.js" as MG
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // Back to the tile row.
     signal back()
     // The hex field gave the keyboard back (EditTray: Esc leaves Edit Desktop again).
@@ -74,14 +77,14 @@ Item {
 
     Gradient {
         id: plateFill
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
     Gradient {
         id: keyFill
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.0; color: Theme.accentCyan }
-        GradientStop { position: 1.0; color: Theme.accentMint }
+        GradientStop { position: 0.0; color: mt.accentCyan }
+        GradientStop { position: 1.0; color: mt.accentMint }
     }
 
     // ===== pieces =====
@@ -90,6 +93,9 @@ Item {
     // Its content sits 3 + 11 down and 3 + 13 in (border + padding).
     component Block: Item {
         id: blk
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         default property alias content: inner.data
         property string title: ""
@@ -103,7 +109,7 @@ Item {
             ringWidth: 4
             shadowDx: 0
             shadowDy: 4
-            fillColor: Theme.pSurface
+            fillColor: mt.pSurface
         }
 
         Row {
@@ -116,11 +122,11 @@ Item {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: blk.title.toUpperCase()
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.Black
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 1.1
             }
 
@@ -128,8 +134,8 @@ Item {
                 visible: blk.titleNote !== ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: "· " + blk.titleNote
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.Bold
             }
@@ -145,6 +151,9 @@ Item {
     // thin ring, like the shelf's tabs) when it is the one on.
     component Key: Item {
         id: key
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string text: ""
         property string icon: ""
@@ -165,7 +174,7 @@ Item {
             shadowDx: 0
             shadowDy: 3
             pressed: keyArea.pressed
-            fillColor: keyArea.containsMouse && !key.on ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: keyArea.containsMouse && !key.on ? mt.pSurfaceHover : mt.pSurface
             fillGradient: key.on ? keyFill : null
         }
 
@@ -180,18 +189,18 @@ Item {
                 name: key.icon
                 size: 15
                 weight: 700
-                color: key.on ? Theme.colBorder : Theme.pInk
+                color: key.on ? mt.colBorder : mt.pInk
             }
 
             Text {
                 visible: key.text !== ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: key.text
-                color: key.on ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
+                color: key.on ? mt.colBorder : mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: key.on ? Font.Black : Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             // Working on it: the shell's busy glyph (UpdatesBadge.qml), turning.
@@ -201,7 +210,7 @@ Item {
                 name: "sync"
                 size: 13
                 weight: 700
-                color: key.on ? Theme.colBorder : Theme.pInk
+                color: key.on ? mt.colBorder : mt.pInk
                 transformOrigin: Item.Center
 
                 RotationAnimator on rotation {
@@ -227,6 +236,9 @@ Item {
     // PIN TO swatches (30 x 30, corner 9). The one on is lifted 3 px, heavier, with a tick.
     component Swatch: Item {
         id: sw
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property color colour: "white"
         property bool on: false
@@ -254,9 +266,9 @@ Item {
             width: 20
             height: 20
             radius: 10
-            color: Theme.accentMint
+            color: mt.accentMint
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             MaterialIcon {
@@ -264,7 +276,7 @@ Item {
                 name: "check"
                 size: 12
                 weight: 700
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
 
@@ -278,8 +290,11 @@ Item {
 
     // A caption under a block's keys.
     component Cap: Text {
-        color: Theme.pInkSub
-        font.family: Theme.fontFamily
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+        color: mt.pInkSub
+        font.family: mt.fontFamily
         font.pixelSize: 11
         font.weight: Font.Bold
     }
@@ -305,7 +320,7 @@ Item {
         WheelHandler {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
-                const d = Theme.wheelPx(event, true)
+                const d = mt.wheelPx(event, true)
                 flick.contentX = Math.max(0, Math.min(flick.contentWidth - flick.width, flick.contentX - d))
             }
         }
@@ -341,13 +356,13 @@ Item {
                     width: 86
                     height: 62
                     radius: 9
-                    color: Theme.dark ? Qt.darker(Qt.color(root.pal.deep), 1.3) : Qt.color(root.pal.boardBg)
+                    color: mt.dark ? Qt.darker(Qt.color(root.pal.deep), 1.3) : Qt.color(root.pal.boardBg)
                     border.width: 3
                     border.color: root.pal.border
                     clip: true
                     antialiasing: true
 
-                    readonly property color surf: Theme.dark ? Qt.lighter(Qt.color(root.pal.deep), 1.18) : "#ffffff"
+                    readonly property color surf: mt.dark ? Qt.lighter(Qt.color(root.pal.deep), 1.18) : "#ffffff"
 
                     Gradient {
                         id: miniAccent
@@ -438,7 +453,7 @@ Item {
                         name: root.busy ? "sync" : "chevron_left"
                         size: 14
                         weight: 700
-                        color: Theme.colBorder
+                        color: mt.colBorder
                         transformOrigin: Item.Center
 
                         RotationAnimator on rotation {
@@ -453,11 +468,11 @@ Item {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.busy ? "Working" : "Themes"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.Black
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -468,9 +483,9 @@ Item {
                     width: 24
                     height: 24
                     radius: 12
-                    color: Theme.accentMint
+                    color: mt.accentMint
                     border.width: 2
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MaterialIcon {
@@ -478,7 +493,7 @@ Item {
                         name: "check"
                         size: 15
                         weight: 700
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                 }
 
@@ -554,16 +569,16 @@ Item {
                                 name: "magic_stick"
                                 size: 18
                                 weight: 700
-                                color: ThemeService.matugenSeed < 0 ? Theme.colBorder : Theme.pInk
+                                color: ThemeService.matugenSeed < 0 ? mt.colBorder : mt.pInk
                             }
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: "Auto"
-                                color: ThemeService.matugenSeed < 0 ? Theme.colBorder : Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: ThemeService.matugenSeed < 0 ? mt.colBorder : mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.Black
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
                         }
                     }
@@ -668,16 +683,16 @@ Item {
                                     width: 18
                                     height: 18
                                     radius: 9
-                                    color: Theme.pSurface
+                                    color: mt.pSurface
                                     border.width: 2
-                                    border.color: Theme.pLine
+                                    border.color: mt.pLine
 
                                     MaterialIcon {
                                         anchors.centerIn: parent
                                         name: "push_pin"
                                         size: 10
                                         weight: 700
-                                        color: Theme.pInk
+                                        color: mt.pInk
                                     }
                                 }
                             }
@@ -689,11 +704,11 @@ Item {
 
                                 Text {
                                     text: ar.modelData
-                                    color: Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 14
                                     font.weight: Font.Black
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                                 Text {
                                     width: parent.width
@@ -701,7 +716,7 @@ Item {
                                     maximumLineCount: 2
                                     lineHeight: 1.15
                                     text: root.accentOf(ar.modelData) + " · " + (ar.pinned !== "" ? "pinned" : "wallpaper")
-                                    color: Theme.pInkSub
+                                    color: mt.pInkSub
                                     font.family: "monospace"
                                     font.pixelSize: 11
                                     font.weight: Font.Bold
@@ -744,7 +759,7 @@ Item {
                             Rectangle {
                                 width: 2.5
                                 height: 6
-                                color: Theme.pSurfaceDivider
+                                color: mt.pSurfaceDivider
                             }
                         }
                     }
@@ -758,11 +773,11 @@ Item {
                             height: 14
                             verticalAlignment: Text.AlignVCenter
                             text: "PIN " + root.picking + " TO"
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.Black
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                             font.letterSpacing: 1.1
                         }
 
@@ -789,11 +804,11 @@ Item {
                                 Text {
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: "Keep this one"
-                                    color: Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 12
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                             }
                         }
@@ -835,9 +850,9 @@ Item {
                                 width: 104
                                 height: 30
                                 radius: 10
-                                color: Theme.pSurface
+                                color: mt.pSurface
                                 border.width: 2.5
-                                border.color: Theme.pLine
+                                border.color: mt.pLine
 
                                 Rectangle {
                                     x: 2.5
@@ -845,7 +860,7 @@ Item {
                                     width: parent.width - 5
                                     height: 2
                                     radius: 1
-                                    color: Theme.pSurfaceHover
+                                    color: mt.pSurfaceHover
                                 }
 
                                 Text {
@@ -853,7 +868,7 @@ Item {
                                     x: 8
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: "#"
-                                    color: Theme.pInkSub
+                                    color: mt.pInkSub
                                     font.family: "monospace"
                                     font.pixelSize: 12
                                 }
@@ -868,14 +883,14 @@ Item {
                                     maximumLength: 7
                                     clip: true
                                     selectByMouse: true
-                                    color: Theme.pInk
+                                    color: mt.pInk
                                     font.family: "monospace"
                                     font.pixelSize: 12
 
                                     Text {
                                         visible: hexInput.text === ""
                                         text: root.picking !== "" ? root.accentOf(root.picking).replace("#", "") : ""
-                                        color: Theme.pInkSub
+                                        color: mt.pInkSub
                                         font: hexInput.font
                                     }
 

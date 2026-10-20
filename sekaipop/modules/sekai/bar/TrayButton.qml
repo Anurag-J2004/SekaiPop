@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -25,6 +26,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property bool open: false
 
     // Real screen pixels per design pixel (shell scale x the screen's device
@@ -46,8 +50,8 @@ Item {
 
     signal toggleRequested()
 
-    implicitWidth: Theme.pillHeight
-    implicitHeight: Theme.pillHeight + Theme.shadowOffset
+    implicitWidth: mt.pillHeight
+    implicitHeight: mt.pillHeight + mt.shadowOffset
 
     // 0 -> 1. Also what a RowLayout uses to shrink the button's slot and
     // take back the gap around it gradually (see Status_Bar.qml).
@@ -92,9 +96,9 @@ Item {
         id: cap
         anchors.fill: parent
 
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: 6   // the bar's pills all share the Utility pill's ring
-        fillColor: Theme.chipFill
+        fillColor: mt.chipFill
 
         pressed: area.pressed || root.keyPulse
 
@@ -114,7 +118,7 @@ Item {
                 name: "arrow_drop_down"
                 size: 28
                 fill: 1
-                color: Theme.chipInk
+                color: mt.chipInk
                 rotation: root.open ? 180 : 0
                 Behavior on rotation {
                     NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
@@ -134,7 +138,7 @@ Item {
         y: -2
         color: "#ff5c7a"
         border.width: 2
-        border.color: Theme.ringWhite
+        border.color: mt.ringWhite
         antialiasing: true
 
         SequentialAnimation on scale {

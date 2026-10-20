@@ -61,6 +61,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         CalendarCardService.posX = -1;
         CalendarCardService.posY = -1;
@@ -268,13 +271,13 @@ PanelWindow {
     readonly property var hoverCell: win.hoverIndex >= 0 && win.hoverIndex < win.cells.length ? win.cells[win.hoverIndex] : null
 
     // Weekends, late deadlines and near ones (the bar calendar's coral on the dark looks).
-    readonly property color weekendInk: Theme.dark ? "#ff8fa3" : "#e0575b"
+    readonly property color weekendInk: mt.dark ? "#ff8fa3" : "#e0575b"
     readonly property color alertInk: win.weekendInk
-    readonly property color alertText: Theme.dark ? Theme.colBorder : "#ffffff"
-    readonly property color soonInk: Theme.dark ? "#ffc266" : "#f0a030"
+    readonly property color alertText: mt.dark ? mt.colBorder : "#ffffff"
+    readonly property color soonInk: mt.dark ? "#ffc266" : "#f0a030"
 
     function attr(i) {
-        return Qt.color(Theme.attributeColors[Math.max(0, Math.min(Theme.attributeColors.length - 1, i))])
+        return Qt.color(mt.attributeColors[Math.max(0, Math.min(mt.attributeColors.length - 1, i))])
     }
 
     // `base` with `c` washed over it at `a` (0..1).
@@ -288,7 +291,7 @@ PanelWindow {
             return win.alertInk
         if (st === "soon")
             return win.soonInk
-        return Theme.pInkSub
+        return mt.pInkSub
     }
 
     // ===== paging and selecting =====
@@ -408,8 +411,8 @@ PanelWindow {
 
     Gradient {
         id: accentGradient
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     // ===== placement =====
@@ -577,10 +580,10 @@ PanelWindow {
                 readonly property bool small: CalendarCardService.small
                 readonly property int contentW: card.small ? 286 : 312
                 readonly property int contentH: card.small ? 238 : col.implicitHeight
-                readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 10
+                readonly property int inset: mt.borderWidth + mt.outerRingWidth + 10
 
                 width: card.contentW + card.inset * 2
-                height: card.contentH + card.inset * 2 + Theme.shadowOffset
+                height: card.contentH + card.inset * 2 + mt.shadowOffset
 
                 scale: Math.max(0, win.reveal) * (win.placed ? 1 : 0)
                 opacity: win.reveal > 0.001 ? 1 : 0
@@ -602,11 +605,11 @@ PanelWindow {
                 // shadow as the bar, the dock, the To-Do card and the clock.
                 Pill {
                     anchors.fill: parent
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-                    ringColorTop: Theme.pSurfaceRing
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth + mt.outerRingWidth
+                    ringColorTop: mt.pSurfaceRing
                     ringColorBottom: ringColorTop
-                    fillColor: Theme.pSurface
+                    fillColor: mt.pSurface
                 }
 
                 // Edit Desktop: outline, corner diamonds, a tag and a drag shield
@@ -693,11 +696,11 @@ PanelWindow {
                                     y: 9
                                     width: 190
                                     elide: Text.ElideRight
-                                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.82)
-                                    font.family: Theme.fontFamily
+                                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.82)
+                                    font.family: mt.fontFamily
                                     font.pixelSize: Math.round(10.5)
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                     font.letterSpacing: 0.3
                                     text: {
                                         if (win.hoverCell) {
@@ -728,12 +731,12 @@ PanelWindow {
                                     width: 62
                                     height: 66
                                     cornerRadius: 31
-                                    ringWidth: Theme.borderWidth + Theme.whiteLine
+                                    ringWidth: mt.borderWidth + mt.whiteLine
                                     shadowDy: 4
                                     rotation: 6
                                     transformOrigin: Item.Center
                                     pressed: discArea.pressed
-                                    fillColor: Theme.chipFill
+                                    fillColor: mt.chipFill
 
                                     property real sx: 1
                                     property real sy: 1
@@ -752,20 +755,20 @@ PanelWindow {
                                         Text {
                                             anchors.horizontalCenter: parent.horizontalCenter
                                             text: CM.weekdayShort(win.today.getDay())
-                                            color: Theme.dark ? Theme.accentMint : Theme.chipInk
-                                            font.family: Theme.fontFamily
+                                            color: mt.dark ? mt.accentMint : mt.chipInk
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 10
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                         Text {
                                             anchors.horizontalCenter: parent.horizontalCenter
                                             text: String(win.today.getDate())
-                                            color: Theme.chipInk
-                                            font.family: Theme.fontFamily
+                                            color: mt.chipInk
+                                            font.family: mt.fontFamily
                                             font.pixelSize: 28
                                             font.weight: Font.ExtraBold
-                                            font.styleName: Theme.fontStyleBold
+                                            font.styleName: mt.fontStyleBold
                                         }
                                     }
                                 }
@@ -811,10 +814,10 @@ PanelWindow {
                                 id: tallyProbe
                                 visible: false
                                 text: tab.label
-                                font.family: Theme.fontFamily
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             Slant {
@@ -836,8 +839,8 @@ PanelWindow {
                                 height: 26
                                 skew: 0.2
                                 radius: 9
-                                color: win.summary.late > 0 ? win.alertInk : Theme.chipFill
-                                borderColor: Theme.pLine
+                                color: win.summary.late > 0 ? win.alertInk : mt.chipFill
+                                borderColor: mt.pLine
                                 borderWidth: 3
                             }
 
@@ -854,18 +857,18 @@ PanelWindow {
                                     fill: win.summary.late > 0 ? 1 : 0
                                     size: 15
                                     weight: 700
-                                    color: win.summary.late > 0 ? win.alertText : (Theme.dark ? Theme.accentMint : Theme.colBorder)
+                                    color: win.summary.late > 0 ? win.alertText : (mt.dark ? mt.accentMint : mt.colBorder)
                                 }
                                 Text {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: Math.max(0, tab.width - tab.lean - 36)
                                     elide: Text.ElideRight
                                     text: tab.label
-                                    color: win.summary.late > 0 ? win.alertText : Theme.chipInk
-                                    font.family: Theme.fontFamily
+                                    color: win.summary.late > 0 ? win.alertText : mt.chipInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 11
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                             }
 
@@ -900,11 +903,11 @@ PanelWindow {
                                     text: modelData
                                     // The weekend columns (Saturday = 6, Sunday = 0).
                                     readonly property int dow: (win.firstDay + index) % 7
-                                    color: dow === 0 || dow === 6 ? win.weekendInk : Theme.pInkSub
-                                    font.family: Theme.fontFamily
+                                    color: dow === 0 || dow === 6 ? win.weekendInk : mt.pInkSub
+                                    font.family: mt.fontFamily
                                     font.pixelSize: Math.round(10.5)
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                             }
                         }
@@ -969,7 +972,7 @@ PanelWindow {
                                         width: parent.width
                                         height: parent.height
                                         radius: 9
-                                        color: Theme.pLineShadow
+                                        color: mt.pLineShadow
                                         antialiasing: true
                                     }
 
@@ -980,11 +983,11 @@ PanelWindow {
                                         radius: 9
                                         antialiasing: true
                                         border.width: cell.raised ? 2.5 : 0
-                                        border.color: Theme.pLine
+                                        border.color: mt.pLine
                                         color: {
-                                            const base = cell.hovered ? Theme.pSurfaceHover : (cell.c.inMonth ? Theme.pSurfaceHover : "transparent")
+                                            const base = cell.hovered ? mt.pSurfaceHover : (cell.c.inMonth ? mt.pSurfaceHover : "transparent")
                                             if (cell.marks.count > 0)
-                                                return win.wash(cell.c.inMonth ? Theme.pSurfaceHover : Theme.pSurface,
+                                                return win.wash(cell.c.inMonth ? mt.pSurfaceHover : mt.pSurface,
                                                                 win.attr(cell.marks.colors[0]), cell.c.inMonth ? 0.55 : 0.22)
                                             return base
                                         }
@@ -998,11 +1001,11 @@ PanelWindow {
                                         horizontalAlignment: Text.AlignHCenter
                                         text: String(cell.c.d)
                                         opacity: cell.c.inMonth ? 1 : 0.42
-                                        color: cell.c.isToday ? Theme.colBorder : (cell.c.isWeekend ? win.weekendInk : Theme.pInk)
-                                        font.family: Theme.fontFamily
+                                        color: cell.c.isToday ? mt.colBorder : (cell.c.isWeekend ? win.weekendInk : mt.pInk)
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 13
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                     }
 
                                     // One diamond per colour the day holds (three at most).
@@ -1024,7 +1027,7 @@ PanelWindow {
                                                 antialiasing: true
                                                 color: win.attr(modelData)
                                                 border.width: 1.5
-                                                border.color: Theme.pLine
+                                                border.color: mt.pLine
                                                 opacity: cell.c.inMonth ? 1 : 0.6
                                             }
                                         }
@@ -1087,11 +1090,11 @@ PanelWindow {
                                         }
                                         return "Coming up"
                                     }
-                                    color: Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 15
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
 
                                 Text {
@@ -1108,8 +1111,8 @@ PanelWindow {
                                                 + (n === 0 ? "nothing on" : n + (n === 1 ? " entry" : " entries"))
                                         return n === 0 ? "nothing yet" : n + (n === 1 ? " entry ahead" : " entries ahead")
                                     }
-                                    color: Theme.pInkSub
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInkSub
+                                    font.family: mt.fontFamily
                                     font.pixelSize: Math.round(10.5)
                                     font.weight: Font.DemiBold
                                 }
@@ -1142,7 +1145,7 @@ PanelWindow {
                                     height: 30
                                     radius: 10
                                     border.width: 2.5
-                                    border.color: Theme.pLine
+                                    border.color: mt.pLine
                                     opacity: CalendarCardService.full ? 0.45 : 1
                                     scale: addArea.pressed ? 0.9 : 1
                                     gradient: accentGradient
@@ -1152,7 +1155,7 @@ PanelWindow {
                                     }
 
                                     MaterialIcon {
-                                        color: Theme.colBorder
+                                        color: mt.colBorder
                                         anchors.centerIn: parent
                                         name: "add"
                                         size: 20
@@ -1227,22 +1230,22 @@ PanelWindow {
                                     size: 30
                                     weight: 500
                                     fill: 0
-                                    color: Theme.pInkSub
+                                    color: mt.pInkSub
                                 }
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     text: win.selectedKey !== "" ? "Nothing on this day" : "No events yet"
-                                    color: Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 13
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     text: "Press + or double-click a day to add one"
-                                    color: Theme.pInkSub
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInkSub
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 11
                                     font.weight: Font.DemiBold
                                 }
@@ -1304,8 +1307,8 @@ PanelWindow {
                                             height: 32
                                             radius: 11
                                             border.width: 2.5
-                                            border.color: Theme.pLine
-                                            color: chosen ? Theme.accentMint : (kindArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface)
+                                            border.color: mt.pLine
+                                            color: chosen ? mt.accentMint : (kindArea.containsMouse ? mt.pSurfaceHover : mt.pSurface)
                                             gradient: chosen ? accentGradient : null
 
                                             Behavior on color {
@@ -1322,16 +1325,16 @@ PanelWindow {
                                                     size: 15
                                                     weight: 700
                                                     fill: chosen ? 1 : 0
-                                                    color: chosen ? Theme.colBorder : Theme.pInk
+                                                    color: chosen ? mt.colBorder : mt.pInk
                                                 }
                                                 Text {
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     text: modelData.label
-                                                    color: chosen ? Theme.colBorder : Theme.pInk
-                                                    font.family: Theme.fontFamily
+                                                    color: chosen ? mt.colBorder : mt.pInk
+                                                    font.family: mt.fontFamily
                                                     font.pixelSize: Math.round(11.5)
                                                     font.weight: Font.ExtraBold
-                                                    font.styleName: Theme.fontStyleBold
+                                                    font.styleName: mt.fontStyleBold
                                                 }
                                             }
 
@@ -1372,7 +1375,7 @@ PanelWindow {
                                                 scale: chosen ? 1.3 : (swatchArea.containsMouse ? 1.12 : 1)
                                                 color: win.attr(index)
                                                 border.width: chosen ? 3 : 2
-                                                border.color: Theme.pLine
+                                                border.color: mt.pLine
 
                                                 Behavior on scale {
                                                     NumberAnimation { duration: 140; easing.type: Easing.OutBack; easing.overshoot: 2.2 }
@@ -1394,11 +1397,11 @@ PanelWindow {
                                     Text {
                                         anchors.verticalCenter: parent.verticalCenter
                                         text: ["Cool", "Cute", "Happy", "Mysterious", "Pure"][win.formColor]
-                                        color: Theme.pInkSub
-                                        font.family: Theme.fontFamily
+                                        color: mt.pInkSub
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 11
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                     }
                                 }
 
@@ -1464,11 +1467,11 @@ PanelWindow {
                                 y: 6
                                 width: 176
                                 elide: Text.ElideRight
-                                color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.82)
-                                font.family: Theme.fontFamily
+                                color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.82)
+                                font.family: mt.fontFamily
                                 font.pixelSize: Math.round(10.5)
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                                 font.letterSpacing: 0.3
                                 text: {
                                     if (win.hoverCell) {
@@ -1537,11 +1540,11 @@ PanelWindow {
                                     text: modelData
                                     // The weekend columns (Saturday = 6, Sunday = 0).
                                     readonly property int dow: (win.firstDay + index) % 7
-                                    color: dow === 0 || dow === 6 ? win.weekendInk : Theme.pInkSub
-                                    font.family: Theme.fontFamily
+                                    color: dow === 0 || dow === 6 ? win.weekendInk : mt.pInkSub
+                                    font.family: mt.fontFamily
                                     font.pixelSize: Math.round(10.5)
                                     font.weight: Font.ExtraBold
-                                    font.styleName: Theme.fontStyleBold
+                                    font.styleName: mt.fontStyleBold
                                 }
                             }
                         }
@@ -1605,7 +1608,7 @@ PanelWindow {
                                         width: parent.width
                                         height: parent.height
                                         radius: 8
-                                        color: Theme.pLineShadow
+                                        color: mt.pLineShadow
                                         antialiasing: true
                                     }
 
@@ -1615,11 +1618,11 @@ PanelWindow {
                                         radius: 8
                                         antialiasing: true
                                         border.width: mcell.raised ? 2 : 0
-                                        border.color: Theme.pLine
+                                        border.color: mt.pLine
                                         color: {
-                                            const base = mcell.hovered ? Theme.pSurfaceHover : (mcell.c.inMonth ? Theme.pSurfaceHover : "transparent")
+                                            const base = mcell.hovered ? mt.pSurfaceHover : (mcell.c.inMonth ? mt.pSurfaceHover : "transparent")
                                             if (mcell.marks.count > 0)
-                                                return win.wash(mcell.c.inMonth ? Theme.pSurfaceHover : Theme.pSurface,
+                                                return win.wash(mcell.c.inMonth ? mt.pSurfaceHover : mt.pSurface,
                                                                 win.attr(mcell.marks.colors[0]), mcell.c.inMonth ? 0.55 : 0.22)
                                             return base
                                         }
@@ -1633,11 +1636,11 @@ PanelWindow {
                                         horizontalAlignment: Text.AlignHCenter
                                         text: String(mcell.c.d)
                                         opacity: mcell.c.inMonth ? 1 : 0.42
-                                        color: mcell.c.isToday ? Theme.colBorder : (mcell.c.isWeekend ? win.weekendInk : Theme.pInk)
-                                        font.family: Theme.fontFamily
+                                        color: mcell.c.isToday ? mt.colBorder : (mcell.c.isWeekend ? win.weekendInk : mt.pInk)
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 12
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                     }
 
                                     // One diamond per colour the day holds (three at most).
@@ -1659,7 +1662,7 @@ PanelWindow {
                                                 antialiasing: true
                                                 color: win.attr(modelData)
                                                 border.width: 1
-                                                border.color: Theme.pLine
+                                                border.color: mt.pLine
                                                 opacity: mcell.c.inMonth ? 1 : 0.6
                                             }
                                         }

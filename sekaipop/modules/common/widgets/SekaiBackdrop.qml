@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // What the Settings Panel's cards sit on. Not plain white: a pale wash of the
@@ -12,9 +13,12 @@ import qs.modules.common
 Item {
     id: root
 
-    property color base: Theme.pSurface
-    readonly property bool deep: Theme.dark && !Theme.classic
-    readonly property color color: Qt.tint(base, Qt.rgba(Theme.accentMint.r, Theme.accentMint.g, Theme.accentMint.b, deep ? 0.12 : 0.17))
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
+    property color base: mt.pSurface
+    readonly property bool deep: mt.dark && !mt.classic
+    readonly property color color: Qt.tint(base, Qt.rgba(mt.accentMint.r, mt.accentMint.g, mt.accentMint.b, deep ? 0.12 : 0.17))
 
     function mix(c, a) {
         const q = Qt.color(c)
@@ -33,7 +37,7 @@ Item {
         width: 560
         height: 820
         skew: 0.34
-        color: root.mix(Theme.accentCyan, root.deep ? 0.12 : 0.16)
+        color: root.mix(mt.accentCyan, root.deep ? 0.12 : 0.16)
     }
 
     Slant {
@@ -51,7 +55,7 @@ Item {
         width: 340
         height: 820
         skew: 0.34
-        color: root.mix(Theme.attributeColors[2], root.deep ? 0.08 : 0.22)
+        color: root.mix(mt.attributeColors[2], root.deep ? 0.08 : 0.22)
     }
 
     // halftones
@@ -63,7 +67,7 @@ Item {
         corner: "tr"
         spacing: 20
         maxRadius: 4.2
-        dotColor: root.mix(Theme.colBorder, root.deep ? 0.22 : 0.10)
+        dotColor: root.mix(mt.colBorder, root.deep ? 0.22 : 0.10)
     }
 
     DotField {
@@ -74,7 +78,7 @@ Item {
         corner: "bl"
         spacing: 20
         maxRadius: 4.2
-        dotColor: root.mix(Theme.colBorder, root.deep ? 0.22 : 0.10)
+        dotColor: root.mix(mt.colBorder, root.deep ? 0.22 : 0.10)
     }
 
     // stars and notes
@@ -85,7 +89,7 @@ Item {
         name: "star"
         fill: 1
         rotation: -14
-        color: root.mix(Theme.attributeColors[2], 0.9)
+        color: root.mix(mt.attributeColors[2], 0.9)
     }
 
     MaterialIcon {
@@ -105,6 +109,6 @@ Item {
         name: "diamond"
         fill: 1
         rotation: 8
-        color: root.mix(Theme.accentCyan, 0.85)
+        color: root.mix(mt.accentCyan, 0.85)
     }
 }

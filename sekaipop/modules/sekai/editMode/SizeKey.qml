@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -21,6 +22,9 @@ import qs.modules.common.widgets
 // its MouseArea is off, so it never eats a click meant for the card.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool shown: false
     // The card is the 2 x 2 size right now (the key then offers FULL, and the other way round).
@@ -74,8 +78,8 @@ Item {
         ringWidth: 3
         pressed: keyArea.pressed
         fillGradient: Gradient {
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         MaterialIcon {
@@ -83,7 +87,7 @@ Item {
             name: root.icon !== "" ? root.icon : (root.small ? "open_in_full" : "close_fullscreen")
             size: 18
             weight: 600
-            color: Theme.colBorder
+            color: mt.colBorder
         }
     }
 
@@ -96,17 +100,17 @@ Item {
         height: 30
         cornerRadius: 10
         ringWidth: 3
-        fillColor: Theme.chipFill
+        fillColor: mt.chipFill
 
         Text {
             id: nameText
             anchors.centerIn: parent
             text: root.label !== "" ? root.label : "SIZE  " + (root.small ? "2 x 2" : "FULL")
-            color: Theme.chipInk
-            font.family: Theme.fontFamily
+            color: mt.chipInk
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 

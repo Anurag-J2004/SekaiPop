@@ -50,6 +50,9 @@ import qs.modules.common.widgets
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     screen: Quickshell.screens.find(s => s.name === EditMode.screenName) ?? Quickshell.screens[0]
 
     readonly property real uiScale: ShellScale.forScreen(win.screen)
@@ -176,6 +179,9 @@ PanelWindow {
     component HintRow: Item {
         id: hr
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string keyText: ""
         property string keyIcon: ""
         property string label: ""
@@ -189,17 +195,17 @@ PanelWindow {
             cornerRadius: 8
             ringWidth: 3
             shadowDy: 3
-            fillColor: Theme.chipFill
+            fillColor: mt.chipFill
 
             Text {
                 anchors.centerIn: parent
                 visible: hr.keyIcon === ""
                 text: hr.keyText
-                color: Theme.chipInk
-                font.family: Theme.fontFamily
+                color: mt.chipInk
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             MaterialIcon {
@@ -208,7 +214,7 @@ PanelWindow {
                 name: hr.keyIcon
                 size: 13
                 weight: 700
-                color: Theme.chipInk
+                color: mt.chipInk
             }
         }
 
@@ -216,11 +222,11 @@ PanelWindow {
             x: 44
             anchors.verticalCenter: parent.verticalCenter
             text: hr.label
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -228,6 +234,9 @@ PanelWindow {
     // same look as Lock all / Done on the right (ring 4, shadow 4, corner 15).
     component TabKey: Item {
         id: tk
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string icon: ""
         property string label: ""
@@ -240,8 +249,8 @@ PanelWindow {
 
         Gradient {
             id: tkFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         Pill {
@@ -250,7 +259,7 @@ PanelWindow {
             ringWidth: 7
             shadowDy: 4
             pressed: tkArea.pressed
-            fillColor: tkArea.containsMouse && !tk.on ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: tkArea.containsMouse && !tk.on ? mt.pSurfaceHover : mt.pSurface
             fillGradient: tk.on ? tkFill : null
 
             Column {
@@ -263,17 +272,17 @@ PanelWindow {
                     name: tk.icon
                     size: 26
                     weight: 600
-                    color: tk.on ? Theme.colBorder : Theme.pInk
+                    color: tk.on ? mt.colBorder : mt.pInk
                 }
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: tk.label
-                    color: tk.on ? Theme.colBorder : Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: tk.on ? mt.colBorder : mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.8
                 }
             }
@@ -311,11 +320,11 @@ PanelWindow {
             height: 192
             y: parent.height - 14 - tray.height + tray.slide
 
-            cornerRadius: Theme.radiusOuter
-            ringWidth: Theme.borderWidth + Theme.outerRingWidth
-            ringColorTop: Theme.pSurfaceRing
+            cornerRadius: mt.radiusOuter
+            ringWidth: mt.borderWidth + mt.outerRingWidth
+            ringColorTop: mt.pSurfaceRing
             ringColorBottom: ringColorTop
-            fillColor: Theme.pSurface
+            fillColor: mt.pSurface
 
             // ===== left =====
             Column {
@@ -337,9 +346,9 @@ PanelWindow {
                         height: 16
                         radius: 4
                         rotation: 45
-                        color: Theme.accentMint
+                        color: mt.accentMint
                         border.width: 2
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
                     }
 
@@ -348,11 +357,11 @@ PanelWindow {
                         anchors.leftMargin: 12
                         anchors.verticalCenter: headDiamond.verticalCenter
                         text: "EDIT DESKTOP"
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 17
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     // Matugen re-running while its controls are up: the shell's busy glyph
@@ -364,7 +373,7 @@ PanelWindow {
                         name: "sync"
                         size: 13
                         weight: 700
-                        color: Theme.pInk
+                        color: mt.pInk
                         transformOrigin: Item.Center
 
                         RotationAnimator on rotation {
@@ -398,8 +407,8 @@ PanelWindow {
                             ? "Editing " + win.titleOf(EditMode.editTarget) + " \u2014 click the card to let go"
                             : "Pick it, place it, tweak it.")
                         color: (win.tab === "widgets" && EditMode.editTarget !== "") || (win.tab === "theme" && themeBoard.tuning && ThemeService.matugenBusy)
-                            ? Theme.pInk : Theme.pInkSub
-                        font.family: Theme.fontFamily
+                            ? mt.pInk : mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                     }
@@ -428,7 +437,7 @@ PanelWindow {
                 // THEME: "Matugen: from wallpaper", or, while it is the theme on, how to reach
                 // its controls; in the controls, what the pin does.
                 HintRow {
-                    readonly property bool matugenOn: ThemeService.current === "matugen" && ThemeService.matugenInstalled
+                    readonly property bool matugenOn: ThemeService.themeFor(themeBoard.screenName) === "matugen" && ThemeService.matugenInstalled
                     keyText: win.tab === "bar" ? "R" : (win.tab === "theme" && !themeBoard.tuning && matugenOn ? "L" : "")
                     keyIcon: win.tab === "bar" ? ""
                         : (win.tab === "theme" ? (themeBoard.tuning ? "push_pin" : (matugenOn ? "" : "wallpaper"))
@@ -448,7 +457,7 @@ PanelWindow {
                 width: 2
                 height: 132
                 radius: 1
-                color: Theme.pSurfaceDivider
+                color: mt.pSurfaceDivider
             }
 
             // ===== right: Lock all and Done =====
@@ -470,8 +479,8 @@ PanelWindow {
 
                     Gradient {
                         id: lockFill
-                        GradientStop { position: 0.0; color: Theme.accentMint }
-                        GradientStop { position: 1.0; color: Theme.accentCyan }
+                        GradientStop { position: 0.0; color: mt.accentMint }
+                        GradientStop { position: 1.0; color: mt.accentCyan }
                     }
 
                     Pill {
@@ -481,7 +490,7 @@ PanelWindow {
                         shadowDx: 0
                         shadowDy: 4
                         pressed: lockArea.pressed
-                        fillColor: lockArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+                        fillColor: lockArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
                         fillGradient: EditMode.widgetsLocked ? lockFill : null
 
                         MaterialIcon {
@@ -490,7 +499,7 @@ PanelWindow {
                             name: EditMode.widgetsLocked ? "lock" : "lock_open"
                             size: 22
                             weight: 600
-                            color: EditMode.widgetsLocked ? Theme.colBorder : Theme.pInk
+                            color: EditMode.widgetsLocked ? mt.colBorder : mt.pInk
                         }
 
                         Column {
@@ -500,18 +509,18 @@ PanelWindow {
 
                             Text {
                                 text: "LOCK ALL"
-                                color: EditMode.widgetsLocked ? Theme.colBorder : Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: EditMode.widgetsLocked ? mt.colBorder : mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 13
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                                 font.letterSpacing: 0.8
                             }
 
                             Text {
                                 text: EditMode.widgetsLocked ? "stay put after Done" : "free on the desktop"
-                                color: EditMode.widgetsLocked ? Theme.colBorder : Theme.pInkSub
-                                font.family: Theme.fontFamily
+                                color: EditMode.widgetsLocked ? mt.colBorder : mt.pInkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 10
                                 font.weight: Font.DemiBold
                             }
@@ -541,8 +550,8 @@ PanelWindow {
                         shadowDy: 4
                         pressed: doneArea.pressed
                         fillGradient: Gradient {
-                            GradientStop { position: 0.0; color: Theme.accentMint }
-                            GradientStop { position: 1.0; color: Theme.accentCyan }
+                            GradientStop { position: 0.0; color: mt.accentMint }
+                            GradientStop { position: 1.0; color: mt.accentCyan }
                         }
 
                         Row {
@@ -554,17 +563,17 @@ PanelWindow {
                                 name: "check"
                                 size: 22
                                 weight: 700
-                                color: Theme.colBorder
+                                color: mt.colBorder
                             }
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: "DONE"
-                                color: Theme.colBorder
-                                font.family: Theme.fontFamily
+                                color: mt.colBorder
+                                font.family: mt.fontFamily
                                 font.pixelSize: 17
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                                 font.letterSpacing: 1
                             }
                         }
@@ -589,7 +598,7 @@ PanelWindow {
                 width: 2
                 height: 132
                 radius: 1
-                color: Theme.pSurfaceDivider
+                color: mt.pSurfaceDivider
             }
 
             // ===== the tabs =====
@@ -765,7 +774,7 @@ PanelWindow {
                         const hi = Math.max(0, shelf.contentWidth - shelf.width)
                         if (hi <= 0)
                             return
-                        const raw = Theme.wheelPx(event, true)
+                        const raw = mt.wheelPx(event, true)
                         shelf.cancelFlick()
                         shelf.contentX = Math.max(0, Math.min(hi, shelf.contentX - raw))
                     }
@@ -805,7 +814,7 @@ PanelWindow {
                 width: Math.max(36, shelf.width * shelf.width / span)
                 x: shelf.x + (shelf.width - width) * (shelf.contentWidth > shelf.width
                     ? shelf.contentX / (shelf.contentWidth - shelf.width) : 0)
-                color: Theme.pInkSub
+                color: mt.pInkSub
                 opacity: 0.55
             }
         }

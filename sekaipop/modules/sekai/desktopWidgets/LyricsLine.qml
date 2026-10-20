@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import "../../common/functions/LyricsMath.js" as LM
@@ -40,6 +41,9 @@ import "../../common/functions/LyricsMath.js" as LM
 // The line is centred on (cx, cy + pose.y).
 Item {
     id: line
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string text: ""
     property real lineStart: 0
@@ -213,7 +217,7 @@ Item {
                         pixelSize: line.px
                         withFill: line.litOn
                         sung: cell.sungV
-                        litColor: cell.ad ? Theme.accentMint : Theme.accentCyan
+                        litColor: cell.ad ? mt.accentMint : mt.accentCyan
                         scale: cell.sizeK * (1 + 0.11 * cell.lift)
                         rotation: cell.ad ? -3 : 0
                         transformOrigin: Item.Bottom
@@ -267,8 +271,8 @@ Item {
             DiamondDot {
                 anchors.centerIn: parent
                 lit: true
-                litColor: Theme.accentMint
-                lineColor: Theme.colBorder
+                litColor: mt.accentMint
+                lineColor: mt.colBorder
                 size: Math.round(line.px * 0.3)
             }
         }
@@ -278,7 +282,7 @@ Item {
             count: 6
             radius: line.px * 0.95
             size: Math.max(6, Math.round(line.px * 0.2))
-            colors: [Theme.accentCyan, Theme.accentMint, "#FFFFFF"]
+            colors: [mt.accentCyan, mt.accentMint, "#FFFFFF"]
         }
 
         // The sign-off of a line that was taken over (see `done` above).
@@ -287,7 +291,7 @@ Item {
             count: 8
             radius: line.px * 1.15
             size: Math.max(6, Math.round(line.px * 0.22))
-            colors: [Theme.accentMint, "#FFFFFF", Theme.accentCyan]
+            colors: [mt.accentMint, "#FFFFFF", mt.accentCyan]
         }
 
         // ===== a voice that sings along =====
@@ -313,7 +317,7 @@ Item {
                     text: bgWord.modelData.s
                     pixelSize: line.bgPx
                     withFill: true
-                    litColor: Theme.accentMint
+                    litColor: mt.accentMint
                     sung: line.bgSp[bgWord.index] ? LM.sung(line.bgSp[bgWord.index], line.t) : 0
                 }
             }
@@ -346,9 +350,9 @@ Item {
                         anchors.centerIn: parent
                         size: bead.width
                         lit: line.isCur && line.t >= line.lineStart + (bead.index + 1) * bead.room / 4.2
-                        litColor: Theme.accentMint
+                        litColor: mt.accentMint
                         offColor: "#FFFFFF"
-                        lineColor: Theme.colBorder
+                        lineColor: mt.colBorder
                     }
                 }
             }

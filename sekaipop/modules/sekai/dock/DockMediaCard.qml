@@ -89,9 +89,9 @@ DockCard {
         width: root.artSize
         height: root.artSize
         radius: 16
-        color: Theme.surfaceDivider
+        color: mt.surfaceDivider
         border.width: 3
-        border.color: Theme.line
+        border.color: mt.line
         antialiasing: true
 
         Image {
@@ -139,11 +139,11 @@ DockCard {
                 wrapMode: Text.Wrap
                 maximumLineCount: 2
                 elide: Text.ElideRight
-                color: Theme.ink
-                font.family: Theme.fontFamily
+                color: mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Text {
@@ -151,8 +151,8 @@ DockCard {
                 elide: Text.ElideRight
                 text: root.source ? root.source.artist : ""
                 visible: text !== ""
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }
@@ -170,7 +170,7 @@ DockCard {
             height: 22
             width: Math.min(titleBox.width, whoRow.implicitWidth + 16)
             radius: 8
-            color: Theme.surfaceDivider
+            color: mt.surfaceDivider
             antialiasing: true
 
             Row {
@@ -182,7 +182,7 @@ DockCard {
                     anchors.verticalCenter: parent.verticalCenter
                     name: root.playing ? "graphic_eq" : "pause"
                     size: 14
-                    color: Theme.inkSub
+                    color: mt.inkSub
                 }
 
                 Text {
@@ -190,11 +190,11 @@ DockCard {
                     width: Math.min(implicitWidth, whoChip.maxTextW)
                     elide: Text.ElideRight
                     text: whoChip.who
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -247,9 +247,9 @@ DockCard {
                 width: parent.width
                 height: 12
                 radius: 6
-                color: Theme.surfaceDivider
+                color: mt.surfaceDivider
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
             }
 
             // how much is gone
@@ -262,8 +262,8 @@ DockCard {
 
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: Theme.accentMint }
-                    GradientStop { position: 1.0; color: Theme.accentCyan }
+                    GradientStop { position: 0.0; color: mt.accentMint }
+                    GradientStop { position: 1.0; color: mt.accentCyan }
                 }
 
                 Behavior on width {
@@ -283,7 +283,7 @@ DockCard {
                     width: 3
                     height: 12
                     radius: 1.5
-                    color: Theme.line
+                    color: mt.line
                     opacity: 0.35
                 }
             }
@@ -296,7 +296,7 @@ DockCard {
                 width: 3
                 height: 16
                 radius: 1.5
-                color: Theme.ink
+                color: mt.ink
                 opacity: 0.5
             }
 
@@ -310,9 +310,9 @@ DockCard {
                 radius: 3
                 rotation: 45
                 scale: lane.dragging ? 1.25 : (laneArea.containsMouse && lane.seekable ? 1.12 : 1)
-                color: Theme.accentMint
+                color: mt.accentMint
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
 
                 Behavior on x {
                     enabled: !lane.dragging && root.open
@@ -337,7 +337,7 @@ DockCard {
                 borderWidth: 2
                 ringWidth: 2.5
                 shadowDy: 3
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
 
                 Behavior on opacity {
                     NumberAnimation { duration: 110 }
@@ -348,11 +348,11 @@ DockCard {
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: -1
                     text: root.fmt(lane.dragFrac * lane.length)
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -410,8 +410,8 @@ DockCard {
             anchors.verticalCenter: parent.verticalCenter
             text: root.fmt(lane.previewing ? (lane.dragging ? lane.dragFrac : lane.hoverFrac) * lane.length
                                            : lane.shownFrac * lane.length)
-            color: lane.previewing ? Theme.ink : Theme.inkSub
-            font.family: Theme.fontFamily
+            color: lane.previewing ? mt.ink : mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: lane.previewing ? Font.ExtraBold : Font.Bold
         }
@@ -421,8 +421,8 @@ DockCard {
             anchors.rightMargin: 4
             anchors.verticalCenter: parent.verticalCenter
             text: root.fmt(lane.length)
-            color: Theme.inkSub
-            font.family: Theme.fontFamily
+            color: mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.Bold
         }
@@ -475,7 +475,7 @@ DockCard {
                     height: btn.modelData.h
                     cornerRadius: btn.main ? 13 : 11
                     ringWidth: btn.small ? 4 : 5
-                    fillColor: btn.main ? Theme.accentCyan : Theme.surface
+                    fillColor: btn.main ? mt.accentCyan : mt.surface
                     pressed: btnArea.pressed
 
                     MaterialIcon {
@@ -483,7 +483,7 @@ DockCard {
                         name: btn.modelData.icon
                         size: btn.main ? 24 : (btn.small ? 18 : 20)
                         fill: 1
-                        color: btn.main ? Theme.colBorder : Theme.ink
+                        color: btn.main ? mt.colBorder : mt.ink
                     }
                 }
 

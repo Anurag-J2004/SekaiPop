@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -8,6 +9,9 @@ import qs.modules.common.widgets
 // sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property color tint
@@ -20,7 +24,7 @@ Item {
         width: parent.width
         height: parent.height
         radius: 3
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -29,15 +33,15 @@ Item {
         anchors.fill: parent
         radius: 3
         color: root.tint
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // the glue strip along the top
         Rectangle {
-            x: Theme.borderWidth + 2
-            y: Theme.borderWidth + 1
-            width: paper.width - 2 * (Theme.borderWidth + 2)
+            x: mt.borderWidth + 2
+            y: mt.borderWidth + 1
+            width: paper.width - 2 * (mt.borderWidth + 2)
             height: 6
             radius: 2
             color: "white"
@@ -56,7 +60,7 @@ Item {
             lineHeight: 0.95
             text: String(root.item.value).trim()
             color: "#2B2D42"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 9
             font.weight: Font.Bold
             opacity: root.lifted ? 0.35 : 1
@@ -68,14 +72,14 @@ Item {
 
         // the folded corner
         Rectangle {
-            x: paper.width - width - Theme.borderWidth
-            y: paper.height - height - Theme.borderWidth
+            x: paper.width - width - mt.borderWidth
+            y: paper.height - height - mt.borderWidth
             width: 11
             height: 11
             radius: 2
             color: Qt.darker(root.tint, 1.18)
             border.width: 1.5
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
         }
     }

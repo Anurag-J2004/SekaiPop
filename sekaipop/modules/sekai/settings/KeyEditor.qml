@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -18,6 +19,9 @@ import "../../common/functions/KeyBinds.js" as KB
 // `closed` is sent when it is done, saved or not.
 FocusScope {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var row: null              // the action's KeyBinds.rows() entry
     property string mode: "record"      // record | byhand | conflict
@@ -131,12 +135,12 @@ FocusScope {
     // ===== the box =====
     Rectangle {
         id: shadow
-        x: Theme.quickFlat ? 0 : 5
+        x: mt.quickFlat ? 0 : 5
         y: 4
         width: box.width
         height: box.height
         radius: 22
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -145,9 +149,9 @@ FocusScope {
         width: root.inner
         height: column.implicitHeight + 8
         radius: 22
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 4
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
         clip: true
 
@@ -164,11 +168,11 @@ FocusScope {
                 radius: 18
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Theme.accentCyan }
-                    GradientStop { position: 1; color: Theme.accentMint }
+                    GradientStop { position: 0; color: mt.accentCyan }
+                    GradientStop { position: 1; color: mt.accentMint }
                 }
                 border.width: 5
-                border.color: Theme.pRingWhite
+                border.color: mt.pRingWhite
 
                 Row {
                     x: 22
@@ -179,13 +183,13 @@ FocusScope {
                         anchors.verticalCenter: parent.verticalCenter
                         name: root.mode === "conflict" ? "warning" : root.mode === "byhand" ? "tune" : "keyboard"
                         size: 22
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.row ? root.row.name : ""
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 19
                         font.weight: Font.Black
                     }
@@ -193,8 +197,8 @@ FocusScope {
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.mode === "conflict" ? "These keys are taken"
                             : root.mode === "byhand" ? "Set it by hand" : "Press the new keys"
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.ExtraBold
                     }
@@ -206,8 +210,8 @@ FocusScope {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.row && root.row.combos.length > 0
                         ? "Now on " + root.row.combos.map(KB.showCombo).join(" or ") : "No key yet"
-                    color: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.ExtraBold
                 }
@@ -236,8 +240,8 @@ FocusScope {
                     wrapMode: Text.WordWrap
                     text: root.refusal !== "" ? root.refusal
                         : "Hold Super, Ctrl, Alt or Shift, then press a key. It's saved the moment you do."
-                    color: root.refusal !== "" ? Theme.pInk : Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: root.refusal !== "" ? mt.pInk : mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.Bold
                 }
@@ -283,23 +287,23 @@ FocusScope {
                             width: parent.width
                             height: 50
                             radius: 16
-                            color: Theme.pLineShadow
+                            color: mt.pLineShadow
                         }
                         Rectangle {
                             width: parent.width
                             height: 50
                             radius: 16
-                            color: Theme.pSurface
+                            color: mt.pSurface
                             border.width: 3
-                            border.color: Theme.pLine
+                            border.color: mt.pLine
 
                             TextInput {
                                 id: keyField
                                 x: 16
                                 width: parent.width - 32
                                 anchors.verticalCenter: parent.verticalCenter
-                                color: Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 19
                                 font.weight: Font.Black
                                 clip: true
@@ -311,8 +315,8 @@ FocusScope {
                                     visible: keyField.text === ""
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: "A, Tab, F5…"
-                                    color: Theme.pInkSub
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInkSub
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 16
                                     font.weight: Font.Bold
                                 }
@@ -385,7 +389,7 @@ FocusScope {
                             anchors.verticalCenter: parent.verticalCenter
                             name: root.handKey === "" ? "info" : root.handTaken === null ? "check_circle" : "warning"
                             size: 20
-                            color: Theme.pInk
+                            color: mt.pInk
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -393,8 +397,8 @@ FocusScope {
                                 : KB.needsModifier(root.handCombo) ? "Hold a modifier with it, or it stops typing"
                                 : root.handTaken === null ? "Free, nothing else uses it"
                                 : "Taken by " + root.handTaken.name
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 15
                             font.weight: Font.ExtraBold
                         }
@@ -424,9 +428,9 @@ FocusScope {
                     width: parent.width - 52 - wantedCaps.width - 28
                     height: warnCol.implicitHeight + 32
                     radius: 18
-                    color: Theme.attributeColors[2]
+                    color: mt.attributeColors[2]
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MaterialIcon {
@@ -434,7 +438,7 @@ FocusScope {
                         y: 17
                         name: "warning"
                         size: 26
-                        color: Theme.colBorder
+                        color: mt.colBorder
                     }
 
                     Column {
@@ -462,8 +466,8 @@ FocusScope {
                                 ? "<b>" + warnCol.keys + "</b> is already on <b>" + warnCol.other + "</b>, in " + warnCol.group + "."
                                 : "<b>" + warnCol.keys + "</b> is Hyprland's <b>" + warnCol.other + "</b> bind, from your "
                                   + (KeybindService.mode === "lua" ? "keybinds.lua" : "Hyprland config") + "."
-                            color: Theme.colBorder
-                            font.family: Theme.fontFamily
+                            color: mt.colBorder
+                            font.family: mt.fontFamily
                             font.pixelSize: 16
                             font.weight: Font.Bold
                             lineHeight: 1.2
@@ -475,8 +479,8 @@ FocusScope {
                                 ? "Take it over and " + warnCol.other + " is left without a key. You can give it a new one any time."
                                 : "Take it over and that bind is switched off while " + (root.row ? root.row.name : "")
                                   + " uses these keys. Reset " + (root.row ? root.row.name : "") + " and " + warnCol.other + " gets them back."
-                            color: Theme.colBorder
-                            font.family: Theme.fontFamily
+                            color: mt.colBorder
+                            font.family: mt.fontFamily
                             font.pixelSize: 16
                             font.weight: Font.Bold
                             lineHeight: 1.2
@@ -494,8 +498,8 @@ FocusScope {
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: warnCol.other
-                                color: Theme.colBorder
-                                font.family: Theme.fontFamily
+                                color: mt.colBorder
+                                font.family: mt.fontFamily
                                 font.pixelSize: 15
                                 font.weight: Font.ExtraBold
                             }
@@ -508,7 +512,7 @@ FocusScope {
                                 anchors.verticalCenter: parent.verticalCenter
                                 name: "arrow_forward"
                                 size: 20
-                                color: Theme.colBorder
+                                color: mt.colBorder
                             }
                             KeyCaps {
                                 anchors.verticalCenter: parent.verticalCenter
@@ -525,7 +529,7 @@ FocusScope {
             Rectangle {
                 width: parent.width
                 height: 2.5
-                color: Theme.pSurfaceDivider
+                color: mt.pSurfaceDivider
             }
 
             Item {
@@ -547,8 +551,8 @@ FocusScope {
                         visible: root.mode !== "byhand"
                         anchors.verticalCenter: parent.verticalCenter
                         text: "cancels"
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.Bold
                     }
@@ -586,8 +590,8 @@ FocusScope {
                         visible: root.mode === "record"
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Keys not coming through?"
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.Bold
                     }

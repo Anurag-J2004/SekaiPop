@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -13,6 +14,9 @@ import "../../common/functions/WallhavenMath.js" as WH
 // so nothing in it is cut.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var filters: WH.DEFAULT_FILTERS
     // "2560×1440": the monitor the picker is on (the "This screen" choice).
@@ -40,29 +44,32 @@ Item {
     Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
 
     component Head: Text {
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
         color: ScrapbookTheme.inkSoft
-        font.family: Theme.fontFamily
-        font.styleName: Theme.fontStyleBold
+        font.family: mt.fontFamily
+        font.styleName: mt.fontStyleBold
         font.weight: Font.ExtraBold
         font.pixelSize: 11
         font.letterSpacing: 1.2
     }
 
     Rectangle {
-        x: Theme.shadowOffset
-        y: Theme.shadowOffset
+        x: mt.shadowOffset
+        y: mt.shadowOffset
         width: parent.width
         height: parent.height
-        radius: Theme.radiusOuter
-        color: Theme.lineShadow
+        radius: mt.radiusOuter
+        color: mt.lineShadow
     }
 
     Rectangle {
         anchors.fill: parent
-        radius: Theme.radiusOuter
+        radius: mt.radiusOuter
         color: "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         MouseArea { anchors.fill: parent }
@@ -152,7 +159,7 @@ Item {
                             radius: 5
                             color: modelData
                             border.width: sw.on ? 3 : 2
-                            border.color: sw.on ? Theme.colBorder : Theme.line
+                            border.color: sw.on ? mt.colBorder : mt.line
                             antialiasing: true
 
                             MaterialIcon {
@@ -185,7 +192,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Applies as you pick"
                     color: ScrapbookTheme.inkSoft
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }

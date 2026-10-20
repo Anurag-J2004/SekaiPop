@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -13,6 +14,9 @@ import qs.modules.sekai.phone
 // has to catch up afterwards.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     property string icon: ""
@@ -57,8 +61,8 @@ Item {
             size: 22
             anchors.verticalCenter: parent.verticalCenter
             name: root.icon
-            weight: Theme.settingsIconWeight
-            color: Theme.pInk
+            weight: mt.settingsIconWeight
+            color: mt.pInk
         }
 
         Text {
@@ -69,11 +73,11 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             elide: Text.ElideRight
             text: root.label
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 18
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         // the value, in a leaning badge
@@ -85,25 +89,25 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             capW: valueLabel.implicitWidth + 40
             capH: 28
-            skew: 0.3 * Theme.settingsLean
+            skew: 0.3 * mt.settingsLean
             radius: 10
             borderBase: 2.5
             borderLit: 2.5
             ringExtra: 0
             shadowBaseX: 2
             shadowBaseY: 2
-            flatShadow: Theme.quickFlat
+            flatShadow: mt.quickFlat
             lit: root.dragging
 
             Text {
                 id: valueLabel
                 anchors.centerIn: parent
                 text: root.valueText
-                color: root.dragging ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
+                color: root.dragging ? mt.colBorder : mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 16
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }
@@ -124,8 +128,8 @@ Item {
             height: 18
             skew: 0.55
             radius: 9
-            color: Theme.pSurfaceDivider
-            borderColor: Theme.pLine
+            color: mt.pSurfaceDivider
+            borderColor: mt.pLine
             borderWidth: 3
 
         }
@@ -140,8 +144,8 @@ Item {
             radius: 6
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
 
             Behavior on width {
@@ -164,7 +168,7 @@ Item {
                 width: index % 5 === 0 ? 3 : 2
                 height: index % 5 === 0 ? 7 : 4
                 radius: 1
-                color: at <= root.ratio + 0.001 ? Theme.pInk : Theme.pSurfaceDivider
+                color: at <= root.ratio + 0.001 ? mt.pInk : mt.pSurfaceDivider
                 antialiasing: true
             }
         }
@@ -190,14 +194,14 @@ Item {
             }
 
             Rectangle {
-                x: 6.5 + (Theme.quickFlat ? 0 : 2)
+                x: 6.5 + (mt.quickFlat ? 0 : 2)
                 y: 6.5 + 2
                 width: 15
                 height: 15
                 radius: 4
                 rotation: 45
                 scale: 1.35
-                color: Theme.pLineShadow
+                color: mt.pLineShadow
                 antialiasing: true
             }
 
@@ -209,9 +213,9 @@ Item {
                 radius: 4
                 rotation: 45
                 scale: 1.35
-                color: area.pressed ? Theme.accentMint : Theme.pSurface
+                color: area.pressed ? mt.accentMint : mt.pSurface
                 border.width: 2.5
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
             }
         }

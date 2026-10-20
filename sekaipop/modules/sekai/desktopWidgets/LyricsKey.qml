@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A small key under the lyrics (the sync keys): a sticker word that grows a little when
@@ -7,6 +8,9 @@ import qs.modules.common
 //   LyricsKey { label: "earlier"; onClicked: LyricsService.nudge(100) }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     signal clicked
@@ -27,7 +31,7 @@ Item {
         id: word
         text: root.label
         pixelSize: 15
-        fillColor: area.containsMouse ? Theme.accentMint : "#FFFFFF"
+        fillColor: area.containsMouse ? mt.accentMint : "#FFFFFF"
     }
 
     MouseArea {

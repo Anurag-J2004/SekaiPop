@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -15,6 +16,9 @@ import qs.modules.sekai.phone
 // a proper Bluetooth settings app first; they'll show up here after.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool open: false
     property var devices: []           // [{address, name, connected, battery (-1 = unknown)}]
@@ -45,9 +49,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.phoneScreenInset
-        radius: Theme.phoneCornerRadius - Theme.phoneScreenInset
-        color: Theme.scrim
+        anchors.margins: mt.phoneScreenInset
+        radius: mt.phoneCornerRadius - mt.phoneScreenInset
+        color: mt.scrim
         opacity: root.open ? 0.55 : 0
         Behavior on opacity {
             NumberAnimation {
@@ -63,12 +67,12 @@ Item {
     }
 
     Rectangle {
-        x: 40 + (Theme.quickFlat ? 0 : 5)
+        x: 40 + (mt.quickFlat ? 0 : 5)
         y: 200 + 4
         width: 575
         height: 940
         radius: 41
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -79,9 +83,9 @@ Item {
         width: 575
         height: 940
         radius: 41
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         clip: true
 
         MouseArea { anchors.fill: parent }
@@ -90,11 +94,11 @@ Item {
             x: 28
             y: 26
             text: "Bluetooth"
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Rectangle {
@@ -104,17 +108,17 @@ Item {
             width: scanLabel.implicitWidth + 28
             height: 34
             radius: 17
-            color: scanArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+            color: scanArea.containsMouse ? mt.pSurfaceHover : "transparent"
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             opacity: root.manualScanning ? 0.5 : 1
 
             Text {
                 id: scanLabel
                 anchors.centerIn: parent
                 text: root.manualScanning ? "Refreshing…" : "Refresh"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
             }
@@ -138,16 +142,16 @@ Item {
             width: advancedLabel.implicitWidth + 28
             height: 34
             radius: 17
-            color: advancedArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+            color: advancedArea.containsMouse ? mt.pSurfaceHover : "transparent"
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
 
             Text {
                 id: advancedLabel
                 anchors.centerIn: parent
                 text: "Advanced"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
             }
@@ -171,7 +175,7 @@ Item {
             text: root.errorText
             wrapMode: Text.Wrap
             color: "#c0392b"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 14
         }
 
@@ -181,8 +185,8 @@ Item {
             width: card.width - 56
             text: "Devices paired elsewhere show up here. New pairing isn't done from this panel."
             wrapMode: Text.Wrap
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 13
         }
 
@@ -214,7 +218,7 @@ Item {
                     width: parent.width
                     height: 60
                     radius: 20
-                    color: rowArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+                    color: rowArea.containsMouse ? mt.pSurfaceHover : "transparent"
                     antialiasing: true
                 }
 
@@ -231,7 +235,7 @@ Item {
                 readonly property int battery: row.modelData.connected && row.modelData.battery !== undefined
                                                ? row.modelData.battery : -1
                 readonly property bool hasBattery: row.battery >= 0
-                readonly property color batteryTone: row.battery <= 20 ? "#e0575b" : Theme.pInk
+                readonly property color batteryTone: row.battery <= 20 ? "#e0575b" : mt.pInk
 
                 Row {
                     id: batteryTag
@@ -256,10 +260,10 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         text: row.battery + "%"
                         color: row.batteryTone
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: 16
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -269,11 +273,11 @@ Item {
                     width: parent.width - 50 - 14 - (row.hasBattery ? batteryTag.width + 10 : 0)
                     elide: Text.ElideRight
                     text: row.modelData.name
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 18
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -282,8 +286,8 @@ Item {
                     text: row.busy ? (row.modelData.connected ? "Disconnecting…" : "Connecting…")
                         : row.modelData.connected ? "Connected — tap to disconnect"
                         : "Paired — tap to connect"
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                 }
 
@@ -311,8 +315,8 @@ Item {
             visible: root.devices.length === 0 && !root.scanning
             anchors.centerIn: list
             text: "No paired devices"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 16
         }
         antialiasing: true

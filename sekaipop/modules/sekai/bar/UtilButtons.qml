@@ -37,6 +37,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // True on a standing bar (left / right edge): the buttons stack in a
     // column, top to bottom in the same order.
     property bool vertical: false
@@ -208,11 +211,11 @@ Item {
         id: bar
         width: root.vertical ? bar.barVWidth : root.content.implicitWidth + 2 * ringWidth + 2 * 4
         height: root.vertical
-            ? root.content.implicitHeight + (bar.capsule ? 4 : 2 * ringWidth) + 2 * 4 + Theme.shadowOffset
-            : Theme.pillHeight + Theme.shadowOffset
-        cornerRadius: Theme.radiusBadge
+            ? root.content.implicitHeight + (bar.capsule ? 4 : 2 * ringWidth) + 2 * 4 + mt.shadowOffset
+            : mt.pillHeight + mt.shadowOffset
+        cornerRadius: mt.radiusBadge
         ringWidth: 6
-        fillColor: Theme.chipFill
+        fillColor: mt.chipFill
 
         // A GridLayout so it can be a row or a column (100 columns is
         // "all in one row"). The keys themselves are UtilKeys.qml.

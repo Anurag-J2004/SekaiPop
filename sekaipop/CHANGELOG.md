@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Themes: one theme per monitor (Settings > Desktop). With it on, the theme picker sets the monitor it is open on; the bar and its popups, the dock, the widgets and the Quick Panel on that monitor wear it, and a monitor on Matugen takes its colours from its own wallpaper. The first monitor sets the shell's theme (apps, lockscreen); picking its theme on another monitor makes that one follow it again (issue #29; docs/PER-MONITOR-THEME.md).
 - Phone: the home screen (Quick Panel) has a wallpaper too, behind see-through cards. Settings > General > Quick Panel > Phone wallpaper: Off, Desktop (the monitor's wallpaper) or A picture of your own, the same on the Quick and Apps screens (it replaces the Apps screen's on / off switch, whose choice carries over). An empty notifications card says so, in one quiet line (issue #41; docs/PHONE-WALLPAPER.md).
 - Privacy badge: an app recording what is playing (a screen recorder with sound, a VNC or streaming audio feed) shows as desktop audio, with its own icon, instead of "Microphone in use"; muting the mic no longer hides it, since that doesn't stop it.
 - Notifications: the phone that rises for a notification can be put away without opening it: swipe it down or middle-click it (the notification stays in the list), or right-click it to remove the notification too, anywhere on the phone. A click, or resting the pointer on its card for a second (it was a fifth of a second, which opened it under anyone aiming at it), still opens the panel (issue #42).

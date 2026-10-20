@@ -1,5 +1,6 @@
 import Quickshell.Widgets
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -15,10 +16,13 @@ import qs.modules.common.widgets
 Rectangle {
     id: row
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property var user: null
     property bool isSelf: false
     // Their colour (set by the panel from the id).
-    property color tone: Theme.accentCyan
+    property color tone: mt.accentCyan
 
     readonly property bool talking: user ? user.speaking === true : false
     readonly property bool deaf: user ? user.deaf === true : false
@@ -42,9 +46,9 @@ Rectangle {
     implicitWidth: 304
     implicitHeight: 50
     radius: 14
-    color: row.talking ? Theme.surfaceTint : Theme.surfaceHover
+    color: row.talking ? mt.surfaceTint : mt.surfaceHover
     border.width: 2
-    border.color: row.talking ? row.tone : Theme.line
+    border.color: row.talking ? row.tone : mt.line
     antialiasing: true
 
     Behavior on color { ColorAnimation { duration: 140 } }
@@ -120,9 +124,9 @@ Rectangle {
         Rectangle {
             anchors.fill: parent
             radius: width / 2
-            color: Theme.ringWhite
+            color: mt.ringWhite
             border.width: 2
-            border.color: row.talking ? row.tone : Theme.line
+            border.color: row.talking ? row.tone : mt.line
             antialiasing: true
             Behavior on border.color { ColorAnimation { duration: 140 } }
         }
@@ -139,11 +143,11 @@ Rectangle {
                 anchors.centerIn: parent
                 visible: img.status !== Image.Ready
                 text: row.nameText.charAt(0).toUpperCase()
-                color: Theme.colBorder
-                font.family: Theme.fontFamily
+                color: mt.colBorder
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Image {
@@ -175,19 +179,19 @@ Rectangle {
             width: parent.width
             elide: Text.ElideRight
             text: row.nameText
-            color: Theme.ink
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeMenu
+            color: mt.ink
+            font.family: mt.fontFamily
+            font.pixelSize: mt.fontSizeMenu
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
             width: parent.width
             elide: Text.ElideRight
             text: row.stateText
-            color: Theme.inkSub
-            font.family: Theme.fontFamily
+            color: mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: row.talking ? Font.Bold : Font.Normal
         }
@@ -216,7 +220,7 @@ Rectangle {
                 radius: 2.5
                 color: row.tone
                 border.width: 1.5
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
 
                 // Each bar bounces on its own beat, so the four never move together.

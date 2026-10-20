@@ -24,6 +24,9 @@ import qs.modules.common.widgets
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     readonly property string wantedScreen: LyricsService.pickerScreen
     screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
 
@@ -70,6 +73,9 @@ PanelWindow {
     component SourceRow: Item {
         id: row
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string name: ""
         property string note: ""          // under the name, small
         property string kind: ""          // "word" | "synced" | "loading" | "none" | "offline" | ""
@@ -87,7 +93,7 @@ PanelWindow {
             anchors.leftMargin: 2
             anchors.rightMargin: 2
             radius: 9
-            color: Theme.surfaceHover
+            color: mt.surfaceHover
             opacity: area.containsMouse ? 1 : 0
 
             Behavior on opacity {
@@ -105,14 +111,14 @@ PanelWindow {
             radius: 9
             color: "transparent"
             border.width: 2
-            border.color: row.selected ? Theme.accentCyan : Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, row.dim ? 0.28 : 0.5)
+            border.color: row.selected ? mt.accentCyan : Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, row.dim ? 0.28 : 0.5)
 
             Rectangle {
                 anchors.centerIn: parent
                 width: 8
                 height: 8
                 radius: 4
-                color: Theme.accentCyan
+                color: mt.accentCyan
                 scale: row.selected ? 1 : 0
                 opacity: row.selected ? 1 : 0
 
@@ -136,12 +142,12 @@ PanelWindow {
                 width: parent.width
                 text: row.name
                 elide: Text.ElideRight
-                color: Theme.ink
+                color: mt.ink
                 opacity: row.dim ? 0.45 : 1
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: row.inUse ? Font.ExtraBold : Font.DemiBold
-                font.styleName: row.inUse ? Theme.fontStyleBold : ""
+                font.styleName: row.inUse ? mt.fontStyleBold : ""
             }
 
             Text {
@@ -149,8 +155,8 @@ PanelWindow {
                 width: parent.width
                 text: row.note
                 elide: Text.ElideRight
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 11
             }
         }
@@ -167,8 +173,8 @@ PanelWindow {
                 visible: row.kind === "offline"
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Unreachable"
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 12
             }
 
@@ -176,8 +182,8 @@ PanelWindow {
                 visible: row.kind === "offline"
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Try again"
-                color: Theme.accentCyan
-                font.family: Theme.fontFamily
+                color: mt.accentCyan
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.underline: retryArea.containsMouse
 
@@ -195,9 +201,9 @@ PanelWindow {
                 visible: row.kind === "none"
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Not found"
-                color: Theme.inkSub
+                color: mt.inkSub
                 opacity: 0.7
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 12
             }
 
@@ -205,8 +211,8 @@ PanelWindow {
                 visible: row.kind === "loading"
                 anchors.verticalCenter: parent.verticalCenter
                 text: "asking..."
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 12
             }
 
@@ -217,15 +223,15 @@ PanelWindow {
                 height: 22
                 radius: 11
                 color: row.kind === "word"
-                    ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.2)
-                    : Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.12)
+                    ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.2)
+                    : Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.12)
 
                 Text {
                     id: badge
                     anchors.centerIn: parent
                     text: row.kind === "word" ? "WORD BY WORD" : "SYNCED"
-                    color: row.kind === "word" ? Theme.accentCyan : Theme.ink
-                    font.family: Theme.fontFamily
+                    color: row.kind === "word" ? mt.accentCyan : mt.ink
+                    font.family: mt.fontFamily
                     font.pixelSize: 10
                     font.weight: Font.ExtraBold
                     font.letterSpacing: 0.8
@@ -260,12 +266,12 @@ PanelWindow {
             x: Math.max(8, Math.min(card.wantX - card.width / 2, win.roomW - card.width - 8))
             y: Math.max(8, Math.min(card.wantY, win.roomH - card.height - 8))
 
-            cornerRadius: Theme.radiusOuter
-            ringWidth: Theme.borderWidth
-            innerRing: Theme.cardRing
-            fillColor: Theme.surface
+            cornerRadius: mt.radiusOuter
+            ringWidth: mt.borderWidth
+            innerRing: mt.cardRing
+            fillColor: mt.surface
             implicitWidth: card.innerWidth + 10 + card.ringWidth * 2
-            implicitHeight: col.implicitHeight + 10 + card.ringWidth * 2 + Theme.shadowOffset
+            implicitHeight: col.implicitHeight + 10 + card.ringWidth * 2 + mt.shadowOffset
             width: implicitWidth
             height: implicitHeight
 
@@ -315,8 +321,8 @@ PanelWindow {
                     height: 30
                     verticalAlignment: Text.AlignVCenter
                     text: "Lyrics source"
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
                     font.letterSpacing: 0.6

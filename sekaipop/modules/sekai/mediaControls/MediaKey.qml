@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -16,17 +17,20 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string icon: ""
     property string label: ""
     property bool primary: false
     property bool compact: false
     property bool available: true
-    property color toneTop: Theme.accentMint
-    property color toneBottom: Theme.accentCyan
+    property color toneTop: mt.accentMint
+    property color toneBottom: mt.accentCyan
 
     signal clicked()
 
-    readonly property real shadow: Theme.shadowOffset
+    readonly property real shadow: mt.shadowOffset
 
     implicitWidth: root.compact ? 38 : 80
     implicitHeight: (root.compact ? 32 : 44) + root.shadow
@@ -46,7 +50,7 @@ Item {
         cornerRadius: root.compact ? 12 : 15
         ringWidth: 5
         shadowDy: root.shadow
-        fillColor: area.containsMouse && root.available ? Theme.surfaceHover : Theme.surface
+        fillColor: area.containsMouse && root.available ? mt.surfaceHover : mt.surface
         fillGradient: root.primary ? toneGradient : null
         pressed: area.pressed && root.available
 
@@ -60,18 +64,18 @@ Item {
                 fill: 0
                 weight: 500
                 size: root.compact ? 16 : 24
-                color: root.primary ? Theme.colBorder : Theme.ink
+                color: root.primary ? mt.colBorder : mt.ink
             }
 
             Text {
                 visible: root.label !== ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.label
-                color: root.primary ? Theme.colBorder : Theme.ink
-                font.family: Theme.fontFamily
+                color: root.primary ? mt.colBorder : mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

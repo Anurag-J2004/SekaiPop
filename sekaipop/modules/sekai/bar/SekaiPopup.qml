@@ -51,6 +51,9 @@ import qs.modules.common.widgets
 Scope {
     id: host
 
+    // This monitor's theme (the bar window's): Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(host.parentWindow)
+
     property var parentWindow: null    // the bar's PanelWindow
     property Item anchorItem: null     // the button to centre under
     property bool open: false
@@ -298,12 +301,12 @@ Scope {
                     id: card
                     visible: !host.bare
                     capRim: host.capsuleStyle
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth
-                    innerRing: Theme.cardRing
-                    fillColor: Theme.surface
-                    implicitWidth: host.contentWidth + 2 * Theme.borderWidth
-                    implicitHeight: host.contentHeight + 2 * Theme.borderWidth + Theme.shadowOffset
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth
+                    innerRing: mt.cardRing
+                    fillColor: mt.surface
+                    implicitWidth: host.contentWidth + 2 * mt.borderWidth
+                    implicitHeight: host.contentHeight + 2 * mt.borderWidth + mt.shadowOffset
 
                     Item {
                         id: body

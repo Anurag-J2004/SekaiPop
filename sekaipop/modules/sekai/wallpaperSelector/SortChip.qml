@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -8,6 +9,9 @@ import qs.modules.common.widgets
 // says "clicked"; the gallery owns the menu.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     property bool active: false
@@ -22,8 +26,8 @@ Item {
     TextMetrics {
         id: labelMetrics
         text: root.label
-        font.family: Theme.fontFamily
-        font.styleName: Theme.fontStyleBold
+        font.family: mt.fontFamily
+        font.styleName: mt.fontStyleBold
         font.weight: Font.ExtraBold
         font.pixelSize: 14
     }
@@ -33,12 +37,12 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.shadowOffset - 1 - root.press
-        y: Theme.shadowOffset - 1 - root.press
+        x: mt.shadowOffset - 1 - root.press
+        y: mt.shadowOffset - 1 - root.press
         width: root.width
         height: root.height
         radius: height / 2
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -48,9 +52,9 @@ Item {
         width: root.width
         height: root.height
         radius: height / 2
-        color: root.hot && !root.active ? Theme.colHoverTint : "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        color: root.hot && !root.active ? mt.colHoverTint : "#ffffff"
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         Behavior on color { ColorAnimation { duration: 100 } }
@@ -64,8 +68,8 @@ Item {
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.accentCyan }
-                GradientStop { position: 1.0; color: Theme.accentMint }
+                GradientStop { position: 0.0; color: mt.accentCyan }
+                GradientStop { position: 1.0; color: mt.accentMint }
             }
         }
 
@@ -75,7 +79,7 @@ Item {
             name: "sort"
             size: 22
             weight: 550
-            color: Theme.colBorder
+            color: mt.colBorder
         }
 
         Text {
@@ -84,9 +88,9 @@ Item {
             width: parent.width - 44 - 36
             elide: Text.ElideRight
             text: root.label
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
-            font.styleName: Theme.fontStyleBold
+            color: mt.colBorder
+            font.family: mt.fontFamily
+            font.styleName: mt.fontStyleBold
             font.weight: Font.ExtraBold
             font.pixelSize: 14
         }
@@ -97,7 +101,7 @@ Item {
             name: "expand_more"
             size: 22
             weight: 600
-            color: Theme.colBorder
+            color: mt.colBorder
             rotation: root.active ? 180 : 0
             Behavior on rotation { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
         }

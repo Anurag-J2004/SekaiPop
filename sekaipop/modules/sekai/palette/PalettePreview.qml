@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import "../../common/functions/PaletteMath.js" as PM
@@ -19,11 +20,14 @@ import "../../common/functions/PaletteMath.js" as PM
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property var colors: []
 
     readonly property var pal: PM.toShell(root.colors)
-    readonly property bool dark: Theme.dark
-    readonly property bool darker: Theme.darker
+    readonly property bool dark: mt.dark
+    readonly property bool darker: mt.darker
 
     // Every colour is a plain (not readonly) property so it can glide to the next value.
     property color cBorder: root.pal.border
@@ -36,21 +40,21 @@ Item {
     property color cTint: root.pal.hoverTint
 
     property color cSurface: root.darker
-        ? Qt.darker(Qt.color(root.pal.deep), Theme.darkerFactor)
+        ? Qt.darker(Qt.color(root.pal.deep), mt.darkerFactor)
         : (root.dark ? Qt.lighter(Qt.color(root.pal.deep), 1.18) : Qt.color("#ffffff"))
     property color cLine: root.darker
-        ? Qt.darker(root.cBorder, Theme.darkerLineFactor)
+        ? Qt.darker(root.cBorder, mt.darkerLineFactor)
         : (root.dark ? root.cBorder
-            : Qt.tint(Qt.color("#ffffff"), Qt.rgba(root.cBorder.r, root.cBorder.g, root.cBorder.b, Theme.lightLineAlpha)))
+            : Qt.tint(Qt.color("#ffffff"), Qt.rgba(root.cBorder.r, root.cBorder.g, root.cBorder.b, mt.lightLineAlpha)))
     property color cShadow: root.darker
-        ? Qt.darker(root.cBorder, Theme.darkerShadowFactor)
-        : (root.dark ? Qt.darker(root.cBorder, Theme.darkShadowFactor)
-            : Qt.tint(Qt.color("#ffffff"), Qt.rgba(root.cBorder.r, root.cBorder.g, root.cBorder.b, Theme.lightShadowAlpha)))
+        ? Qt.darker(root.cBorder, mt.darkerShadowFactor)
+        : (root.dark ? Qt.darker(root.cBorder, mt.darkShadowFactor)
+            : Qt.tint(Qt.color("#ffffff"), Qt.rgba(root.cBorder.r, root.cBorder.g, root.cBorder.b, mt.lightShadowAlpha)))
     property color cInk: root.dark ? Qt.color(root.pal.divider) : root.cBorder
     property color cChip: root.darker
-        ? Qt.darker(root.cBorder, Theme.darkerLineFactor)
+        ? Qt.darker(root.cBorder, mt.darkerLineFactor)
         : (root.dark ? root.cBorder
-            : Qt.tint(Qt.color("#ffffff"), Qt.rgba(root.cBorder.r, root.cBorder.g, root.cBorder.b, Theme.lightChipAlpha)))
+            : Qt.tint(Qt.color("#ffffff"), Qt.rgba(root.cBorder.r, root.cBorder.g, root.cBorder.b, mt.lightChipAlpha)))
     property color cChipInk: root.dark ? Qt.color("#ffffff") : root.cBorder
 
     Behavior on cBorder { ColorAnimation { duration: 320; easing.type: Easing.OutCubic } }
@@ -148,10 +152,10 @@ Item {
                     anchors.centerIn: parent
                     text: "12:34"
                     color: root.cChipInk
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -187,10 +191,10 @@ Item {
                 y: 10
                 text: "Live preview"
                 color: root.cInk
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Column {
@@ -226,10 +230,10 @@ Item {
                         anchors.centerIn: parent
                         text: "Apply"
                         color: root.cBorder
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -244,10 +248,10 @@ Item {
                         anchors.centerIn: parent
                         text: "Later"
                         color: root.cChipInk
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
             }

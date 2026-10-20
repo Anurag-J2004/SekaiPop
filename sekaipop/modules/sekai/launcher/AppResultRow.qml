@@ -19,6 +19,9 @@ import qs.services
 Item {
     id: row
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property var app: null
     property bool selected: false
     property bool confirming: false
@@ -41,13 +44,13 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: height / 2
-        color: row.confirming ? (Theme.dark ? Qt.tint(Theme.surface, Qt.rgba(0.91, 0.53, 0.44, 0.3)) : "#fde3da")
+        color: row.confirming ? (mt.dark ? Qt.tint(mt.surface, Qt.rgba(0.91, 0.53, 0.44, 0.3)) : "#fde3da")
             : row.selected ? Qt.rgba(0.016, 0.996, 0.933, 0.35)
-            : (area.containsMouse ? Theme.paperHover : Theme.paper)
+            : (area.containsMouse ? mt.paperHover : mt.paper)
         // Keyboard selection also gets the bar's navy outline, so it
         // reads as "stamped" even against the warm paper.
         border.width: (row.selected || row.confirming) ? 2.5 : 0
-        border.color: row.confirming ? ScrapbookTheme.tapeCoral : Theme.line
+        border.color: row.confirming ? ScrapbookTheme.tapeCoral : mt.line
         Behavior on color { ColorAnimation { duration: 100 } }
     }
 
@@ -61,7 +64,7 @@ Item {
         width: row.iconSize
         height: row.iconSize
         radius: 9
-        color: Theme.paperEdge
+        color: mt.paperEdge
     }
 
     // An app with no icon (none named, none in the theme, or one that fails to load) gets
@@ -104,7 +107,7 @@ Item {
         name: row.isAction ? row.app.glyph : ""
         size: 24
         weight: 600
-        color: row.confirming ? ScrapbookTheme.tapeCoral : Theme.ink
+        color: row.confirming ? ScrapbookTheme.tapeCoral : mt.ink
     }
 
     Column {
@@ -119,9 +122,9 @@ Item {
             width: parent.width
             text: row.isAction ? row.app.title : (row.app ? row.app.name : "")
             elide: Text.ElideRight
-            color: Theme.ink
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeTitle + 2
+            color: mt.ink
+            font.family: mt.fontFamily
+            font.pixelSize: mt.fontSizeTitle + 2
             font.weight: Font.DemiBold
         }
 
@@ -131,9 +134,9 @@ Item {
                 : (row.app ? row.app.genericName : "")
             visible: text !== ""
             elide: Text.ElideRight
-            color: Theme.inkSub
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSub + 2
+            color: mt.inkSub
+            font.family: mt.fontFamily
+            font.pixelSize: mt.fontSizeSub + 2
         }
     }
 

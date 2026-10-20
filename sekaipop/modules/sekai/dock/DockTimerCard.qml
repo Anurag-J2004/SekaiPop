@@ -61,11 +61,11 @@ DockCard {
             id: tBig
             anchors.horizontalCenter: parent.horizontalCenter
             text: TimerService.clock(TimerService.timerLeft, false)
-            color: TimerService.timerRunning ? Theme.ink : Theme.inkSub
-            font.family: Theme.fontFamily
+            color: TimerService.timerRunning ? mt.ink : mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 52
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Row {
@@ -124,11 +124,11 @@ DockCard {
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             text: TimerService.clock(TimerService.swElapsed, true)
-            color: TimerService.swRunning ? Theme.ink : Theme.inkSub
-            font.family: Theme.fontFamily
+            color: TimerService.swRunning ? mt.ink : mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 52
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Row {
@@ -168,8 +168,8 @@ DockCard {
                     required property int index
                     required property real modelData
                     text: "Lap " + (TimerService.laps.length - index) + "   " + TimerService.clock(modelData, true)
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.Bold
                 }
@@ -192,11 +192,11 @@ DockCard {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: TimerService.phaseLabel
-                color: TimerService.pomPhase === "focus" ? Theme.ink : Theme.inkSub
-                font.family: Theme.fontFamily
+                color: TimerService.pomPhase === "focus" ? mt.ink : mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             // One diamond per focus round: filled for the ones done, ringed for this one.
@@ -215,9 +215,9 @@ DockCard {
                         rotation: 45
                         color: index + 1 < TimerService.pomRound
                             || (index + 1 === TimerService.pomRound && TimerService.pomPhase !== "focus")
-                            ? Theme.accentMint : "transparent"
+                            ? mt.accentMint : "transparent"
                         border.width: 2
-                        border.color: index + 1 === TimerService.pomRound ? Theme.accentCyan : Theme.line
+                        border.color: index + 1 === TimerService.pomRound ? mt.accentCyan : mt.line
                     }
                 }
             }
@@ -227,11 +227,11 @@ DockCard {
             y: 24
             anchors.horizontalCenter: parent.horizontalCenter
             text: TimerService.clock(TimerService.pomLeft, false)
-            color: TimerService.pomRunning ? Theme.ink : Theme.inkSub
-            font.family: Theme.fontFamily
+            color: TimerService.pomRunning ? mt.ink : mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 52
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Row {
@@ -265,8 +265,8 @@ DockCard {
             horizontalAlignment: Text.AlignHCenter
             text: Math.round(TimerService.pomWorkMin) + " min focus · " + Math.round(TimerService.pomShortMin)
                 + " short · " + Math.round(TimerService.pomLongMin) + " long"
-            color: Theme.inkSub
-            font.family: Theme.fontFamily
+            color: mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.Bold
         }

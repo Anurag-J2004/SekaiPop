@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -19,6 +20,9 @@ import qs.modules.sekai.quickPanel
 // Pure UI: whoever places it turns clicked() into an action.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string label: ""
     // A Material Symbols Rounded name, or up to three colours for a theme swatch.
@@ -72,15 +76,15 @@ Item {
 
         capW: root.capW
         capH: root.capH
-        skew: 0.24 * Theme.settingsLean
+        skew: 0.24 * mt.settingsLean
         radius: 17
         lit: root.selected
         hovered: root.hovered
         pressed: area.pressed || root.keyPulse
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         ringExtra: 5
 
-        readonly property color ink: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        readonly property color ink: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
 
         Row {
             id: row
@@ -92,8 +96,8 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 size: 22
                 name: root.icon
-                weight: Theme.settingsIconWeight
-                fill: Theme.iconFill
+                weight: mt.settingsIconWeight
+                fill: mt.iconFill
                 color: key.ink
             }
 
@@ -126,7 +130,7 @@ Item {
                         radius: 9
                         color: modelData
                         border.width: 2
-                        border.color: Theme.pRingWhite
+                        border.color: mt.pRingWhite
                         antialiasing: true
                     }
                 }
@@ -136,10 +140,10 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.label
                 color: key.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: root.fontSize
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

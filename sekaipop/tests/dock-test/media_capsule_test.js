@@ -2,7 +2,7 @@
 // out of the round key). The QML can't be run here, so the wiring is read from source.
 // Run: node media_capsule_test.js
 const fs = require('fs'), assert = require('assert')
-const D = fs.readFileSync(__dirname + '/../../modules/sekai/dock/Dock.qml', 'utf8')
+const D = require('../lib/themetext')(fs.readFileSync(__dirname + '/../../modules/sekai/dock/Dock.qml', 'utf8'))
 const block = (id) => { const i = D.indexOf('id: ' + id + '\n'); assert.ok(i > 0, id); return D.slice(i, i + 16000) }
 
 // the small key: the cover is cut with a mask, not just `clip` (which only clips to the box)

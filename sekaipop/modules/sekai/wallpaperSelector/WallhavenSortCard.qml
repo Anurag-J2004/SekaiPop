@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -13,6 +14,9 @@ import "../../common/functions/WallhavenMath.js" as WH
 // it is ever cut.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string sort: "toplist"
     property string range: "1M"
@@ -54,28 +58,28 @@ Item {
     // The widest "label   note" there is, to size the card by.
     TextMetrics {
         id: widest
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 13
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
         text: "Relevance          needs a search"
     }
 
     Rectangle {
-        x: Theme.shadowOffset
-        y: Theme.shadowOffset
+        x: mt.shadowOffset
+        y: mt.shadowOffset
         width: parent.width
         height: parent.height
-        radius: Theme.radiusOuter
-        color: Theme.lineShadow
+        radius: mt.radiusOuter
+        color: mt.lineShadow
     }
 
     Rectangle {
         anchors.fill: parent
-        radius: Theme.radiusOuter
+        radius: mt.radiusOuter
         color: "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         MouseArea { anchors.fill: parent }
@@ -85,8 +89,8 @@ Item {
             y: 9
             text: "SORT WALLHAVEN BY"
             color: ScrapbookTheme.inkSoft
-            font.family: Theme.fontFamily
-            font.styleName: Theme.fontStyleBold
+            font.family: mt.fontFamily
+            font.styleName: mt.fontStyleBold
             font.weight: Font.ExtraBold
             font.pixelSize: 11
             font.letterSpacing: 1.2
@@ -112,7 +116,7 @@ Item {
                         width: parent.width
                         height: root.rowH
                         radius: 8
-                        color: rowArea.containsMouse && entry.usable ? Theme.colHoverTint : "transparent"
+                        color: rowArea.containsMouse && entry.usable ? mt.colHoverTint : "transparent"
                         opacity: entry.usable ? 1 : 0.5
 
                         MaterialIcon {
@@ -121,7 +125,7 @@ Item {
                             name: "check"
                             size: 20
                             weight: 600
-                            color: Theme.colBorder
+                            color: mt.colBorder
                             visible: entry.active
                         }
 
@@ -129,9 +133,9 @@ Item {
                             x: 36
                             anchors.verticalCenter: parent.verticalCenter
                             text: entry.modelData.label
-                            color: Theme.colBorder
-                            font.family: Theme.fontFamily
-                            font.styleName: entry.active ? Theme.fontStyleBold : ""
+                            color: mt.colBorder
+                            font.family: mt.fontFamily
+                            font.styleName: entry.active ? mt.fontStyleBold : ""
                             font.weight: entry.active ? Font.ExtraBold : Font.Medium
                             font.pixelSize: 13
                         }
@@ -143,7 +147,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.notes[entry.modelData.id] || ""
                             color: ScrapbookTheme.inkSoft
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.DemiBold
                         }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import "../functions/NotifyKinds.js" as NK
 
@@ -19,13 +20,16 @@ import "../functions/NotifyKinds.js" as NK
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string glyph: ""
     property real size: 56
 
     readonly property int kind: NK.index(root.glyph)
-    readonly property color fillColor: Theme.attributeColors[root.kind]
+    readonly property color fillColor: mt.attributeColors[root.kind]
     // Outline and shadow: the same colour in the shell's attribute icons.
-    readonly property color ink: Theme.mono ? Theme.colBorder : "#555473"
+    readonly property color ink: mt.mono ? mt.colBorder : "#555473"
     readonly property real outline: Math.max(2, root.size * 0.055)
     readonly property real glyphSize: Math.round(root.size * 0.6)
 

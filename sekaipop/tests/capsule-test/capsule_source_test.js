@@ -12,7 +12,7 @@
 //      (12 + 3 + 3), 34 active, 21 chip, 6 gaps.
 const assert = require("assert"), fs = require("fs"), path = require("path")
 const top = path.join(__dirname, "..", "..")
-const read = rel => fs.readFileSync(path.join(top, rel), "utf8")
+const read = rel => require("../lib/themetext")(fs.readFileSync(path.join(top, rel), "utf8"))
 const code = s => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'])\/\/.*$/gm, "$1")
 const num = (src, name) => {
     const m = new RegExp("readonly property (?:real|int) " + name + ":\\s*([0-9.]+)").exec(src)
@@ -45,7 +45,7 @@ assert(/status_Bar\.barStyle === 2 \|\| status_Bar\.capsule\) \? 0 : 1/.test(sb)
 for (const t of ["Theme.capShade", "Theme.capRim", "Theme.capBody"]) assert(sb.includes(t), "capsule layer lacks " + t)
 
 // 4. the widgets that redraw themselves
-const th = code(read("modules/common/Theme.qml"))
+const th = code(read("modules/common/ThemeSet.qml"))   // what Theme (and each monitor's theme) is
 assert(/function capsuleFor\(item\)/.test(th) && /p\.capsuleBar === true/.test(th), "Theme.capsuleFor")
 for (const f of ["modules/common/widgets/Pill.qml", "modules/common/widgets/MaterialIcon.qml", "modules/sekai/bar/WorkspaceBadges.qml"])
     assert(code(read(f)).includes("Theme.capsuleFor(root)"), f + " does not ask Theme.capsuleFor")
@@ -88,7 +88,7 @@ assert(/capWsColors: mono\s*\?\s*attributeColors\.map\(c => Qt\.color\(c\)\)\s*:
 assert(/Theme\.capWsColors\[dot\.index % Theme\.capWsColors\.length\]/.test(wsb), "the dots use the theme's colours")
 assert(!/capDotColors/.test(wsb), "no fixed dot palette left in the workspace badges")
 // the dock's lit keys and running dots follow the theme too: no fixed pastel left anywhere
-for (const f of ["modules/sekai/dock/Dock.qml", "modules/sekai/dock/DockRunDot.qml", "modules/common/Theme.qml"])
+for (const f of ["modules/sekai/dock/Dock.qml", "modules/sekai/dock/DockRunDot.qml", "modules/common/ThemeSet.qml"])
     assert(!/capDotColors|#FAA8E1|#C1B3D6/i.test(read(f)), f + " has no fixed capsule pastel")
 assert(/Theme\.capLit\b/.test(read("modules/sekai/dock/DockRunDot.qml")) && /Theme\.capLitSoft/.test(read("modules/sekai/dock/DockRunDot.qml")), "run dot uses the theme colours")
 

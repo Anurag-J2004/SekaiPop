@@ -2,12 +2,12 @@
 // The QML can't be run here, so the wiring is read from source. Run: node shelf_look_test.js
 const fs = require('fs'), assert = require('assert')
 const root = __dirname + '/../../'
-const C = fs.readFileSync(root + 'modules/sekai/dock/DockShelfCard.qml', 'utf8')
-const D = fs.readFileSync(root + 'modules/sekai/dock/DockCard.qml', 'utf8')
+const C = require('../lib/themetext')(fs.readFileSync(root + 'modules/sekai/dock/DockShelfCard.qml', 'utf8'))
+const D = require('../lib/themetext')(fs.readFileSync(root + 'modules/sekai/dock/DockCard.qml', 'utf8'))
 const MJ = fs.readFileSync(root + 'modules/common/functions/ShelfMath.js', 'utf8')
 const SM = new Function(MJ.replace('.pragma library', '') + '; return { seedOf, isImage, kindOf, iconOf, specOf, heightOf, restTilt, pack }')()
 const SRV = fs.readFileSync(root + 'services/ShelfService.qml', 'utf8')
-const face = n => fs.readFileSync(root + 'modules/sekai/dock/' + n + '.qml', 'utf8')
+const face = n => require('../lib/themetext')(fs.readFileSync(root + 'modules/sekai/dock/' + n + '.qml', 'utf8'))
 
 // the plank has room: the card grows by it, and it sits at the bottom of the content
 assert.ok(/readonly property real ledgeBlock: 8 \+ root\.plankH/.test(C), 'the room the plank takes')

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Widgets
 import qs.modules.common
 
@@ -20,6 +21,9 @@ import qs.modules.common
 // 24x24 texels = one LCD pixel). No shader, nothing to compile.
 ClippingRectangle {
     id: lcd
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // ===== what it is given =====
     // The picture to show, as a file path ("" = no LCD at all, the screen stays
@@ -54,8 +58,8 @@ ClippingRectangle {
     property real meshStrength: 1
 
     // A phone's glass: how far in from the face's edge it starts and how round it is.
-    readonly property real inset: Theme.phoneScreenInset
-    radius: Math.max(0, Theme.phoneCornerRadius - lcd.inset)
+    readonly property real inset: mt.phoneScreenInset
+    radius: Math.max(0, mt.phoneCornerRadius - lcd.inset)
     color: "transparent"
 
     // Nothing to show: it is not even there (the screen is the plain white one).
@@ -153,9 +157,9 @@ ClippingRectangle {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.pSurface, lcd.washTop) }
-            GradientStop { position: 0.3; color: Qt.alpha(Theme.pSurface, lcd.washBody) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.pSurface, lcd.washBody) }
+            GradientStop { position: 0.0; color: Qt.alpha(mt.pSurface, lcd.washTop) }
+            GradientStop { position: 0.3; color: Qt.alpha(mt.pSurface, lcd.washBody) }
+            GradientStop { position: 1.0; color: Qt.alpha(mt.pSurface, lcd.washBody) }
         }
     }
 

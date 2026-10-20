@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -12,6 +13,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property bool hasWindow: false
     property string app: ""
     property string title: ""
@@ -19,8 +23,8 @@ Item {
     property int workspace: 1
     property string barPosition: "left"
 
-    implicitWidth: Theme.pillHeight
-    implicitHeight: Theme.pillHeight + Theme.shadowOffset
+    implicitWidth: mt.pillHeight
+    implicitHeight: mt.pillHeight + mt.shadowOffset
 
     // One line, whatever the title holds (a newline would grow the tag).
     readonly property string tipText: !root.hasWindow
@@ -38,12 +42,12 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: 8
         pressed: area.pressed
         fillGradient: Gradient {
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         Image {
@@ -64,11 +68,11 @@ Item {
             anchors.centerIn: parent
             visible: !root.iconReady
             text: root.letter
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 15
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 

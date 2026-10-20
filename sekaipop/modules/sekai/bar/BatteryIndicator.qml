@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,9 @@ import qs.modules.common.widgets
 // still recolors live (low battery goes red-ish, unless it's charging).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool available: false
     property int percentage: 0
@@ -27,7 +31,7 @@ Item {
     implicitWidth: available ? pill.implicitWidth : 0
     implicitHeight: pill.implicitHeight
 
-    readonly property color glyphTone: root.isLow ? "#e0575b" : Theme.chipInk
+    readonly property color glyphTone: root.isLow ? "#e0575b" : mt.chipInk
 
     // Picks the frame that matches the level: bolt while charging (the
     // set has no per-level charging glyph, just the one bolt), full at
@@ -42,14 +46,14 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
-        fillColor: Theme.chipFill
+        cornerRadius: mt.radiusBadge
+        fillColor: mt.chipFill
         pressed: area.pressed
         ringWidth: 6   // the bar's pills all share the Utility pill's ring
         implicitWidth: root.vertical ? pill.barVWidth : batteryRow.implicitWidth + (pill.capsule ? 20 : 26)
         implicitHeight: root.vertical
-            ? batteryColumn.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + Theme.shadowOffset
-            : Theme.pillHeight + Theme.shadowOffset
+            ? batteryColumn.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + mt.shadowOffset
+            : mt.pillHeight + mt.shadowOffset
 
         Column {
             id: batteryColumn
@@ -67,11 +71,11 @@ Item {
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: root.percentage + "%"
-                color: Theme.chipInk
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeInfo
+                color: mt.chipInk
+                font.family: mt.fontFamily
+                font.pixelSize: mt.fontSizeInfo
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -91,11 +95,11 @@ Item {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.percentage + "%"
-                color: Theme.chipInk
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeInfo
+                color: mt.chipInk
+                font.family: mt.fontFamily
+                font.pixelSize: mt.fontSizeInfo
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

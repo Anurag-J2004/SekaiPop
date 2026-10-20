@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -10,7 +11,9 @@ import qs.modules.common.widgets
 // (ThemePopup.qml).
 //
 //   click a tile     the whole shell, the card above included, re-colours live
-//                    (ThemeService.setTheme); the pick is remembered
+//                    (ThemeService.pickTheme); the pick is remembered. With one theme
+//                    per monitor (Settings > Desktop) it is this monitor's theme; on the
+//                    main monitor, the shell's (ThemeService, "one theme per monitor")
 //   mouse wheel      scrolls the row sideways, if the tiles do not all fit
 //
 // The pictures are drawn from each group's own palette (`group.c`), not from
@@ -32,6 +35,12 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+    // The monitor Edit Desktop is open on: with one theme per monitor, a tile picks for it
+    // (ThemeService.pickTheme; the main monitor's is the shell's theme).
+    readonly property string screenName: QsWindow.window && QsWindow.window.screen ? String(QsWindow.window.screen.name) : ""
+
     readonly property real tileW: 150
     readonly property real tileH: 138
 
@@ -40,7 +49,7 @@ Item {
     // The hex field in the controls gave the keyboard back (EditTray: Esc leaves again).
     signal finished()
 
-    readonly property bool matugenOn: ThemeService.current === "matugen"
+    readonly property bool matugenOn: ThemeService.themeFor(root.screenName) === "matugen"
 
     // Leaving the tab, or the theme no longer being Matugen, puts the tiles back.
     onVisibleChanged: {
@@ -76,10 +85,13 @@ Item {
     component ThemeTile: Item {
         id: tile
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         required property var group
 
         readonly property var c: group.c
-        readonly property bool selected: ThemeService.current === group.id
+        readonly property bool selected: ThemeService.themeFor(root.screenName) === group.id
         readonly property bool isMatugen: group.id === "matugen"
         readonly property bool missing: tile.isMatugen && !ThemeService.matugenInstalled
         readonly property bool dark: ThemeService.dark
@@ -96,8 +108,8 @@ Item {
 
         Gradient {
             id: onFill
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         // The group's own accent stops, left to right.
@@ -119,7 +131,7 @@ Item {
             shadowDx: 0
             shadowDy: 4
             pressed: tileArea.pressed
-            fillColor: tileArea.containsMouse && !tile.selected ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: tileArea.containsMouse && !tile.selected ? mt.pSurfaceHover : mt.pSurface
             fillGradient: tile.selected ? onFill : null
 
             Behavior on y {
@@ -308,7 +320,7 @@ Item {
                 width: pic.width
                 height: pic.height - 3
                 // A Canvas only redraws when asked: again when the colours change.
-                property color lineColour: Theme.pLine
+                property color lineColour: mt.pLine
                 onLineColourChanged: requestPaint()
                 onVisibleChanged: if (visible) requestPaint()
                 onPaint: {
@@ -331,23 +343,23 @@ Item {
                         name: "terminal"
                         size: 20
                         weight: 700
-                        color: Theme.pInkSub
+                        color: mt.pInkSub
                     }
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "Needs matugen"
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.Black
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         horizontalAlignment: Text.AlignHCenter
                         text: "Install it to use\nthe wallpaper"
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.ExtraBold
                     }
@@ -364,11 +376,11 @@ Item {
                     width: Math.min(implicitWidth, pic.width - (tuneMark.visible ? 17 : 0))
                     elide: Text.ElideRight
                     text: tile.isMatugen ? "Matugen" : tile.group.name
-                    color: tile.selected ? Theme.colBorder : Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: tile.selected ? mt.colBorder : mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 // Matugen has options (shown while it isn't the theme on).
@@ -380,7 +392,7 @@ Item {
                     size: 12
                     weight: 700
                     opacity: 0.8
-                    color: Theme.pInk
+                    color: mt.pInk
                 }
             }
         }
@@ -393,9 +405,9 @@ Item {
             width: 24
             height: 24
             radius: 12
-            color: Theme.accentMint
+            color: mt.accentMint
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             MaterialIcon {
@@ -403,7 +415,7 @@ Item {
                 name: "check"
                 size: 15
                 weight: 700
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
 
@@ -426,7 +438,7 @@ Item {
                 if (tile.isMatugen && tile.selected)
                     root.tuning = true
                 else
-                    ThemeService.setTheme(tile.group.id)
+                    ThemeService.pickTheme(root.screenName, tile.group.id)
             }
         }
 
@@ -445,7 +457,7 @@ Item {
                 shadowDx: 0
                 shadowDy: 3
                 pressed: tuneArea.pressed
-                fillColor: tuneArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface
+                fillColor: tuneArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
             }
 
             MaterialIcon {
@@ -454,7 +466,7 @@ Item {
                 name: "tune"
                 size: 18
                 weight: 700
-                color: Theme.pInk
+                color: mt.pInk
             }
 
             MouseArea {
@@ -496,7 +508,7 @@ Item {
         WheelHandler {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
-                const d = Theme.wheelPx(event, true)
+                const d = mt.wheelPx(event, true)
                 flick.contentX = Math.max(0, Math.min(flick.contentWidth - flick.width, flick.contentX - d))
             }
         }

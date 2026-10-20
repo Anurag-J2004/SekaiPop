@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,9 @@ import qs.modules.common.widgets
 // pink dot ("something is waiting", used on About when an update exists).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property string label: ""
@@ -33,15 +37,15 @@ Item {
 
         capW: root.capW
         capH: root.capH
-        skew: 0.24 * Theme.settingsLean
+        skew: 0.24 * mt.settingsLean
         radius: 17
         lit: root.selected
         hovered: root.hovered
         pressed: area.pressed
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         ringExtra: 5
 
-        readonly property color ink: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+        readonly property color ink: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
 
         Row {
             id: row
@@ -53,7 +57,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 size: 22
                 name: root.icon
-                fill: Theme.iconFill
+                fill: mt.iconFill
                 color: key.ink
             }
 
@@ -62,10 +66,10 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.label
                 color: key.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -78,7 +82,7 @@ Item {
             radius: 7.5
             color: ScrapbookTheme.accentPink
             border.width: 2.5
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
         }
     }

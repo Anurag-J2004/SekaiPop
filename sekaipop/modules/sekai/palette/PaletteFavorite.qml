@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import "../../common/functions/PaletteMath.js" as PM
@@ -8,6 +9,9 @@ import "../../common/functions/PaletteMath.js" as PM
 // on the big strip right now has a thick outline.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var colors: []
     property bool current: false
@@ -23,7 +27,7 @@ Item {
         width: root.width
         height: 32
         radius: 11
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -69,7 +73,7 @@ Item {
             radius: 11
             color: "transparent"
             border.width: root.current ? 3 : 2
-            border.color: root.current ? Theme.accentCyan : Theme.line
+            border.color: root.current ? mt.accentCyan : mt.line
             antialiasing: true
             Behavior on border.color { ColorAnimation { duration: 140 } }
         }
@@ -82,14 +86,14 @@ Item {
             width: 18
             height: 18
             radius: 9
-            color: Theme.surface
+            color: mt.surface
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             opacity: mouse.containsMouse || crossMouse.containsMouse ? 1 : 0
             antialiasing: true
             Behavior on opacity { NumberAnimation { duration: 120 } }
 
-            MaterialIcon { anchors.centerIn: parent; name: "close"; size: 12; color: Theme.ink }
+            MaterialIcon { anchors.centerIn: parent; name: "close"; size: 12; color: mt.ink }
 
             MouseArea {
                 id: crossMouse

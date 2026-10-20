@@ -46,6 +46,9 @@ import qs.modules.sekai.editMode
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     function resetPosition(): void {
         TodoService.posX = -1;
         TodoService.posY = -1;
@@ -409,8 +412,11 @@ PanelWindow {
     component IconBtn: Rectangle {
         id: btn
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string icon: ""
-        property color hoverColor: Theme.accentMint
+        property color hoverColor: mt.accentMint
         signal clicked()
 
         width: 26
@@ -423,7 +429,7 @@ PanelWindow {
         }
 
         MaterialIcon {
-            color: btnArea.containsMouse ? Theme.colBorder : Theme.pInk
+            color: btnArea.containsMouse ? mt.colBorder : mt.pInk
             anchors.centerIn: parent
             name: btn.icon
             size: 18
@@ -479,10 +485,10 @@ PanelWindow {
                 readonly property bool classicPanel: true
 
                 // Where the content starts: the pill's own border + ring, plus room.
-                readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 10
+                readonly property int inset: mt.borderWidth + mt.outerRingWidth + 10
 
                 width: win.cardWidth
-                height: col.implicitHeight + card.inset * 2 + Theme.shadowOffset
+                height: col.implicitHeight + card.inset * 2 + mt.shadowOffset
 
                 // Drop-and-settle bounce (kept for anything that wants to nudge the card).
                 property real bump: 1
@@ -518,11 +524,11 @@ PanelWindow {
                 // hard shadow as the bar and the dock.
                 Pill {
                     anchors.fill: parent
-                    cornerRadius: Theme.radiusOuter
-                    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-                    ringColorTop: Theme.pSurfaceRing
+                    cornerRadius: mt.radiusOuter
+                    ringWidth: mt.borderWidth + mt.outerRingWidth
+                    ringColorTop: mt.pSurfaceRing
                     ringColorBottom: ringColorTop
-                    fillColor: Theme.pSurface
+                    fillColor: mt.pSurface
                 }
 
                 // Edit Desktop: outline, corner diamonds, a tag and a drag
@@ -600,15 +606,15 @@ PanelWindow {
                             width: 36
                             height: 36
                             radius: 11
-                            border.width: Theme.borderWidth
-                            border.color: Theme.pLine
+                            border.width: mt.borderWidth
+                            border.color: mt.pLine
                             gradient: Gradient {
-                                GradientStop { position: 0.0; color: Theme.accentMint }
-                                GradientStop { position: 1.0; color: Theme.accentCyan }
+                                GradientStop { position: 0.0; color: mt.accentMint }
+                                GradientStop { position: 1.0; color: mt.accentCyan }
                             }
 
                             MaterialIcon {
-                                color: Theme.colBorder
+                                color: mt.colBorder
                                 anchors.centerIn: parent
                                 name: "checklist"
                                 size: 22
@@ -624,19 +630,19 @@ PanelWindow {
 
                             Text {
                                 text: "To-Do"
-                                color: Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 18
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             Text {
                                 text: TodoService.total === 0 ? "nothing yet"
                                     : TodoService.doneCount === TodoService.total ? "all done!"
                                     : (TodoService.total - TodoService.doneCount) + " left"
-                                color: Theme.pInkSub
-                                font.family: Theme.fontFamily
+                                color: mt.pInkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                             }
@@ -651,8 +657,8 @@ PanelWindow {
                             height: 26
                             radius: 13
                             border.width: 2
-                            border.color: Theme.pLine
-                            color: clearAreaSmall.containsMouse ? Theme.irisColorPink : Theme.pSurface
+                            border.color: mt.pLine
+                            color: clearAreaSmall.containsMouse ? mt.irisColorPink : mt.pSurface
 
                             Behavior on color {
                                 ColorAnimation { duration: 120 }
@@ -662,11 +668,11 @@ PanelWindow {
                                 id: clearTextSmall
                                 anchors.centerIn: parent
                                 text: "clear done (" + TodoService.doneCount + ")"
-                                color: clearAreaSmall.containsMouse ? Theme.colBorder : Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: clearAreaSmall.containsMouse ? mt.colBorder : mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             MouseArea {
@@ -684,7 +690,7 @@ PanelWindow {
                         width: col.width
                         height: 2
                         radius: 1
-                        color: Theme.pSurfaceDivider
+                        color: mt.pSurfaceDivider
                     }
 
                     // ===== empty state =====
@@ -695,8 +701,8 @@ PanelWindow {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         text: "add your first task below"
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                     }
@@ -927,7 +933,7 @@ PanelWindow {
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 10
-                                    color: Theme.pSurfaceHover
+                                    color: mt.pSurfaceHover
                                     opacity: row.hot || row.editing ? 1 : 0
 
                                     Behavior on opacity {
@@ -942,9 +948,9 @@ PanelWindow {
                                     anchors.fill: parent
                                     radius: 10
                                     visible: list.dragFrom === row.index
-                                    color: Theme.pSurfaceHover
+                                    color: mt.pSurfaceHover
                                     border.width: 2
-                                    border.color: Theme.pLine
+                                    border.color: mt.pLine
                                 }
 
                                 // The checkbox: navy outline, mint-to-cyan when ticked.
@@ -955,9 +961,9 @@ PanelWindow {
                                     width: 22
                                     height: 22
                                     radius: 7
-                                    color: Theme.pSurface
+                                    color: mt.pSurface
                                     border.width: 2.5
-                                    border.color: Theme.pLine
+                                    border.color: mt.pLine
 
                                     Rectangle {
                                         anchors.fill: parent
@@ -965,8 +971,8 @@ PanelWindow {
                                         radius: box.radius - box.border.width
                                         opacity: row.done ? 1 : 0
                                         gradient: Gradient {
-                                            GradientStop { position: 0.0; color: Theme.accentMint }
-                                            GradientStop { position: 1.0; color: Theme.accentCyan }
+                                            GradientStop { position: 0.0; color: mt.accentMint }
+                                            GradientStop { position: 1.0; color: mt.accentCyan }
                                         }
 
                                         Behavior on opacity {
@@ -975,7 +981,7 @@ PanelWindow {
                                     }
 
                                     MaterialIcon {
-                                        color: Theme.colBorder
+                                        color: mt.colBorder
                                         anchors.centerIn: parent
                                         name: "check"
                                         size: 16
@@ -1007,8 +1013,8 @@ PanelWindow {
                                     visible: !row.editing
                                     text: row.title
                                     wrapMode: Text.Wrap
-                                    color: row.done ? Theme.pInkSub : Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: row.done ? mt.pInkSub : mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 14
                                     font.weight: Font.DemiBold
                                     font.strikeout: row.done
@@ -1031,10 +1037,10 @@ PanelWindow {
                                     visible: row.editing
                                     wrapMode: TextInput.Wrap
                                     selectByMouse: true
-                                    color: Theme.pInk
-                                    selectionColor: Theme.accentCyan
-                                    selectedTextColor: Theme.colBorder
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    selectionColor: mt.accentCyan
+                                    selectedTextColor: mt.colBorder
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 14
                                     font.weight: Font.DemiBold
 
@@ -1054,7 +1060,7 @@ PanelWindow {
                                     width: editor.width
                                     height: 2
                                     radius: 1
-                                    color: Theme.accentCyan
+                                    color: mt.accentCyan
                                 }
 
                                 // Grip / edit / delete, floating over the right end of the row on hover
@@ -1067,7 +1073,7 @@ PanelWindow {
                                     width: actionRow.width + 4
                                     height: 26
                                     radius: 10
-                                    color: Theme.pSurfaceHover
+                                    color: mt.pSurfaceHover
                                     // Hidden while the text is being edited (no bin, no grip,
                                     // no pencil there): Enter saves and Esc cancels.
                                     opacity: !row.editing && (row.hot || list.dragFrom === row.index) ? 1 : 0
@@ -1090,14 +1096,14 @@ PanelWindow {
                                             width: 26
                                             height: 26
                                             radius: 9
-                                            color: gripArea.containsMouse || gripArea.pressed ? Theme.accentCyan : "transparent"
+                                            color: gripArea.containsMouse || gripArea.pressed ? mt.accentCyan : "transparent"
 
                                             Behavior on color {
                                                 ColorAnimation { duration: 120 }
                                             }
 
                                             MaterialIcon {
-                                                color: gripArea.containsMouse || gripArea.pressed ? Theme.colBorder : Theme.pInk
+                                                color: gripArea.containsMouse || gripArea.pressed ? mt.colBorder : mt.pInk
                                                 anchors.centerIn: parent
                                                 name: "drag_indicator"
                                                 size: 18
@@ -1128,13 +1134,13 @@ PanelWindow {
 
                                         IconBtn {
                                             icon: "edit"
-                                            hoverColor: Theme.accentMint
+                                            hoverColor: mt.accentMint
                                             onClicked: row.beginEdit()
                                         }
 
                                         IconBtn {
                                             icon: "delete"
-                                            hoverColor: Theme.irisColorPink
+                                            hoverColor: mt.irisColorPink
                                             onClicked: TodoService.remove(row.index)
                                         }
                                     }
@@ -1150,7 +1156,7 @@ PanelWindow {
                             width: 4
                             height: Math.max(20, list.visibleArea.heightRatio * listBox.height)
                             radius: 2
-                            color: Theme.pLine
+                            color: mt.pLine
                             opacity: 0.35
                         }
 
@@ -1170,15 +1176,15 @@ PanelWindow {
                                 width: parent.width
                                 height: parent.height
                                 radius: 10
-                                color: Theme.pLineShadow
+                                color: mt.pLineShadow
                             }
 
                             Rectangle {
                                 anchors.fill: parent
                                 radius: 10
-                                color: Theme.pSurface
+                                color: mt.pSurface
                                 border.width: 2.5
-                                border.color: Theme.pLine
+                                border.color: mt.pLine
                             }
 
                             Rectangle {
@@ -1188,9 +1194,9 @@ PanelWindow {
                                 width: 22
                                 height: 22
                                 radius: 7
-                                color: Theme.pSurface
+                                color: mt.pSurface
                                 border.width: 2.5
-                                border.color: Theme.pLine
+                                border.color: mt.pLine
 
                                 Rectangle {
                                     anchors.fill: parent
@@ -1198,14 +1204,14 @@ PanelWindow {
                                     radius: ghostBox.radius - ghostBox.border.width
                                     visible: list.dragDone
                                     gradient: Gradient {
-                                        GradientStop { position: 0.0; color: Theme.accentMint }
-                                        GradientStop { position: 1.0; color: Theme.accentCyan }
+                                        GradientStop { position: 0.0; color: mt.accentMint }
+                                        GradientStop { position: 1.0; color: mt.accentCyan }
                                     }
                                 }
 
                                 MaterialIcon {
                                     visible: list.dragDone
-                                    color: Theme.colBorder
+                                    color: mt.colBorder
                                     anchors.centerIn: parent
                                     name: "check"
                                     size: 16
@@ -1219,8 +1225,8 @@ PanelWindow {
                                 width: ghost.width - 40 - 10   // same as a row's label, so it wraps the same
                                 text: list.dragTitle
                                 wrapMode: Text.Wrap
-                                color: list.dragDone ? Theme.pInkSub : Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: list.dragDone ? mt.pInkSub : mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 14
                                 font.weight: Font.DemiBold
                                 font.strikeout: list.dragDone
@@ -1234,11 +1240,11 @@ PanelWindow {
                                 width: 26
                                 height: 26
                                 radius: 9
-                                color: Theme.pSurface
+                                color: mt.pSurface
 
                                 MaterialIcon {
                                     anchors.centerIn: parent
-                                    color: Theme.pInk
+                                    color: mt.pInk
                                     name: "drag_indicator"
                                     size: 18
                                     weight: 600
@@ -1253,9 +1259,9 @@ PanelWindow {
                         width: col.width
                         height: 40
                         radius: 12
-                        color: addInput.activeFocus ? Theme.pSurface : Theme.pSurfaceHover
+                        color: addInput.activeFocus ? mt.pSurface : mt.pSurfaceHover
                         border.width: 2.5
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
 
                         Behavior on color {
                             ColorAnimation { duration: 120 }
@@ -1278,10 +1284,10 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             clip: true
                             selectByMouse: true
-                            color: Theme.pInk
-                            selectionColor: Theme.accentCyan
-                            selectedTextColor: Theme.colBorder
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            selectionColor: mt.accentCyan
+                            selectedTextColor: mt.colBorder
+                            font.family: mt.fontFamily
                             font.pixelSize: 14
                             font.weight: Font.DemiBold
 
@@ -1295,7 +1301,7 @@ PanelWindow {
                                 visible: addInput.text === ""
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: "add a task…"
-                                color: Theme.pInkSub
+                                color: mt.pInkSub
                                 font: addInput.font
                             }
                         }
@@ -1309,11 +1315,11 @@ PanelWindow {
                             height: 30
                             radius: 9
                             border.width: 2.5
-                            border.color: Theme.pLine
+                            border.color: mt.pLine
                             scale: addArea.pressed ? 0.9 : 1
                             gradient: Gradient {
-                                GradientStop { position: 0.0; color: Theme.accentMint }
-                                GradientStop { position: 1.0; color: Theme.accentCyan }
+                                GradientStop { position: 0.0; color: mt.accentMint }
+                                GradientStop { position: 1.0; color: mt.accentCyan }
                             }
 
                             Behavior on scale {
@@ -1329,7 +1335,7 @@ PanelWindow {
                             }
 
                             MaterialIcon {
-                                color: Theme.colBorder
+                                color: mt.colBorder
                                 anchors.centerIn: parent
                                 name: "add"
                                 size: 20
@@ -1359,8 +1365,8 @@ PanelWindow {
                             height: 26
                             radius: 13
                             border.width: 2
-                            border.color: Theme.pLine
-                            color: clearArea.containsMouse ? Theme.irisColorPink : Theme.pSurface
+                            border.color: mt.pLine
+                            color: clearArea.containsMouse ? mt.irisColorPink : mt.pSurface
 
                             Behavior on color {
                                 ColorAnimation { duration: 120 }
@@ -1370,11 +1376,11 @@ PanelWindow {
                                 id: clearText
                                 anchors.centerIn: parent
                                 text: "clear done (" + TodoService.doneCount + ")"
-                                color: clearArea.containsMouse ? Theme.colBorder : Theme.pInk
-                                font.family: Theme.fontFamily
+                                color: clearArea.containsMouse ? mt.colBorder : mt.pInk
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
 
                             MouseArea {

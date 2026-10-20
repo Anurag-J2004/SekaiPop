@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The running indicator under a dock key (Dock.qml) — the small diamond of the
@@ -12,6 +13,9 @@ import qs.modules.common
 // It springs when its state changes.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string mode: "none"
     // Capsule dock: a round dot like the Capsule bar's workspace dots (the bar's
@@ -33,13 +37,13 @@ Item {
         rotation: root.capsule ? 0 : 45
         antialiasing: true
         color: root.capsule
-            ? (root.mode === "focused" ? Theme.capLit
-                : (root.mode === "hidden" ? "transparent" : Theme.capLitSoft))
-            : (root.mode === "focused" ? Theme.accentCyan
-                : (root.mode === "hidden" ? "transparent" : Theme.accentMint))
+            ? (root.mode === "focused" ? mt.capLit
+                : (root.mode === "hidden" ? "transparent" : mt.capLitSoft))
+            : (root.mode === "focused" ? mt.accentCyan
+                : (root.mode === "hidden" ? "transparent" : mt.accentMint))
         border.width: root.capsule ? (root.mode === "hidden" ? 1.5 : 0)
             : (root.mode === "hidden" ? 1.5 : 1)
-        border.color: root.capsule ? Theme.capRim : Theme.line
+        border.color: root.capsule ? mt.capRim : mt.line
 
         Behavior on width {
             NumberAnimation { duration: 180; easing.type: Easing.OutBack; easing.overshoot: 3 }

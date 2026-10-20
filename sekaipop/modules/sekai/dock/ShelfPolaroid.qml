@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -7,6 +8,9 @@ import qs.modules.common.widgets
 // when you point at it). Drawn by DockShelfCard.qml, which sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property color tint
@@ -22,7 +26,7 @@ Item {
         width: parent.width
         height: parent.height
         radius: 4
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -32,8 +36,8 @@ Item {
         anchors.fill: parent
         radius: 4
         color: "#FFFFFF"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // the window: a dark inset with the picture in it
@@ -45,7 +49,7 @@ Item {
             height: card.height - root.margin - root.stripH
             color: Qt.darker(root.tint, 1.4)
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             Image {
@@ -74,7 +78,7 @@ Item {
                 name: "image"
                 size: 20
                 weight: 700
-                color: Theme.line
+                color: mt.line
             }
         }
 
@@ -90,7 +94,7 @@ Item {
             maximumLineCount: 1
             text: root.item.name
             color: "#2B2D42"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 10
             font.weight: Font.Bold
             opacity: root.lifted ? 0 : 1

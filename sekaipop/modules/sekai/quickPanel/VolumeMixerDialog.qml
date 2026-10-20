@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -21,6 +22,9 @@ import qs.modules.sekai.phone
 // right-clicked.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool open: false
     property string kind: "speaker"        // "speaker" or "microphone"
@@ -80,9 +84,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.phoneScreenInset
-        radius: Theme.phoneCornerRadius - Theme.phoneScreenInset
-        color: Theme.scrim
+        anchors.margins: mt.phoneScreenInset
+        radius: mt.phoneCornerRadius - mt.phoneScreenInset
+        color: mt.scrim
         opacity: root.open ? 0.55 : 0
         Behavior on opacity {
             NumberAnimation {
@@ -98,12 +102,12 @@ Item {
     }
 
     Rectangle {
-        x: 40 + (Theme.quickFlat ? 0 : 5)
+        x: 40 + (mt.quickFlat ? 0 : 5)
         y: 200 + 4
         width: 575
         height: 940
         radius: 41
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -114,9 +118,9 @@ Item {
         width: 575
         height: 940
         radius: 41
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         clip: true
 
         MouseArea { anchors.fill: parent }
@@ -125,11 +129,11 @@ Item {
             x: 28
             y: 26
             text: root.title
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Rectangle {
@@ -139,17 +143,17 @@ Item {
             width: scanLabel.implicitWidth + 28
             height: 34
             radius: 17
-            color: scanArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+            color: scanArea.containsMouse ? mt.pSurfaceHover : "transparent"
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
             opacity: root.manualScanning ? 0.5 : 1
 
             Text {
                 id: scanLabel
                 anchors.centerIn: parent
                 text: root.manualScanning ? "Refreshing…" : "Refresh"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
             }
@@ -174,7 +178,7 @@ Item {
             text: root.errorText
             wrapMode: Text.Wrap
             color: "#c0392b"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 14
         }
 
@@ -196,7 +200,7 @@ Item {
                 width: parent.width
                 height: 58
                 radius: 20
-                color: Theme.pSurfaceHover
+                color: mt.pSurfaceHover
 
                 Text {
                     x: 18
@@ -204,8 +208,8 @@ Item {
                     width: parent.width - 18 - 52
                     elide: Text.ElideRight
                     text: root.deviceCaption
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }
@@ -216,11 +220,11 @@ Item {
                     width: parent.width - 18 - 40
                     elide: Text.ElideRight
                     text: root.activeDevice ? root.activeDevice.name : "No device"
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 17
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 MaterialIcon {
@@ -265,7 +269,7 @@ Item {
                         width: parent.width
                         height: 42
                         radius: 16
-                        color: deviceRowArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+                        color: deviceRowArea.containsMouse ? mt.pSurfaceHover : "transparent"
                         antialiasing: true
                     }
 
@@ -275,8 +279,8 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: deviceRow.modelData.name
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                     }
 
@@ -286,8 +290,8 @@ Item {
                         anchors.rightMargin: 18
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Switching…"
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                     }
 
@@ -313,8 +317,8 @@ Item {
             x: 28
             y: deviceSection.y + deviceSection.height + 14
             text: "App volumes"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 13
             font.weight: Font.DemiBold
         }
@@ -353,11 +357,11 @@ Item {
                     width: parent.width - 40 - 36
                     elide: Text.ElideRight
                     text: streamRow.modelData.name + (streamRow.modelData.corked ? "  ·  paused" : "")
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 16
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Rectangle {
@@ -367,13 +371,13 @@ Item {
                     width: parent.width - 20 - 20 - 44
                     height: 14
                     radius: 7
-                    color: Theme.pSurfaceDivider
+                    color: mt.pSurfaceDivider
 
                     Rectangle {
                         width: parent.width * Math.max(0, Math.min(1, streamRow.shownValue / 100))
                         height: parent.height
                         radius: 7
-                        color: streamRow.modelData.muted ? Theme.pInkSub : Theme.pInk
+                        color: streamRow.modelData.muted ? mt.pInkSub : mt.pInk
                         opacity: streamRow.modelData.muted ? 0.5 : 1
                         Behavior on width {
                             enabled: !streamRow.dragging
@@ -439,7 +443,7 @@ Item {
                     width: 36
                     height: 36
                     radius: 18
-                    color: muteArea.containsMouse ? Theme.pSurfaceHover : "transparent"
+                    color: muteArea.containsMouse ? mt.pSurfaceHover : "transparent"
 
                     MaterialIcon {
                         anchors.centerIn: parent
@@ -467,8 +471,8 @@ Item {
             visible: root.streams.length === 0 && !root.scanning
             anchors.centerIn: mixerList
             text: root.kind === "microphone" ? "Nothing's recording right now" : "Nothing's playing right now"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 16
         }
         antialiasing: true

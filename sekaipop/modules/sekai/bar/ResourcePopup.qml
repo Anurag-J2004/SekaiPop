@@ -49,7 +49,7 @@ SekaiPopup {
 
     readonly property var words: ["CHILL", "STEADY", "BUSY", "HEAVY", "MAXED"]
     // The calm tiers (0, 1) keep the accent gradient; the rest take a colour.
-    readonly property var tierFill: [Theme.accentMint, Theme.accentMint, "#FFE066", "#FF9ECB", "#e0575b"]
+    readonly property var tierFill: [mt.accentMint, mt.accentMint, "#FFE066", "#FF9ECB", "#e0575b"]
 
     readonly property int cpuTier: root.tierOf(root.cpuPercent)
     readonly property int memTier: root.tierOf(root.memPercent)
@@ -68,16 +68,16 @@ SekaiPopup {
     }
 
     function plateTop(tier) {
-        return tier <= 1 ? Theme.accentMint : Qt.lighter(root.tierFill[tier], 1.16)
+        return tier <= 1 ? mt.accentMint : Qt.lighter(root.tierFill[tier], 1.16)
     }
 
     function plateBottom(tier) {
-        return tier <= 1 ? Theme.accentCyan : root.tierFill[tier]
+        return tier <= 1 ? mt.accentCyan : root.tierFill[tier]
     }
 
     // The ink on a plate: dark, except on the red MAXED plate.
     function plateInkFor(tier) {
-        return tier === 4 ? Theme.textWhite : Theme.colBorder
+        return tier === 4 ? mt.textWhite : mt.colBorder
     }
 
     // ===== the open choreography =====
@@ -187,8 +187,8 @@ SekaiPopup {
                     cornerRadius: 14
                     ringWidth: 4
                     fillGradient: Gradient {
-                        GradientStop { position: 0.0; color: Theme.accentMint }
-                        GradientStop { position: 1.0; color: Theme.accentCyan }
+                        GradientStop { position: 0.0; color: mt.accentMint }
+                        GradientStop { position: 1.0; color: mt.accentCyan }
                     }
 
                     Text {
@@ -196,11 +196,11 @@ SekaiPopup {
                         anchors.centerIn: parent
                         anchors.verticalCenterOffset: -2
                         text: root.memUsedLabel
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 22
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -208,11 +208,11 @@ SekaiPopup {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: -2
                     text: "of"
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Pill {
@@ -221,18 +221,18 @@ SekaiPopup {
                     shadowDy: 4
                     cornerRadius: 14
                     ringWidth: 4
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
 
                     Text {
                         id: totalText
                         anchors.centerIn: parent
                         anchors.verticalCenterOffset: -2
                         text: root.memTotalLabel
-                        color: Theme.chipInk
-                        font.family: Theme.fontFamily
+                        color: mt.chipInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 22
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                 }
 
@@ -244,16 +244,16 @@ SekaiPopup {
 
                     Text {
                         text: "GB in use"
-                        color: Theme.ink
-                        font.family: Theme.fontFamily
+                        color: mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 13
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
                     Text {
                         text: "right now"
-                        color: Theme.inkSub
-                        font.family: Theme.fontFamily
+                        color: mt.inkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                     }
                 }
