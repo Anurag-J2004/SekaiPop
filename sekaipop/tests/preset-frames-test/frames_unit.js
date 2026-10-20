@@ -117,6 +117,8 @@ function liveDigests(now) {
     }
     return out
 }
+// The service walks `all` (the list plus the desktop widget plugins); no plugins here.
+PresetWidgets.all = PresetWidgets.list
 const now = () => ({ theme: { g: "x" }, widgets: PP.capture(PresetWidgets.list) })
 ImageService.items = [A, B]
 root.liveDigests = liveDigests(now())

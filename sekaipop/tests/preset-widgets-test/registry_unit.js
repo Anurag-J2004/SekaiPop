@@ -287,8 +287,11 @@ for (const { id, service } of reg.entries) {
 }
 // DesktopPresetService goes through the registry and keeps no list of its own
 const svc = read("services/DesktopPresetService.qml")
-for (const needle of ["PP.capture(PresetWidgets.list)", "PP.digestWidgets(PresetWidgets.list", "PP.wear(PresetWidgets.list", "PP.problems(PresetWidgets.list)"])
+// (`all` is `list` plus the desktop widget plugins, services/PluginService.qml.)
+for (const needle of ["PP.capture(PresetWidgets.all)", "PP.digestWidgets(PresetWidgets.all", "PP.wear(PresetWidgets.all", "PP.problems(PresetWidgets.all)"])
     assert.ok(svc.includes(needle), "DesktopPresetService must call " + needle)
+assert.ok(!/PresetWidgets\.list\b(?!\.qml)/.test(svc.replace(/\/\/.*$/gm, "")), "DesktopPresetService must walk PresetWidgets.all, not .list (or the plugins are left out of presets)")
+assert.ok(/readonly property var all:\s*root\.list\.concat\(PluginService\.presetEntries\)/.test(reg.text), "PresetWidgets.all is the list plus the plugins")
 for (const gone of ["laterWidgets", "widgetSkip", "restoreWidget", "laterWidgetNow"])
     assert.ok(!svc.includes(gone), "DesktopPresetService still has its own " + gone + " (the registry owns it now)")
 assert.ok(svc.includes('import "../modules/common/functions/PresetParts.js" as PP'))

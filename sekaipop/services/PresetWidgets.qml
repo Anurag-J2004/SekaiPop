@@ -140,4 +140,11 @@ Singleton {
             digestStub: () => ({})
         }
     ]
+
+    // What DesktopPresetService walks: the widgets above, then the desktop widget plugins
+    // (services/PluginService.qml), one entry each, made there: `{ id: "plugin:<id>",
+    // service: <its PluginState>, skip: ["settings"] }`. A preset holds a plugin's on / off
+    // and spot, and the one rule above holds for it too: a preset saved before the plugin
+    // was installed switches it off. Keep `list` a plain literal: the tests read it as text.
+    readonly property var all: root.list.concat(PluginService.presetEntries)
 }

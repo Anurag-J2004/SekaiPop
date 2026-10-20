@@ -1,0 +1,15 @@
+{
+    "id": "hello-clock",
+    "name": "Hello Clock",
+    "version": "1.0.0",
+    "api": 1,
+    "description": "The smallest useful plugin: a greeting and the time, in the shell's theme.",
+    "icon": "waving_hand",
+    "settings": {
+        "greeting": "Hello",
+        "use24h": true
+    },
+    "secrets": {
+        "name": { "env": "HELLO_CLOCK_NAME", "file": "~/.config/hello-clock/name" }
+    }
+}

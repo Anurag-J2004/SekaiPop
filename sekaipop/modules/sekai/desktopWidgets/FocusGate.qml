@@ -42,7 +42,7 @@ QtObject {
 
     property string screenName: ""
     // clock | usercard | weathercard | todo | visualizer | image | notes | calendarcard | palettecard | lyrics (the wake-up
-    // order; every Custom Image uses "image")
+    // order; every Custom Image uses "image"; a desktop widget plugin is "plugin:<id>", last)
     property string widgetId: ""
     // Only the gates beside the LazyLoaders in shell.qml unload anything.
     property bool unloads: false
