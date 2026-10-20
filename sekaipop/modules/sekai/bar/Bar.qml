@@ -999,17 +999,20 @@ PanelWindow {
                 notificationCount: win.quickPanel.notificationSource.count
                 notificationsMuted: !win.quickPanel.source.notificationsOn
 
-                // Who has the microphone / the screen (PrivacyService).
+                // Who has the microphone, what is playing, or the screen (PrivacyService).
                 privacyMic: PrivacyService.micLive
+                privacyAudio: PrivacyService.audioLive
                 privacyScreen: PrivacyService.screenLive
                 // The hover tag: one line per thing in use.
                 privacyDetail: {
                     const lines = []
                     if (PrivacyService.screenLive)
                         lines.push("Screen shared with: " + PrivacyService.screenApps.join(", "))
-                        if (PrivacyService.micLive)
-                            lines.push("Microphone in use by: " + PrivacyService.micApps.join(", "))
-                            return lines.join("\n")
+                    if (PrivacyService.micLive)
+                        lines.push("Microphone in use by: " + PrivacyService.micApps.join(", "))
+                    if (PrivacyService.audioLive)
+                        lines.push("Desktop audio recorded by: " + PrivacyService.audioApps.join(", "))
+                    return lines.join("\n")
                 }
 
                 // The Discord voice call you are in (DiscordVoiceService).

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Privacy badge: an app recording what is playing (a screen recorder with sound, a VNC or streaming audio feed) shows as desktop audio, with its own icon, instead of "Microphone in use"; muting the mic no longer hides it, since that doesn't stop it.
 - Notifications: the phone that rises for a notification can be put away without opening it: swipe it down or middle-click it (the notification stays in the list), or right-click it to remove the notification too, anywhere on the phone. A click, or resting the pointer on its card for a second (it was a fifth of a second, which opened it under anyone aiming at it), still opens the panel (issue #42).
 - Phone: clicking beside the Quick Panel's phone closes it everywhere, including the empty corners of the box around the tilted phone, which used to swallow the click. The click follows the phone's real outline, in 2.5D and 2D (issue #47; docs/PHONE-CLICK-AWAY.md).
 - Wallpapers: Wallhaven as a second source (My folder | Wallhaven, or Ctrl+Tab). Search it, sort it (Top over a day to a year, Latest, Views, Favourites, Random), filter it (categories, shape, minimum size, colour), and set a picture: it is downloaded into your wallpaper folder first, with progress, and Esc stops it. SFW only, no account. `ipc call wallpaperpicker wallhaven` opens it there (docs/WALLHAVEN.md).

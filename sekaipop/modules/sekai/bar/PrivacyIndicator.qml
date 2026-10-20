@@ -2,10 +2,11 @@ import QtQuick
 import qs.modules.common
 import qs.modules.common.widgets
 
-// The privacy pill: appears on the bar while the microphone is live or the
-// screen is being shared. Pure UI: Bar.qml feeds it PrivacyService's state.
+// The privacy pill: appears on the bar while the microphone is live, something
+// records what is playing (desktop audio), or the screen is being shared. Pure
+// UI: Bar.qml feeds it PrivacyService's state.
 //
-//   [ mic ] [ screen ]
+//   [ mic ] [ desktop audio ] [ screen ]
 //
 // Only the icons are on the bar, so nothing about what you are doing is
 // readable at a glance by someone looking at your screen. The icons that apply
@@ -23,11 +24,12 @@ Item {
     // Which edge the bar is on, so the tag opens towards the screen.
     property string barPosition: "top"
     property bool micLive: false
+    property bool audioLive: false
     property bool screenLive: false
     // What the hover tag says (one line per thing in use).
     property string detailText: ""
 
-    readonly property bool live: micLive || screenLive
+    readonly property bool live: micLive || audioLive || screenLive
 
     // 0 -> 1. Also what the bar's layout uses to open and close this module's
     // slot gradually (see Status_Bar.qml).
@@ -49,14 +51,17 @@ Item {
     // pill came up empty until the shell was reloaded. A leftover icon from the
     // last time could also show for the wrong thing.)
     property bool micShown: false
+    property bool audioShown: false
     property bool screenShown: false
     function refreshShown() {
-        if (micLive || screenLive) {
+        if (micLive || audioLive || screenLive) {
             micShown = micLive
+            audioShown = audioLive
             screenShown = screenLive
         }
     }
     onMicLiveChanged: refreshShown()
+    onAudioLiveChanged: refreshShown()
     onScreenLiveChanged: refreshShown()
     Component.onCompleted: refreshShown()
 
@@ -101,6 +106,14 @@ Item {
                 color: Theme.colBorder
             }
             MaterialIcon {
+                visible: root.audioShown
+                anchors.verticalCenter: parent.verticalCenter
+                name: "graphic_eq"
+                size: 16
+                fill: 1
+                color: Theme.colBorder
+            }
+            MaterialIcon {
                 visible: root.screenShown
                 anchors.verticalCenter: parent.verticalCenter
                 name: "screen_record"
@@ -120,6 +133,14 @@ Item {
                 visible: root.micShown
                 anchors.horizontalCenter: parent.horizontalCenter
                 name: "mic"
+                size: 16
+                fill: 1
+                color: Theme.colBorder
+            }
+            MaterialIcon {
+                visible: root.audioShown
+                anchors.horizontalCenter: parent.horizontalCenter
+                name: "graphic_eq"
                 size: 16
                 fill: 1
                 color: Theme.colBorder
