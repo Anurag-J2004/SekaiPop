@@ -2288,6 +2288,37 @@ Scope {
                 height: stage.quickInput ? Math.max(0, restRect.height - drop) : 0
             }
 
+            // Click away inside hitRect: hitRect is the box around the tilted phone, so
+            // its corners are empty, and a press there landed on this window and did
+            // nothing (issue #47). Under everything; a press nothing on the phone took
+            // reaches it, and closes the panel unless it is on the phone's own shape
+            // (PhoneBody.outlinePoly, a few units of slack for the antialiased edge).
+            MouseArea {
+                id: besidePhone
+
+                x: hitRect.x
+                y: hitRect.y
+                width: hitRect.width
+                height: hitRect.height
+                z: -100
+                enabled: root.open
+                acceptedButtons: Qt.AllButtons
+
+                function overPhone(px, py) {
+                    const p = besidePhone.mapToItem(phone, px, py)
+                    return PM.insideConvex(phone.outlinePoly, p.x, p.y, 3)
+                }
+
+                onPressed: mouse => {
+                    if (overPhone(mouse.x, mouse.y)) {
+                        mouse.accepted = false
+                        return
+                    }
+                    console.log("sekaipop click-away: pressed beside the phone, inside its box")
+                    root.close()
+                }
+            }
+
             // Where the Settings phone stands when it's up, in the middle of the
             // monitor (it takes the mouse there, from the moment it starts
             // turning in until it has gone).

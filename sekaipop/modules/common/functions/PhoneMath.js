@@ -165,6 +165,76 @@ function boundsFor(W, H, T, R, yaw, pitch, roll, d, rest) {
     return { minX: minX, maxX: maxX, minY: minY, maxY: maxY }
 }
 
+// The phone's outline on screen as a convex polygon ([[x, y], ...], each turn the
+// same way round, see insideConvex), for the matrix `base` it is drawn with (PhoneBody.drawBase): the
+// front's rounded outline and the back's, plus `boxes`, the things that stand out of the
+// body (the side buttons), each [x0, y0, z0, x1, y1, z1] in the design's 3D space. A
+// box's eight corners all go in. Convex is close enough: the body is a slab, and what a
+// tilted slab covers on screen is the hull of its two faces.
+function silhouette(W, H, T, R, base, boxes) {
+    var pts = []
+    var outl = outline(W, H, R)
+    for (var zi = 0; zi < 2; zi++) {
+        var z = zi === 0 ? 0 : -T
+        for (var i = 0; i < outl.length; i++) {
+            var p = apply(base, outl[i][0], outl[i][1], z)
+            pts.push([p.x, p.y])
+        }
+    }
+    for (var b = 0; b < (boxes ? boxes.length : 0); b++) {
+        var bx = boxes[b]
+        for (var c = 0; c < 8; c++) {
+            var q = apply(base, c & 1 ? bx[3] : bx[0], c & 2 ? bx[4] : bx[1], c & 4 ? bx[5] : bx[2])
+            pts.push([q.x, q.y])
+        }
+    }
+    return hull(pts)
+}
+
+// Convex hull (Andrew's monotone chain) of [[x, y], ...].
+function hull(pts) {
+    var p = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1] })
+    if (p.length < 3)
+        return p
+    function cross(o, a, b) {
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    }
+    var lower = [], upper = []
+    for (var i = 0; i < p.length; i++) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p[i]) <= 0)
+            lower.pop()
+        lower.push(p[i])
+    }
+    for (var j = p.length - 1; j >= 0; j--) {
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p[j]) <= 0)
+            upper.pop()
+        upper.push(p[j])
+    }
+    upper.pop()
+    lower.pop()
+    return lower.concat(upper)
+}
+
+// Whether (x, y) is inside the convex polygon `poly` (from hull / silhouette), or within
+// `slack` of its edge.
+function insideConvex(poly, x, y, slack) {
+    var n = poly.length
+    if (n < 3)
+        return false
+    var s = slack || 0
+    for (var i = 0; i < n; i++) {
+        var a = poly[i], b = poly[(i + 1) % n]
+        var ex = b[0] - a[0], ey = b[1] - a[1]
+        var len = Math.sqrt(ex * ex + ey * ey)
+        if (len === 0)
+            continue
+        // hull() goes round so that the inside is on the same side of every edge.
+        if ((ex * (y - a[1]) - ey * (x - a[0])) / len < -s)
+            return false
+    }
+    return true
+}
+
 // Blend between color stops given as [t, r, g, b] with r/g/b in 0..255.
 function ramp(stops, t) {
     if (t <= stops[0][0])
