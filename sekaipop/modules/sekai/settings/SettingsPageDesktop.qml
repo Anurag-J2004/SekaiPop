@@ -565,6 +565,12 @@ SettingsPage {
         }
     }
 
+    // Desktop widget plugins (services/PluginService.qml, docs/PLUGIN-SETTINGS.md): what is
+    // installed, what did not load and why, and each plugin's settings.
+    SettingsPluginsCard {
+        settingsPage: page
+    }
+
     // Desktop Focus Mode (services/FocusService.qml, modules/sekai/desktopWidgets/FocusGate.qml):
     // the widgets above go away while applications are on the workspace.
     SectionCard {

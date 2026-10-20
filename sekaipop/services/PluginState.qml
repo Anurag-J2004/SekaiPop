@@ -15,8 +15,10 @@ import "../modules/common/functions/PluginManifest.js" as PM
 //   settings   the manifest's defaults with the user's values on top (PM.mergeSettings);
 //              changed with setSetting(), by the widget (host.setSetting) or by
 //              `qs -c sekaipop ipc call plugins set <id> <key> <value>`
-//   secrets    read once at start from the environment or a file the manifest names;
-//              never saved here and never part of a preset
+//   secrets    read at start from the environment or a file the manifest names (and
+//              again by reloadSecrets(), Settings' Reload); never saved here and never
+//              part of a preset. secretSources says where each one was found, for
+//              Settings, which never shows a value.
 QtObject {
     id: root
 
@@ -37,6 +39,8 @@ QtObject {
     property string screenName: ""
     property var settings: PM.mergeSettings(root.plugin.settings, null)
     property var secrets: ({})
+    // { name: "env" | "file" | "" }: where each secret was found; "" = not found.
+    property var secretSources: ({})
 
     // A copy on another monitor decides which monitors get a window from where the main
     // copy is (WidgetClones.rebuild), the same as the built-in widgets' Connections there.
@@ -72,6 +76,17 @@ QtObject {
         root.settings = s
         root.persist()
         return true
+    }
+
+    // Settings' reset: one setting, or all of them, back to the manifest's default.
+    function resetSetting(key) {
+        if (key in root.plugin.settings)
+            root.setSetting(key, root.plugin.settings[key])
+    }
+
+    function resetAll() {
+        root.settings = PM.mergeSettings(root.plugin.settings, null)
+        root.persist()
     }
 
     // ===== persistence =====
@@ -154,19 +169,38 @@ QtObject {
         return out
     }
 
-    Component.onCompleted: {
+    Component.onCompleted: root.reloadSecrets()
+
+    // The environment is the shell's own, so only a file can change while it runs; this reads
+    // the files again (Settings' Reload, after the user has put a token in place).
+    function reloadSecrets() {
         const s = {}
+        const src = {}
         for (const n in root.plugin.secrets) {
             const d = root.plugin.secrets[n]
             s[n] = d.env !== "" ? (Quickshell.env(d.env) || "") : ""
+            src[n] = s[n] !== "" ? "env" : ""
         }
         root.secrets = s
-        root.readNextSecret()
+        root.secretSources = src
+        if (root.secretReader.running)
+            root.secretsAgain = true
+        else {
+            root.secretIndex = 0
+            root.readNextSecret()
+        }
     }
 
     property int secretIndex: 0
+    // A reload asked for while the files were still being read: start over when they are done.
+    property bool secretsAgain: false
 
     function readNextSecret() {
+        if (root.secretsAgain) {
+            root.secretsAgain = false
+            root.reloadSecrets()
+            return
+        }
         if (root.secretIndex >= root.secretFiles.length)
             return
         const f = root.secretFiles[root.secretIndex]
@@ -178,9 +212,13 @@ QtObject {
         property string name: ""
         stdout: StdioCollector {
             onStreamFinished: {
+                const v = text.trim()
                 const s = Object.assign({}, root.secrets)
-                s[root.secretReader.name] = text.trim()
+                s[root.secretReader.name] = v
                 root.secrets = s
+                const src = Object.assign({}, root.secretSources)
+                src[root.secretReader.name] = v !== "" ? "file" : ""
+                root.secretSources = src
                 root.secretIndex = root.secretIndex + 1
                 root.readNextSecret()
             }

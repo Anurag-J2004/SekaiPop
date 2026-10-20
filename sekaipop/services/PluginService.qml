@@ -34,6 +34,7 @@ import "../modules/common/functions/PluginManifest.js" as PM
 //   qs -c sekaipop ipc call plugins toggle <id>        (also show / hide)
 //   qs -c sekaipop ipc call plugins set <id> <key> <value>
 //   qs -c sekaipop ipc call plugins resetPosition <id>
+//   qs -c sekaipop ipc call plugins settings <id>      open Settings > Desktop > Plugins on it
 Singleton {
     id: root
 
@@ -54,7 +55,7 @@ Singleton {
     property bool scanned: false
     // [{ plugin, dir }] for every plugin that loads, sorted by id.
     property var found: []
-    // [{ id, error }] for every folder that does not.
+    // [{ id, error, code, field }] for every folder that does not (PluginManifest.parse).
     property var skipped: []
     // { pluginId: PluginState }, filled as the states are made.
     property var states: ({})
@@ -103,6 +104,44 @@ Singleton {
     function dirOf(id) {
         const st = root.stateFor(id)
         return st ? st.dir : ""
+    }
+
+    // The monitors a plugin is on: where its main copy is, then its copies (WidgetClones),
+    // plugged in or not. [] when it is off.
+    function monitorsOf(id) {
+        const st = root.stateFor(id)
+        if (!st || !st.shown)
+            return []
+        const out = st.screenName !== "" ? [st.screenName] : []
+        for (const n of WidgetClones.namesOf(st.widgetId)) {
+            if (out.indexOf(n) < 0)
+                out.push(n)
+        }
+        return out
+    }
+
+    // The plugins folder (made if it is missing, so there is somewhere to clone into), or
+    // one plugin's folder, in the file manager.
+    function openFolder(id) {
+        const dir = typeof id === "string" && id !== "" ? root.pluginsDir + "/" + id : root.pluginsDir
+        Quickshell.execDetached(["sh", "-c", "mkdir -p \"$1\" && xdg-open \"$1\"", "sh", dir])
+    }
+
+    // ===== Settings from Edit Desktop =====
+    // A selected plugin widget's Settings key (EditChrome.qml) asks for its settings: Edit
+    // Desktop closes, the Quick Panel opens Settings > Desktop on that monitor (it listens
+    // for settingsWanted), and the Plugins card opens `settingsTarget` and scrolls to it,
+    // then clears it.
+    property string settingsTarget: ""
+
+    signal settingsWanted(string screen)
+
+    function askSettings(id, screen) {
+        const st = root.stateFor(id)
+        if (!st)
+            return
+        root.settingsTarget = st.pluginId
+        root.settingsWanted(typeof screen === "string" ? screen : "")
     }
 
     // ===== finding them =====
@@ -225,6 +264,14 @@ Singleton {
                 return "no plugin " + id
             return st.setSetting(key, value) ? key + " = " + JSON.stringify(st.settings[key])
                 : id + " has no setting " + key + " that takes " + JSON.stringify(value)
+        }
+
+        // The same as a selected plugin widget's Settings key in Edit Desktop.
+        function settings(id: string): string {
+            if (!root.stateFor(id))
+                return "no plugin " + id
+            root.askSettings(id, "")
+            return "opening " + id
         }
 
         function resetPosition(id: string): void {

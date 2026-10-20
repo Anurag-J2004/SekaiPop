@@ -1184,6 +1184,42 @@ Scope {
         }
     }
 
+    // A plugin widget's Settings key in Edit Desktop (EditChrome.qml): Edit Desktop gets out
+    // of the way first, then Settings opens on the Desktop page of that monitor, where the
+    // Plugins card opens the plugin (PluginService.settingsTarget).
+    Connections {
+        target: PluginService
+
+        function onSettingsWanted(screen) {
+            pluginSettingsDelay.screenName = screen
+            if (EditMode.active) {
+                EditMode.close()
+                pluginSettingsDelay.restart()
+            } else {
+                pluginSettingsDelay.triggered()
+            }
+        }
+    }
+
+    Timer {
+        id: pluginSettingsDelay
+        property string screenName: ""
+        interval: 300
+        onTriggered: {
+            const f = sstage.face
+            for (let i = 0; i < f.pages.length; i++) {
+                if (f.pages[i].id === "desktop")
+                    f.go(i)
+            }
+            let scr = root.focusedScreen()
+            for (const s of Quickshell.screens) {
+                if (s.name === screenName)
+                    scr = s
+            }
+            root.openSettings(scr)
+        }
+    }
+
     // Edit Desktop runs on the desktop, so the panel gets out of the way first.
     Timer {
         id: editDelay

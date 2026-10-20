@@ -3,6 +3,7 @@ import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import "../../common/functions/PluginForm.js" as PF
 
 // What a desktop widget wears while Edit Desktop is on. Drop one inside the
 // widget's card (the Item that is dragged around) and fill in the properties;
@@ -37,7 +38,8 @@ import qs.modules.common.widgets
 //   edited), with a mint diamond on every corner (the notes of the Sekai
 //   rhythm lanes) that perk up under the pointer
 // - a small tag on the top edge: "CLICK TO EDIT" under the pointer, "EDITING"
-//   while it is selected
+//   while it is selected; a selected plugin with settings or secrets gets a
+//   Settings key beside it, which opens Settings > Desktop > Plugins on it
 // - a flash of the outline when the shelf points at it (EditMode.ping)
 //
 // z: 15 on purpose: above a card's content and its own drag area, but under
@@ -305,7 +307,8 @@ Item {
 
         width: tagPill.width
         height: tagPill.height
-        x: (root.width - width) / 2
+        // centred together with the Settings key, when there is one
+        x: (root.width - width - (settingsKey.want ? settingsKey.width + 6 : 0)) / 2
         // Fully above the card's edge, so a snapshot of the card (the shelf's
         // picture, EditPreview.qml) never contains it.
         y: -height - 6
@@ -349,6 +352,67 @@ Item {
                     font.letterSpacing: 0.8
                 }
             }
+        }
+    }
+
+    // ===== a plugin's Settings key, beside the tag =====
+    // Only a plugin widget with something to set has one (PluginForm.hasForm).
+    Item {
+        id: settingsKey
+        readonly property var plugin: PluginService.isPluginId(root.widgetId) ? PluginService.pluginOf(root.widgetId) : null
+        readonly property bool want: root.selected && plugin !== null && PF.hasForm(plugin)
+
+        width: keyPill.width
+        height: keyPill.height
+        x: tag.x + tag.width + 6
+        y: tag.y + (tag.height - height) / 2
+        scale: want ? (keyArea.pressed ? 0.94 : 1) : 0
+        visible: scale > 0.01
+
+        Behavior on scale {
+            NumberAnimation { duration: 260; easing.type: Easing.OutBack; easing.overshoot: 2.6 }
+        }
+
+        Pill {
+            id: keyPill
+            width: keyRow.width + 26
+            height: 32 + mt.shadowOffset
+            cornerRadius: 11
+            ringWidth: 0
+            fillColor: keyArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
+
+            Row {
+                id: keyRow
+                anchors.centerIn: parent
+                anchors.verticalCenterOffset: -mt.shadowOffset / 2
+                spacing: 7
+
+                MaterialIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: "tune"
+                    size: 16
+                    weight: 700
+                    color: mt.colBorder
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Settings"
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
+                    font.pixelSize: 13
+                    font.weight: Font.Black
+                    font.styleName: mt.fontStyleBold
+                }
+            }
+        }
+
+        MouseArea {
+            id: keyArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: PluginService.askSettings(root.widgetId, root.screenName)
         }
     }
 
