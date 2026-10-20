@@ -78,18 +78,52 @@ PanelWindow {
     readonly property var mt: Theme.of(screen)
 
     function resetPosition(): void {
-        WeatherCardService.posX = -1;
-        WeatherCardService.posY = -1;
+        win.clearSpot();
         win.place();
-        WeatherCardService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale);
+        win.saveSpot(card.x, card.y);
     }
     // Which monitor it lives on, by name (`hyprctl monitors`), e.g. "DP-1".
     // Empty = the monitor the card was last dropped on (remembered in
     // WeatherCardService), or the first screen if it has never been moved.
     property string monitor: ""
 
+    // A copy on another monitor (WidgetClones.qml): the same widget, with a spot of its own. The main
+    // copy keeps its spot in the service as before.
+    property bool clone: false
+
+    readonly property var cloneSpot: win.clone ? WidgetClones.spot("weathercard", win.wantedScreen) : null
+    readonly property bool spotReady: win.clone ? (WidgetClones.loaded && win.cloneSpot !== null) : WeatherCardService.loaded
+    readonly property real spotX: win.clone ? (win.cloneSpot ? win.cloneSpot.x : -1) : WeatherCardService.posX
+    readonly property real spotY: win.clone ? (win.cloneSpot ? win.cloneSpot.y : -1) : WeatherCardService.posY
+    readonly property real spotScale: win.clone ? (win.cloneSpot ? win.cloneSpot.scale : 0) : WeatherCardService.posScale
+
+    function saveSpot(x, y): void {
+        if (win.clone)
+            WidgetClones.setSpot("weathercard", win.wantedScreen, x, y, win.uiScale)
+        else
+            WeatherCardService.setPosition(x, y, win.screen ? win.screen.name : "", win.uiScale)
+    }
+
+    function clearSpot(): void {
+        if (win.clone) {
+            WidgetClones.clearSpot("weathercard", win.wantedScreen)
+        } else {
+            WeatherCardService.posX = -1
+            WeatherCardService.posY = -1
+        }
+    }
+
+    function fixSpotScale(): void {
+        if (win.clone) {
+            WidgetClones.setSpot("weathercard", win.wantedScreen, win.spotX, win.spotY, win.uiScale)
+        } else {
+            WeatherCardService.posScale = win.uiScale
+            WeatherCardService.persist()
+        }
+    }
+
     readonly property string wantedScreen: win.monitor !== "" ? win.monitor : WeatherCardService.screenName
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The card is
     // drawn in design pixels inside a ScaleHost, so `roomW` x `roomH` is the
@@ -361,15 +395,15 @@ PanelWindow {
         // still smaller than the card (the clamp below would put it at 0, 0).
         if (!force && (!WeatherCardService.loaded || win.roomW < card.width || win.roomH < card.height))
             return
-        let x = WeatherCardService.posX
-        let y = WeatherCardService.posY
+        let x = win.spotX
+        let y = win.spotY
         if (x < 0 || y < 0) {
             x = 384
             y = 396
-        } else if (WeatherCardService.posScale > 0 && win.uiScale > 0) {
+        } else if (win.spotScale > 0 && win.uiScale > 0) {
             // Saved at another shell scale: same spot on the screen, not the
             // same design pixels (the card keeps its top-left corner).
-            const k = WeatherCardService.posScale / win.uiScale
+            const k = win.spotScale / win.uiScale
             x *= k
             y *= k
         }
@@ -388,10 +422,8 @@ PanelWindow {
             // A position saved before the scale was kept with it: it was in design
             // pixels of the scale in use now (nothing has changed it since), so
             // keep that from here on.
-            if (WeatherCardService.loaded && WeatherCardService.posX >= 0 && WeatherCardService.posScale <= 0 && !dragArea.drag.active) {
-                WeatherCardService.posScale = win.uiScale
-                WeatherCardService.persist()
-            }
+            if (win.spotReady && win.spotX >= 0 && win.spotScale <= 0 && !dragArea.drag.active)
+                win.fixSpotScale()
             if (!chrome.dragging && !dragArea.drag.active)
                 win.place(!win.placed && WeatherCardService.loaded)
         }
@@ -409,6 +441,13 @@ PanelWindow {
     Component.onCompleted: {
         win.reveal = win.want ? 1 : 0
         win.place()
+    }
+
+    // The spot of a copy changed (a drag, a reset): put the card there.
+    Connections {
+        target: WidgetClones
+        enabled: win.clone
+        function onSpotsChanged() { follow.restart() }
     }
 
     Connections {
@@ -529,7 +568,7 @@ PanelWindow {
     // Edit Desktop's shelf shows the card as it really looks: a picture of it,
     // taken every second while the mode is on (EditPreview.qml).
     EditPreview {
-        widgetId: "weathercard"
+        widgetId: win.clone ? "" : "weathercard"
         target: card
         pixelRatio: win.uiScale
     }
@@ -670,8 +709,8 @@ PanelWindow {
                     roomW: win.roomW
                     roomH: win.roomH
                     screenName: win.screen ? win.screen.name : ""
-                    onMoved: WeatherCardService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
-                    onRemoveRequested: WeatherCardService.setShown(false)
+                    onMoved: win.saveSpot(card.x, card.y)
+                    onRemoveRequested: EditMode.removeFrom("weathercard", win.screen ? win.screen.name : "")
                 }
 
                 // Left button: drag the card on the normal desktop, unless Lock all
@@ -704,7 +743,7 @@ PanelWindow {
                         // about a drag that is not its own shield's.
                         chrome.ownDrag = drag.active
                         if (!drag.active)
-                            WeatherCardService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
+                            win.saveSpot(card.x, card.y)
                     }
                 }
 

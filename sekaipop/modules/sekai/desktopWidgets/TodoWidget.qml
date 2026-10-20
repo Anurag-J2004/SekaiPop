@@ -56,7 +56,7 @@ PanelWindow {
         TodoService.setPosition(card.x, card.y, win.uiScale);
     }
     // Which monitor it lives on, by name (`hyprctl monitors`), e.g. "DP-1".
-    // Empty = the first screen.
+    // Empty = the monitor chosen for the To-Do (DesktopMonitors.qml).
     property string monitor: ""
 
     readonly property int cardWidth: 320
@@ -73,7 +73,11 @@ PanelWindow {
     readonly property int smallContentH: 238
     readonly property int smallListH: win.smallContentH - 108
 
-    screen: Quickshell.screens.find(s => s.name === win.monitor) ?? Quickshell.screens[0]
+    // `monitor` when it is set (a copy), else the monitor chosen for the To-Do (Settings → Desktop →
+    // Widgets, or the one it was added on in Edit Desktop). By name, so a reboot cannot swap them.
+    readonly property string wantedScreen: win.monitor !== "" ? win.monitor : DesktopMonitors.homeFor("todo")
+
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The card
     // is drawn in design pixels inside a ScaleHost, so `roomW` x `roomH` is

@@ -68,18 +68,52 @@ PanelWindow {
     readonly property var mt: Theme.of(screen)
 
     function resetPosition(): void {
-        ClockService.posX = -1;
-        ClockService.posY = -1;
+        win.clearSpot();
         win.place();
-        ClockService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale);
+        win.saveSpot(card.x, card.y);
     }
     // Which monitor it lives on, by name (`hyprctl monitors`), e.g. "DP-1".
     // Empty = the monitor the card was last dropped on (remembered in
     // ClockService), or the first screen if it has never been moved.
     property string monitor: ""
 
+    // A copy on another monitor (WidgetClones.qml): the same widget, with a spot of its own. The main
+    // copy keeps its spot in the service as before.
+    property bool clone: false
+
+    readonly property var cloneSpot: win.clone ? WidgetClones.spot("clock", win.wantedScreen) : null
+    readonly property bool spotReady: win.clone ? (WidgetClones.loaded && win.cloneSpot !== null) : ClockService.loaded
+    readonly property real spotX: win.clone ? (win.cloneSpot ? win.cloneSpot.x : -1) : ClockService.posX
+    readonly property real spotY: win.clone ? (win.cloneSpot ? win.cloneSpot.y : -1) : ClockService.posY
+    readonly property real spotScale: win.clone ? (win.cloneSpot ? win.cloneSpot.scale : 0) : ClockService.posScale
+
+    function saveSpot(x, y): void {
+        if (win.clone)
+            WidgetClones.setSpot("clock", win.wantedScreen, x, y, win.uiScale)
+        else
+            ClockService.setPosition(x, y, win.screen ? win.screen.name : "", win.uiScale)
+    }
+
+    function clearSpot(): void {
+        if (win.clone) {
+            WidgetClones.clearSpot("clock", win.wantedScreen)
+        } else {
+            ClockService.posX = -1
+            ClockService.posY = -1
+        }
+    }
+
+    function fixSpotScale(): void {
+        if (win.clone) {
+            WidgetClones.setSpot("clock", win.wantedScreen, win.spotX, win.spotY, win.uiScale)
+        } else {
+            ClockService.posScale = win.uiScale
+            ClockService.persist()
+        }
+    }
+
     readonly property string wantedScreen: win.monitor !== "" ? win.monitor : ClockService.screenName
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The card is
     // drawn in design pixels inside a ScaleHost, so `roomW` x `roomH` is the
@@ -284,15 +318,15 @@ PanelWindow {
         // still smaller than the card (the clamp below would put it at 0, 0).
         if (!force && (!ClockService.loaded || win.roomW < card.width || win.roomH < card.height))
             return
-        let x = ClockService.posX
-        let y = ClockService.posY
+        let x = win.spotX
+        let y = win.spotY
         if (x < 0 || y < 0) {
             x = win.roomW - card.width - 40
             y = (win.roomH - card.height) / 2
-        } else if (ClockService.posScale > 0 && win.uiScale > 0) {
+        } else if (win.spotScale > 0 && win.uiScale > 0) {
             // Saved at another shell scale: same spot on the screen, not the
             // same design pixels (the card keeps its top-left corner).
-            const k = ClockService.posScale / win.uiScale
+            const k = win.spotScale / win.uiScale
             x *= k
             y *= k
         }
@@ -311,10 +345,8 @@ PanelWindow {
             // A position saved before the scale was kept with it: it was in design
             // pixels of the scale in use now (nothing has changed it since), so
             // keep that from here on.
-            if (ClockService.loaded && ClockService.posX >= 0 && ClockService.posScale <= 0 && !dragArea.drag.active) {
-                ClockService.posScale = win.uiScale
-                ClockService.persist()
-            }
+            if (win.spotReady && win.spotX >= 0 && win.spotScale <= 0 && !dragArea.drag.active)
+                win.fixSpotScale()
             if (!chrome.dragging && !dragArea.drag.active)
                 win.place(!win.placed && ClockService.loaded)
         }
@@ -335,6 +367,13 @@ PanelWindow {
     Component.onCompleted: {
         win.reveal = win.want ? 1 : 0
         win.place()
+    }
+
+    // The spot of a copy changed (a drag, a reset): put the card there.
+    Connections {
+        target: WidgetClones
+        enabled: win.clone
+        function onSpotsChanged() { follow.restart() }
     }
 
     Connections {
@@ -456,7 +495,7 @@ PanelWindow {
     // Edit Desktop's shelf shows the clock as it really looks: a picture of the
     // card, taken every second while the mode is on (EditPreview.qml).
     EditPreview {
-        widgetId: "clock"
+        widgetId: win.clone ? "" : "clock"
         target: card
         pixelRatio: win.uiScale
     }
@@ -992,8 +1031,8 @@ PanelWindow {
                     roomW: win.roomW
                     roomH: win.roomH
                     screenName: win.screen ? win.screen.name : ""
-                    onMoved: ClockService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
-                    onRemoveRequested: ClockService.setShown(false)
+                    onMoved: win.saveSpot(card.x, card.y)
+                    onRemoveRequested: EditMode.removeFrom("clock", win.screen ? win.screen.name : "")
                 }
 
                 // Left button: drag the card on the normal desktop, unless Lock all
@@ -1027,7 +1066,7 @@ PanelWindow {
                         // about a drag that is not its own shield's.
                         chrome.ownDrag = drag.active
                         if (!drag.active)
-                            ClockService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
+                            win.saveSpot(card.x, card.y)
                     }
                 }
 

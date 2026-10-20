@@ -126,10 +126,17 @@ Item {
     }
 
     // ===== the alignment grid =====
+    // Widget + monitor: the same widget can be on several monitors (see EditGrid.qml).
+    readonly property string gridId: root.widgetId === "" ? "" : root.widgetId + "@" + root.screenName
+
     function report() {
         const t = root.target
-        if (t)
-            EditGrid.report(root.widgetId, t.x, t.y, t.width, t.height, root.present)
+        if (!t)
+            return
+        // (a monitor that is not being edited reports nothing)
+        if (EditMode.active && !root.editing)
+            return
+        EditGrid.report(root.gridId, t.x, t.y, t.width, t.height, root.present)
     }
 
     // Pulls the card to where EditGrid says it should go. Runs on every change
@@ -143,7 +150,7 @@ Item {
             return
         if (root.gripped) {
             root.snapping = true
-            const s = EditGrid.snap(root.widgetId, t.x, t.y, t.width, t.height, root.roomW, root.roomH)
+            const s = EditGrid.snap(root.gridId, t.x, t.y, t.width, t.height, root.roomW, root.roomH)
             if (s.x !== t.x)
                 t.x = s.x
             if (s.y !== t.y)
@@ -161,10 +168,10 @@ Item {
             return
         if (root.gripped) {
             root.report()
-            EditGrid.begin(root.widgetId)
+            EditGrid.begin(root.gridId)
             root.snapCard()
         } else {
-            EditGrid.end(root.widgetId, t.x, t.y, t.width, t.height, root.roomW, root.roomH)
+            EditGrid.end(root.gridId, t.x, t.y, t.width, t.height, root.roomW, root.roomH)
             // It lined up with something: the dropped card flashes too.
             if (Object.keys(EditGrid.matchedIds).length > 0 && root.editing)
                 flareAnim.restart()
@@ -186,7 +193,7 @@ Item {
         target: EditGrid
 
         function onMatchSerialChanged() {
-            if (root.editing && root.widgetId !== "" && EditGrid.matchedIds[root.widgetId] === true)
+            if (root.editing && root.gridId !== "" && EditGrid.matchedIds[root.gridId] === true)
                 flareAnim.restart()
         }
     }

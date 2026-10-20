@@ -699,12 +699,12 @@ ShellRoot {
         id: todoGate
         widgetId: "todo"
         unloads: true
-        screenName: EditMode.homeScreen("")
+        screenName: DesktopMonitors.homeFor("todo")
     }
 
     LazyLoader {
         id: todoWidgetLoader
-        active: shellRoot.woke(4) && shellRoot.widgetsAllowed && ((TodoService.loaded && TodoService.shown && !todoGate.gone) || EditMode.active || shellRoot.todoResetRequested)
+        active: shellRoot.woke(4) && shellRoot.widgetsAllowed && DesktopMonitors.loaded && ((TodoService.loaded && TodoService.shown && !todoGate.gone) || EditMode.active || shellRoot.todoResetRequested)
         TodoWidget {}
     }
 
@@ -719,6 +719,20 @@ ShellRoot {
         id: clockWidgetLoader
         active: shellRoot.woke(0) && shellRoot.widgetsAllowed && ((ClockService.loaded && ClockService.shown && !clockGate.gone) || EditMode.active || shellRoot.clockResetRequested)
         ClockWidget {}
+    }
+
+    // The copies of it on the other monitors (services/WidgetClones.qml): a window each, with a
+    // spot of its own. `screens` only changes when a copy is added or removed, so moving one
+    // does not rebuild it.
+    Variants {
+        model: WidgetClones.screens["clock"] ?? []
+
+        delegate: LazyLoader {
+            id: clClockWidget
+            required property string modelData
+            active: shellRoot.woke(0) && shellRoot.widgetsAllowed && ClockService.loaded && ClockService.shown
+            ClockWidget { clone: true; monitor: clClockWidget.modelData }
+        }
     }
 
     FocusGate {
@@ -747,6 +761,20 @@ ShellRoot {
         UserCardWidget {}
     }
 
+    // The copies of it on the other monitors (services/WidgetClones.qml): a window each, with a
+    // spot of its own. `screens` only changes when a copy is added or removed, so moving one
+    // does not rebuild it.
+    Variants {
+        model: WidgetClones.screens["usercard"] ?? []
+
+        delegate: LazyLoader {
+            id: clUserCardWidget
+            required property string modelData
+            active: shellRoot.woke(1) && shellRoot.widgetsAllowed && UserCardService.loaded && UserCardService.shown
+            UserCardWidget { clone: true; monitor: clUserCardWidget.modelData }
+        }
+    }
+
     FocusGate {
         id: weathercardGate
         widgetId: "weathercard"
@@ -758,6 +786,20 @@ ShellRoot {
         id: weatherCardWidgetLoader
         active: shellRoot.woke(2) && shellRoot.widgetsAllowed && ((WeatherCardService.loaded && WeatherCardService.shown && !weathercardGate.gone) || EditMode.active || shellRoot.weatherCardResetRequested)
         WeatherCardWidget {}
+    }
+
+    // The copies of it on the other monitors (services/WidgetClones.qml): a window each, with a
+    // spot of its own. `screens` only changes when a copy is added or removed, so moving one
+    // does not rebuild it.
+    Variants {
+        model: WidgetClones.screens["weathercard"] ?? []
+
+        delegate: LazyLoader {
+            id: clWeatherCardWidget
+            required property string modelData
+            active: shellRoot.woke(2) && shellRoot.widgetsAllowed && WeatherCardService.loaded && WeatherCardService.shown
+            WeatherCardWidget { clone: true; monitor: clWeatherCardWidget.modelData }
+        }
     }
 
     // The Custom Images: one window per picture in ImageService (see ImageWidget.qml), so any
@@ -789,18 +831,18 @@ ShellRoot {
         id: notesGate
         widgetId: "notes"
         unloads: true
-        screenName: EditMode.homeScreen("")
+        screenName: DesktopMonitors.homeFor("notes")
     }
 
     LazyLoader {
         id: notesWidgetLoader
-        active: shellRoot.woke(8) && shellRoot.widgetsAllowed && NotesService.loaded && NotesService.shown && !notesGate.gone
+        active: shellRoot.woke(8) && shellRoot.widgetsAllowed && DesktopMonitors.loaded && NotesService.loaded && NotesService.shown && !notesGate.gone
         StickyNotesWidget { pinnedLayer: false }
     }
 
     LazyLoader {
         id: pinnedNotesLoader
-        active: shellRoot.woke(8) && shellRoot.widgetsAllowed && NotesService.loaded && NotesService.shown && NotesService.pinnedCount > 0
+        active: shellRoot.woke(8) && shellRoot.widgetsAllowed && DesktopMonitors.loaded && NotesService.loaded && NotesService.shown && NotesService.pinnedCount > 0
         StickyNotesWidget { pinnedLayer: true }
     }
 
@@ -815,6 +857,20 @@ ShellRoot {
         id: calendarCardWidgetLoader
         active: shellRoot.woke(3) && shellRoot.widgetsAllowed && ((CalendarCardService.loaded && CalendarCardService.shown && !calendarcardGate.gone) || EditMode.active || shellRoot.calendarCardResetRequested)
         CalendarCardWidget {}
+    }
+
+    // The copies of it on the other monitors (services/WidgetClones.qml): a window each, with a
+    // spot of its own. `screens` only changes when a copy is added or removed, so moving one
+    // does not rebuild it.
+    Variants {
+        model: WidgetClones.screens["calendarcard"] ?? []
+
+        delegate: LazyLoader {
+            id: clCalendarCardWidget
+            required property string modelData
+            active: shellRoot.woke(3) && shellRoot.widgetsAllowed && CalendarCardService.loaded && CalendarCardService.shown
+            CalendarCardWidget { clone: true; monitor: clCalendarCardWidget.modelData }
+        }
     }
 
     // The Palette card (modules/sekai/desktopWidgets/PaletteWidget.qml): the same colours
@@ -832,6 +888,20 @@ ShellRoot {
         PaletteWidget {}
     }
 
+    // The copies of it on the other monitors (services/WidgetClones.qml): a window each, with a
+    // spot of its own. `screens` only changes when a copy is added or removed, so moving one
+    // does not rebuild it.
+    Variants {
+        model: WidgetClones.screens["palettecard"] ?? []
+
+        delegate: LazyLoader {
+            id: clPaletteWidget
+            required property string modelData
+            active: shellRoot.woke(5) && shellRoot.widgetsAllowed && PaletteService.loaded && PaletteService.shown
+            PaletteWidget { clone: true; monitor: clPaletteWidget.modelData }
+        }
+    }
+
     // The lyrics (modules/sekai/desktopWidgets/LyricsWidget.qml): the words of the song that is
     // playing, sung along on the desktop with no card behind them. Off until you add it.
     FocusGate {
@@ -845,6 +915,20 @@ ShellRoot {
         id: lyricsWidgetLoader
         active: shellRoot.woke(6) && shellRoot.widgetsAllowed && ((LyricsService.loaded && LyricsService.shown && !lyricsGate.gone) || EditMode.active || shellRoot.lyricsResetRequested)
         LyricsWidget {}
+    }
+
+    // The copies of it on the other monitors (services/WidgetClones.qml): a window each, with a
+    // spot of its own. `screens` only changes when a copy is added or removed, so moving one
+    // does not rebuild it.
+    Variants {
+        model: WidgetClones.screens["lyrics"] ?? []
+
+        delegate: LazyLoader {
+            id: clLyricsWidget
+            required property string modelData
+            active: shellRoot.woke(6) && shellRoot.widgetsAllowed && LyricsService.loaded && LyricsService.shown
+            LyricsWidget { clone: true; monitor: clLyricsWidget.modelData }
+        }
     }
 
     // The lyrics source picker (modules/sekai/desktopWidgets/LyricsSources.qml): built only while open.
@@ -881,6 +965,7 @@ ShellRoot {
         function resetPosition(): void {
             shellRoot.clockResetRequested = true
             if (clockWidgetLoader.item) clockWidgetLoader.item.resetPosition()
+            WidgetClones.clearAll("clock")
             shellRoot.clockResetRequested = false
         }
     }
@@ -922,6 +1007,7 @@ ShellRoot {
         function resetPosition(): void {
             shellRoot.userCardResetRequested = true
             if (userCardWidgetLoader.item) userCardWidgetLoader.item.resetPosition()
+            WidgetClones.clearAll("usercard")
             shellRoot.userCardResetRequested = false
         }
     }
@@ -938,6 +1024,7 @@ ShellRoot {
         function resetPosition(): void {
             shellRoot.weatherCardResetRequested = true
             if (weatherCardWidgetLoader.item) weatherCardWidgetLoader.item.resetPosition()
+            WidgetClones.clearAll("weathercard")
             shellRoot.weatherCardResetRequested = false
         }
     }
@@ -971,7 +1058,7 @@ ShellRoot {
         function create(): void { NotesService.add("") }
         // Every note back into a tidy cascade (text, colour, size and pins are kept).
         function arrange(): void {
-            const s = Quickshell.screens.find(x => x.name === EditMode.homeScreen("")) ?? Quickshell.screens[0]
+            const s = Quickshell.screens.find(x => x.name === DesktopMonitors.homeFor("notes")) ?? Quickshell.screens[0]
             if (!s) return
             const k = ShellScale.forScreen(s)
             NotesService.arrange(s.width / k, s.height / k)
@@ -994,6 +1081,7 @@ ShellRoot {
         function resetPosition(): void {
             shellRoot.calendarCardResetRequested = true
             if (calendarCardWidgetLoader.item) calendarCardWidgetLoader.item.resetPosition()
+            WidgetClones.clearAll("calendarcard")
             shellRoot.calendarCardResetRequested = false
         }
     }
@@ -1011,6 +1099,7 @@ ShellRoot {
         function resetPosition(): void {
             shellRoot.paletteCardResetRequested = true
             if (paletteCardWidgetLoader.item) paletteCardWidgetLoader.item.resetPosition()
+            WidgetClones.clearAll("palettecard")
             shellRoot.paletteCardResetRequested = false
         }
     }
@@ -1051,6 +1140,7 @@ ShellRoot {
         function resetPosition(): void {
             shellRoot.lyricsResetRequested = true
             if (lyricsWidgetLoader.item) lyricsWidgetLoader.item.resetPosition()
+            WidgetClones.clearAll("lyrics")
             shellRoot.lyricsResetRequested = false
         }
     }

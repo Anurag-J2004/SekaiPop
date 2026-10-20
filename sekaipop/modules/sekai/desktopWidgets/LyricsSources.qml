@@ -28,7 +28,7 @@ PanelWindow {
     readonly property var mt: Theme.of(screen)
 
     readonly property string wantedScreen: LyricsService.pickerScreen
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     readonly property real uiScale: ShellScale.forScreen(win.screen)
     readonly property real roomW: win.width / win.uiScale

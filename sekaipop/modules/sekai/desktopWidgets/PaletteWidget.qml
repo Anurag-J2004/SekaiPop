@@ -47,10 +47,9 @@ PanelWindow {
     readonly property var mt: Theme.of(screen)
 
     function resetPosition(): void {
-        PaletteService.posX = -1;
-        PaletteService.posY = -1;
+        win.clearSpot();
         win.place(true);
-        PaletteService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale);
+        win.saveSpot(card.x, card.y);
     }
 
     // Which monitor it lives on, by name (`hyprctl monitors`), e.g. "DP-1".
@@ -58,8 +57,43 @@ PanelWindow {
     // or the first screen if it has never been moved.
     property string monitor: ""
 
+    // A copy on another monitor (WidgetClones.qml): the same widget, with a spot of its own. The main
+    // copy keeps its spot in the service as before.
+    property bool clone: false
+
+    readonly property var cloneSpot: win.clone ? WidgetClones.spot("palettecard", win.wantedScreen) : null
+    readonly property bool spotReady: win.clone ? (WidgetClones.loaded && win.cloneSpot !== null) : PaletteService.loaded
+    readonly property real spotX: win.clone ? (win.cloneSpot ? win.cloneSpot.x : -1) : PaletteService.posX
+    readonly property real spotY: win.clone ? (win.cloneSpot ? win.cloneSpot.y : -1) : PaletteService.posY
+    readonly property real spotScale: win.clone ? (win.cloneSpot ? win.cloneSpot.scale : 0) : PaletteService.posScale
+
+    function saveSpot(x, y): void {
+        if (win.clone)
+            WidgetClones.setSpot("palettecard", win.wantedScreen, x, y, win.uiScale)
+        else
+            PaletteService.setPosition(x, y, win.screen ? win.screen.name : "", win.uiScale)
+    }
+
+    function clearSpot(): void {
+        if (win.clone) {
+            WidgetClones.clearSpot("palettecard", win.wantedScreen)
+        } else {
+            PaletteService.posX = -1
+            PaletteService.posY = -1
+        }
+    }
+
+    function fixSpotScale(): void {
+        if (win.clone) {
+            WidgetClones.setSpot("palettecard", win.wantedScreen, win.spotX, win.spotY, win.uiScale)
+        } else {
+            PaletteService.posScale = win.uiScale
+            PaletteService.persist()
+        }
+    }
+
     readonly property string wantedScreen: win.monitor !== "" ? win.monitor : PaletteService.screenName
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The card is drawn in
     // design pixels inside a ScaleHost, so `roomW` x `roomH` is the screen as the card sees
@@ -258,16 +292,16 @@ PanelWindow {
         // smaller than the card (the clamp below would put it at 0, 0).
         if (!force && (!PaletteService.loaded || win.roomW < card.width || win.roomH < card.height))
             return
-        let x = PaletteService.posX
-        let y = PaletteService.posY
+        let x = win.spotX
+        let y = win.spotY
         if (x < 0 || y < 0) {
             // The first spot: low on the right, above the dock.
             x = win.roomW - card.width - 48
             y = win.roomH - card.height - 120
-        } else if (PaletteService.posScale > 0 && win.uiScale > 0) {
+        } else if (win.spotScale > 0 && win.uiScale > 0) {
             // Saved at another shell scale: same spot on the screen, not the same design
             // pixels (the card keeps its top-left corner).
-            const k = PaletteService.posScale / win.uiScale
+            const k = win.spotScale / win.uiScale
             x *= k
             y *= k
         }
@@ -283,10 +317,8 @@ PanelWindow {
         id: settle
         interval: 300
         onTriggered: {
-            if (PaletteService.loaded && PaletteService.posX >= 0 && PaletteService.posScale <= 0 && !dragArea.drag.active) {
-                PaletteService.posScale = win.uiScale
-                PaletteService.persist()
-            }
+            if (win.spotReady && win.spotX >= 0 && win.spotScale <= 0 && !dragArea.drag.active)
+                win.fixSpotScale()
             if (!chrome.dragging && !dragArea.drag.active)
                 win.place(!win.placed && PaletteService.loaded)
         }
@@ -304,6 +336,13 @@ PanelWindow {
     Component.onCompleted: {
         win.reveal = win.want ? 1 : 0
         win.place()
+    }
+
+    // The spot of a copy changed (a drag, a reset): put the card there.
+    Connections {
+        target: WidgetClones
+        enabled: win.clone
+        function onSpotsChanged() { follow.restart() }
     }
 
     Connections {
@@ -366,7 +405,7 @@ PanelWindow {
     // Edit Desktop's shelf shows the card as it really looks: a picture of it, taken every
     // second while the mode is on (EditPreview.qml).
     EditPreview {
-        widgetId: "palettecard"
+        widgetId: win.clone ? "" : "palettecard"
         target: card
         pixelRatio: win.uiScale
     }
@@ -462,8 +501,8 @@ PanelWindow {
                     roomW: win.roomW
                     roomH: win.roomH
                     screenName: win.screen ? win.screen.name : ""
-                    onMoved: PaletteService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
-                    onRemoveRequested: PaletteService.setShown(false)
+                    onMoved: win.saveSpot(card.x, card.y)
+                    onRemoveRequested: EditMode.removeFrom("palettecard", win.screen ? win.screen.name : "")
                 }
 
                 // Left button: drag the card on the normal desktop, unless Lock all is on
@@ -491,7 +530,7 @@ PanelWindow {
                     drag.onActiveChanged: {
                         chrome.ownDrag = drag.active
                         if (!drag.active)
-                            PaletteService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
+                            win.saveSpot(card.x, card.y)
                     }
 
                     // A click on the bare card takes the keyboard (for Space).

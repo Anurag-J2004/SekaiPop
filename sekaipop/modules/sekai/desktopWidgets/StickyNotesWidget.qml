@@ -44,8 +44,9 @@ PanelWindow {
     // See the header.
     property bool pinnedLayer: false
 
-    // Notes live on the first monitor, like the To-Do.
-    screen: Quickshell.screens.find(s => s.name === EditMode.homeScreen("")) ?? Quickshell.screens[0]
+    // Notes live on the monitor chosen for them (Settings → Desktop → Widgets, or the one they were
+    // added on in Edit Desktop), by name, so a reboot cannot swap the monitors.
+    screen: Quickshell.screens.find(s => s.name === DesktopMonitors.homeFor("notes")) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The notes are drawn
     // in design pixels inside a ScaleHost, so `roomW` x `roomH` is the screen as they

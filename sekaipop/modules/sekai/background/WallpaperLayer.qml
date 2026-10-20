@@ -505,7 +505,7 @@ onWallpaperEnabledChanged: {
     // ===== Edit Desktop =====
     Loader {
         anchors.fill: parent
-        active: EditMode.screenName !== "" && EditMode.screenName === win.screenName
+        active: EditMode.editing(win.screenName)
 
         sourceComponent: EditBackdrop {
             screenObj: win.screen
@@ -750,7 +750,7 @@ onWallpaperEnabledChanged: {
     // Over the picture: the card's frame.
     Loader {
         anchors.fill: parent
-        active: EditMode.screenName !== "" && EditMode.screenName === win.screenName
+        active: EditMode.editing(win.screenName)
 
         sourceComponent: EditFrame {
             screenObj: win.screen

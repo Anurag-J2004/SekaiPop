@@ -237,6 +237,30 @@ SettingsPage {
     SectionCard {
         title: "Widgets"
 
+        SettingChoice {
+            label: "Default monitor"
+            sublabel: "Where a widget goes when it has no monitor of its own, or its monitor is switched off. Chosen by name, so a restart cannot swap them"
+            current: DesktopMonitors.defaultScreen
+            options: DesktopMonitors.choices
+            onPicked: id => DesktopMonitors.setDefault(id)
+        }
+
+        SettingChoice {
+            label: "To-Do monitor"
+            sublabel: "Automatic is the default monitor"
+            current: DesktopMonitors.homes["todo"] ?? ""
+            options: DesktopMonitors.choices
+            onPicked: id => DesktopMonitors.setHome("todo", id)
+        }
+
+        SettingChoice {
+            label: "Sticky Notes monitor"
+            sublabel: "Automatic is the default monitor"
+            current: DesktopMonitors.homes["notes"] ?? ""
+            options: DesktopMonitors.choices
+            onPicked: id => DesktopMonitors.setHome("notes", id)
+        }
+
         SettingToggle {
             icon: "schedule"
             label: "Clock"

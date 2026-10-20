@@ -79,8 +79,35 @@ Singleton {
     readonly property real cardRadius: 22        // the card's own corner
     readonly property real gap: 22               // space between the frame and whatever is next to it
 
+    // Edit Desktop is on EVERY monitor at once: `screenName` is the one it was opened on (the
+    // main one: it has the shelf and the bar editor), `sharedScreens` are the others. They all
+    // shrink to a card and their widgets can be dragged, each on its own monitor.
+    property var sharedScreens: []
+
     function editing(name) {
-        return root.screenName !== "" && root.screenName === name
+        if (root.screenName === "")
+            return false
+        return root.screenName === name || root.sharedScreens.indexOf(name) >= 0
+    }
+
+    // Make another monitor the main one while editing: the shelf goes there.
+    function setMain(name) {
+        if (!root.active || root.screenName === "" || name === root.screenName || !root.screenPlugged(name))
+            return false
+        root.menuOpen = false
+        root.editTarget = ""
+        root.sharedScreens = root.otherScreens(name)
+        root.screenName = name
+        return true
+    }
+
+    function otherScreens(main) {
+        const out = []
+        for (const s of Quickshell.screens) {
+            if (s.name !== main)
+                out.push(s.name)
+        }
+        return out
     }
 
     // ===== the shelf's tab =====
@@ -171,7 +198,133 @@ Singleton {
             if (s.name === saved)
                 return saved
         }
-        return Quickshell.screens.length > 0 ? Quickshell.screens[0].name : ""
+        // (the monitor chosen as the default one, else the first: DesktopMonitors.qml)
+        return DesktopMonitors.fallbackName
+    }
+
+    // ===== one widget, several monitors =====
+    // A widget has one MAIN copy (the one its service knows: screenName, posX, posY) and, when it
+    // is added on another monitor, a copy there with a spot of its own (WidgetClones.qml). Adding
+    // a widget on a monitor that already has it elsewhere makes a copy instead of moving it, and
+    // removing it takes it off THIS monitor only. Not the visualizer (it can be a band along an
+    // edge), the To-Do or the Sticky Notes (one monitor, chosen in Settings → Desktop → Widgets or by
+    // adding them while editing that monitor: DesktopMonitors.qml); a picture is already
+    // its own widget on its own monitor.
+    readonly property var cloneIds: ["clock", "usercard", "weathercard", "calendarcard", "palettecard", "lyrics"]
+
+    function cloneable(id) {
+        return root.cloneIds.indexOf(id) >= 0
+    }
+
+    function svcOf(id) {
+        if (id === "clock")
+            return ClockService
+        if (id === "usercard")
+            return UserCardService
+        if (id === "weathercard")
+            return WeatherCardService
+        if (id === "calendarcard")
+            return CalendarCardService
+        if (id === "palettecard")
+            return PaletteService
+        if (id === "lyrics")
+            return LyricsService
+        return null
+    }
+
+    // The monitor the main copy is on.
+    function homeOf(id) {
+        const s = root.svcOf(id)
+        return s ? root.homeScreen(s.screenName) : ""
+    }
+
+    function screenPlugged(name) {
+        for (const s of Quickshell.screens) {
+            if (s.name === name)
+                return true
+        }
+        return false
+    }
+
+    // The shelf's tile was clicked on monitor `here`.
+    function addCloneable(id, here) {
+        const svc = root.svcOf(id)
+        if (!svc || here === "")
+            return
+        if (root.widgetShown(id)) {
+            // Already here (the main copy or a copy): nothing to add, the click just selects it.
+            if (root.homeOf(id) === here || WidgetClones.has(id, here))
+                return
+            // On another monitor: this one gets a copy, with a spot of its own.
+            WidgetClones.add(id, here)
+            return
+        }
+        // Switched off: it comes back here, at its first spot (what a new widget always did).
+        if (root.homeOf(id) !== here) {
+            svc.posX = -1
+            svc.posY = -1
+            svc.screenName = here
+        }
+        WidgetClones.remove(id, here)
+        WidgetClones.rebuild()
+        svc.setShown(true)
+    }
+
+    // Take the widget off monitor `here` (the right click). The last monitor it is on switches it
+    // off. When it is the main copy that goes and there are copies, one of them becomes the main
+    // copy (it keeps its spot).
+    function removeFrom(id, here) {
+        const svc = root.svcOf(id)
+        if (!svc)
+            return
+        if (root.editTarget === id)
+            root.editTarget = ""
+        if (root.homeOf(id) !== here) {
+            WidgetClones.remove(id, here)
+            return
+        }
+        // (a copy saved for the monitor the main copy is on is a leftover)
+        WidgetClones.remove(id, here)
+        const others = WidgetClones.screens[id] || []
+        if (others.length === 0) {
+            svc.setShown(false)
+            return
+        }
+        const to = others[0]
+        const p = WidgetClones.spot(id, to)
+        WidgetClones.remove(id, to)
+        svc.setPosition(p ? p.x : -1, p ? p.y : -1, to, p ? p.scale : 0)
+        WidgetClones.rebuild()
+    }
+
+    // `ipc call desktopedit movewidget <id> <monitor>`: the widget's copy on the monitor being
+    // edited (or the focused one) goes to <monitor>, to a first spot there. If <monitor> has it
+    // already, it is just taken off this one.
+    function moveWidget(id, to) {
+        if (!root.cloneable(id) || !root.screenPlugged(to) || !root.widgetShown(id))
+            return false
+        const from = root.screenName !== "" ? root.screenName : root.focusedScreenName()
+        if (from === "" || from === to)
+            return false
+        const isMain = root.homeOf(id) === from
+        if (!isMain && !WidgetClones.has(id, from))
+            return false
+        const there = root.homeOf(id) === to || WidgetClones.has(id, to)
+        if (there) {
+            root.removeFrom(id, from)
+            return true
+        }
+        if (isMain) {
+            const svc = root.svcOf(id)
+            svc.posX = -1
+            svc.posY = -1
+            svc.setPosition(-1, -1, to, 0)
+        } else {
+            WidgetClones.remove(id, from)
+            WidgetClones.add(id, to)
+        }
+        WidgetClones.rebuild()
+        return true
     }
 
     function widgetShown(id) {
@@ -204,6 +357,9 @@ Singleton {
     function widgetOn(id) {
         if (!root.widgetShown(id) || root.screenName === "")
             return false
+        // These can be on several monitors: here when this monitor has the main copy or a copy.
+        if (root.cloneable(id))
+            return root.homeOf(id) === root.screenName || WidgetClones.has(id, root.screenName)
         if (id === "clock")
             return root.homeScreen(ClockService.screenName) === root.screenName
         if (id === "usercard")
@@ -225,7 +381,9 @@ Singleton {
             const r = ImageService.rec(id.slice(6))
             return r !== null && root.homeScreen(r.screen) === root.screenName
         }
-        // The To-Do card and the Sticky Notes are always on the first monitor.
+        // The To-Do card and the Sticky Notes are on the monitor chosen for them.
+        if (id === "todo" || id === "notes")
+            return DesktopMonitors.homeFor(id) === root.screenName
         return root.homeScreen("") === root.screenName
     }
 
@@ -234,6 +392,10 @@ Singleton {
     // clock's is the right edge, vertically centred).
     function addWidget(id) {
         const here = root.screenName
+        if (root.cloneable(id)) {
+            root.addCloneable(id, here)
+            return
+        }
         if (id === "clock") {
             if (here !== "" && root.homeScreen(ClockService.screenName) !== here) {
                 ClockService.posX = -1
@@ -286,12 +448,21 @@ Singleton {
             }
             VisualizerService.setShown(true)
         } else if (id === "todo") {
+            // One card, on one monitor: adding it on this monitor brings it here (and keeps the choice).
+            if (here !== "" && DesktopMonitors.homeFor("todo") !== here) {
+                DesktopMonitors.setHome("todo", here)
+                TodoService.setPosition(-1, -1, 0)
+            }
             TodoService.setShown(true)
         } else if (id === "image") {
             // An empty frame lands on this monitor, at once, and is selected.
             ImageService.setShown(true)
             ImageService.addEmpty(here)
         } else if (id === "notes") {
+            // One layer of notes, on one monitor: adding it here brings it here (and keeps the
+            // choice); the notes are fitted onto the new screen by the widget.
+            if (here !== "" && DesktopMonitors.homeFor("notes") !== here)
+                DesktopMonitors.setHome("notes", here)
             // Makes a first note when there is none yet.
             NotesService.setShown(true)
         }
@@ -300,6 +471,10 @@ Singleton {
     function removeWidget(id) {
         if (root.editTarget === id)
             root.editTarget = ""
+        if (root.cloneable(id)) {
+            root.removeFrom(id, root.screenName)
+            return
+        }
         if (id === "clock")
             ClockService.setShown(false)
         else if (id === "usercard")
@@ -496,6 +671,7 @@ Singleton {
         root.requestedTab = (typeof tab === "string" && tab !== "") ? tab : "widgets"
         root.menuOpen = false
         root.editTarget = ""
+        root.sharedScreens = root.otherScreens(name)
         root.screenName = name
         root.active = true
         root.park(name)
@@ -540,8 +716,10 @@ Singleton {
         duration: 360
         easing.type: Easing.InOutCubic
         onFinished: {
-            if (!root.active)
+            if (!root.active) {
                 root.screenName = ""
+                root.sharedScreens = []
+            }
         }
     }
 
@@ -722,6 +900,19 @@ Singleton {
 
         function close(): void {
             root.close();
+        }
+
+        // While editing, put the shelf on another monitor (every monitor is being edited, the
+        // shelf is only on the main one):  qs -c sekaipop ipc call desktopedit main DP-2
+        function main(screen: string): string {
+            return root.setMain(screen) ? "main monitor is " + screen : "nothing changed";
+        }
+
+        // Move a widget from the monitor being edited (or the focused one) to another monitor:
+        //   qs -c sekaipop ipc call desktopedit movewidget lyrics DP-2
+        // ids: clock, usercard, weathercard, calendarcard, palettecard, lyrics
+        function movewidget(id: string, screen: string): string {
+            return root.moveWidget(id, screen) ? "moved " + id + " to " + screen : "nothing moved";
         }
 
     }

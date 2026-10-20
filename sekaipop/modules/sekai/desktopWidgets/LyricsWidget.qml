@@ -75,10 +75,9 @@ PanelWindow {
     id: win
 
     function resetPosition(): void {
-        LyricsService.posX = -1;
-        LyricsService.posY = -1;
+        win.clearSpot();
         win.place(true);
-        LyricsService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale);
+        win.saveSpot(card.x, card.y);
     }
 
     // Which monitor it lives on, by name (`hyprctl monitors`), e.g. "DP-1".
@@ -86,8 +85,43 @@ PanelWindow {
     // or the first screen if it has never been moved.
     property string monitor: ""
 
+    // A copy on another monitor (WidgetClones.qml): the same widget, with a spot of its own. The main
+    // copy keeps its spot in the service as before.
+    property bool clone: false
+
+    readonly property var cloneSpot: win.clone ? WidgetClones.spot("lyrics", win.wantedScreen) : null
+    readonly property bool spotReady: win.clone ? (WidgetClones.loaded && win.cloneSpot !== null) : LyricsService.loaded
+    readonly property real spotX: win.clone ? (win.cloneSpot ? win.cloneSpot.x : -1) : LyricsService.posX
+    readonly property real spotY: win.clone ? (win.cloneSpot ? win.cloneSpot.y : -1) : LyricsService.posY
+    readonly property real spotScale: win.clone ? (win.cloneSpot ? win.cloneSpot.scale : 0) : LyricsService.posScale
+
+    function saveSpot(x, y): void {
+        if (win.clone)
+            WidgetClones.setSpot("lyrics", win.wantedScreen, x, y, win.uiScale)
+        else
+            LyricsService.setPosition(x, y, win.screen ? win.screen.name : "", win.uiScale)
+    }
+
+    function clearSpot(): void {
+        if (win.clone) {
+            WidgetClones.clearSpot("lyrics", win.wantedScreen)
+        } else {
+            LyricsService.posX = -1
+            LyricsService.posY = -1
+        }
+    }
+
+    function fixSpotScale(): void {
+        if (win.clone) {
+            WidgetClones.setSpot("lyrics", win.wantedScreen, win.spotX, win.spotY, win.uiScale)
+        } else {
+            LyricsService.posScale = win.uiScale
+            LyricsService.persist()
+        }
+    }
+
     readonly property string wantedScreen: win.monitor !== "" ? win.monitor : LyricsService.screenName
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The card is drawn in
     // design pixels inside a ScaleHost, so `roomW` x `roomH` is the screen as the card sees
@@ -485,16 +519,16 @@ PanelWindow {
         // smaller than the card (the clamp below would put it at 0, 0).
         if (!force && (!LyricsService.loaded || win.roomW < card.width || win.roomH < card.height))
             return
-        let x = LyricsService.posX
-        let y = LyricsService.posY
+        let x = win.spotX
+        let y = win.spotY
         if (x < 0 || y < 0) {
             // The first spot: the middle, low on the screen, above the dock.
             x = (win.roomW - card.width) / 2
             y = win.roomH - card.height - 150
-        } else if (LyricsService.posScale > 0 && win.uiScale > 0) {
+        } else if (win.spotScale > 0 && win.uiScale > 0) {
             // Saved at another shell scale: same spot on the screen, not the same design
             // pixels (the card keeps its top-left corner).
-            const k = LyricsService.posScale / win.uiScale
+            const k = win.spotScale / win.uiScale
             x *= k
             y *= k
         }
@@ -510,10 +544,8 @@ PanelWindow {
         id: settle
         interval: 300
         onTriggered: {
-            if (LyricsService.loaded && LyricsService.posX >= 0 && LyricsService.posScale <= 0 && !dragArea.drag.active) {
-                LyricsService.posScale = win.uiScale
-                LyricsService.persist()
-            }
+            if (win.spotReady && win.spotX >= 0 && win.spotScale <= 0 && !dragArea.drag.active)
+                win.fixSpotScale()
             if (!chrome.dragging && !dragArea.drag.active)
                 win.place(!win.placed && LyricsService.loaded)
         }
@@ -531,6 +563,13 @@ PanelWindow {
     Component.onCompleted: {
         win.reveal = win.want ? 1 : 0
         win.place()
+    }
+
+    // The spot of a copy changed (a drag, a reset): put the card there.
+    Connections {
+        target: WidgetClones
+        enabled: win.clone
+        function onSpotsChanged() { follow.restart() }
     }
 
     Connections {
@@ -592,7 +631,7 @@ PanelWindow {
 
     // Edit Desktop's shelf shows the card as it really looks (EditPreview.qml).
     EditPreview {
-        widgetId: "lyrics"
+        widgetId: win.clone ? "" : "lyrics"
         target: card
         pixelRatio: win.uiScale
     }
@@ -657,8 +696,8 @@ PanelWindow {
                     roomW: win.roomW
                     roomH: win.roomH
                     screenName: win.screen ? win.screen.name : ""
-                    onMoved: LyricsService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
-                    onRemoveRequested: LyricsService.setShown(false)
+                    onMoved: win.saveSpot(card.x, card.y)
+                    onRemoveRequested: EditMode.removeFrom("lyrics", win.screen ? win.screen.name : "")
                 }
 
                 // Left button: drag the card on the normal desktop, unless Lock all is on
@@ -685,7 +724,7 @@ PanelWindow {
                     drag.onActiveChanged: {
                         chrome.ownDrag = drag.active
                         if (!drag.active)
-                            LyricsService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
+                            win.saveSpot(card.x, card.y)
                     }
                 }
 

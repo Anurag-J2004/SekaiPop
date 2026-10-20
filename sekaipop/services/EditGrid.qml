@@ -75,6 +75,16 @@ Singleton {
     // ===== where the cards are =====
     property var rectsById: ({})
 
+    // The grid works with ids like "lyrics@DP-1" (EditChrome.qml: widget id + monitor), because a
+    // widget can have a copy on each monitor and every monitor is edited at once. A card only
+    // lines up with the cards on its own monitor, and only that monitor draws the guides.
+    property string dragScreen: ""
+
+    function screenOf(id) {
+        const at = id.lastIndexOf("@")
+        return at >= 0 ? id.substring(at + 1) : ""
+    }
+
     function report(id, x, y, w, h, present) {
         if (id === "")
             return
@@ -86,9 +96,10 @@ Singleton {
     }
 
     function othersOf(id) {
+        const scr = root.screenOf(id)
         const out = []
         for (const k in root.rectsById) {
-            if (k !== id)
+            if (k !== id && (scr === "" || root.screenOf(k) === scr))
                 out.push(root.rectsById[k])
         }
         return out
@@ -99,6 +110,7 @@ Singleton {
         holdTimer.stop()
         fadeTimer.stop()
         root.dragId = id
+        root.dragScreen = root.screenOf(id)
         root.slots = [null, null, null, null, null, null]
         root.sizeMarks = []
         root.hits = { xs: [], ys: [], corners: [] }
@@ -205,6 +217,7 @@ Singleton {
         fadeTimer.stop()
         root.phase = "idle"
         root.dragId = ""
+        root.dragScreen = ""
         root.liveSig = ""
         root.hitSig = ""
         root.slots = [null, null, null, null, null, null]

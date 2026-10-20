@@ -54,7 +54,7 @@ PanelWindow {
     readonly property real roomW: win.width / win.uiScale
     readonly property real roomH: win.height / win.uiScale
 
-    visible: EditMode.editing(win.screenName)
+    visible: EditMode.editing(win.screenName) && (EditGrid.dragScreen === "" || EditGrid.dragScreen === win.screenName)
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "sekaipop-edit-guides"

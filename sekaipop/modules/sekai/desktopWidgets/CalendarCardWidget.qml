@@ -65,18 +65,52 @@ PanelWindow {
     readonly property var mt: Theme.of(screen)
 
     function resetPosition(): void {
-        CalendarCardService.posX = -1;
-        CalendarCardService.posY = -1;
+        win.clearSpot();
         win.place();
-        CalendarCardService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale);
+        win.saveSpot(card.x, card.y);
     }
     // Which monitor it lives on, by name (`hyprctl monitors`), e.g. "DP-1".
     // Empty = the monitor the card was last dropped on (remembered in
     // CalendarCardService), or the first screen if it has never been moved.
     property string monitor: ""
 
+    // A copy on another monitor (WidgetClones.qml): the same widget, with a spot of its own. The main
+    // copy keeps its spot in the service as before.
+    property bool clone: false
+
+    readonly property var cloneSpot: win.clone ? WidgetClones.spot("calendarcard", win.wantedScreen) : null
+    readonly property bool spotReady: win.clone ? (WidgetClones.loaded && win.cloneSpot !== null) : CalendarCardService.loaded
+    readonly property real spotX: win.clone ? (win.cloneSpot ? win.cloneSpot.x : -1) : CalendarCardService.posX
+    readonly property real spotY: win.clone ? (win.cloneSpot ? win.cloneSpot.y : -1) : CalendarCardService.posY
+    readonly property real spotScale: win.clone ? (win.cloneSpot ? win.cloneSpot.scale : 0) : CalendarCardService.posScale
+
+    function saveSpot(x, y): void {
+        if (win.clone)
+            WidgetClones.setSpot("calendarcard", win.wantedScreen, x, y, win.uiScale)
+        else
+            CalendarCardService.setPosition(x, y, win.screen ? win.screen.name : "", win.uiScale)
+    }
+
+    function clearSpot(): void {
+        if (win.clone) {
+            WidgetClones.clearSpot("calendarcard", win.wantedScreen)
+        } else {
+            CalendarCardService.posX = -1
+            CalendarCardService.posY = -1
+        }
+    }
+
+    function fixSpotScale(): void {
+        if (win.clone) {
+            WidgetClones.setSpot("calendarcard", win.wantedScreen, win.spotX, win.spotY, win.uiScale)
+        } else {
+            CalendarCardService.posScale = win.uiScale
+            CalendarCardService.persist()
+        }
+    }
+
     readonly property string wantedScreen: win.monitor !== "" ? win.monitor : CalendarCardService.screenName
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The card is
     // drawn in design pixels inside a ScaleHost, so `roomW` x `roomH` is the
@@ -423,16 +457,16 @@ PanelWindow {
         // still smaller than the card (the clamp below would put it at 0, 0).
         if (!force && (!CalendarCardService.loaded || win.roomW < card.width || win.roomH < card.height))
             return
-        let x = CalendarCardService.posX
-        let y = CalendarCardService.posY
+        let x = win.spotX
+        let y = win.spotY
         if (x < 0 || y < 0) {
             // The first spot: up on the right, clear of the bar.
             x = win.roomW - card.width - 48
             y = 72
-        } else if (CalendarCardService.posScale > 0 && win.uiScale > 0) {
+        } else if (win.spotScale > 0 && win.uiScale > 0) {
             // Saved at another shell scale: same spot on the screen, not the same
             // design pixels (the card keeps its top-left corner).
-            const k = CalendarCardService.posScale / win.uiScale
+            const k = win.spotScale / win.uiScale
             x *= k
             y *= k
         }
@@ -448,10 +482,8 @@ PanelWindow {
         id: settle
         interval: 300
         onTriggered: {
-            if (CalendarCardService.loaded && CalendarCardService.posX >= 0 && CalendarCardService.posScale <= 0 && !dragArea.drag.active) {
-                CalendarCardService.posScale = win.uiScale
-                CalendarCardService.persist()
-            }
+            if (win.spotReady && win.spotX >= 0 && win.spotScale <= 0 && !dragArea.drag.active)
+                win.fixSpotScale()
             if (!chrome.dragging && !dragArea.drag.active)
                 win.place(!win.placed && CalendarCardService.loaded)
         }
@@ -469,6 +501,13 @@ PanelWindow {
     Component.onCompleted: {
         win.reveal = win.want ? 1 : 0
         win.place()
+    }
+
+    // The spot of a copy changed (a drag, a reset): put the card there.
+    Connections {
+        target: WidgetClones
+        enabled: win.clone
+        function onSpotsChanged() { follow.restart() }
     }
 
     Connections {
@@ -531,7 +570,7 @@ PanelWindow {
     // Edit Desktop's shelf shows the card as it really looks: a picture of it, taken
     // every second while the mode is on (EditPreview.qml).
     EditPreview {
-        widgetId: "calendarcard"
+        widgetId: win.clone ? "" : "calendarcard"
         target: card
         pixelRatio: win.uiScale
     }
@@ -621,8 +660,8 @@ PanelWindow {
                     roomW: win.roomW
                     roomH: win.roomH
                     screenName: win.screen ? win.screen.name : ""
-                    onMoved: CalendarCardService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
-                    onRemoveRequested: CalendarCardService.setShown(false)
+                    onMoved: win.saveSpot(card.x, card.y)
+                    onRemoveRequested: EditMode.removeFrom("calendarcard", win.screen ? win.screen.name : "")
                 }
 
                 // Left button: drag the card on the normal desktop, unless Lock all is on
@@ -650,7 +689,7 @@ PanelWindow {
                     drag.onActiveChanged: {
                         chrome.ownDrag = drag.active
                         if (!drag.active)
-                            CalendarCardService.setPosition(card.x, card.y, win.screen ? win.screen.name : "", win.uiScale)
+                            win.saveSpot(card.x, card.y)
                     }
 
                     // A click on the bare card takes the keyboard back from a box.

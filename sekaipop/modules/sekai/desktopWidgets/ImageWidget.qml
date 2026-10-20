@@ -102,7 +102,7 @@ PanelWindow {
     readonly property bool onTop: win.pinned && !win.empty && !EditMode.active
 
     readonly property string wantedScreen: win.rec ? win.rec.screen : ""
-    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? Quickshell.screens[0]
+    screen: Quickshell.screens.find(s => s.name === win.wantedScreen) ?? DesktopMonitors.fallbackScreen
 
     // This monitor's scale (scale.json / services/ShellScale.qml). The frame is drawn
     // in design pixels inside a ScaleHost, so `roomW` x `roomH` is the screen as the
