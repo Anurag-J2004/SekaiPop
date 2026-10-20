@@ -32,6 +32,11 @@ Item {
     // True while a glide is running (lists can use it, e.g. to pause hover effects).
     readonly property bool gliding: glide.running
 
+    // Stops a glide in progress (for code that moves the list itself).
+    function cancel() {
+        glide.stop()
+    }
+
     anchors.fill: scroller
     z: 50
     visible: root.scroller ? root.scroller.visible : true
