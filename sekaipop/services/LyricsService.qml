@@ -51,6 +51,10 @@ Singleton {
     // Ask a karaoke source (NetEase) for when each WORD is sung, once the lines are found.
     // Without it the words of a line are spread by their syllables. ipc lyrics words on|off
     property bool wordsOn: true
+    // Light the WHOLE line when it starts and jump to the next one: no hopping words, no
+    // bouncing diamond. Only the line starts are used, so a source whose word timing is a
+    // little off cannot look off. ipc lyrics lineMode on|off
+    property bool lineOnly: false
     // "auto" (the best provider for each song) or one provider's id to use whenever it has the song.
     property string preferred: "auto"
     // The same, for single tracks: a lyrics file is made for one cut of a song, so one track
@@ -216,6 +220,10 @@ Singleton {
         root.persist()
         root.refresh()
     }
+    function setLineOnly(on) {
+        root.lineOnly = on === true
+        root.persist()
+    }
     function setSync(ms) {
         root.syncMs = Math.max(-5000, Math.min(5000, Math.round(Number(ms) || 0)))
         root.persist()
@@ -371,14 +379,18 @@ Singleton {
         let usable = false
         if (res.state === "found") {
             const lines = LM.foldEchoes(LM.parseLrc(res.text || ""))
-            if (lines.length > 0) {
+            // A provider's "pure music, no lyrics" notice is not a lyric: the song is an instrumental.
+            const notice = lines.length > 0 && LM.isNoLyricsNotice(lines)
+            if (notice)
+                console.log("[lyrics] " + id + " only has a \"no lyrics\" notice for this song, ignored")
+            if (lines.length > 0 && !notice) {
                 usable = true
                 st[id] = res.kind === "word" ? "word" : "synced"
                 if (!ctx.done)
                     ctx.results.push({ id: id, kind: res.kind === "word" ? "word" : "synced", text: res.text, lines: lines, duration: res.duration || 0, trusted: res.trusted === true })
             } else {
                 st[id] = "none"
-                if (res.instrumental === true)
+                if (res.instrumental === true || notice)
                     ctx.instrumental = true
             }
         } else {
@@ -504,7 +516,9 @@ Singleton {
             return true
         }
         const lines = LM.foldEchoes(LM.parseLrc(got.synced || ""))
-        if (lines.length === 0)
+        // (also catches a notice kept in the cache or a .lrc file from before it was ignored:
+        // false sends the song to the providers again, and it ends up as an instrumental)
+        if (lines.length === 0 || LM.isNoLyricsNotice(lines))
             return false
         root.lines = lines
         root.versionDiff = (got.duration > 0 && ctx.length > 0) ? got.duration - ctx.length : 0
@@ -1163,6 +1177,7 @@ Singleton {
             shown: root.shown,
             syncMs: root.syncMs,
             wordsOn: root.wordsOn,
+            lineOnly: root.lineOnly,
             source: root.preferred,
             offsets: root.offsets
         })
@@ -1183,6 +1198,8 @@ Singleton {
             root.shown = s.shown === true
             if (typeof s.wordsOn === "boolean")
                 root.wordsOn = s.wordsOn
+            if (typeof s.lineOnly === "boolean")
+                root.lineOnly = s.lineOnly
             if (typeof s.source === "string" && (s.source === "auto" || root.providerIds.indexOf(s.source) >= 0))
                 root.preferred = s.source
             if (typeof s.syncMs === "number")

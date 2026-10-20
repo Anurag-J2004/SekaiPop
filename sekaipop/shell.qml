@@ -1033,6 +1033,9 @@ ShellRoot {
         // Word-by-word timing, like karaoke, where a source has it (on by default); `off` keeps
         // the words of a line spread by their syllables.
         function words(on: bool): void { LyricsService.setWords(on) }
+        // Light the whole line when it starts and jump to the next one: no hopping words and no
+        // bouncing diamond (`off`: the word by word singing again). Only the line starts are used.
+        function lineMode(on: bool): void { LyricsService.setLineOnly(on) }
         // Where lyrics come from: `auto` takes the best provider for each song (word by word over
         // synced, Boidu first); or a provider's name (boidu, lyricsplus, lrclib, youtubemusic,
         // simpmusic, netease, qq, kugou; "neteasecloudmusic", "qqmusic" and the like work too) to use that one

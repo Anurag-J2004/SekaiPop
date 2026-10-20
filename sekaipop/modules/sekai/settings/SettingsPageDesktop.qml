@@ -331,6 +331,14 @@ SettingsPage {
         }
 
         SettingToggle {
+            icon: "format_align_center"
+            label: "Whole line only"
+            detail: "Light the whole line when it starts and jump to the next. No hopping words or bouncing diamond"
+            checked: LyricsService.lineOnly
+            onToggled: LyricsService.setLineOnly(!LyricsService.lineOnly)
+        }
+
+        SettingToggle {
             icon: "task_alt"
             label: "To-Do"
             checked: TodoService.shown

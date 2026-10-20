@@ -937,3 +937,20 @@ console.log("providers ok")
     assert.deepStrictEqual(T.ytmSongs(null), [])
     console.log("boidu / simpmusic / youtube music ok")
 }
+
+// ---------- a provider's "no lyrics" notice is not a lyric ----------
+{
+    const notice = t => LM.isNoLyricsNotice(LM.parseLrc(t))
+    assert.strictEqual(notice("[00:00.00]\u6b64\u6b4c\u66f2\u4e3a\u6ca1\u6709\u586b\u8bcd\u7684\u7eaf\u97f3\u4e50\uff0c\u8bf7\u60a8\u6b23\u8d4f"), true, "NetEase's pure music notice")
+    assert.strictEqual(notice("[00:00.00]\u7eaf\u97f3\u4e50\uff0c\u8bf7\u6b23\u8d4f"), true, "the short form")
+    assert.strictEqual(notice("[00:00.00]\u7d14\u97f3\u6a02\uff0c\u8acb\u6b23\u8cde"), true, "traditional")
+    assert.strictEqual(notice("[00:00.00]\u6682\u65e0\u6b4c\u8bcd"), true, "no lyrics yet")
+    assert.strictEqual(notice("[00:00.00]This song is instrumental"), true, "English")
+    assert.strictEqual(notice("[00:00.00]Pure music, please enjoy"), true)
+    assert.strictEqual(notice("[00:05.00]la la la\n[00:09.50]sing it loud\n[00:14.00]end"), false, "a real song")
+    assert.strictEqual(notice("[00:05.00]I want an instrumental life\n[00:09.00]with you\n[00:12.00]yeah\n[00:15.00]oh\n[00:18.00]more"), false, "five lines: a song, not a notice")
+    assert.strictEqual(LM.isNoLyricsNotice([]), false)
+    assert.strictEqual(LM.isNoLyricsNotice(null), false)
+    assert.strictEqual(LM.isNoLyricsNotice([{ t: 0, text: "" }]), false, "a gap only")
+    console.log("no-lyrics notice ok")
+}

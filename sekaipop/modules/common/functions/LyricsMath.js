@@ -6,6 +6,7 @@
 //
 //   parseLrc(text)            "[01:23.45] words" lines -> [{ t, text, end?, marks?, bg?, adlib? }],
 //                             sorted, with long gaps as "" (see "LRC" below for what each field is)
+//   isNoLyricsNotice(lines)   true when the "lyrics" are only a provider's "pure music, no lyrics" notice
 //   tokens(text)              a line cut into the things the marker hops over; "(ad libs)" are flagged
 //   lineUnits / songRate      how much singing a line holds, and how fast THIS song is sung
 //   sungSpan(text, room, rate, known)   how long a line takes to sing
@@ -47,6 +48,31 @@ function parseTime(m, s, f) {
 
 function squash(s) {
     return String(s).replace(/\s+/g, " ").trim()
+}
+
+// Some providers answer a song that has no words with a made-up "lyric": a line that says so,
+// stamped at 0:00 (NetEase / QQ: "this song is pure music without lyrics, please enjoy"). It
+// is not a lyric and must not be sung: the song is an instrumental. Only a very short text is
+// taken for one (a few lines, under 60 characters), so a real song that happens to use one
+// of these words is left alone. Chinese (simplified and traditional) and English.
+var NOTICE_CJK = /\u7eaf\u97f3\u4e50|\u7d14\u97f3\u6a02|(\u6ca1|\u6c92)\u6709(\u586b\u8bcd|\u586b\u8a5e|\u6b4c\u8bcd|\u6b4c\u8a5e)|(\u6682|\u66ab)(\u65e0|\u7121)\u6b4c(\u8bcd|\u8a5e)|(\u65e0|\u7121)\u6b4c(\u8bcd|\u8a5e)|\u8bf7(\u60a8)?\u6b23\u8d4f|\u8acb(\u60a8)?\u6b23\u8cde/
+var NOTICE_EN = /\b(instrumental|pure music|no lyrics|without lyrics|no words|lyrics? (is |are )?(not|un)available)\b/i
+
+function isNoLyricsNotice(lines) {
+    var n = 0
+    var total = 0
+    var joined = ""
+    for (var i = 0; i < (lines ? lines.length : 0); i++) {
+        var s = lines[i] && lines[i].text ? String(lines[i].text) : ""
+        if (s === "")
+            continue
+        n++
+        total += s.length
+        joined += s + " "
+    }
+    if (n === 0 || n > 4 || total > 60)
+        return false
+    return NOTICE_CJK.test(joined) || NOTICE_EN.test(joined)
 }
 
 // "(oh oh)" or "(oh oh) ..." : bracketed ad libs, ASCII or full-width.

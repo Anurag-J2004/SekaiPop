@@ -55,6 +55,9 @@ Item {
     property real d: 0
     // A line that is only there (a message, not a lyric): no singing, no marker.
     property bool still: false
+    // Whole line at once: the line lights up when it starts, and there is no word hop, no
+    // squash and no bouncing marker (LyricsService.lineOnly).
+    property bool lineOnly: false
     // Word timing from an enhanced lyrics file (LyricsMath.spansFor); empty for most.
     property var marks: []
     // A voice that sings along with the line: its words and when it starts.
@@ -119,6 +122,9 @@ Item {
     readonly property int km: line.singing ? line.kmAny : -1
     readonly property real hopP: LM.hop(line.mainSp, line.kmAny, line.t)
     readonly property real pad: Math.round(line.px * 0.95)
+    // Line only: how lit the whole line is, a quick fade-in from the moment it starts.
+    readonly property real wholeLit: Math.max(0, Math.min(1, (line.t - line.lineStart) / 0.18))
+    readonly property real bgWholeLit: Math.max(0, Math.min(1, (line.t - line.bgStart) / 0.18))
 
     // Dimmed while the music is paused.
     property real dim: line.playing ? 1 : 0.62
@@ -141,7 +147,7 @@ Item {
     // The diamonds fly off the words of the tune, not the ad libs. A line that is still being
     // sung under the one that took the stage keeps flying them.
     onKmChanged: {
-        if (line.singing && line.playing && line.km >= 0) {
+        if (!line.lineOnly && line.singing && line.playing && line.km >= 0) {
             puff.x = line.center(line.mainIdx[line.km])
             puff.y = line.pad + line.px * 0.2
             puff.fire()
@@ -153,7 +159,7 @@ Item {
     // while playing, not when a seek jumps past it.
     readonly property bool done: !line.still && line.t >= line.lineEnd
     onDoneChanged: {
-        if (line.done && line.playing && line.rush > 0.25 && line.index < line.curIndex
+        if (!line.lineOnly && line.done && line.playing && line.rush > 0.25 && line.index < line.curIndex
                 && line.t - line.lineEnd < 0.35 && line.mainIdx.length > 0) {
             signoff.x = line.center(line.mainIdx[line.mainIdx.length - 1])
             signoff.y = line.pad + line.px * 0.2
@@ -196,14 +202,14 @@ Item {
                     readonly property real fullW: Math.round(wordItem.implicitWidth * cell.sizeK)
                     readonly property real gapW: modelData.gap ? Math.round(line.px * 0.3) : 0
                     readonly property var span: line.sp[index]
-                    readonly property real sungV: (line.litOn && span !== undefined) ? LM.sung(span, line.t) : 0
+                    readonly property real sungV: (line.litOn && span !== undefined) ? (line.lineOnly ? line.wholeLit : LM.sung(span, line.t)) : 0
                     // The wave before the line starts: word i hops when the line is
                     // (1 - d) of the way up, a little after the one before it.
                     readonly property real stagger: 0.13
                     readonly property real wave: Math.max(0, Math.min(1,
                         (1 - line.d) * (1 + stagger * (line.toks.length - 1)) - index * stagger))
-                    readonly property real lift: (line.d > -0.01 && line.d < 1) ? Math.sin(Math.PI * wave) : 0
-                    readonly property real hitV: (line.singing && line.playing) ? LM.hit(line.sp, index, line.t) : 0
+                    readonly property real lift: (!line.lineOnly && line.d > -0.01 && line.d < 1) ? Math.sin(Math.PI * wave) : 0
+                    readonly property real hitV: (!line.lineOnly && line.singing && line.playing) ? LM.hit(line.sp, index, line.t) : 0
 
                     width: gapW + fullW
                     height: wordItem.implicitHeight
@@ -262,7 +268,7 @@ Item {
                 }
             }
 
-            visible: !line.blank && marker.presence > 0.01
+            visible: !line.blank && !line.lineOnly && marker.presence > 0.01
             x: ax + (bx - ax) * line.hopP
             y: line.pad - line.px * 0.16 - arch * line.px * marker.archK
             rotation: 180 * line.hopP
@@ -318,7 +324,7 @@ Item {
                     pixelSize: line.bgPx
                     withFill: true
                     litColor: mt.accentMint
-                    sung: line.bgSp[bgWord.index] ? LM.sung(line.bgSp[bgWord.index], line.t) : 0
+                    sung: line.lineOnly ? line.bgWholeLit : (line.bgSp[bgWord.index] ? LM.sung(line.bgSp[bgWord.index], line.t) : 0)
                 }
             }
         }

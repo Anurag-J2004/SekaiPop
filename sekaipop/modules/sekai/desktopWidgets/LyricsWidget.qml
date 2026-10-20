@@ -41,6 +41,7 @@ import "../../common/functions/LyricsMath.js" as LM
 // empty stamp after it, when it ends), so the line's time is shared out over its words by
 // syllable, and how long the line lasts comes from how fast THIS song is sung (learned from
 // its lines). A file with word timing (enhanced LRC, "<00:12.40>want") is used as it is.
+// (Line mode, `ipc lyrics lineMode on`, ignores all of that and lights the whole line when it starts.)
 // Words in brackets, "(oh oh)", are ad libs: sung over the line, smaller and raised, and the
 // bouncing marker skips them; a second line at the same moment sings along as a small row.
 //
@@ -64,6 +65,7 @@ import "../../common/functions/LyricsMath.js" as LM
 // Bind a key / call it from a script:
 //   qs -c sekaipop ipc call lyrics toggle          (show / hide)
 //   qs -c sekaipop ipc call lyrics nudge 250       (lyrics 250 ms earlier; -250 for later)
+//   qs -c sekaipop ipc call lyrics lineMode on     (light the whole line at once, no word hops; off = word by word)
 //   qs -c sekaipop ipc call lyrics refresh         (look for this track's lyrics again)
 //   qs -c sekaipop ipc call lyrics picker          (the source picker: where the words come from)
 //   qs -c sekaipop ipc call lyrics debug           (show the clock's numbers under the lyrics)
@@ -717,6 +719,7 @@ PanelWindow {
                             t: win.clockT
                             d: slot.index - win.cursorV
                             playing: win.demo || win.playing
+                            lineOnly: LyricsService.lineOnly
                             maxW: card.width - 40
                             cx: card.width / 2
                             cy: card.midY
