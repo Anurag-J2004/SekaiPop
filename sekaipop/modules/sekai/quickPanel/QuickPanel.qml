@@ -43,9 +43,13 @@ import qs.modules.sekai.settings
 // few seconds (see NotificationSource.qml / QuickPanelFace's heads-up).
 // It only rises as far as that card (just the top of the phone shows, see
 // alertLift), not the whole `peek`, and it doesn't grab the keyboard or
-// the pointer; it goes back down by itself. Touch it (any click on it, or
-// the keybind / hot edge) and it slides up to the full panel and stays
-// open like normal.
+// the pointer; it goes back down by itself. Click it (or the keybind / hot
+// edge) and it slides up to the full panel and stays open like normal.
+// Swipe it down or middle-click it and it goes back down at once (the
+// notification stays in the list); right-click it and the notification is
+// removed too. The same buttons as the corner popup cards (notify.style
+// "popups"): middle hides, right removes. Anywhere on the phone, not just
+// its card.
 //
 // The gear on the header turns the phone into the Settings (SettingsStage.qml)
 // instead of opening another panel: the phone rolls a quarter turn
@@ -2288,6 +2292,37 @@ Scope {
                 height: stage.quickInput ? Math.max(0, restRect.height - drop) : 0
             }
 
+            // Click away inside hitRect: hitRect is the box around the tilted phone, so
+            // its corners are empty, and a press there landed on this window and did
+            // nothing (issue #47). Under everything; a press nothing on the phone took
+            // reaches it, and closes the panel unless it is on the phone's own shape
+            // (PhoneBody.outlinePoly, a few units of slack for the antialiased edge).
+            MouseArea {
+                id: besidePhone
+
+                x: hitRect.x
+                y: hitRect.y
+                width: hitRect.width
+                height: hitRect.height
+                z: -100
+                enabled: root.open
+                acceptedButtons: Qt.AllButtons
+
+                function overPhone(px, py) {
+                    const p = besidePhone.mapToItem(phone, px, py)
+                    return PM.insideConvex(phone.outlinePoly, p.x, p.y, 3)
+                }
+
+                onPressed: mouse => {
+                    if (overPhone(mouse.x, mouse.y)) {
+                        mouse.accepted = false
+                        return
+                    }
+                    console.log("sekaipop click-away: pressed beside the phone, inside its box")
+                    root.close()
+                }
+            }
+
             // Where the Settings phone stands when it's up, in the middle of the
             // monitor (it takes the mouse there, from the moment it starts
             // turning in until it has gone).
@@ -2518,6 +2553,10 @@ Scope {
                         // had already claimed the phone), but a hover has no
                         // press, so the phone was lowered before it was claimed.
                         onAlertActivated: {
+                            // Not in the middle of a press or a swipe on the phone (the
+                            // card's hover timer can run out while you drag it away).
+                            if (alertTouch.busy)
+                                return
                             root.claim()
                             root.notificationSource.hideToast()
                         }
@@ -2740,18 +2779,77 @@ Scope {
                     }
                 }
 
-                // Any press on a phone that only came up for a notification
-                // makes it stay (claim()) — then lets the press carry on to
-                // whatever button / slider is under it, so that click still
-                // does its job. Off the moment the phone is a normal open
-                // one, so it never gets in the way after that.
-                MouseArea {
+                // A phone that only came up for a notification (on top of it, so it sees
+                // every press first; off the moment the phone is a normal open one):
+                //   click         it stays (claim()), on the release, and only when
+                //                 nothing was dragged: the press still carries on to
+                //                 the button / slider under it, so that click does its
+                //                 job too. (It used to claim on the press, which left
+                //                 no way to swipe it away.)
+                //   swipe down    back down at once (the notification stays in the list)
+                //   middle click  the same
+                //   right click   back down, and the notification is removed
+                Item {
+                    id: alertTouch
                     anchors.fill: parent
                     enabled: root.alertUp && !root.open
-                    propagateComposedEvents: true
-                    onPressed: mouse => {
-                        root.claim()
-                        mouse.accepted = false
+
+                    // Down far enough to mean it (design px on the phone's face).
+                    readonly property real swipeAway: 40
+                    // A button is held or a swipe is going on: the card's hover-to-open
+                    // waits (onAlertActivated).
+                    readonly property bool busy: leftTap.pressed || middleTap.pressed || rightTap.pressed || alertSwipe.active
+
+                    function putAway() {
+                        root.notificationSource.hideToast()
+                    }
+
+                    function removeIt() {
+                        const t = root.notificationSource.toast
+                        if (t && t.key !== undefined)
+                            root.notificationSource.dismiss(t.key)
+                        root.notificationSource.hideToast()
+                    }
+
+                    // Passive: the button under it still gets the press, and a drag
+                    // past the threshold cancels the tap.
+                    TapHandler {
+                        id: leftTap
+                        acceptedButtons: Qt.LeftButton
+                        gesturePolicy: TapHandler.DragThreshold
+                        onTapped: root.claim()
+                    }
+
+                    // Exclusive: the card under it doesn't act on these as well.
+                    TapHandler {
+                        id: middleTap
+                        acceptedButtons: Qt.MiddleButton
+                        gesturePolicy: TapHandler.ReleaseWithinBounds
+                        onTapped: alertTouch.putAway()
+                    }
+
+                    TapHandler {
+                        id: rightTap
+                        acceptedButtons: Qt.RightButton
+                        gesturePolicy: TapHandler.ReleaseWithinBounds
+                        onTapped: alertTouch.removeIt()
+                    }
+
+                    // Takes over only once the pointer has moved past the drag
+                    // threshold (the button's press is then cancelled, and so is the
+                    // tap above); let go far enough down and the phone goes away.
+                    DragHandler {
+                        id: alertSwipe
+                        target: null
+                        xAxis.enabled: false
+                        property real lastY: 0
+                        onActiveTranslationChanged: lastY = activeTranslation.y
+                        onActiveChanged: {
+                            if (active)
+                                lastY = 0
+                            else if (lastY > alertTouch.swipeAway)
+                                alertTouch.putAway()
+                        }
                     }
                 }
             }
