@@ -153,6 +153,11 @@ PanelWindow {
         anchors.fill: parent
         focus: true
         Keys.onEscapePressed: {
+            // A widget being dragged off the shelf: put it back, and nothing else.
+            if (EditMode.dragId !== "") {
+                EditMode.endDrag(false)
+                return
+            }
             // The Matugen controls are up: back to the theme tiles first.
             if (win.tab === "theme" && themeBoard.tuning) {
                 themeBoard.tuning = false

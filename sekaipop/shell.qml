@@ -1196,6 +1196,8 @@ ShellRoot {
     //   qs -c sekaipop ipc call desktopedit toggle   (or: open / close)
     DesktopMenu {}
     EditTray {}
+    // A widget pulled up off the shelf follows the pointer in a window of its own.
+    EditDragGhost {}
 
     // Game Mode takes the widgets away, so Edit Desktop (which is about them)
     // cannot stay open: it is closed as Game Mode comes on, and EditMode.open

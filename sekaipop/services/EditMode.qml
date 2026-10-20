@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import qs.modules.common
+import "../modules/common/functions/ShelfDragMath.js" as SDM
 
 // Edit Desktop's state — one singleton, so every window that has to take
 // part (the wallpaper, the clock and to-do widgets, the shelf, the
@@ -533,6 +534,84 @@ Singleton {
         }
     }
 
+    // ===== dragging a widget off the shelf =====
+    // A slot pulled UP off the shelf (EditTraySlot.qml) follows the pointer as a ghost
+    // (EditDragGhost.qml) and is put down where it is let go: on the card, it is added there
+    // (or, already on the desktop, moved there), centred on the pointer; back on the shelf or
+    // out on the dark stage, nothing happens. Only the monitor the shelf is on: the press that
+    // started the drag only knows where the pointer is on that one.
+    //   dragId     the widget being dragged ("" = none)
+    //   dragX / Y  the pointer, in real pixels from the edited screen's top-left
+    //   dragOver   "card" | "shelf" | "" (the dark stage), for the ghost's look
+    property string dragId: ""
+    property real dragX: 0
+    property real dragY: 0
+    property string dragOver: ""
+
+    function beginDrag(id) {
+        if (!root.active || root.screenName === "")
+            return false
+        root.dragId = id
+        return true
+    }
+
+    function moveDrag(x, y, over) {
+        root.dragX = x
+        root.dragY = y
+        root.dragOver = over
+    }
+
+    // Ends the drag; `drop` false (Esc, a right click) cancels it.
+    function endDrag(drop) {
+        const id = root.dragId
+        const over = root.dragOver
+        root.dragId = ""
+        root.dragOver = ""
+        if (!drop || id === "" || over !== "card")
+            return false
+        const scr = Quickshell.screens.find(s => s.name === root.screenName)
+        if (!scr)
+            return false
+        const ui = ShellScale.forScreen(scr)
+        const p = SDM.toDesktop(root.dragX, root.dragY, scr.width, scr.height, ui, root.cardRect(scr.width, scr.height, ui))
+        if (!p.inside)
+            return false
+        root.dropWidget(id, p.x, p.y, ui, scr.width / ui, scr.height / ui)
+        return true
+    }
+
+    // Puts widget `id` on the monitor being edited, centred on (cx, cy) design pixels.
+    function dropWidget(id, cx, cy, ui, roomW, roomH) {
+        const here = root.screenName
+        // The Image tile makes a new empty frame, where it was dropped (ImageService takes real pixels).
+        if (id === "image") {
+            ImageService.setShown(true)
+            ImageService.addEmpty(here, cx * ui, cy * ui)
+            return
+        }
+        const size = root.previewSizes[id] ?? ({ w: 0, h: 0 })
+        const at = SDM.spotFor(cx, cy, size.w, size.h, roomW, roomH)
+        // On the desktop first (a no-op when it is already here), then on the spot.
+        root.addWidget(id)
+        if (root.cloneable(id)) {
+            if (root.homeOf(id) === here)
+                root.svcOf(id).setPosition(at.x, at.y, here, ui)
+            else if (WidgetClones.has(id, here))
+                WidgetClones.setSpot(id, here, at.x, at.y, ui)
+        } else if (id === "todo") {
+            TodoService.setPosition(at.x, at.y, ui)
+        } else if (id === "visualizer") {
+            VisualizerService.setPosition(at.x, at.y, here, ui)
+        } else if (PluginService.isPluginId(id)) {
+            const st = PluginService.stateFor(id)
+            if (st)
+                st.setPosition(at.x, at.y, here, ui)
+        }
+        // (The Sticky Notes arrange themselves: dropping them just adds them.)
+        root.select(id)
+        root.ping(id)
+    }
+
     // ===== Lock all =====
     property bool widgetsLocked: true
     property bool lockLoaded: false
@@ -720,6 +799,7 @@ Singleton {
             return
         root.active = false
         root.editTarget = ""
+        root.endDrag(false)
         root.unpark()
         enterAnim.stop()
         exitAnim.restart()
