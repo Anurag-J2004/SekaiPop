@@ -210,7 +210,7 @@ Item {
                     y: parent.height - 3
                     spacing: 5
                     Repeater {
-                        model: Math.floor(body.width / 11)
+                        model: Math.max(0, Math.floor(body.width / 11))
                         delegate: Rectangle { width: 6; height: 2.5; color: mt.pSurfaceDivider }
                     }
                 }

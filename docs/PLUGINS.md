@@ -40,6 +40,7 @@ qs -c sekaipop ipc call plugins reload                 # look in the folder agai
 qs -c sekaipop ipc call plugins toggle <id>            # also: show <id>, hide <id>
 qs -c sekaipop ipc call plugins set <id> <key> <value> # change a setting
 qs -c sekaipop ipc call plugins resetPosition <id>     # if it ends up off-screen
+qs -c sekaipop ipc call plugins settings <id>          # open Settings > Desktop > Plugins on it
 qs -c sekaipop ipc call desktopedit movewidget plugin:<id> DP-2
 ```
 

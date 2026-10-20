@@ -228,7 +228,7 @@ SectionCard {
             y: 22
             spacing: 5
             Repeater {
-                model: Math.floor(card.innerWidth / 11)
+                model: Math.max(0, Math.floor(card.innerWidth / 11))
                 delegate: Rectangle { width: 6; height: 2.5; color: mt.pSurfaceDivider }
             }
         }

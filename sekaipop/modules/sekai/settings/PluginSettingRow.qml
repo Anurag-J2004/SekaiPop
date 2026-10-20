@@ -230,6 +230,9 @@ Item {
         SettingToggle {
             tileWidth: 150
             icon: checked ? "check" : "close"
+            // ON / OFF as the tile's name: under an empty name it sits low
+            label: checked ? "ON" : "OFF"
+            subtitle: ""
             checked: root.row ? root.row.value === true : false
             onToggled: root.edited(!checked)
         }

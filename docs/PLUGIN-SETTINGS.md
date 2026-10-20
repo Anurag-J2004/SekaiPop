@@ -29,7 +29,8 @@ work, and the manifest fields this reads, are in [PLUGINS.md](PLUGINS.md).
   **Reload**, **Open the folder** (made if missing) and a link to PLUGINS.md.
 - **From Edit Desktop.** A selected plugin widget with settings or secrets has a **Settings** key
   beside its EDITING tag. It closes Edit Desktop and opens Settings > Desktop on that monitor,
-  scrolled to Plugins, with the plugin open.
+  scrolled to Plugins, with the plugin open. `qs -c sekaipop ipc call plugins settings <id>` does
+  the same from a script or a keybind.
 - The card says once, at its foot, that a plugin runs with the shell's full rights.
 
 ## How it works

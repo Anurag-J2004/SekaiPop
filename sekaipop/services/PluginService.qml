@@ -34,6 +34,7 @@ import "../modules/common/functions/PluginManifest.js" as PM
 //   qs -c sekaipop ipc call plugins toggle <id>        (also show / hide)
 //   qs -c sekaipop ipc call plugins set <id> <key> <value>
 //   qs -c sekaipop ipc call plugins resetPosition <id>
+//   qs -c sekaipop ipc call plugins settings <id>      open Settings > Desktop > Plugins on it
 Singleton {
     id: root
 
@@ -263,6 +264,14 @@ Singleton {
                 return "no plugin " + id
             return st.setSetting(key, value) ? key + " = " + JSON.stringify(st.settings[key])
                 : id + " has no setting " + key + " that takes " + JSON.stringify(value)
+        }
+
+        // The same as a selected plugin widget's Settings key in Edit Desktop.
+        function settings(id: string): string {
+            if (!root.stateFor(id))
+                return "no plugin " + id
+            root.askSettings(id, "")
+            return "opening " + id
         }
 
         function resetPosition(id: string): void {
