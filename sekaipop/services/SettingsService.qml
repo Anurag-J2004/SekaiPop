@@ -192,6 +192,7 @@ Singleton {
         "timer.pomRounds": 4,           // focus rounds before the long break
         "dock.pinOnStartup": false,     // start every session with the dock pinned (kept shown)
         "wallpaper.enabled": true,       // Show or hide the desktop wallpaper
+      
         "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
         "wallpaper.separateLock": false, // the lockscreen has a wallpaper of its own (off = it shows the desktop's)
         "wallpaper.folder": "",         // the folder the picker lists ("" = ~/Pictures/Wallpapers)
@@ -207,6 +208,15 @@ Singleton {
         "wallpaper.parallax": false,    // the wallpaper drifts with the workspace
         "wallpaper.parallaxAmount": 8,  // how much bigger than the screen it is (%)
         "wallpaper.parallaxWorkspaces": 5, // how many workspaces the drift is spread over
+        // ===== Matugen =====
+        // The Matugen theme's knobs (Edit Desktop > THEME > Matugen; MatugenMath.js): the
+        // scheme, which wallpaper colour leads (-1 = Auto), the contrast (-1 to 1), and
+        // accents kept fixed whatever the wallpaper says ("" = not pinned).
+        "matugen.scheme": "scheme-tonal-spot",
+        "matugen.seed": -1,
+        "matugen.contrast": 0,
+        "matugen.pinA": "",
+        "matugen.pinB": "",
         // ===== App colours =====
         "appTheme.kitty": false,
         "appTheme.foot": false,
