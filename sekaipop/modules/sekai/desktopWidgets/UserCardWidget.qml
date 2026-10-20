@@ -576,6 +576,7 @@ PanelWindow {
                 anchors.fill: parent
                 source: mp.source
                 framing: mp.framing
+                clipped: false
                 // One pixel of picture per texture pixel, as the layer is drawn.
                 decodeScale: mp.texel * mp.oversample
             }

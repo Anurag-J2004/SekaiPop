@@ -307,7 +307,6 @@ Item {
         color: root.mt.pSurface
         border.width: 3
         border.color: root.mt.pLine
-        clip: true
 
         Rectangle {
             anchors.fill: parent
@@ -318,15 +317,21 @@ Item {
             border.color: root.mt.pSurfaceRing
         }
 
-        DotField {
-            x: card.width - width
-            y: card.height - height
-            width: 260
-            height: 170
-            corner: "br"
-            spacing: 10
-            maxRadius: 1.6
-            dotColor: Qt.alpha(root.mt.pLine, 0.35)
+        // The halftone in the bottom-right corner, kept inside the card's round corner.
+        RoundClip {
+            anchors.fill: parent
+            anchors.margins: 3
+            radii: [27, 27, 27, 27]
+            DotField {
+                x: parent.width - width
+                y: parent.height - height
+                width: 260
+                height: 170
+                corner: "br"
+                spacing: 10
+                maxRadius: 1.6
+                dotColor: Qt.alpha(root.mt.pLine, 0.35)
+            }
         }
 
         // three slanted stripes, top right
@@ -416,13 +421,14 @@ Item {
                 color: root.mt.pSurfaceDivider
                 border.width: 3
                 border.color: root.mt.pLine
-                clip: true
 
-                Item {
+                // Inside the border, rounded (the dimmed picture reaches its corners).
+                RoundClip {
                     x: 3
                     y: 3
                     width: root.workW
                     height: root.workH
+                    radii: [17, 17, 17, 17]
 
                     // The whole picture, dimmed: what the slot crops out.
                     Image {
@@ -531,11 +537,13 @@ Item {
                             visible: root.kind === "phone" && root.phoneScreen === "quick"
                             anchors.fill: parent
                             readonly property color cardFill: Qt.alpha(root.mt.pSurface, 0.78)
-                            Rectangle {
+                            RoundClip {
                                 x: 9; y: 9; width: parent.width - 18; height: 86
-                                topLeftRadius: 27; topRightRadius: 27; bottomLeftRadius: 18; bottomRightRadius: 18
-                                color: root.mt.pSurfaceDivider
-                                clip: true
+                                radii: [27, 27, 18, 18]
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: root.mt.pSurfaceDivider
+                                }
                                 FramedImage {
                                     anchors.fill: parent
                                     source: PanelImages.banner
@@ -545,16 +553,21 @@ Item {
                             }
                             Rectangle {
                                 x: 14; y: 80; width: 44; height: 44; radius: 22
-                                color: root.mt.pSurfaceDivider
-                                border.width: 3
-                                border.color: "#ffffff"
-                                clip: true
-                                FramedImage {
+                                color: "#ffffff"
+                                RoundClip {
                                     anchors.fill: parent
                                     anchors.margins: 3
-                                    source: PanelImages.avatar
-                                    framing: PanelImages.framingFor("avatar")
-                                    decodeScale: 1
+                                    radii: [19, 19, 19, 19]
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        color: root.mt.pSurfaceDivider
+                                    }
+                                    FramedImage {
+                                        anchors.fill: parent
+                                        source: PanelImages.avatar
+                                        framing: PanelImages.framingFor("avatar")
+                                        decodeScale: 1
+                                    }
                                 }
                             }
                             Rectangle {

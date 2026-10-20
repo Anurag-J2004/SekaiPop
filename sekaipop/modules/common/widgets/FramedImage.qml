@@ -32,6 +32,10 @@ Item {
     // every wheel notch). 0 = follow the drawn size.
     property real fixedDecodeWidth: 0
     property bool smoothing: true
+    // Cut what overflows this item. Off inside a layer that is masked anyway (a layer only
+    // covers its item, so the overflow is gone there too): a clipped child inside a masked
+    // layer drew square over the mask.
+    property bool clipped: true
 
     readonly property int status: root.aspect > 0 ? img.status : (probe.status === Image.Error ? Image.Error : (root.source.toString() === "" ? Image.Null : Image.Loading))
     readonly property bool ready: root.status === Image.Ready
@@ -49,7 +53,7 @@ Item {
     // The decoded picture, for a Canvas that measures it (the banner's ink sampler).
     readonly property alias image: img
 
-    clip: true
+    clip: root.clipped
 
     Image {
         id: probe
