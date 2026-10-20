@@ -242,7 +242,12 @@ Singleton {
         "appearance.iconStyle": "outline",
         "appearance.iconTheme": "",
         "appearance.cursorTheme": "",
-        "appearance.cursorSize": 24
+        "appearance.cursorSize": 24,
+        // Shell hooks: executable path, empty means disabled.
+        "hooks.wallpaper": "",
+        "hooks.lockWallpaper": "",
+        "hooks.theme": "",
+        "hooks.lock": ""
     })
 
     // What has been changed from the defaults.

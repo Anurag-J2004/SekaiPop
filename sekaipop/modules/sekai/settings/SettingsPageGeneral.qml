@@ -357,4 +357,56 @@ SettingsPage {
             onActivated: SettingsService.reset()
         }
     }
+
+    SectionCard {
+        title: "Hooks"
+
+        Text {
+            width: page.fullWidth
+            text: "Run custom scripts when system events occur. Each value is passed as a separate argument. The input placeholders show the argument order."
+            color: Theme.pInkSub
+            font.family: Theme.fontFamily
+            font.pixelSize: 15
+            wrapMode: Text.WordWrap
+        }
+
+        Repeater {
+            model: HookService.definitions
+            delegate: Column {
+                required property var modelData
+                width: page.fullWidth
+                spacing: 4
+
+                Text {
+                    width: parent.width
+                    text: modelData.label
+                    color: Theme.pInk
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 18
+                    font.weight: Font.ExtraBold
+                    font.styleName: Theme.fontStyleBold
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    width: parent.width
+                    text: modelData.args
+                    color: Theme.pInkSub
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 14
+                    wrapMode: Text.WordWrap
+                }
+
+                SettingText {
+                    width: parent.width
+                    label: ""
+                    labelWidth: 0
+                    value: SettingsService.get(modelData.key)
+                    placeholder: modelData.example
+                    onSubmitted: text => SettingsService.set(modelData.key, text);
+                    onCleared: SettingsService.set(modelData.key, "");
+                }
+            }
+        }
+    }
 }

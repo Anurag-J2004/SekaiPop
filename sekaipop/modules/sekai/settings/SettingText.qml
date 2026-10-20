@@ -37,7 +37,7 @@ Item {
     Column {
         id: labelColumn
         y: Math.max(0, (root.height - implicitHeight) / 2)
-        width: root.labelWidth - 14
+        width: Math.max(0, root.labelWidth - 14)
         spacing: 2
 
         Text {

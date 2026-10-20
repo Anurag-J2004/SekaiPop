@@ -3,6 +3,7 @@ import QtQuick
 import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
+import qs.services
 import qs.modules.common
 
 // The system side of the wallpaper switcher (same role as
@@ -687,6 +688,7 @@ Singleton {
             }
             // "every monitor" = no monitor keeps a pick of its own.
             root.forgetLockScreenPicks();
+            HookService.emit("lockWallpaper", [path, ""]);
             return;
         }
         if (root.lockScreenPaths[target] === path)
@@ -695,6 +697,7 @@ Singleton {
         next[target] = path;
         root.lockScreenPaths = next;
         lockScreensSaver.saveAll();
+        HookService.emit("lockWallpaper", [path, target]);
     }
 
     // target "" = every monitor, else one monitor's name.
@@ -709,6 +712,7 @@ Singleton {
                     return;
                 root.defaultPath = path;
                 saver.save(path);
+                HookService.emit("wallpaper", [path, ""]);
                 return;
             }
             // With the mode on, "every monitor" gives each monitor this
@@ -724,6 +728,7 @@ Singleton {
                 all[s.name] = path;
             root.screenPaths = all;
             screensSaver.saveAll();
+            HookService.emit("wallpaper", [path, ""]);
             return;
         }
         // One monitor. First make sure every other monitor holds a pick of its
@@ -737,6 +742,7 @@ Singleton {
         next[target] = path;
         root.screenPaths = next;
         screensSaver.saveAll();
+        HookService.emit("wallpaper", [path, target]);
     }
 
     // ===== persistence =====

@@ -367,8 +367,10 @@ Singleton {
         root.touched = true
         if (root.current === id)
             return
+        const oldTheme = root.current;
         root.current = id
         saver.save(id)
+        HookService.emit("theme", [oldTheme, id]);
     }
 
     // ===== one theme per monitor (Theme.of(), setting theme.perMonitor) =====
