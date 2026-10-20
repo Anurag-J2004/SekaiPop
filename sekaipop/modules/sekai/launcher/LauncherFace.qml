@@ -535,7 +535,7 @@ Item {
         // Behind a card (or fading behind one) it takes no clicks.
         enabled: extrasLayer.cardK < 0.5
 
-        WheelScroll { scroller: drawerGrid ; step: 60; pixelFactor: 6.5}}
+        WheelScroll { scroller: drawerGrid ; step: 60; pixelFactor: 6.5}
         GridView {
             id: drawerGrid
 
