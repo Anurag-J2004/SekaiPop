@@ -146,6 +146,7 @@ Everything the widget gets from the shell.
 | `theme`                    | The theme of the monitor it is on. It changes with the theme; bind to it, don't copy it. The names promised are below. |
 | `settings`                 | The settings: the manifest's defaults with the user's values on top. A new object whenever one changes.          |
 | `setSetting(key, value)`   | Changes one and saves it. Returns `false` for a key the manifest does not declare or a value of the wrong type.  |
+| `reloadSecrets()`          | Reads the secret files again, as Settings' **Reload** does: for a widget's own "check again" once the user has put a token in place. `secrets` changes when they arrive. An environment variable stays the one the shell started with. |
 | `secrets`                  | The secrets, by name: a string, empty when not found. A file secret arrives a moment after start.                |
 | `screenName`               | The monitor it is on (`DP-1`).                                                                                   |
 | `scale`                    | That monitor's shell scale. The widget is drawn in design pixels already; this is for pixel-exact images.        |
