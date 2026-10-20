@@ -258,6 +258,10 @@ Run the install command again. Settings and state live in `~/.local/state/sekaip
 
 Edit the files in `~/.config/hypr/custom/` (`keybinds.lua`, `rules.lua`, `variables.lua`, `env.lua`, `execs.lua`, `general.lua`). They load after the defaults and are never overwritten. Give a keybind a description like `"Apps: My thing"` and the cheatsheet lists it.
 
+### Plugins
+
+Desktop widgets can come from their own folder, usually their own repo: put one in `~/.config/sekaipop/plugins/`, run `qs -c sekaipop ipc call plugins reload`, and add it from Edit Desktop like any other widget. A plugin runs with the shell's full rights, so install only what you would run as your own script. Writing one, and the interface it gets: [docs/PLUGINS.md](docs/PLUGINS.md); the smallest example is [examples/plugins/hello-clock](examples/plugins/hello-clock/).
+
 <img src="docs/divider.svg" alt="" width="100%">
 
 <h2 id="keybinds"><img src="docs/tag-keybinds.svg" alt="Keybinds" height="80"></h2>

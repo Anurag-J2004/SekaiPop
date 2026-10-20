@@ -191,6 +191,11 @@ Singleton {
         { id: "lyrics", title: "Lyrics", icon: "lyrics" }
     ]
 
+    // What the shelf shows: the widgets above, then the desktop widget plugins that loaded
+    // (services/PluginService.qml), as "plugin:<id>". Everything below handles a plugin
+    // through its PluginState, which has the same shape as a widget's service.
+    readonly property var shelfList: root.widgetList.concat(PluginService.shelfEntries)
+
     // The monitor a widget really lives on: the one it was last dropped on, or
     // the first one if that is not plugged in (or it never was dropped).
     function homeScreen(saved) {
@@ -213,6 +218,10 @@ Singleton {
     readonly property var cloneIds: ["clock", "usercard", "weathercard", "calendarcard", "palettecard", "lyrics"]
 
     function cloneable(id) {
+        if (PluginService.isPluginId(id)) {
+            const p = PluginService.pluginOf(id)
+            return !!p && p.cloneable
+        }
         return root.cloneIds.indexOf(id) >= 0
     }
 
@@ -229,6 +238,8 @@ Singleton {
             return PaletteService
         if (id === "lyrics")
             return LyricsService
+        if (PluginService.isPluginId(id))
+            return PluginService.stateFor(id)
         return null
     }
 
@@ -350,6 +361,10 @@ Singleton {
             return ImageService.shown
         if (id.indexOf("image:") === 0)
             return ImageService.shown && ImageService.rec(id.slice(6)) !== null
+        if (PluginService.isPluginId(id)) {
+            const st = PluginService.stateFor(id)
+            return !!st && st.shown
+        }
         return false
     }
 
@@ -384,6 +399,11 @@ Singleton {
         // The To-Do card and the Sticky Notes are on the monitor chosen for them.
         if (id === "todo" || id === "notes")
             return DesktopMonitors.homeFor(id) === root.screenName
+        // A plugin that stays on one monitor (its manifest says `cloneable: false`).
+        if (PluginService.isPluginId(id)) {
+            const st = PluginService.stateFor(id)
+            return !!st && root.homeScreen(st.screenName) === root.screenName
+        }
         return root.homeScreen("") === root.screenName
     }
 
@@ -465,6 +485,17 @@ Singleton {
                 DesktopMonitors.setHome("notes", here)
             // Makes a first note when there is none yet.
             NotesService.setShown(true)
+        } else if (PluginService.isPluginId(id)) {
+            // A plugin that stays on one monitor: the same as the clock before it had copies.
+            const st = PluginService.stateFor(id)
+            if (!st)
+                return
+            if (here !== "" && root.homeScreen(st.screenName) !== here) {
+                st.posX = -1
+                st.posY = -1
+                st.screenName = here
+            }
+            st.setShown(true)
         }
     }
 
@@ -495,6 +526,11 @@ Singleton {
             VisualizerService.setShown(false)
         else if (id.indexOf("image:") === 0)
             ImageService.remove(id.slice(6))
+        else if (PluginService.isPluginId(id)) {
+            const st = PluginService.stateFor(id)
+            if (st)
+                st.setShown(false)
+        }
     }
 
     // ===== Lock all =====
@@ -910,7 +946,7 @@ Singleton {
 
         // Move a widget from the monitor being edited (or the focused one) to another monitor:
         //   qs -c sekaipop ipc call desktopedit movewidget lyrics DP-2
-        // ids: clock, usercard, weathercard, calendarcard, palettecard, lyrics
+        // ids: clock, usercard, weathercard, calendarcard, palettecard, lyrics, plugin:<id>
         function movewidget(id: string, screen: string): string {
             return root.moveWidget(id, screen) ? "moved " + id + " to " + screen : "nothing moved";
         }
