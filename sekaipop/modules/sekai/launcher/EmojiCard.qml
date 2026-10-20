@@ -211,7 +211,7 @@ PhoneCard {
             height: tray.faceH - 28
             clip: true
 
-            WheelScroll { scroller: grid }
+            WheelScroll { scroller: grid ; step: 60; pixelFactor: 6.5 ; smooth: true }
             GridView {
                 id: grid
 
