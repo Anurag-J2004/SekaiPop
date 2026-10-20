@@ -532,27 +532,23 @@ Item {
         // a re-pick underneath it.
         Rectangle {
             id: bannerRemove
-            // Both mouse areas, not just bannerArea: once the cursor
-            // reaches the badge, bannerRemoveArea sits on top and
-            // "steals" hover from bannerArea underneath it, so
-            // bannerArea.containsMouse alone drops to false, the badge
-            // disappears, the cursor is back over plain bannerArea,
-            // containsMouse flips true again, the badge reappears --
-            // and repeats every frame the cursor holds still on it.
+            // Same fix as ever: include bannerRemoveArea's own hover so the badge doesn't fight
+            // itself for visibility once the cursor is on it.
+            // Two clicks to remove (the picture's stored copy is deleted, there is no
+            // getting it back): the first arms the badge, which widens into "Remove?",
+            // the second removes. Leaving it, or 3 s, disarms it.
+            property bool armed: false
             visible: bannerImage.status === Image.Ready
                 && (bannerArea.containsMouse || bannerRemoveArea.containsMouse)
-            // Nudged down/left from a plain 12px corner inset — the
-            // banner's own topRightRadius (74) eats into that corner
-            // more than the badge accounted for, pushing it past the
-            // phone's own frame. Sits below the internet-speed readout
-            // (top-right, see speedBlock) rather than on top of it.
+            onVisibleChanged: if (!visible) armed = false
+            // Right-aligned, so it grows to the left when armed; below the speed readout.
             x: banner.width - width - 24
             y: 84
-            width: 32
+            width: armed ? bannerRemoveLabel.implicitWidth + 32 + 6 : 32
             height: 32
-            radius: width / 2
-            color: mt.pLine
-            opacity: bannerRemoveArea.containsMouse ? 1 : 0.8
+            radius: height / 2
+            color: armed ? ScrapbookTheme.accentPink : mt.pLine
+            opacity: bannerRemoveArea.containsMouse || armed ? 1 : 0.8
             antialiasing: true
 
             Behavior on opacity {
@@ -560,13 +556,40 @@ Item {
                     duration: 120
                 }
             }
+            Behavior on width {
+                NumberAnimation {
+                    duration: 140
+                    easing.type: Easing.OutCubic
+                }
+            }
 
-            MaterialIcon {
-                name: "close"
-                size: 18
-                fill: 1
-                color: "white"
+            Row {
                 anchors.centerIn: parent
+                spacing: 4
+                MaterialIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: bannerRemove.armed ? "delete" : "close"
+                    size: 18
+                    fill: 1
+                    color: bannerRemove.armed ? mt.colBorder : "white"
+                }
+                Text {
+                    id: bannerRemoveLabel
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: bannerRemove.armed
+                    text: "Remove?"
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
+                    font.pixelSize: 18 - 3
+                    font.weight: Font.ExtraBold
+                    font.styleName: mt.fontStyleBold
+                }
+            }
+
+            Timer {
+                interval: 3000
+                running: bannerRemove.armed
+                onTriggered: bannerRemove.armed = false
             }
 
             MouseArea {
@@ -574,7 +597,14 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: face.bannerResetRequested()
+                onClicked: {
+                    if (bannerRemove.armed) {
+                        bannerRemove.armed = false
+                        face.bannerResetRequested()
+                    } else {
+                        bannerRemove.armed = true
+                    }
+                }
             }
         }
     }
@@ -796,18 +826,23 @@ Item {
         // spot) so it doesn't cover the white ring's top edge.
         Rectangle {
             id: avatarRemove
-            // Same fix as bannerRemove: include avatarRemoveArea's own
-            // hover so the badge doesn't fight itself for visibility
-            // once the cursor is sitting on top of it.
+            // Same fix as ever: include avatarRemoveArea's own hover so the badge doesn't fight
+            // itself for visibility once the cursor is on it.
+            // Two clicks to remove (the picture's stored copy is deleted, there is no
+            // getting it back): the first arms the badge, which widens into "Remove?",
+            // the second removes. Leaving it, or 3 s, disarms it.
+            property bool armed: false
             visible: avatarImage.status === Image.Ready
                 && (avatarArea.containsMouse || avatarRemoveArea.containsMouse)
+            onVisibleChanged: if (!visible) armed = false
+            // Bottom-right of the circle, growing to the left when armed.
             x: avatar.width - width - 2
             y: avatar.height - height - 2
-            width: 28
+            width: armed ? avatarRemoveLabel.implicitWidth + 28 + 6 : 28
             height: 28
-            radius: width / 2
-            color: mt.pLine
-            opacity: avatarRemoveArea.containsMouse ? 1 : 0.8
+            radius: height / 2
+            color: armed ? ScrapbookTheme.accentPink : mt.pLine
+            opacity: avatarRemoveArea.containsMouse || armed ? 1 : 0.8
             antialiasing: true
 
             Behavior on opacity {
@@ -815,13 +850,40 @@ Item {
                     duration: 120
                 }
             }
+            Behavior on width {
+                NumberAnimation {
+                    duration: 140
+                    easing.type: Easing.OutCubic
+                }
+            }
 
-            MaterialIcon {
-                name: "close"
-                size: 16
-                fill: 1
-                color: "white"
+            Row {
                 anchors.centerIn: parent
+                spacing: 4
+                MaterialIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: avatarRemove.armed ? "delete" : "close"
+                    size: 16
+                    fill: 1
+                    color: avatarRemove.armed ? mt.colBorder : "white"
+                }
+                Text {
+                    id: avatarRemoveLabel
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: avatarRemove.armed
+                    text: "Remove?"
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
+                    font.pixelSize: 16 - 3
+                    font.weight: Font.ExtraBold
+                    font.styleName: mt.fontStyleBold
+                }
+            }
+
+            Timer {
+                interval: 3000
+                running: avatarRemove.armed
+                onTriggered: avatarRemove.armed = false
             }
 
             MouseArea {
@@ -829,7 +891,14 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: face.avatarResetRequested()
+                onClicked: {
+                    if (avatarRemove.armed) {
+                        avatarRemove.armed = false
+                        face.avatarResetRequested()
+                    } else {
+                        avatarRemove.armed = true
+                    }
+                }
             }
         }
     }

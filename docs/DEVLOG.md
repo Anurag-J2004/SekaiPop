@@ -4,6 +4,14 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — The banner and avatar remove badges ask first
+
+**Run on a live Quickshell:** only that the panel loads clean before this entry. Checked: `qmllint`; the JS tests give the same results as `main`.
+
+- Why: the small clear badge on the Quick Panel's banner and avatar removed the picture on one click, and the stored copy is deleted (`PanelImages.clear`), so a misclick lost it for good.
+- Changed (`quickPanel/QuickPanelFace.qml`, both badges): `armed`. The first click arms the badge: it widens leftwards into a pink pill with a bin icon and "Remove?" (`ScrapbookTheme.accentPink`, `colBorder` ink); the second click removes. It disarms when it hides (the pointer left the picture) or after 3 s.
+- **To check:** hover the banner, click the badge once: "Remove?", nothing removed; move away: back to the x, picture kept; click twice: removed. Same on the avatar.
+
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), dark mode, Phone wallpaper on Desktop (the default through the old switch): the Quick screen draws the monitor's wallpaper behind see-through cards, the name under the avatar reads white with a dark edge, the empty card shows its line, the log stays clean. Checked: `tests/phone-test/phone_wallpaper_test.js` (new) and `tests/launcher-test/lcd_source_test.js`; the other JS tests give the same results as `main` (the same 8 fail). **Not checked live:** the Settings row itself (Off / Desktop / A picture, Change the phone's picture), picking a picture through the chooser, light mode, and the cards with a long notification list over the wallpaper.
