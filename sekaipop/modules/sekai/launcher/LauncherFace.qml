@@ -251,13 +251,12 @@ Item {
     }
 
     // ===== the wallpaper, as an LCD (LauncherLcd.qml) =====
-    // Settings -> General -> Launcher & lock -> Launcher wallpaper. The monitor's own
-    // wallpaper (a video's first frame for a video wallpaper) washed out under a fine
+    // Settings -> General -> Quick Panel -> Phone wallpaper, the same one the Quick
+    // screen shows (PanelImages.phoneWallpaperFor): the monitor's own wallpaper (a
+    // video's first frame for a video wallpaper) or a picture of your own, under a fine
     // pixel mesh, in the shape of the phone's glass. Under everything below (z), and
-    // not there at all with the switch off or while the wallpaper is not known yet.
-    readonly property string lcdPath: SettingsService.flag("launcher.lcdWallpaper")
-                                      ? WallpaperService.imageFor(WallpaperService.pathFor(face.screenName))
-                                      : ""
+    // not there at all with it off or while the picture is not known yet.
+    readonly property string lcdPath: PanelImages.phoneWallpaperFor(face.screenName)
 
     // The wallpaper is shown near full strength, so the app names and "No apps match"
     // are white with a thin dark edge while it is there (no chip behind them). (The

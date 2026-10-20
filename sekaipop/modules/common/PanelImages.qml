@@ -5,7 +5,8 @@ import QtQuick
 import qs.services
 
 // The avatar and banner pictures — picked by clicking them on the Quick
-// Panel (QuickPanelFace.qml -> QuickPanel.qml -> pick()). A file chooser opens, the chosen
+// Panel (QuickPanelFace.qml -> QuickPanel.qml -> pick()) — and the phone's own
+// wallpaper (Settings > General > Quick Panel > Phone wallpaper). A file chooser opens, the chosen
 // picture is copied into ~/.local/share/sekaipop/ and shown; it's found
 // again there the next time the shell starts. The chooser itself and the
 // copying are pick-image.sh's job.
@@ -25,13 +26,21 @@ import qs.services
 //   busy              true while a chooser is open — QuickPanel drops its
 //                     click-away grab meanwhile, or the chooser window
 //                     taking focus would close the panel
-//   pick(kind)        open the chooser for "avatar" or "banner"
+//   phone / phonePath the phone's own wallpaper, the same way ("" for none)
+//   phoneMode         what the phone's screens (Quick and Apps) show behind
+//                     them: "off", "desktop" (the monitor's wallpaper) or
+//                     "picture" (phonePath)
+//   phoneWallpaperFor(monitor)
+//                     the picture they show on that monitor, as a file path
+//                     ("" for none: off, or nothing picked / known yet)
+//   pick(kind)        open the chooser for "avatar", "banner" or "phone"
 //   clear(kind)       forget the picked picture (right-click on it)
 Singleton {
     id: root
 
     property string avatar: ""
     property string banner: ""
+    property string phone: ""
     property bool loaded: false
 
     // The file path behind a file:// URL made by urlFor() ("" for none).
@@ -47,12 +56,31 @@ Singleton {
 
     readonly property string avatarPath: pathFor(avatar)
     readonly property string bannerPath: pathFor(banner)
+    readonly property string phonePath: pathFor(phone)
+
+    // `phone.wallpaper`, "" until it has been chosen once: then the Apps screen's
+    // old on / off switch (`launcher.lcdWallpaper`, from before the home screen had
+    // a wallpaper) says it, so whoever had turned that off keeps a plain phone.
+    readonly property string phoneMode: {
+        const m = SettingsService.get("phone.wallpaper")
+        if (m === "off" || m === "desktop" || m === "picture")
+            return m
+        return SettingsService.flag("launcher.lcdWallpaper") ? "desktop" : "off"
+    }
+
+    function phoneWallpaperFor(screenName) {
+        if (root.phoneMode === "picture")
+            return root.phonePath
+        if (root.phoneMode === "desktop")
+            return WallpaperService.imageFor(WallpaperService.pathFor(screenName))
+        return ""
+    }
 
     readonly property bool busy: picker.running
 
     readonly property string script: Directories.script("images/pick-image.sh")
 
-    // Settings > General > Quick Panel > Avatar & banner picker. "auto" (or anything
+    // Settings > General > Quick Panel > Picture picker. "auto" (or anything
     // unknown) leaves the choice to pick-image.sh; a name is tried first there.
     readonly property string chooser: {
         const c = SettingsService.get("files.chooser")
@@ -70,6 +98,8 @@ Singleton {
             avatar = urlFor(path)
         else if (kind === "banner")
             banner = urlFor(path)
+        else if (kind === "phone")
+            phone = urlFor(path)
     }
 
     function pick(kind) {
@@ -110,8 +140,12 @@ Singleton {
         stdout: StdioCollector {
             onStreamFinished: {
                 const path = text.trim()
-                if (path !== "")
-                    root.assign(picker.kind, path)
+                if (path === "")
+                    return
+                root.assign(picker.kind, path)
+                // Picking a phone wallpaper is asking to see it.
+                if (picker.kind === "phone")
+                    SettingsService.set("phone.wallpaper", "picture")
             }
         }
     }

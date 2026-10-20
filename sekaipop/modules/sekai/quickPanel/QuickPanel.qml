@@ -2405,6 +2405,7 @@ Scope {
                         // drawn at (see PhoneBody.renderScale above), for
                         // the face's own masked banner / avatar layers.
                         renderScale: phone.renderScale
+                        wallpaperPath: PanelImages.phoneWallpaperFor(root.targetScreen ? root.targetScreen.name : "")
                         bannerSource: PanelImages.banner !== "" ? PanelImages.banner : root.bannerSource
                         avatarSource: PanelImages.avatar !== "" ? PanelImages.avatar : root.avatarSource
                         onBannerPickRequested: PanelImages.pick("banner")

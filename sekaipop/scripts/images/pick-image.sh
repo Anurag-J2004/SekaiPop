@@ -1,14 +1,17 @@
 #!/bin/sh
 
 # Helper for PanelImages.qml: lets you pick the Quick Panel's avatar and
-# banner pictures with a normal file chooser, and keeps them.
+# banner pictures, and the phone's own wallpaper, with a normal file chooser,
+# and keeps them.
 #
-#   pick-image.sh pick  avatar|banner   open a file chooser; the chosen
+#   pick-image.sh pick  avatar|banner|phone
+#                                       open a file chooser; the chosen
 #                                       picture is copied into the data
 #                                       folder and its path is printed
 #   pick-image.sh load                  print "<kind> <path>" for each
 #                                       picture already picked
-#   pick-image.sh clear avatar|banner   forget one (back to the default)
+#   pick-image.sh clear avatar|banner|phone
+#                                       forget one (back to the default)
 #
 # The pictures live in ${XDG_DATA_HOME:-~/.local/share}/sekaipop/ (copied,
 # so moving or deleting the original doesn't break the panel). Each pick
@@ -18,7 +21,7 @@
 # The chooser is the first of kdialog, zenity or yad that's installed. kdialog
 # comes first because it opens its own window at once; GTK4 zenity goes through
 # the desktop portal, which can take seconds to wake up. Settings > General >
-# Quick Panel > "Avatar & banner picker" sets SEKAIPOP_CHOOSER (kdialog, zenity
+# Quick Panel > "Picture picker" sets SEKAIPOP_CHOOSER (kdialog, zenity
 # or yad) to try one of them first; "Auto" leaves it unset. A chooser that is
 # not installed is skipped, so a wrong choice never leaves you without one.
 #
@@ -32,13 +35,13 @@ dir="${XDG_DATA_HOME:-$HOME/.local/share}/sekaipop"
 here=$(cd "$(dirname "$0")" && pwd)
 
 case "$kind" in
-    avatar|banner|"") ;;
+    avatar|banner|phone|"") ;;
     *) echo "unknown kind: $kind" >&2; exit 2 ;;
 esac
 
 case "$mode" in
     load)
-        for k in avatar banner; do
+        for k in avatar banner phone; do
             f=$(ls -1t "$dir/$k"-* 2>/dev/null | head -n 1)
             [ -n "$f" ] && printf '%s %s\n' "$k" "$f"
         done
@@ -49,16 +52,16 @@ case "$mode" in
         exit 0
         ;;
     pick) ;;
-    *) echo "usage: $0 pick|load|clear [avatar|banner]" >&2; exit 2 ;;
+    *) echo "usage: $0 pick|load|clear [avatar|banner|phone]" >&2; exit 2 ;;
 esac
 
 [ -n "$kind" ] || exit 2
 
-if [ "$kind" = avatar ]; then
-    title="Choose your avatar"
-else
-    title="Choose your banner"
-fi
+case "$kind" in
+    avatar) title="Choose your avatar" ;;
+    banner) title="Choose your banner" ;;
+    phone) title="Choose the phone's wallpaper" ;;
+esac
 
 # Start in the Pictures folder if there is one.
 start=$(xdg-user-dir PICTURES 2>/dev/null)
