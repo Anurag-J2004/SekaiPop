@@ -29,45 +29,53 @@ function plainValue(v) {
     return typeof v === "string" || typeof v === "boolean" || (typeof v === "number" && isFinite(v))
 }
 
-// parse(text, folder) -> { ok: true, plugin } or { ok: false, id, error }
+// parse(text, folder) -> { ok: true, plugin } or { ok: false, id, error, code, field }
 // `plugin` is the manifest with every optional field filled in, so nothing downstream has
 // to guess:
-//   { id, name, version, api, description, icon, frame, cloneable, settings, secrets }
+//   { id, name, version, api, description, icon, frame, cloneable, settings, secrets,
+//     settingsInfo, groups }
+// `code` says what kind of problem `error` is, so Settings can say it in plain words and name
+// who has to fix it (PluginForm.skipInfo) without matching the message's text:
+//   folder   the folder's name can't be an id        id       id and folder differ
+//   json     plugin.json is not JSON                 object   it is JSON but not an object
+//   api-new  written for a newer shell               api-old  written for an older one
+//   field    a field is missing or wrong (`field` names it)
+//   missing  no plugin.json at all (only from scan())
 function parse(text, folder) {
-    var bad = function (msg) {
-        return { ok: false, id: folder, error: msg }
+    var bad = function (code, msg, field) {
+        return { ok: false, id: folder, error: msg, code: code, field: field || "" }
     }
     if (!ID_RE.test(folder))
-        return bad("the folder name must be lower case letters, digits and dashes (it is the plugin's id)")
+        return bad("folder", "the folder name must be lower case letters, digits and dashes (it is the plugin's id)")
     var m
     try {
         m = JSON.parse(text)
     } catch (e) {
-        return bad("plugin.json is not valid JSON")
+        return bad("json", "plugin.json is not valid JSON")
     }
     if (!isObj(m))
-        return bad("plugin.json must be an object")
+        return bad("object", "plugin.json must be an object")
     if (m.id !== folder)
-        return bad("plugin.json says id \"" + m.id + "\" but its folder is \"" + folder + "\"; they must match")
+        return bad("id", "plugin.json says id \"" + m.id + "\" but its folder is \"" + folder + "\"; they must match")
     if (typeof m.name !== "string" || m.name.trim() === "")
-        return bad("plugin.json needs a name")
+        return bad("field", "plugin.json needs a name", "name")
     if (typeof m.version !== "string" || m.version === "")
-        return bad("plugin.json needs a version (a string)")
+        return bad("field", "plugin.json needs a version (a string)", "version")
     if (typeof m.api !== "number" || Math.floor(m.api) !== m.api)
-        return bad("plugin.json needs `api`: the plugin interface version it was written for (this shell speaks " + API_VERSION + ")")
+        return bad("field", "plugin.json needs `api`: the plugin interface version it was written for (this shell speaks " + API_VERSION + ")", "api")
     if (SUPPORTED.indexOf(m.api) < 0)
-        return bad("written for plugin api " + m.api + ", this shell speaks " + SUPPORTED.join(", ")
+        return bad(m.api > API_VERSION ? "api-new" : "api-old", "written for plugin api " + m.api + ", this shell speaks " + SUPPORTED.join(", ")
             + (m.api > API_VERSION ? " (update SekaiPop)" : " (update the plugin)"))
 
     var settings = {}
     if (m.settings !== undefined) {
         if (!isObj(m.settings))
-            return bad("`settings` must be an object of name: default value")
+            return bad("field", "`settings` must be an object of name: default value", "settings")
         for (var k in m.settings) {
             if (!KEY_RE.test(k))
-                return bad("setting \"" + k + "\": names are letters, digits and _")
+                return bad("field", "setting \"" + k + "\": names are letters, digits and _", "settings." + k)
             if (!plainValue(m.settings[k]))
-                return bad("setting \"" + k + "\": a default is a string, a number or true / false")
+                return bad("field", "setting \"" + k + "\": a default is a string, a number or true / false", "settings." + k)
             settings[k] = m.settings[k]
         }
     }
@@ -75,13 +83,13 @@ function parse(text, folder) {
     var secrets = {}
     if (m.secrets !== undefined) {
         if (!isObj(m.secrets))
-            return bad("`secrets` must be an object of name: { env, file }")
+            return bad("field", "`secrets` must be an object of name: { env, file }", "secrets")
         for (var s in m.secrets) {
             var d = m.secrets[s]
             if (!KEY_RE.test(s))
-                return bad("secret \"" + s + "\": names are letters, digits and _")
+                return bad("field", "secret \"" + s + "\": names are letters, digits and _", "secrets." + s)
             if (!isObj(d) || (typeof d.env !== "string" && typeof d.file !== "string"))
-                return bad("secret \"" + s + "\": say where it is read from, `env` and / or `file`")
+                return bad("field", "secret \"" + s + "\": say where it is read from, `env` and / or `file`", "secrets." + s)
             secrets[s] = {
                 env: typeof d.env === "string" ? d.env : "",
                 file: typeof d.file === "string" ? d.file : ""
@@ -105,9 +113,82 @@ function parse(text, folder) {
             // A copy on more than one monitor (EditMode's "one widget, several monitors").
             cloneable: m.cloneable !== false,
             settings: settings,
-            secrets: secrets
+            secrets: secrets,
+            settingsInfo: readSettingsInfo(m.settingsInfo, settings),
+            groups: readGroups(m.groups)
         }
     }
+}
+
+// `settingsInfo` (optional, added within api 1): how Settings draws each setting.
+//   { key: { label, description, group, min, max, step, unit, choices, multiline } }
+// It only describes; the setting's type is still its default's. So it is read leniently: a
+// field that is wrong for its setting is dropped and the rest kept, and a wrong `settingsInfo`
+// never skips a plugin that works. Only settings the manifest declares are kept.
+function readSettingsInfo(raw, settings) {
+    var out = {}
+    if (!isObj(raw))
+        return out
+    var text = function (v) {
+        return typeof v === "string" && v.trim() !== "" ? v.trim() : ""
+    }
+    var num = function (v) {
+        return typeof v === "number" && isFinite(v)
+    }
+    for (var k in settings) {
+        var d = raw[k]
+        if (!isObj(d))
+            continue
+        var t = typeof settings[k]
+        var o = {}
+        if (text(d.label))
+            o.label = text(d.label)
+        if (text(d.description))
+            o.description = text(d.description)
+        if (text(d.group))
+            o.group = text(d.group)
+        if (t === "number") {
+            if (num(d.min) && num(d.max) && d.min < d.max) {
+                o.min = d.min
+                o.max = d.max
+            }
+            if (num(d.step) && d.step > 0)
+                o.step = d.step
+            if (text(d.unit))
+                o.unit = text(d.unit)
+        }
+        if (t === "string") {
+            if (Array.isArray(d.choices)) {
+                var cs = []
+                for (var i = 0; i < d.choices.length; i++) {
+                    var c = d.choices[i]
+                    if (typeof c === "string")
+                        cs.push({ value: c, label: c })
+                    else if (isObj(c) && typeof c.value === "string")
+                        cs.push({ value: c.value, label: text(c.label) || c.value })
+                }
+                if (cs.length > 0)
+                    o.choices = cs
+            }
+            if (d.multiline === true && !o.choices)
+                o.multiline = true
+        }
+        out[k] = o
+    }
+    return out
+}
+
+// `groups` (optional): the order of the group headings in Settings.
+function readGroups(raw) {
+    var out = []
+    if (!Array.isArray(raw))
+        return out
+    for (var i = 0; i < raw.length; i++) {
+        var g = typeof raw[i] === "string" ? raw[i].trim() : ""
+        if (g !== "" && out.indexOf(g) < 0)
+            out.push(g)
+    }
+    return out
 }
 
 // The manifest's defaults with the user's saved values on top. A saved value only counts
@@ -157,7 +238,7 @@ function splitScan(out) {
     return recs
 }
 
-// scan(out) -> { plugins: [plugin], skipped: [{ id, error }] }, sorted by id so the shelf
+// scan(out) -> { plugins: [plugin], skipped: [{ id, error, code, field }] }, sorted by id so the shelf
 // keeps one order.
 function scan(out) {
     var plugins = []
@@ -167,14 +248,14 @@ function scan(out) {
     for (var i = 0; i < recs.length; i++) {
         var r = recs[i]
         if (r.text.trim() === "") {
-            skipped.push({ id: r.folder, error: "no plugin.json" })
+            skipped.push({ id: r.folder, error: "no plugin.json", code: "missing", field: "" })
             continue
         }
         var p = parse(r.text, r.folder)
         if (p.ok)
             plugins.push(p.plugin)
         else
-            skipped.push({ id: p.id, error: p.error })
+            skipped.push({ id: p.id, error: p.error, code: p.code, field: p.field })
     }
     return { plugins: plugins, skipped: skipped }
 }

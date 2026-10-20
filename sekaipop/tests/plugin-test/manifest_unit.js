@@ -17,7 +17,7 @@ let r = parse(good)
 assert.strictEqual(r.ok, true)
 assert.deepStrictEqual(r.plugin, {
     id: "hello", name: "Hello", version: "1.0.0", api: 1, description: "", icon: "extension",
-    frame: true, cloneable: true, settings: {}, secrets: {}
+    frame: true, cloneable: true, settings: {}, secrets: {}, settingsInfo: {}, groups: []
 })
 r = parse(Object.assign({}, good, { icon: "waving_hand", frame: false, cloneable: false, description: "d", name: "  Hi  " }))
 assert.deepStrictEqual([r.plugin.icon, r.plugin.frame, r.plugin.cloneable, r.plugin.description, r.plugin.name],
@@ -43,11 +43,48 @@ assert.match(err(Object.assign({}, good, { settings: { n: null } })), /a default
 assert.match(err(Object.assign({}, good, { secrets: { token: "MY_TOKEN" } })), /`env` and \/ or `file`/)
 assert.match(err(Object.assign({}, good, { secrets: { token: {} } })), /`env` and \/ or `file`/)
 assert.deepStrictEqual(PM.SUPPORTED.indexOf(PM.API_VERSION) >= 0, true, "the shell speaks its own api")
+// every refusal carries a code, so Settings can say it in plain words without reading the text
+const code = (m, folder) => { const x = parse(m, folder); assert.strictEqual(x.ok, false); return [x.code, x.field] }
+assert.deepStrictEqual(code(good, "Hello"), ["folder", ""])
+assert.deepStrictEqual(code("{nope"), ["json", ""])
+assert.deepStrictEqual(code("[1]"), ["object", ""])
+assert.deepStrictEqual(code(Object.assign({}, good, { id: "other" })), ["id", ""])
+assert.deepStrictEqual(code(Object.assign({}, good, { version: 1 })), ["field", "version"])
+assert.deepStrictEqual(code(Object.assign({}, good, { api: PM.API_VERSION + 1 })), ["api-new", ""])
+assert.deepStrictEqual(code(Object.assign({}, good, { api: 0 })), ["api-old", ""])
+assert.deepStrictEqual(code(Object.assign({}, good, { settings: { n: null } })), ["field", "settings.n"])
+assert.deepStrictEqual(code(Object.assign({}, good, { secrets: { token: {} } })), ["field", "secrets.token"])
 
 // settings and secrets that are fine
 r = parse(Object.assign({}, good, { settings: { greeting: "Hi", n: 3, on: false }, secrets: { token: { env: "T" }, key: { file: "~/k" } } }))
 assert.deepStrictEqual(r.plugin.settings, { greeting: "Hi", n: 3, on: false })
 assert.deepStrictEqual(r.plugin.secrets, { token: { env: "T", file: "" }, key: { env: "", file: "~/k" } })
+
+// settingsInfo and groups: read leniently, never a reason to skip a plugin that works
+r = parse(Object.assign({}, good, {
+    settings: { url: "x", every: 5, style: "cards", notes: "", on: true },
+    settingsInfo: {
+        url: { label: " Server address ", description: "Where it lives.", group: "Connection", min: 1 },
+        every: { label: "Check every", min: 1, max: 60, step: 1, unit: "minutes", group: "Connection", choices: ["a"] },
+        style: { choices: [{ value: "cards", label: "Cards" }, "list", { label: "no value" }, 3] },
+        notes: { multiline: true, label: "" },
+        on: "not an object",
+        gone: { label: "not a declared setting" }
+    },
+    groups: ["Connection", " Look ", "Look", 7, ""]
+}))
+assert.strictEqual(r.ok, true)
+assert.deepStrictEqual(r.plugin.settingsInfo, {
+    url: { label: "Server address", description: "Where it lives.", group: "Connection" },
+    every: { label: "Check every", min: 1, max: 60, step: 1, unit: "minutes", group: "Connection" },
+    style: { choices: [{ value: "cards", label: "Cards" }, { value: "list", label: "list" }] },
+    notes: { multiline: true }
+}, "fields that do not fit the setting's type are dropped, the rest kept")
+assert.deepStrictEqual(r.plugin.groups, ["Connection", "Look"])
+r = parse(Object.assign({}, good, { settings: { n: 1 }, settingsInfo: { n: { min: 5, max: 1 } }, groups: "Look" }))
+assert.deepStrictEqual([r.ok, r.plugin.settingsInfo, r.plugin.groups], [true, { n: {} }, []], "a backwards range is no range")
+r = parse(Object.assign({}, good, { settingsInfo: [1, 2] }))
+assert.deepStrictEqual([r.ok, r.plugin.settingsInfo], [true, {}])
 
 // ---------- 3. saved settings never hand the widget what it did not ask for ----------
 const defs = { greeting: "Hi", n: 3, on: false }
@@ -81,6 +118,7 @@ const s = PM.scan(out)
 assert.deepStrictEqual(s.plugins.map(p => p.id), ["alpha", "zeta"], "sorted by id, the good ones only")
 assert.deepStrictEqual(s.skipped.map(x => x.id), ["Bad Name", "empty", "future"])
 assert.match(s.skipped.find(x => x.id === "empty").error, /no plugin.json/)
+assert.deepStrictEqual(s.skipped.map(x => x.code), ["folder", "missing", "api-new"])
 assert.deepStrictEqual(PM.scan(""), { plugins: [], skipped: [] })
 assert.deepStrictEqual(PM.splitScan("\x1ea\nline1\nline2\n"), [{ folder: "a", text: "line1\nline2\n" }], "a manifest keeps its own newlines")
 

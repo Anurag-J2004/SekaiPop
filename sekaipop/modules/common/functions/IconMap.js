@@ -60,6 +60,8 @@ const map = {
     category: "widget-3",
     view_quilt: "widget",
     extension: "widget-add",
+    extension_off: "link-broken",
+    menu_book: "book",
     view_column: "posts-carousel-horizontal",
     view_carousel: "posts-carousel-horizontal",
     overview: "posts-carousel-horizontal",
