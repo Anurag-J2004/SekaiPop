@@ -236,8 +236,13 @@ Singleton {
             return lines.join("\n")
         }
 
+        // Also reads every plugin's secret files again: a plugin whose manifest did not
+        // change keeps its state, so without this a token put in place stayed unseen.
         function reload(): void {
             root.rescan()
+            for (const id in root.states)
+                if (root.states[id])
+                    root.states[id].reloadSecrets()
         }
 
         function toggle(id: string): void {

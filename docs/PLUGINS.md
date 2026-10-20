@@ -36,7 +36,7 @@ notification saying why; `ipc call plugins list` and the Plugins card in Setting
 
 ```sh
 qs -c sekaipop ipc call plugins list                   # every plugin, on / off, and why one was skipped
-qs -c sekaipop ipc call plugins reload                 # look in the folder again
+qs -c sekaipop ipc call plugins reload                 # look in the folder again, read secret files again
 qs -c sekaipop ipc call plugins toggle <id>            # also: show <id>, hide <id>
 qs -c sekaipop ipc call plugins set <id> <key> <value> # change a setting
 qs -c sekaipop ipc call plugins resetPosition <id>     # if it ends up off-screen
