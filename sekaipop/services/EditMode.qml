@@ -33,7 +33,8 @@ import qs.modules.common
 // same `progress`. `progress` is the one animated number (0 = the normal
 // desktop, 1 = the card); the rest of this file is arithmetic on it.
 //
-//   EditMode.open("DP-1")      start editing that monitor
+//   EditMode.open("DP-1")      start editing that monitor (not while an application is on its
+//                              active workspace: a notice says to go to an empty one)
 //   EditMode.close()
 //   EditMode.openMenu(screen, x, y)   the right-click menu (DesktopMenu.qml)
 //
@@ -448,13 +449,51 @@ Singleton {
         root.menuOpen = false
     }
 
+    // ===== not on a workspace with applications =====
+    // Edit Desktop is for the desktop itself, so it does not start while an application is on
+    // the monitor's active workspace (go to an empty one first). A window that is pinned, hidden
+    // or not mapped (a minimised one) does not count. Read from Quickshell's own Hyprland
+    // models, so the answer is there at once and nothing is spawned.
+    function appsOn(name) {
+        const m = Hyprland.monitors.values.find(x => x.name === name)
+        const ws = m && m.activeWorkspace ? m.activeWorkspace.id : 0
+        if (ws <= 0)
+            return false
+        const tl = Hyprland.toplevels.values
+        for (let i = 0; i < tl.length; i++) {
+            const o = tl[i].lastIpcObject || {}
+            if (!tl[i].workspace || tl[i].workspace.id !== ws)
+                continue
+            if (o.mapped === false || o.hidden === true || o.pinned === true)
+                continue
+            return true
+        }
+        return false
+    }
+
+    // One short notice, not one per key press.
+    property double lastRefusal: 0
+
+    function refuse() {
+        const now = Date.now()
+        if (now - root.lastRefusal < 2500)
+            return
+        root.lastRefusal = now
+        Quickshell.execDetached(["notify-send", "-a", "Shell", "-i", "material:edit_off",
+            "Edit Desktop", "Go to an empty workspace to edit the desktop."])
+    }
+
     function open(screen, tab) {
         if (root.active || LockState.locked || GameModeService.enabled)
             return
-        root.requestedTab = (typeof tab === "string" && tab !== "") ? tab : "widgets"
         const name = (typeof screen === "string" && screen !== "") ? screen : root.focusedScreenName()
         if (name === "")
             return
+        if (root.appsOn(name)) {
+            root.refuse()
+            return
+        }
+        root.requestedTab = (typeof tab === "string" && tab !== "") ? tab : "widgets"
         root.menuOpen = false
         root.editTarget = ""
         root.screenName = name
