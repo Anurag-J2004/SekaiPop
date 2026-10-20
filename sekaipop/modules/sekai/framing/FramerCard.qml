@@ -25,7 +25,8 @@ Item {
     // Just picked: it starts centred and the card says so.
     property bool fresh: false
 
-    signal finished()
+    // `saved`: Done (true) or Cancel / Esc (false).
+    signal finished(bool saved)
 
     implicitWidth: 1010
     implicitHeight: 720
@@ -88,12 +89,13 @@ Item {
         root.panY = 0
     }
     function cancel() {
-        // A picture just picked stays picked (centred); only the framing is undone.
-        root.finished()
+        // Everything is left as it was: the framing, and a picture just picked is put
+        // back to the one it replaced (PanelImages.closeFramer).
+        root.finished(false)
     }
     function done() {
         PanelImages.setFraming(root.kind, root.current)
-        root.finished()
+        root.finished(true)
     }
 
     Image {

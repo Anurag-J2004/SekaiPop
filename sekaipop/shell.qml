@@ -652,7 +652,7 @@ ShellRoot {
         }
 
         function close(): void {
-            PanelImages.closeFramer()
+            PanelImages.closeFramer(false)
         }
 
         function unframe(kind: string): void {

@@ -71,7 +71,7 @@ PanelWindow {
             scale: holder.s
             kind: PanelImages.framing !== "" ? PanelImages.framing : "banner"
             fresh: PanelImages.framingFresh
-            onFinished: PanelImages.closeFramer()
+            onFinished: saved => PanelImages.closeFramer(saved)
         }
     }
 

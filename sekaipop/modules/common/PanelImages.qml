@@ -124,9 +124,32 @@ Singleton {
         root.framingSeq++
     }
 
-    function closeFramer() {
+    // A picture just picked, until the framer it opened is closed: Done keeps it (and
+    // drops the one it replaced), Cancel puts the old one back (and its phone mode).
+    //   { kind, prev, next, prevMode }
+    property var pending: null
+
+    function closeFramer(saved) {
+        const p = root.pending
+        if (p && p.kind === root.framing) {
+            root.pending = null
+            if (saved === true) {
+                if (p.prev !== "")
+                    root.drop(p.prev)
+            } else {
+                root.assign(p.kind, p.prev)
+                root.drop(p.next)
+                if (p.kind === "phone")
+                    SettingsService.set("phone.wallpaper", p.prevMode)
+            }
+        }
         root.framing = ""
         root.framingFresh = false
+    }
+
+    function drop(path) {
+        if (path !== "")
+            Quickshell.execDetached(["sh", root.script, "drop", path])
     }
 
     readonly property string script: Directories.script("images/pick-image.sh")
@@ -168,8 +191,12 @@ Singleton {
     property var clearQueue: []
 
     function clear(kind) {
-        if (root.framing === kind)
-            root.closeFramer()
+        if (root.pending && root.pending.kind === kind)
+            root.pending = null
+        if (root.framing === kind) {
+            root.framing = ""
+            root.framingFresh = false
+        }
         assign(kind, "")
         root.clearQueue = root.clearQueue.concat([kind])
         root.pumpClear()
@@ -189,14 +216,21 @@ Singleton {
         property string kind: ""
         property string screenName: ""
 
+        // KEEP: the picture it replaces stays until the framer is closed (see `pending`).
         command: root.chooser === ""
-            ? ["sh", root.script, "pick", kind]
-            : ["env", "SEKAIPOP_CHOOSER=" + root.chooser, "sh", root.script, "pick", kind]
+            ? ["env", "SEKAIPOP_PICK_KEEP=1", "sh", root.script, "pick", kind]
+            : ["env", "SEKAIPOP_PICK_KEEP=1", "SEKAIPOP_CHOOSER=" + root.chooser, "sh", root.script, "pick", kind]
         stdout: StdioCollector {
             onStreamFinished: {
                 const path = text.trim()
                 if (path === "")
                     return
+                // Another pick while one is still waiting in the framer: that one is let go.
+                if (root.pending && root.pending.kind === picker.kind && root.pending.next !== path)
+                    root.drop(root.pending.next)
+                const prev = root.pending && root.pending.kind === picker.kind ? root.pending.prev : root.pathOf(picker.kind)
+                const prevMode = root.pending && root.pending.kind === picker.kind ? root.pending.prevMode : String(SettingsService.get("phone.wallpaper"))
+                root.pending = { kind: picker.kind, prev: prev, next: path, prevMode: prevMode }
                 root.assign(picker.kind, path)
                 // Picking a phone wallpaper is asking to see it.
                 if (picker.kind === "phone")

@@ -76,6 +76,12 @@ Item {
     property var bannerFraming: null
     property var avatarFraming: null
 
+    // The pointer is on the banner, or on one of the keys / the badge sitting on it (each has
+    // its own MouseArea, which takes the hover away from the picture's): one answer for the
+    // tint, the keys and the badge, so moving onto a key doesn't flicker them.
+    readonly property bool bannerHovered: bannerArea.containsMouse || bannerKeys.hovered || bannerRemoveArea.containsMouse
+    readonly property bool avatarHovered: avatarArea.containsMouse || avatarFrameKey.hovered || avatarRemoveArea.containsMouse
+
     // "wifi" or "ethernet" — what the first tile is showing
     property string networkKind: "wifi"
     property bool networkOn: false
@@ -363,6 +369,13 @@ Item {
         signal clicked()
         implicitWidth: (fk.text === "" ? fk.size : fkRow.implicitWidth + 34) + 4
         implicitHeight: fk.size + 4
+        // A little see-through at rest, like the remove badge; solid under the pointer.
+        opacity: fk.hovered ? 1 : 0.8
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 120
+            }
+        }
         Rectangle {
             x: 4
             y: 4
@@ -560,7 +573,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             color: mt.pLine
-            opacity: bannerArea.containsMouse ? 0.14 : 0
+            opacity: face.bannerHovered ? 0.14 : 0
             topLeftRadius: 74
             topRightRadius: 74
             bottomLeftRadius: 50
@@ -578,7 +591,7 @@ Item {
             size: 32
             anchors.centerIn: parent
             // Only while there is no picture: with one, the Change / Frame keys say it.
-            opacity: bannerArea.containsMouse && bannerImage.status !== Image.Ready ? 1 : 0
+            opacity: face.bannerHovered && bannerImage.status !== Image.Ready ? 1 : 0
 
             Behavior on opacity {
                 NumberAnimation {
@@ -606,7 +619,7 @@ Item {
         Row {
             id: bannerKeys
             readonly property bool hovered: changeKey.hovered || frameKey.hovered
-            visible: bannerImage.status === Image.Ready && (bannerArea.containsMouse || bannerKeys.hovered)
+            visible: bannerImage.status === Image.Ready && face.bannerHovered
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin: 24
@@ -647,7 +660,7 @@ Item {
             // the second removes. Leaving it, or 3 s, disarms it.
             property bool armed: false
             visible: bannerImage.status === Image.Ready
-                && (bannerArea.containsMouse || bannerRemoveArea.containsMouse)
+                && face.bannerHovered
             onVisibleChanged: if (!visible) armed = false
             // Right-aligned, so it grows to the left when armed; below the speed readout.
             x: banner.width - width - 24
@@ -835,7 +848,7 @@ Item {
             name: "account_circle"
             size: 24
             anchors.centerIn: parent
-            visible: avatarImage.status !== Image.Ready && !avatarArea.containsMouse
+            visible: avatarImage.status !== Image.Ready && !face.avatarHovered
         }
 
         // Framed like the banner (PanelImages.framingFor("avatar")), decoded at 2x.
@@ -886,7 +899,7 @@ Item {
             anchors.margins: avatar.imgInset
             radius: width / 2
             color: mt.pLine
-            opacity: avatarArea.containsMouse ? 0.14 : 0
+            opacity: face.avatarHovered ? 0.14 : 0
 
             Behavior on opacity {
                 NumberAnimation {
@@ -900,7 +913,7 @@ Item {
             name: "stylus"
             size: 28
             anchors.centerIn: parent
-            opacity: avatarArea.containsMouse ? 1 : 0
+            opacity: face.avatarHovered ? 1 : 0
 
             Behavior on opacity {
                 NumberAnimation {
@@ -937,7 +950,7 @@ Item {
         // badge holds the bottom-right). A click on the avatar itself still changes it.
         FaceKey {
             id: avatarFrameKey
-            visible: avatarImage.status === Image.Ready && (avatarArea.containsMouse || avatarFrameKey.hovered)
+            visible: avatarImage.status === Image.Ready && face.avatarHovered
             x: -6
             y: avatar.height - height + 2
             size: 40
@@ -957,7 +970,7 @@ Item {
             // the second removes. Leaving it, or 3 s, disarms it.
             property bool armed: false
             visible: avatarImage.status === Image.Ready
-                && (avatarArea.containsMouse || avatarRemoveArea.containsMouse)
+                && face.avatarHovered
             onVisibleChanged: if (!visible) armed = false
             // Bottom-right of the circle, growing to the left when armed.
             x: avatar.width - width - 2
