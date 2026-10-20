@@ -4,6 +4,15 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
+
+**Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), dark mode, Phone wallpaper on Desktop (the default through the old switch): the Quick screen draws the monitor's wallpaper behind see-through cards, the name under the avatar reads white with a dark edge, the empty card shows its line, the log stays clean. Checked: `tests/phone-test/phone_wallpaper_test.js` (new) and `tests/launcher-test/lcd_source_test.js`; the other JS tests give the same results as `main` (the same 8 fail). **Not checked live:** the Settings row itself (Off / Desktop / A picture, Change the phone's picture), picking a picture through the chooser, light mode, and the cards with a long notification list over the wallpaper.
+
+- What it is: one setting, `phone.wallpaper` (`off` | `desktop` | `picture`), in Settings > General > Quick Panel > Phone wallpaper, for both phone screens. It replaces the Apps screen's on / off switch (`launcher.lcdWallpaper`), which still decides while the new key is unset: whoever had it off keeps a plain phone, and with it on (the default) the home screen now shows the wallpaper too.
+- A picture is picked and kept like the avatar and banner: `pick-image.sh` and `shrink-image.sh` have a `phone` kind (1600 x 3000 at most), `PanelImages.qml` holds `phone` / `phonePath`, the mode rule (`phoneMode`) and `phoneWallpaperFor(monitor)`. Choosing "A picture" with none picked opens the chooser first; only a picked picture switches it on.
+- The Quick face gets `wallpaperPath` from `QuickPanel.qml` (it stays free of Quickshell imports) and draws `LauncherLcd` at z -10, the same as the Apps screen. Over it the two cards keep 0.78 of their fill (`cardAlpha`) and the notification card's shadow is not drawn (it showed through as a dark slab).
+- The empty notifications card: an icon and one of six short lines, picked again each time the list empties (`emptyNote`).
+- Not in a preset: the picture itself (the mode is a plain setting and is carried). docs/PHONE-WALLPAPER.md.
 ## Unreleased — Click away follows the phone's shape (issue #47)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2): the projected outline was logged and drawn over screenshots of the open panel, in 2.5D and in 2D; it follows the body, the side buttons and (2D) the Power button. The log stays clean. Checked: `tests/phone-test/click_away_test.js` (new); the other JS tests give the same results as `main` (the same 8 fail). **Not checked:** the alert card (the area is off then, by design), a monitor with fractional scaling.

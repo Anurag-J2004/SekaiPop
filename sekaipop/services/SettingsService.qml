@@ -90,8 +90,11 @@ Singleton {
         "files.chooser": "auto",
         "launcher.webSuggestions": true,
         "launcher.clipboard": true,
-        // The Apps screen shows your wallpaper behind the apps, washed out and seen through an LCD's pixel mesh.
+        // The Apps screen's old on / off switch for its wallpaper; read only while phone.wallpaper is "".
         "launcher.lcdWallpaper": true,
+        // What the phone's screens show behind them: "off", "desktop" or "picture";
+        // "" = not chosen yet, launcher.lcdWallpaper decides (PanelImages.phoneMode).
+        "phone.wallpaper": "",
         "lock.blur": false,
         // The gacha lockscreen's endless sparkle animations. Off = they are not built, which saves GPU while locked.
         "lock.animations": true,
