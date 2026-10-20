@@ -4,6 +4,13 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Wallhaven's sort and filters are kept again
+
+**Run on a live Quickshell:** `ipc call options set wallhaven.sort toplist` / `topRange 1y` now read back as set (before: `undefined`). Checked: `tests/settings-test/keys_have_defaults_test.js` (new); the other JS tests give the same results as `main`.
+
+- Why: the six `wallhaven.*` defaults were dropped from `SettingsService.qml` when main was merged into the per-monitor-theme branch (31316ef, in #39). `SettingsService.set()` ignores a key it has no default for, so every choice in the sort card and the Filters card was thrown away and the getters fell back to their own defaults: Top / Latest / the period "always went back".
+- Changed: the defaults are back, as #35 had them. The new test reads every literal key the code passes to `SettingsService.get / flag / set / toggle` and fails on one without a default, so a merge cannot silently drop one again. (It found no others.)
+
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), dark mode, Phone wallpaper on Desktop (the default through the old switch): the Quick screen draws the monitor's wallpaper behind see-through cards, the name under the avatar reads white with a dark edge, the empty card shows its line, the log stays clean. Checked: `tests/phone-test/phone_wallpaper_test.js` (new) and `tests/launcher-test/lcd_source_test.js`; the other JS tests give the same results as `main` (the same 8 fail). **Not checked live:** the Settings row itself (Off / Desktop / A picture, Change the phone's picture), picking a picture through the chooser, light mode, and the cards with a long notification list over the wallpaper.

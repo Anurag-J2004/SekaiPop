@@ -213,6 +213,16 @@ Singleton {
         "wallpaper.parallax": false,    // the wallpaper drifts with the workspace
         "wallpaper.parallaxAmount": 8,  // how much bigger than the screen it is (%)
         "wallpaper.parallaxWorkspaces": 5, // how many workspaces the drift is spread over
+        // ===== Wallhaven in the Wallpapers picker (WallhavenService.qml, WallhavenMath.js) =====
+        // Remembered between visits; not part of a desktop preset (browsing, not the look).
+        // (A merge once dropped these and set() ignores a key with no default, so every
+        // choice was thrown away: tests/settings-test/keys_have_defaults_test.js guards it.)
+        "wallhaven.sort": "",           // "" = relevance for a search, the month's top without one
+        "wallhaven.topRange": "1M",
+        "wallhaven.categories": "general,anime,people",
+        "wallhaven.shape": "landscape",
+        "wallhaven.atLeast": "screen",  // "screen" = the monitor the picker is on
+        "wallhaven.colour": "",
         // ===== Matugen =====
         // The Matugen theme's knobs (Edit Desktop > THEME > Matugen; MatugenMath.js): the
         // scheme, which wallpaper colour leads (-1 = Auto), the contrast (-1 to 1), and
