@@ -12,15 +12,21 @@ import Quickshell.Services.Pipewire
 //            that records. It only counts while the default microphone is not
 //            muted (a muted mic can't hear anyone), and level meters such as
 //            pavucontrol's (stream.monitor / node.passive) are left out.
+//   audio    the same kind of stream recording what is PLAYING (an output's
+//            monitor) instead of a microphone: screen recorders with sound, a
+//            VNC / streaming audio feed... PipeWire marks them
+//            stream.capture.sink, and their target is an Audio/Sink. They are
+//            not "the microphone in use", so they are told apart, and a muted
+//            mic doesn't hide them (muting it doesn't stop them).
 //   screen   screen sharing goes through the desktop portal: the portal
 //            publishes a video source (its name has xdph / xdpw / portal /
 //            screencast in it) and the app that watches it holds a
 //            Stream/Input/Video. The app's name is read from that stream.
 //
 // What it exposes:
-//   micApps / screenApps    ["Firefox", "OBS Studio"] (names, no repeats)
-//   micLive / screenLive    booleans
-//   active                  micLive || screenLive
+//   micApps / audioApps / screenApps    ["Firefox", "OBS Studio"] (names, no repeats)
+//   micLive / audioLive / screenLive    booleans
+//   active                  any of them
 //   summary                 "Firefox", "Firefox +1", "" ...
 //
 // This reads PipeWire's property names, which differ a little between apps and
@@ -77,8 +83,27 @@ Singleton {
                 root.appName(node) + " " + root.prop(node, "media.name"))
     }
 
+    // Recording what is playing (an output's monitor), not a microphone: PipeWire's own
+    // mark, or a target that is an output.
+    function isDesktopCapture(node) {
+        if (root.prop(node, "stream.capture.sink").toLowerCase() === "true")
+            return true
+        const target = root.prop(node, "target.object") || root.prop(node, "node.target")
+        if (target === "")
+            return false
+        for (const n of root.nodes) {
+            if (root.prop(n, "node.name") === target || String(n.id) === target)
+                return root.mediaClass(n) === "Audio/Sink"
+        }
+        return false
+    }
+
     function isMicStream(node) {
-        return root.mediaClass(node) === "Stream/Input/Audio" && !root.isMeter(node)
+        return root.mediaClass(node) === "Stream/Input/Audio" && !root.isMeter(node) && !root.isDesktopCapture(node)
+    }
+
+    function isAudioCapture(node) {
+        return root.mediaClass(node) === "Stream/Input/Audio" && !root.isMeter(node) && root.isDesktopCapture(node)
     }
 
     function isScreenProducer(node) {
@@ -113,6 +138,16 @@ Singleton {
         return root.micMuted ? [] : root.unique(names)
     }
 
+    // Recording what is playing (not affected by the mic's mute).
+    readonly property var audioApps: {
+        void root.nodes
+        const names = []
+        for (const n of root.nodes)
+            if (root.isAudioCapture(n))
+                names.push(root.appName(n) || "An app")
+        return root.unique(names)
+    }
+
     // Screen sharing is "on" while the portal's source exists and something
     // watches a video stream. The watcher is the one named; with no readable
     // name it is just "An app".
@@ -130,8 +165,9 @@ Singleton {
     }
 
     readonly property bool micLive: micApps.length > 0
+    readonly property bool audioLive: audioApps.length > 0
     readonly property bool screenLive: screenApps.length > 0
-    readonly property bool active: micLive || screenLive
+    readonly property bool active: micLive || audioLive || screenLive
 
     function nameOf(list) {
         if (list.length === 0)
@@ -142,7 +178,7 @@ Singleton {
     readonly property string screenName: root.nameOf(screenApps)
     // One line for the pill: the screen first (it is the rarer one).
     readonly property string summary: {
-        const all = root.unique(screenApps.concat(micApps))
+        const all = root.unique(screenApps.concat(micApps).concat(audioApps))
         return root.nameOf(all)
     }
 
@@ -159,17 +195,20 @@ Singleton {
                     + " | media.name=" + root.prop(n, "media.name")
                     + " | app=" + root.appName(n)
                     + (root.isMicStream(n) ? " | MIC" : "")
+                    + (root.isAudioCapture(n) ? " | DESKTOP-AUDIO" : "")
                     + (root.isScreenProducer(n) ? " | SCREEN-SOURCE" : "")
                     + (root.isVideoConsumer(n) ? " | VIDEO-CONSUMER" : "")
                 lines.push(l)
                 console.log(l)
             }
-            lines.push("mic: " + JSON.stringify(root.micApps) + "  screen: " + JSON.stringify(root.screenApps))
+            lines.push("mic: " + JSON.stringify(root.micApps) + "  audio: " + JSON.stringify(root.audioApps)
+                + "  screen: " + JSON.stringify(root.screenApps))
             return lines.join("\n")
         }
 
         function get(): string {
-            return "mic=" + JSON.stringify(root.micApps) + " screen=" + JSON.stringify(root.screenApps)
+            return "mic=" + JSON.stringify(root.micApps) + " audio=" + JSON.stringify(root.audioApps)
+                + " screen=" + JSON.stringify(root.screenApps)
         }
     }
 }

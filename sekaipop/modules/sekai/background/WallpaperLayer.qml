@@ -46,6 +46,13 @@ PanelWindow {
     // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
     readonly property var mt: Theme.of(screen)
 
+readonly property bool wallpaperEnabled:SettingsService.flag("wallpaper.enabled")
+onWallpaperEnabledChanged: {
+    if (wallpaperEnabled)
+        restoreWallpaperResources();
+    else
+        releaseWallpaperResources();
+}
     required property var modelData
     screen: modelData
 
@@ -54,7 +61,7 @@ PanelWindow {
     WlrLayershell.namespace: "sekaipop-wallpaper"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
-    color: "black" // shown before the first image finishes decoding
+    color: "transparent" // shown before the first image finishes decoding
 
     anchors {
         top: true
@@ -256,7 +263,47 @@ PanelWindow {
             win.freshSlot = null;
         }
     }
+   function releaseWallpaperResources() {
+        // Stop all pending wallpaper work.
+        fullscreenRefresh.stop();
+        resizeTimer.stop();
+        freshTimer.stop();
+        readyTimeout.stop();
+        warmup.stop();
+        blendAnim.stop();
 
+        // Destroy any temporary image being decoded.
+        dropFresh();
+
+        // Destroy both wallpaper textures.
+        if (win.previousSlot) {
+            win.previousSlot.destroy();
+            win.previousSlot = null;
+        }
+
+        if (win.currentSlot) {
+            win.currentSlot.destroy();
+            win.currentSlot = null;
+        }
+
+        win.progress = 1.0;
+        win.shownImage = "";
+    }
+
+    function restoreWallpaperResources() {
+        if (!win.wallpaperEnabled)
+            return;
+
+        const image = WallpaperService.imageFor(
+            WallpaperService.pathFor(win.screenName)
+        );
+
+        if (image === "")
+            return;
+
+        win.shownImage = image;
+        win.currentSlot = win.createSlot(image);
+    }
     function redecode() {
         const cur = win.currentSlot;
         if (!cur || win.shownImage === "" || cur.status === Image.Error)
@@ -360,6 +407,8 @@ PanelWindow {
 
     // This monitor's wallpaper changed.
     function show(image) {
+    if (!win.wallpaperEnabled)
+            return;
         if (image === "" || image === win.shownImage)
             return;
         win.shownImage = image;
@@ -392,8 +441,8 @@ PanelWindow {
 
     readonly property string screenName: win.modelData ? win.modelData.name : ""
 
-    Component.onCompleted: {
-        if (win.wantedImage !== "") {
+      Component.onCompleted: {
+        if (win.wallpaperEnabled && win.wantedImage !== "") {
             win.shownImage = win.wantedImage;
             win.currentSlot = win.createSlot(win.wantedImage);
         }
@@ -470,6 +519,7 @@ PanelWindow {
     // EditStage.qml), and the ring in EditFrame hides its square corners.
     Item {
         id: stage
+        visible: win.wallpaperEnabled
         width: parent.width
         height: parent.height
         x: EditMode.xFor(win.screenName, win.width, win.height, win.uiScale)
@@ -539,8 +589,11 @@ PanelWindow {
                 id: videoLayer
                 anchors.fill: parent
                 z: 5
-                active: WallpaperService.videoFor(win.screenName) && !win.transitioning
-                        && win.currentSlot !== null && win.currentSlot.status === Image.Ready
+                 active: win.wallpaperEnabled
+                    && WallpaperService.videoFor(win.screenName)
+                    && !win.transitioning
+                    && win.currentSlot !== null
+                    && win.currentSlot.status === Image.Ready
                 source: active ? Qt.resolvedUrl(win.useMpvpaper ? "MpvpaperWallpaper.qml" : "VideoWallpaper.qml") : ""
                 onLoaded: {
                     item.hidden = win.videoEditing

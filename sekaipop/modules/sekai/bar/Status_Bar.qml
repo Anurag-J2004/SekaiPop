@@ -295,6 +295,7 @@ Item {
 
     // Privacy (PrivacyService via Bar.qml): who has the microphone / the screen.
     property bool privacyMic: false
+    property bool privacyAudio: false
     property bool privacyScreen: false
     property string privacyDetail: ""
 
@@ -851,6 +852,7 @@ Item {
             vertical: status_Bar.vertical
             barPosition: status_Bar.barPosition
             micLive: status_Bar.privacyMic && status_Bar.shows("privacy")
+            audioLive: status_Bar.privacyAudio && status_Bar.shows("privacy")
             screenLive: status_Bar.privacyScreen && status_Bar.shows("privacy")
             detailText: status_Bar.privacyDetail
         }

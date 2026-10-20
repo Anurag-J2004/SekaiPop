@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.services
+import qs.modules.common
 
 // General: how the shell behaves, apart from how it looks. Time and units,
 // what the Quick Panel and notifications do, the launcher, the lockscreen,
@@ -186,9 +187,38 @@ SettingsPage {
             onToggled: SettingsService.toggle("panel.typeToSearch")
         }
 
+        // Behind the Quick and Apps screens alike (PanelImages.phoneWallpaperFor). "A
+        // picture" with none picked yet opens the chooser first, and only a picked
+        // picture turns it on (PanelImages' picker), so cancelling changes nothing.
         SettingChoice {
-            label: "Avatar & banner picker"
-            sublabel: "The window that opens when you pick a picture. Auto: KDE's if installed. GTK / system goes through the desktop portal and can be slow"
+            label: "Phone wallpaper"
+            sublabel: "Behind the Quick and Apps screens, seen as an LCD. Desktop: the wallpaper of the monitor the phone is on"
+            current: PanelImages.phoneMode
+            options: [
+                { id: "off", label: "Off", icon: "hide_image" },
+                { id: "desktop", label: "Desktop", icon: "wallpaper" },
+                { id: "picture", label: "A picture", icon: "image" }
+            ]
+            onPicked: id => {
+                if (id === "picture" && PanelImages.phonePath === "")
+                    PanelImages.pick("phone")
+                else
+                    SettingsService.set("phone.wallpaper", id)
+            }
+        }
+
+        SettingAction {
+            visible: PanelImages.phoneMode === "picture"
+            icon: "add_photo_alternate"
+            label: "Change the phone's picture"
+            detail: PanelImages.busy ? "Choosing…" : "Opens a file chooser"
+            busy: PanelImages.busy
+            onActivated: PanelImages.pick("phone")
+        }
+
+        SettingChoice {
+            label: "Picture picker"
+            sublabel: "The window that opens when you pick a picture (avatar, banner, phone wallpaper). Auto: KDE's if installed. GTK / system goes through the desktop portal and can be slow"
             current: SettingsService.get("files.chooser")
             options: [
                 { id: "auto", label: "Auto", icon: "auto_awesome" },
@@ -217,14 +247,6 @@ SettingsPage {
             detail: SettingsService.flag("launcher.clipboard") ? "Recording" : "OFF"
             checked: SettingsService.flag("launcher.clipboard")
             onToggled: SettingsService.toggle("launcher.clipboard")
-        }
-
-        SettingToggle {
-            icon: "wallpaper"
-            label: "Launcher wallpaper"
-            detail: SettingsService.flag("launcher.lcdWallpaper") ? "Your wallpaper, seen as an LCD" : "OFF"
-            checked: SettingsService.flag("launcher.lcdWallpaper")
-            onToggled: SettingsService.toggle("launcher.lcdWallpaper")
         }
 
         SettingChoice {

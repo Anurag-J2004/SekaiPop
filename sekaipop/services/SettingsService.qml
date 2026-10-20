@@ -90,8 +90,11 @@ Singleton {
         "files.chooser": "auto",
         "launcher.webSuggestions": true,
         "launcher.clipboard": true,
-        // The Apps screen shows your wallpaper behind the apps, washed out and seen through an LCD's pixel mesh.
+        // The Apps screen's old on / off switch for its wallpaper; read only while phone.wallpaper is "".
         "launcher.lcdWallpaper": true,
+        // What the phone's screens show behind them: "off", "desktop" or "picture";
+        // "" = not chosen yet, launcher.lcdWallpaper decides (PanelImages.phoneMode).
+        "phone.wallpaper": "",
         "lock.blur": false,
         // The gacha lockscreen's endless sparkle animations. Off = they are not built, which saves GPU while locked.
         "lock.animations": true,
@@ -191,14 +194,8 @@ Singleton {
         "timer.pomLong": 15,            // minutes of long break
         "timer.pomRounds": 4,           // focus rounds before the long break
         "dock.pinOnStartup": false,     // start every session with the dock pinned (kept shown)
-        // ===== Wallhaven in the Wallpapers picker (WallhavenService.qml, WallhavenMath.js) =====
-        // Remembered between visits; not part of a desktop preset (browsing, not the look).
-        "wallhaven.sort": "",           // "" = relevance for a search, the month's top without one
-        "wallhaven.topRange": "1M",
-        "wallhaven.categories": "general,anime,people",
-        "wallhaven.shape": "landscape",
-        "wallhaven.atLeast": "screen",  // "screen" = the monitor the picker is on
-        "wallhaven.colour": "",
+        "wallpaper.enabled": true,       // Show or hide the desktop wallpaper
+      
         "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
         "theme.perMonitor": false,      // a monitor can wear its own theme on the bar / dock / widgets (off = one theme everywhere)
         "theme.screens": "",            // with theme.perMonitor: { monitor: theme id } as JSON (ScreenThemes.js); the main monitor has none

@@ -4,7 +4,7 @@
 # <dst>, scaled down on the way if it is far bigger than the avatar or banner
 # can ever show.
 #
-#   shrink-image.sh avatar|banner <src> <dst>
+#   shrink-image.sh avatar|banner|phone <src> <dst>
 #
 # Why: a 24-megapixel photo costs the shell a lot to decode, and the same file
 # is decoded again for every place that shows it (the Quick Panel's banner and
@@ -19,7 +19,7 @@
 # both directions; anything smaller is copied byte for byte (no re-encode, no
 # loss). The boxes hold the largest slot at 2x for hidpi, plus some room.
 #
-#   avatar  800 x 800        banner  2000 x 800
+#   avatar  800 x 800        banner  2000 x 800        phone  1600 x 3000
 #
 # Not touched, just copied: svg (resolution independent) and gif (may be
 # animated). JPEG orientation (EXIF) is applied when it is scaled.
@@ -36,7 +36,8 @@ dst="$3"
 case "$kind" in
     avatar) maxw=800; maxh=800 ;;
     banner) maxw=2000; maxh=800 ;;
-    *) echo "usage: $0 avatar|banner <src> <dst>" >&2; exit 2 ;;
+    phone) maxw=1600; maxh=3000 ;;
+    *) echo "usage: $0 avatar|banner|phone <src> <dst>" >&2; exit 2 ;;
 esac
 [ -f "$src" ] && [ -n "$dst" ] || exit 2
 

@@ -18,15 +18,19 @@ const quick = read("modules/sekai/quickPanel/QuickPanel.qml")
 const settings = read("services/SettingsService.qml")
 const general = read("modules/sekai/settings/SettingsPageGeneral.qml")
 
-// ---------- the switch ----------
-assert.ok(/"launcher\.lcdWallpaper":\s*true/.test(settings), "the switch is on by default")
-assert.ok(general.includes('SettingsService.toggle("launcher.lcdWallpaper")'), "Settings has a toggle for it")
-assert.ok(face.includes('SettingsService.flag("launcher.lcdWallpaper")'), "the Apps screen reads the switch")
+// ---------- the setting ----------
+// One "Phone wallpaper" choice for the Quick and Apps screens (tests/phone-test/
+// phone_wallpaper_test.js has the rules); the old on / off switch still decides until it is set.
+assert.ok(/"launcher\.lcdWallpaper":\s*true/.test(settings), "the old switch is still on by default")
+assert.ok(/"phone\.wallpaper":\s*""/.test(settings), "the phone wallpaper starts unchosen (the old switch decides)")
+assert.ok(general.includes('label: "Phone wallpaper"') && general.includes('SettingsService.set("phone.wallpaper", id)'),
+          "Settings has the Phone wallpaper choice")
+assert.ok(!general.includes('SettingsService.toggle("launcher.lcdWallpaper")'), "the old Apps-only switch is gone from Settings")
 
 // ---------- the wiring ----------
 assert.ok(/LauncherLcd\s*\{[^}]*z:\s*-10/.test(face), "the LCD sits under everything else on the Apps screen")
-assert.ok(face.includes("WallpaperService.imageFor(WallpaperService.pathFor(face.screenName))"),
-          "it shows this monitor's wallpaper (a video's first frame for a video wallpaper)")
+assert.ok(face.includes("PanelImages.phoneWallpaperFor(face.screenName)"),
+          "it shows the phone wallpaper for this monitor (the same one as the Quick screen)")
 assert.ok(/screenName:\s*root\.targetScreen/.test(quick), "the Quick Panel tells the Apps screen which monitor it is on")
 assert.ok(/active:\s*face\.visible/.test(face), "the picture is only decoded while the Apps screen shows")
 assert.ok(/visible:\s*lcd\.path\s*!==\s*""/.test(lcd), "no wallpaper: no LCD, the screen stays plain white")

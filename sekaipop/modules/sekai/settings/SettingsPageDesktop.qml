@@ -42,7 +42,13 @@ SettingsPage {
             detail: "Back to ~/Pictures/Wallpapers"
             onActivated: WallpaperService.resetFolder()
         }
-
+        SettingToggle {
+            icon: "image"
+            label: "Desktop wallpaper"
+            detail: "ON or OFF the desktop wallpaper"
+            checked: SettingsService.flag("wallpaper.enabled")
+            onToggled: SettingsService.toggle("wallpaper.enabled")
+        }
         SettingChoice {
             label: "Transition"
             sublabel: "How one wallpaper replaces another (Random: a different one each time)"

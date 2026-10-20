@@ -393,6 +393,31 @@ Item {
                        0, 0, 0, 1)
         : root.matrix(PM.ident())
 
+    // The phone as it shows right now, as a convex polygon in this item's own
+    // coordinates (PM.silhouette): the body, the side buttons, or with the phone flat
+    // the Power button standing out of its edge. For a click-away that follows the
+    // phone instead of the box around it (QuickPanel.qml, `overPhone`).
+    readonly property var outlinePoly: {
+        const m = root.frontMatrix
+        const base = [m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24,
+                      m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44]
+        const W = root.faceWidth, T = root.thickness
+        let boxes = []
+        if (root.landscape) {
+            boxes = []
+        } else if (root.flat || root.faceDirect) {
+            if (root.powerButton)
+                boxes = [[W - 4, root.powerY, 0, W + root.powerStick, root.powerY + root.powerH, 0]]
+        } else {
+            const stick = Math.max(root.buttonStick, root.powerStickNow)
+            boxes = [[W, root.powerY, -T * 0.68, W + stick, root.powerY + root.powerH, -T * 0.24]]
+            if (!root.plain)
+                boxes.push([W, 704, -T * 0.68, W + root.buttonStick, 872, -T * 0.24])
+        }
+        return PM.silhouette(W, root.faceHeight, (root.flat || root.faceDirect) ? 0 : T,
+                             root.cornerRadius, base, boxes)
+    }
+
     // ===== palette =====
     property color rimColor: mt.colBorder             // #555473
     property color rimHighlight: mt.phoneRimHighlight

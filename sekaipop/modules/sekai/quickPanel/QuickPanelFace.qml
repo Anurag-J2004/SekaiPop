@@ -4,6 +4,7 @@ import QtQuick.Effects
 import "../../common/functions/QuickTiles.js" as QT
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.sekai.launcher
 import qs.modules.sekai.phone
 
 // The Quick Panel's screen: everything that sits inside the phone, drawn
@@ -314,6 +315,32 @@ Item {
     signal avatarResetRequested()
 
     readonly property color placeholderGrey: mt.pSurfaceHover // #f2f2f2
+
+    // ===== the phone wallpaper (LauncherLcd.qml) =====
+    // Settings -> General -> Quick Panel -> Phone wallpaper: the same picture the Apps
+    // screen shows, as a file path (QuickPanel.qml asks PanelImages.phoneWallpaperFor);
+    // "" = none, the plain white screen. Under everything (z). With it there, the two
+    // cards let some of it through (`cardAlpha`) and the name under the avatar is white
+    // with a dark edge, like the Apps screen's app names. The clock, date and speed sit
+    // on the banner, so they keep its ink rule.
+    property string wallpaperPath: ""
+    readonly property bool wallOn: face.wallpaperPath !== ""
+    // How much of a card's own fill is kept over the wallpaper (1 = none of it shows).
+    property real cardAlpha: 0.78
+
+    LauncherLcd {
+        id: wallLayer
+
+        z: -10
+        x: mt.phoneScreenInset
+        y: mt.phoneScreenInset
+        width: face.width - 2 * mt.phoneScreenInset
+        height: face.height - 2 * mt.phoneScreenInset
+        path: face.wallpaperPath
+        renderScale: face.renderScale
+        // Only decoded while this screen is the one showing.
+        active: face.visible
+    }
 
     // ===== text colour over the banner =====
     property bool bannerDarkLeft: false
@@ -816,7 +843,9 @@ Item {
         width: 254
         elide: Text.ElideRight
         text: face.userName + "@" + face.hostName
-        color: mt.pInk
+        color: face.wallOn ? "#ffffff" : mt.pInk
+        style: face.wallOn ? Text.Outline : Text.Normal
+        styleColor: Qt.rgba(0.10, 0.10, 0.22, 0.85)
         font.family: mt.fontFamily
         font.pixelSize: 20
     }
@@ -1102,7 +1131,7 @@ Item {
         width: 575
         height: 275 + face.tileExtra
         radius: 40
-        color: face.placeholderGrey
+        color: face.wallOn ? Qt.alpha(face.placeholderGrey, face.cardAlpha) : face.placeholderGrey
         antialiasing: true
     }
 
@@ -1583,6 +1612,8 @@ Item {
         radius: 41
         color: mt.pLineShadow
         antialiasing: true
+        // Under a see-through card it would show through as a dark slab, not a shadow.
+        visible: !face.wallOn
     }
 
     Rectangle {
@@ -1595,15 +1626,15 @@ Item {
         width: 575
         height: 515 - face.tileExtra
         radius: 41
-        color: mt.pSurface
+        color: face.wallOn ? Qt.alpha(mt.pSurface, face.cardAlpha) : mt.pSurface
         border.width: 3
         border.color: mt.pLine
         clip: true
 
         readonly property bool empty: face.notifications.length === 0
 
-        // Nothing waiting: just the card's own plain white background --
-        // no separate empty-state art.
+        // Nothing waiting: a quiet line in the card (emptyNote, below the list)
+        // instead of a blank card (issue #41).
 
         // True for the short animated stretch after "Clear all" is
         // tapped: the cards are sliding themselves out but the data
@@ -1627,6 +1658,67 @@ Item {
                 face.notificationsCleared()
                 notificationsCard.clearing = false
                 face.panelCloseRequested()
+            }
+        }
+
+        // Nothing waiting: a muted line, a little cheeky, instead of a blank card. A
+        // new one is picked each time the list empties. Placed in the part of the
+        // list that is on the monitor (only the top of the phone shows when it is up,
+        // so the middle of the whole card can be off-screen), and faded rather than
+        // popped so "Clear all"'s slide-out isn't cut short.
+        Column {
+            id: emptyNote
+
+            readonly property bool shown: notificationsCard.empty && !notificationsCard.clearing
+            readonly property var lines: [
+                "Nothing here. Suspiciously quiet.",
+                "All caught up. Go touch some grass.",
+                "No notifications. Even the group chat is asleep.",
+                "Inbox zero. The phone is proud of you.",
+                "Nothing new. Miku says hi anyway.",
+                "Silence. Enjoy it while it lasts."
+            ]
+            property string line: lines[0]
+
+            function pick() {
+                let next = emptyNote.line
+                // Not the same one twice in a row.
+                while (emptyNote.lines.length > 1 && next === emptyNote.line)
+                    next = emptyNote.lines[Math.floor(Math.random() * emptyNote.lines.length)]
+                emptyNote.line = next
+            }
+
+            onShownChanged: if (shown) pick()
+            Component.onCompleted: pick()
+
+            x: (notificationsCard.width - width) / 2
+            y: list.y + Math.max(10, (Math.min(list.height, 200) - height) / 2)
+            width: 460
+            spacing: 6
+            opacity: emptyNote.shown ? 1 : 0
+            visible: opacity > 0.01
+
+            Behavior on opacity {
+                NumberAnimation { duration: 220 }
+            }
+
+            MaterialIcon {
+                anchors.horizontalCenter: parent.horizontalCenter
+                name: "bedtime"
+                size: 26
+                color: mt.pInkSub
+                opacity: 0.8
+            }
+
+            Text {
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: emptyNote.line
+                color: mt.pInkSub
+                font.family: mt.fontFamily
+                font.pixelSize: 16
+                font.weight: Font.DemiBold
             }
         }
 
@@ -2411,13 +2503,14 @@ Item {
             font.pixelSize: 17
         }
 
-        // Hovering the card brings the whole phone up (the same as clicking
-        // it: alertActivated() -> QuickPanel.claim()). A short beat first,
-        // so the pointer just crossing the spot where a card happens to
-        // drop in doesn't throw the phone open.
+        // Resting the pointer on the card brings the whole phone up (the same as
+        // clicking it: alertActivated() -> QuickPanel.claim()). After a second, not a
+        // beat: the pointer on its way to swipe the phone away or right-click it
+        // (QuickPanel.qml, alertTouch) must have time to do that first; it used to be
+        // 180 ms, which opened the phone under almost anyone aiming at it.
         Timer {
             id: hoverOpen
-            interval: 180
+            interval: 1000
             onTriggered: {
                 if (face.alertShown)
                     face.alertActivated()
