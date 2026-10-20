@@ -32,6 +32,8 @@ SettingsPage {
         case "checking": return "Asking the remote…"
         case "current": return UpdateService.latest !== "" ? "Latest is " + UpdateService.latest : "Nothing newer upstream"
         case "behind":
+            if (UpdateService.updateError !== "")
+                return "The update didn't apply: " + UpdateService.updateError + "."
             if (UpdateService.isGit)
                 return UpdateService.behind + (UpdateService.behind === 1 ? " new commit" : " new commits") + " upstream"
             if (UpdateService.managed)
@@ -226,7 +228,8 @@ SettingsPage {
             icon: "download"
             label: "Update now"
             detail: UpdateService.updating ? (UpdateService.isGit ? "Pulling…" : "Downloading…")
-                : (UpdateService.updateMessage !== "" ? UpdateService.updateMessage
+                : (UpdateService.updateError !== "" ? "Didn't apply, try again"
+                : UpdateService.updateMessage !== "" ? UpdateService.updateMessage
                     : (UpdateService.isGit ? "Pull, then reload" : "Download, then reload"))
             busy: UpdateService.updating
             onActivated: UpdateService.update()

@@ -26,7 +26,9 @@
 #      the remote for its newest commit (git ls-remote) and compares it with
 #      commit=. `apply` downloads that commit into a temporary folder, builds the new
 #      folder beside this one, keeps the old one as sekaipop.previous (one copy) and
-#      swaps them. Needs git. Refuses when this folder is a symlink.
+#      swaps them. Needs git. A symlink on the way (the folder itself, or ~/.config
+#      kept in a dotfiles repo) is followed: the real folder is the one replaced, so
+#      the links keep pointing at the new files.
 #   3. Otherwise a URL to a plain-text VERSION file, from $SEKAIPOP_UPDATE_URL or the
 #      first line of ~/.config/sekaipop/update-url. It is compared with this folder's
 #      VERSION. (Nothing is downloaded or installed this way; the panel just tells
@@ -83,10 +85,9 @@ remote_head() {
 }
 
 apply_managed() {
-    if [ -L "$here" ] || [ "$here" != "$herep" ]; then
-        echo "this folder is a link: update the folder it points to"
-        return 1
-    fi
+    # Work on the real folder, not the path the shell was started from: moving a
+    # symlink would replace the link and leave the files it points to behind.
+    real=$herep
     tmp=$(mktemp -d "${TMPDIR:-/tmp}/sekaipop-update-XXXXXX") || { echo "couldn't make a temporary folder"; return 1; }
     trap 'rm -rf "$tmp"' EXIT
     echo "downloading $ref from $repo"
@@ -96,12 +97,12 @@ apply_managed() {
     [ -f "$new/shell.qml" ] || { echo "the download has no sekaipop folder (wrong repo or branch?)"; return 1; }
     commit=$(git -C "$tmp/src" rev-parse HEAD) || { echo "couldn't read the downloaded commit"; return 1; }
 
-    stage="$here.update-new"
-    old="$here.previous"
+    stage="$real.update-new"
+    old="$real.previous"
     rm -rf "$stage"
     cp -a "$new" "$stage" || { rm -rf "$stage"; echo "couldn't copy the new files"; return 1; }
     # install.sh leaves the developer tests out unless asked; keep it that way.
-    [ -d "$here/tests" ] || rm -rf "$stage/tests"
+    [ -d "$real/tests" ] || rm -rf "$stage/tests"
     { echo "commit=$commit"; echo "repo=$repo"; echo "ref=$ref"; } > "$stage/.source"
 
     # Qt older than 6.12 cannot read the shipped .qsb shaders: build them again, as install.sh does.
@@ -112,12 +113,12 @@ apply_managed() {
     fi
 
     rm -rf "$old"
-    if mv "$here" "$old" && mv "$stage" "$here"; then
+    if mv "$real" "$old" && mv "$stage" "$real"; then
         echo "updated to $(short "$commit")"
         return 0
     fi
     # Put things back the way they were.
-    [ -e "$here" ] || mv "$old" "$here"
+    [ -e "$real" ] || mv "$old" "$real"
     rm -rf "$stage"
     echo "couldn't swap in the new files; nothing was changed"
     return 1

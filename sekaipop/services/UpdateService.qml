@@ -62,6 +62,10 @@ Singleton {
 
     property bool updating: false
     property string updateMessage: ""
+    // Why the last Update now didn't apply ("" while it worked or hasn't run).
+    // Kept apart from updateMessage so the page can show it whole, not elided
+    // into a button's subtitle (issue #21).
+    property string updateError: ""
 
     readonly property string script: Directories.script("system/update-check.sh")
 
@@ -114,6 +118,7 @@ Singleton {
             return
         root.updating = true
         root.updateMessage = ""
+        root.updateError = ""
         updater.running = true
     }
 
@@ -222,6 +227,7 @@ Singleton {
             } else {
                 root.updating = false
                 root.updateMessage = root.updateMessage || "the update didn't apply"
+                root.updateError = root.updateMessage
             }
         }
     }

@@ -4,6 +4,16 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Update now through a symlink, and its failure said in full (issue #21)
+
+**Not run on a live Quickshell** (the shell on this machine is a git checkout, which takes the `git pull` path, not this one). Checked: `sh tests/update-test/update_check_test.sh`, all 18 pass; its four new symlink checks fail against the old script. `node tests/update-test/update_notify_test.js` passes (15). `qmllint` reports no errors on the two QML files. **Not checked:** the About page by eye with a failed update.
+
+- Why: `apply_managed` in `scripts/system/update-check.sh` refused whenever `$here` (the path the shell was started from) and `pwd -P` differed. That is true not only when the shell folder is itself a link but when any folder above it is, as with a `~/.config` kept in a dotfiles repo or a distro whose `/home` is a link. The refusal, "this folder is a link: update the folder it points to", went into the Update now tile's subtitle, which elides, so the reporter saw "This button is a link: Update the folder…" and nothing happened. It happened on one of their machines and not the other.
+- Changed: the swap works on the real folder (`$herep`): the new copy is staged beside it, the old one kept as `<real>.previous`, and the links, wherever they are, keep pointing at the new files. A real folder whose parent can't be written still fails with "couldn't swap in the new files; nothing was changed", as before.
+- `UpdateService.updateError` holds why the last Update now didn't apply, cleared when the next one starts. The About page shows it in the status line, which wraps ("The update didn't apply: …"), and the tile says "Didn't apply, try again".
+- Files: `scripts/system/update-check.sh`, `services/UpdateService.qml`, `modules/sekai/settings/SettingsPageAbout.qml`, `tests/update-test/update_check_test.sh` (the "symlinked folder: refuses" check becomes four: the real folder updated, the link kept, the previous copy beside the real folder, a linked parent folder).
+- **To check:** on an installed copy (not a clone), move `~/.config/quickshell/sekaipop` elsewhere and link it back, put an old `commit=` in its `.source`, open Settings > About and press Update now: the shell reloads on the new commit and the link is still a link.
+
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), dark mode, Phone wallpaper on Desktop (the default through the old switch): the Quick screen draws the monitor's wallpaper behind see-through cards, the name under the avatar reads white with a dark edge, the empty card shows its line, the log stays clean. Checked: `tests/phone-test/phone_wallpaper_test.js` (new) and `tests/launcher-test/lcd_source_test.js`; the other JS tests give the same results as `main` (the same 8 fail). **Not checked live:** the Settings row itself (Off / Desktop / A picture, Change the phone's picture), picking a picture through the chooser, light mode, and the cards with a long notification list over the wallpaper.
