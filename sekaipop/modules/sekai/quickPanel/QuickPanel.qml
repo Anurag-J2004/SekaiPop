@@ -797,7 +797,19 @@ Scope {
             openSettings(screen)
         } else if (name === "wallpapers") {
             openWallpapers(screen)
+        }else if (name === "power" || name === "session") {
+            togglePowerOn(screen)
         }
+    }
+    function togglePowerOn(screen) {
+        if (open && !settingsShown && panelFace.powerMenuOpen
+            && (!screen || screen === targetScreen)) {
+            close()
+            return
+            }
+            if (!open || settingsShown || faceScreen !== "quick")
+                openOn(screen)
+                panelFace.powerMenuOpen = true
     }
 
     // Keys while Quick (or Apps, before its search box has the keyboard) has it.
@@ -1010,6 +1022,9 @@ Scope {
 
         function hide(): void {
             root.close()
+        }
+      function keepAwake(): void {
+            root.source.toggleKeepAwake()
         }
     }
 
