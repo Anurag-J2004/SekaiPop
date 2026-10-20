@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Phone: clicking beside the Quick Panel's phone closes it everywhere, including the empty corners of the box around the tilted phone, which used to swallow the click. The click follows the phone's real outline, in 2.5D and 2D (issue #47; docs/PHONE-CLICK-AWAY.md).
 - Wallpapers: Wallhaven as a second source (My folder | Wallhaven, or Ctrl+Tab). Search it, sort it (Top over a day to a year, Latest, Views, Favourites, Random), filter it (categories, shape, minimum size, colour), and set a picture: it is downloaded into your wallpaper folder first, with progress, and Esc stops it. SFW only, no account. `ipc call wallpaperpicker wallhaven` opens it there (docs/WALLHAVEN.md).
 - Edit Desktop > THEME: the Matugen theme has controls. Click its tile again (or its tune key) for the scheme, which wallpaper colour leads, the contrast, and pins that keep an accent colour fixed whatever the wallpaper says; the shell re-colours live, presets carry them, Esc goes back. `ipc call desktopedit matugen` opens them directly. The tile says so when matugen isn't installed (issue #28; docs/MATUGEN-CONTROLS.md).
 - Presets: wearing a preset can be undone. The look it replaced (settings, pictures, image frames and sticky notes) is kept, and an UNDO tile on the PRESETS tab puts it back, then turns into REDO. Deleting a preset can be undone too, for ten minutes (UNDELETE, the last one deleted). The save tile says NOT SAVED when no preset is the current look. IPC: `presets undo`, `presets undelete`.

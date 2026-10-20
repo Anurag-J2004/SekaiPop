@@ -4,6 +4,15 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Click away follows the phone's shape (issue #47)
+
+**Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2): the projected outline was logged and drawn over screenshots of the open panel, in 2.5D and in 2D; it follows the body, the side buttons and (2D) the Power button. The log stays clean. Checked: `tests/phone-test/click_away_test.js` (new); the other JS tests give the same results as `main` (the same 8 fail). **Not checked:** the alert card (the area is off then, by design), a monitor with fractional scaling.
+
+- Why: the panel's window takes the mouse inside `hitRect`, the box around the posed phone. The tilted phone leaves big empty corners in it, and a press there landed on the window, hit nothing, and the panel stayed open.
+- `PhoneMath.js`: `silhouette()` (front and back outlines plus boxes for what stands out, projected, convex hull), `hull()`, `insideConvex()`. `PhoneBody.outlinePoly` is the polygon for the pose drawn now, built from `frontMatrix` so the 2D phone's direct draw is right.
+- `QuickPanel.qml` `besidePhone`: a MouseArea over `hitRect`, z -100, on while the panel is open (Quick and Apps). A press nothing on the phone took reaches it: on the outline (3 units of slack) it lets go, beside it the panel closes.
+- Not done: letting the click through to the window below (a mask shaped like the phone would be strips of `Region`, moved every frame of the bounce). docs/PHONE-CLICK-AWAY.md.
+
 ## Unreleased — Settings > Keys: change SekaiPop's shortcuts (issue #16)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), with the shell on both of Hyprland's config formats: first `hyprland.conf`, then the Lua config. By hand: recording a combination, Set it by hand, taking keys over from another action and from a Hyprland bind, reset one, reset all, the panel closing while recording. Scripted against the live Hyprland: under `hyprland.conf`, a bind written, kept across a reload and removed; under Lua, Toggle equalizer moved from SUPER + M to SUPER + ALT + E (`hl.unbind` dropped the old key, `hyprctl configerrors` empty) and reset (SUPER + M back). Checked: `tests/keys-test/keys_unit.js` and `keys_script_test.js` (new); the other JS tests give the same results as `main` (the same 8 fail). **Not checked:** niri (the page only says keys are niri's there), a screen reader, and a VNC client sending Super (most viewers keep it; Set it by hand is the way round).
