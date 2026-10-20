@@ -547,7 +547,7 @@ Item {
             width: armed ? bannerRemoveLabel.implicitWidth + 32 + 6 : 32
             height: 32
             radius: height / 2
-            color: armed ? ScrapbookTheme.accentPink : mt.pLine
+            color: armed ? mt.accentCyan : mt.pLine
             opacity: bannerRemoveArea.containsMouse || armed ? 1 : 0.8
             antialiasing: true
 
@@ -841,7 +841,7 @@ Item {
             width: armed ? avatarRemoveLabel.implicitWidth + 28 + 6 : 28
             height: 28
             radius: height / 2
-            color: armed ? ScrapbookTheme.accentPink : mt.pLine
+            color: armed ? mt.accentCyan : mt.pLine
             opacity: avatarRemoveArea.containsMouse || armed ? 1 : 0.8
             antialiasing: true
 

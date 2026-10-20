@@ -9,7 +9,7 @@ and what was only read through, and how to check it. The short release notes are
 **Run on a live Quickshell:** only that the panel loads clean before this entry. Checked: `qmllint`; the JS tests give the same results as `main`.
 
 - Why: the small clear badge on the Quick Panel's banner and avatar removed the picture on one click, and the stored copy is deleted (`PanelImages.clear`), so a misclick lost it for good.
-- Changed (`quickPanel/QuickPanelFace.qml`, both badges): `armed`. The first click arms the badge: it widens leftwards into a pink pill with a bin icon and "Remove?" (`ScrapbookTheme.accentPink`, `colBorder` ink); the second click removes. It disarms when it hides (the pointer left the picture) or after 3 s.
+- Changed (`quickPanel/QuickPanelFace.qml`, both badges): `armed`. The first click arms the badge: it widens leftwards into a pill in the theme's accent (`accentCyan`, `colBorder` ink) with a bin icon and "Remove?"; the second click removes. It disarms when it hides (the pointer left the picture) or after 3 s.
 - **To check:** hover the banner, click the badge once: "Remove?", nothing removed; move away: back to the x, picture kept; click twice: removed. Same on the avatar.
 
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
