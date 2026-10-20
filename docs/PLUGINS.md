@@ -20,12 +20,17 @@ picture on the Edit Desktop shelf, and desktop presets. The plugin only **draws*
 3. Right-click the desktop, **Edit Desktop**, and click the plugin's tile on the shelf. It sits
    after the built-in widgets.
 
+**Settings > Desktop > Plugins** lists every plugin installed, says whether each one is on the
+desktop and which secrets it found, shows the folders that did not load and why, and opens a
+plugin to change its settings. It has **Reload** and **Open the folder** too. A selected plugin
+widget in Edit Desktop has a **Settings** key that opens it there (docs/PLUGIN-SETTINGS.md).
+
 To update a plugin, `git pull` in its folder and reload. To remove it, delete the folder. Its saved
 state (spot, on / off, settings) stays in `~/.local/state/sekaipop/plugins/<id>.json` until you
 delete that too.
 
 A folder that is not a working plugin is skipped, never loaded half-broken. The shell sends one
-notification saying why, and `ipc call plugins list` shows it again.
+notification saying why; `ipc call plugins list` and the Plugins card in Settings show it again.
 
 ### Commands
 
@@ -66,6 +71,10 @@ path of a file of its own.
     "frame": true,
     "cloneable": true,
     "settings": { "url": "https://example.org", "refreshMinutes": 5, "compact": false },
+    "settingsInfo": {
+        "url": { "label": "Server address", "description": "Where your status page lives." },
+        "refreshMinutes": { "label": "Check every", "min": 1, "max": 60, "unit": "minutes" }
+    },
     "secrets": { "token": { "env": "MY_WIDGET_TOKEN", "file": "~/.config/my-widget/token" } }
 }
 ```
@@ -81,6 +90,8 @@ path of a file of its own.
 | `frame`       | no       | `true` (default): the shell draws its card around the widget (outline, ring, surface, shadow), like the built-in cards. `false`: the widget draws everything.          |
 | `cloneable`   | no       | `true` (default): the widget can be on several monitors at once, each copy with its own spot. `false`: one monitor, and adding it on another moves it there.          |
 | `settings`    | no       | `name: default`. A default is a string, a number or `true` / `false`, and its type is the setting's type.                                                            |
+| `settingsInfo` | no      | How Settings draws each setting: a label, a range, choices. See [How settings are shown](#how-settings-are-shown).                                                    |
+| `groups`      | no       | The order of the group headings in Settings, as a list of names.                                                                                                     |
 | `secrets`     | no       | `name: { env, file }`. Where a secret is read from: the environment variable first, then the file. `~/` is your home; a relative path is inside the plugin's folder. |
 
 ### Widget.qml
@@ -160,9 +171,52 @@ them, per plugin, in its state file. They change by the widget's own `host.setSe
 `ipc call plugins set <id> <key> <value>` (the value is turned into the setting's type). A setting
 the plugin stops declaring, or whose type changes, falls back to the default.
 
+### How settings are shown
+
+Settings > Desktop > Plugins draws a form for every plugin from its `settings`, with the shell's
+own controls. A setting with nothing but its default still gets one:
+
+| The default is   | Its control                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| a string         | a text field                                                  |
+| a number         | a stepper (- and +, by 1)                                     |
+| `true` / `false` | a toggle                                                      |
+
+Its label is the key split into words (`refreshMinutes` reads "Refresh minutes"), with the key
+itself under it. `settingsInfo` makes it better. Every field is optional and works on its own:
+
+```json
+"settingsInfo": {
+    "url": { "label": "Server address", "description": "Where your status page lives.", "group": "Connection" },
+    "refreshMinutes": { "label": "Check every", "min": 1, "max": 60, "step": 1, "unit": "minutes", "group": "Connection" },
+    "style": { "label": "Style", "choices": [{ "value": "cards", "label": "Cards" }, "list", "dots"], "group": "Look" },
+    "notes": { "multiline": true }
+},
+"groups": ["Connection", "Look"]
+```
+
+| Field         | For             | What it does                                                                                    |
+| ------------- | --------------- | ----------------------------------------------------------------------------------------------- |
+| `label`       | any             | The name shown instead of the key.                                                              |
+| `description` | any             | One line under the name.                                                                        |
+| `group`       | any             | A heading to put it under. Headings follow `groups`, then any others in the order they appear; ungrouped settings come last. |
+| `min`, `max`  | number          | Both given: a slider instead of the stepper.                                                    |
+| `step`        | number          | How far one move goes. Default 1.                                                               |
+| `unit`        | number          | Said after the value ("15 minutes").                                                            |
+| `choices`     | string          | Chips to pick one from instead of a text field. A choice is `{ "value", "label" }`, or a plain string that is both. |
+| `multiline`   | string          | A taller field, for more than a line.                                                           |
+
+`settingsInfo` only describes; the type of a setting is still its default's, and a value is
+never rewritten to fit: one outside `min` / `max` or not in `choices` is shown as it is. A field
+that is wrong for its setting (a range on a string, say) is left out and the rest kept, so a
+mistake there never stops a plugin from loading. An older shell ignores both fields.
+
 **Secrets (API tokens, passwords) are never settings.** Declare them under `secrets`. The shell
 reads them from the environment or from a file you keep, and never writes them anywhere: they are
-not in the state file and not in a desktop preset.
+not in the state file and not in a desktop preset. Settings says, per secret, whether it was
+found and where (the variable's name or the file's path), and never shows the value. A file put in
+place while the shell runs is read again by the card's **Reload**; an environment variable has
+to be there when the shell starts.
 
 ### Presets and copies
 
@@ -177,6 +231,8 @@ when worn.
 | `sekaipop/services/PluginService.qml`                        | Finds the plugins at start-up and on `reload`, checks them, makes one `PluginState` each, the `plugins` ipc.     |
 | `sekaipop/services/PluginState.qml`                          | One plugin's spot, on / off, settings and secrets, shaped like a widget's service.                               |
 | `sekaipop/modules/common/functions/PluginManifest.js`        | The manifest rules (`API_VERSION`, `parse`, settings, saved state). Pure functions, tested in node.             |
+| `sekaipop/modules/common/functions/PluginForm.js`            | What Settings shows of a plugin: the form, the labels, skip reasons in plain words. Pure functions, tested in node. |
+| `sekaipop/modules/sekai/settings/SettingsPluginsCard.qml`    | Settings > Desktop > Plugins, with `PluginRow`, `PluginEditor`, `PluginSettingRow` and `PluginSecretRow`.          |
 | `sekaipop/scripts/state/plugin-state.sh`                     | Lists the plugin folders, saves and loads state, reads secret files.                                             |
 | `sekaipop/modules/sekai/desktopWidgets/PluginWidgetHost.qml` | The window: placement, dragging, Edit Desktop, Focus Mode, the frame, and the `host` object.                     |
 | `sekaipop/shell.qml`                                         | One `PluginWidgetHost` per plugin, and one per copy on another monitor.                                          |
@@ -202,6 +258,7 @@ The manifest fields and the `host` object above are a promise to plugins written
 
 ```sh
 node sekaipop/tests/plugin-test/manifest_unit.js      # manifest, settings, state, wiring, the example
+node sekaipop/tests/plugin-test/form_unit.js          # what Settings shows: the form, labels, skip reasons
 sh sekaipop/tests/plugin-test/plugin_state_test.sh     # the state script, against a throwaway folder
 node sekaipop/tests/preset-widgets-test/registry_unit.js
 ```
