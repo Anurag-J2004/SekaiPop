@@ -159,10 +159,13 @@ renamed):
 
 <!-- theme-names -->
 - Surfaces and ink on the card: `pSurface`, `pSurfaceHover`, `pInk`, `pInkSub`, `pLine`
+- Keys drawn like the shell's own (outline, ring, fill, hard shadow): `pSurfaceDivider` (an idle
+  key's fill), `pRingWhite` (the ring inside a key), `pSurfaceRing` (a housing's pale ring),
+  `pLineShadow` (the hard shadow)
 - Chips and accents: `chipFill`, `chipInk`, `accentCyan`, `accentMint`, `colBorder`
 - Light or dark: `dark`
 - Type: `fontFamily`, `fontStyleBold`, `iconFont`
-- Shape: `borderWidth`, `radiusOuter`
+- Shape: `borderWidth`, `radiusOuter`, `shadowOffset`
 <!-- /theme-names -->
 
 ### Settings and secrets
