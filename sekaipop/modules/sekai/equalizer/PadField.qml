@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A one-line text field on the console screen's glass pages. If the compositor
@@ -6,6 +7,9 @@ import qs.modules.common
 // from the terminal (services/EqualizerService.qml lists the ipc calls).
 Item {
     id: fld
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property string placeholder: ""
@@ -38,7 +42,7 @@ Item {
         selectByMouse: true
         selectionColor: PadPalette.litB
         selectedTextColor: PadPalette.ink
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 11 * fld.u
         echoMode: fld.secret && !input.activeFocus ? TextInput.Password : TextInput.Normal
         onAccepted: fld.submitted(input.text)
@@ -51,7 +55,7 @@ Item {
         text: fld.placeholder
         color: "#ffffff"
         opacity: 0.45
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 11 * fld.u
     }
     MouseArea {

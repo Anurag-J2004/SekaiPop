@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -13,6 +14,9 @@ import qs.modules.common.widgets
 // Pure UI: it only says picked("folder") / picked("wallhaven").
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string current: "folder"      // "folder" | "wallhaven"
     signal picked(string id)
@@ -32,8 +36,8 @@ Item {
     TextMetrics {
         id: m0
         text: root.choices[0].label
-        font.family: Theme.fontFamily
-        font.styleName: Theme.fontStyleBold
+        font.family: mt.fontFamily
+        font.styleName: mt.fontStyleBold
         font.weight: Font.ExtraBold
         font.pixelSize: 14
     }
@@ -45,12 +49,12 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.shadowOffset - 1
-        y: Theme.shadowOffset - 1
+        x: mt.shadowOffset - 1
+        y: mt.shadowOffset - 1
         width: root.width
         height: root.height
         radius: height / 2
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -59,8 +63,8 @@ Item {
         anchors.fill: parent
         radius: height / 2
         color: "#ffffff"
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
     }
 
@@ -74,8 +78,8 @@ Item {
         antialiasing: true
         gradient: Gradient {
             orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: Theme.accentCyan }
-            GradientStop { position: 1.0; color: Theme.accentMint }
+            GradientStop { position: 0.0; color: mt.accentCyan }
+            GradientStop { position: 1.0; color: mt.accentMint }
         }
 
         Behavior on x {
@@ -105,14 +109,14 @@ Item {
                     name: seg.modelData.icon
                     size: 20
                     weight: 600
-                    color: seg.on ? Theme.colBorder : Theme.colSubText
+                    color: seg.on ? mt.colBorder : mt.colSubText
                     Behavior on color { ColorAnimation { duration: 140 } }
                 }
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: seg.modelData.label
-                    color: seg.on ? Theme.colBorder : Theme.colSubText
+                    color: seg.on ? mt.colBorder : mt.colSubText
                     font: m0.font
                     Behavior on color { ColorAnimation { duration: 140 } }
                 }

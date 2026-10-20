@@ -43,6 +43,9 @@ import qs.modules.common.widgets
 PanelWindow {
     id: win
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(screen)
+
     required property var modelData
     screen: modelData
 
@@ -102,10 +105,10 @@ PanelWindow {
 
                 function lineColor(kind) {
                     if (kind === "center")
-                        return Theme.accentMint
+                        return mt.accentMint
                     if (kind === "flush")
                         return "#ffffff"
-                    return Theme.accentCyan
+                    return mt.accentCyan
                 }
 
                 // ===== The grid =====
@@ -150,9 +153,9 @@ PanelWindow {
                                 return
 
                             const c = EditGrid.cell
-                            const navy = Qt.color(Theme.colBorder)
-                            const cyan = Qt.color(Theme.accentCyan)
-                            const mint = Qt.color(Theme.accentMint)
+                            const navy = Qt.color(mt.colBorder)
+                            const cyan = Qt.color(mt.accentCyan)
+                            const mint = Qt.color(mt.accentMint)
                             const rgba = (col, a) => "rgba(" + Math.round(col.r * 255) + ","
                                 + Math.round(col.g * 255) + "," + Math.round(col.b * 255) + "," + a + ")"
 
@@ -304,7 +307,7 @@ PanelWindow {
                                 width: rail.vert ? rail.ow : rail.a1 - rail.a0
                                 height: rail.vert ? rail.a1 - rail.a0 : rail.ow
                                 radius: rail.ow / 2
-                                color: Theme.colBorder
+                                color: mt.colBorder
                                 opacity: 0.85
                             }
 
@@ -315,7 +318,7 @@ PanelWindow {
                                 width: rail.vert ? rail.t : rail.a1 - rail.a0
                                 height: rail.vert ? rail.a1 - rail.a0 : rail.t
                                 radius: rail.t / 2
-                                color: Theme.accentCyan
+                                color: mt.accentCyan
                                 opacity: 0.9
                             }
                         }
@@ -332,7 +335,7 @@ PanelWindow {
                             y: 0
                             width: 2.4 * room.u
                             height: room.height
-                            color: Theme.accentMint
+                            color: mt.accentMint
                             opacity: 0.4
 
                             NumberAnimation on opacity {
@@ -354,7 +357,7 @@ PanelWindow {
                             y: modelData - height / 2
                             width: room.width
                             height: 2.4 * room.u
-                            color: Theme.accentMint
+                            color: mt.accentMint
                             opacity: 0.4
 
                             NumberAnimation on opacity {
@@ -404,7 +407,7 @@ PanelWindow {
                                 radius: width / 2
                                 color: "transparent"
                                 border.width: 2 * room.u
-                                border.color: Theme.accentMint
+                                border.color: mt.accentMint
                                 scale: 0.5 + ping.ring * 1.8
                                 opacity: (1 - ping.ring) * 0.85
                             }
@@ -415,9 +418,9 @@ PanelWindow {
                                 height: width
                                 radius: 2.5 * room.u
                                 rotation: 45
-                                color: Theme.accentMint
+                                color: mt.accentMint
                                 border.width: 1.6 * room.u
-                                border.color: Theme.colBorder
+                                border.color: mt.colBorder
                                 antialiasing: true
                                 scale: ping.pop
                             }
@@ -481,7 +484,7 @@ PanelWindow {
                                         width: mark.wide ? br.alen * br.g : br.ow
                                         height: mark.wide ? br.ow : br.alen * br.g
                                         radius: br.ow / 2
-                                        color: Theme.colBorder
+                                        color: mt.colBorder
                                     }
 
                                     Rectangle {
@@ -490,7 +493,7 @@ PanelWindow {
                                         width: mark.wide ? Math.max(0, br.alen * br.g - 3.2 * br.u) : 3 * br.u
                                         height: mark.wide ? 3 * br.u : Math.max(0, br.alen * br.g - 3.2 * br.u)
                                         radius: 1.5 * br.u
-                                        color: Theme.irisColorPink
+                                        color: mt.irisColorPink
                                     }
 
                                     // the two end ticks, standing across the bar
@@ -513,14 +516,14 @@ PanelWindow {
                                                 width: mark.wide ? br.ow : 15 * br.u
                                                 height: mark.wide ? 15 * br.u : br.ow
                                                 radius: br.ow / 2
-                                                color: Theme.colBorder
+                                                color: mt.colBorder
 
                                                 Rectangle {
                                                     anchors.centerIn: parent
                                                     width: mark.wide ? 3 * br.u : 11.8 * br.u
                                                     height: mark.wide ? 11.8 * br.u : 3 * br.u
                                                     radius: 1.5 * br.u
-                                                    color: Theme.irisColorPink
+                                                    color: mt.irisColorPink
                                                 }
                                             }
                                         }
@@ -543,18 +546,18 @@ PanelWindow {
                                             width: 20
                                             height: 20
                                             radius: 10
-                                            color: Theme.irisColorPink
+                                            color: mt.irisColorPink
                                             border.width: 2
-                                            border.color: Theme.colBorder
+                                            border.color: mt.colBorder
 
                                             Text {
                                                 anchors.centerIn: parent
                                                 text: "="
-                                                color: Theme.colBorder
-                                                font.family: Theme.fontFamily
+                                                color: mt.colBorder
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 15
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                             }
                                         }
 
@@ -567,17 +570,17 @@ PanelWindow {
                                             height: 26
                                             cornerRadius: 10
                                             ringWidth: 3
-                                            fillColor: Theme.irisColorPink
+                                            fillColor: mt.irisColorPink
 
                                             Text {
                                                 id: stickerText
                                                 anchors.centerIn: parent
                                                 text: mark.wide ? "= SAME WIDTH" : "= SAME HEIGHT"
-                                                color: Theme.colBorder
-                                                font.family: Theme.fontFamily
+                                                color: mt.colBorder
+                                                font.family: mt.fontFamily
                                                 font.pixelSize: 11
                                                 font.weight: Font.ExtraBold
-                                                font.styleName: Theme.fontStyleBold
+                                                font.styleName: mt.fontStyleBold
                                                 font.letterSpacing: 0.8
                                             }
                                         }
@@ -681,7 +684,7 @@ PanelWindow {
                                 width: slot.bw
                                 height: slot.bh
                                 radius: slot.ow / 2
-                                color: Theme.colBorder
+                                color: mt.colBorder
                                 opacity: slot.alpha
                             }
 
@@ -714,7 +717,7 @@ PanelWindow {
                                     rotation: 45
                                     color: slot.tint
                                     border.width: 1.6 * room.u
-                                    border.color: Theme.colBorder
+                                    border.color: mt.colBorder
                                     antialiasing: true
                                     scale: slot.grow
                                     opacity: slot.alpha
@@ -738,7 +741,7 @@ PanelWindow {
                                     radius: dot.size / 2
                                     color: "#ffffff"
                                     border.width: 1.8 * room.u
-                                    border.color: Theme.colBorder
+                                    border.color: mt.colBorder
                                     antialiasing: true
                                     scale: (slot.strong && slot.on && slot.grow > 0.85) ? 1 : 0
 
@@ -815,11 +818,11 @@ PanelWindow {
                                         id: labText
                                         anchors.centerIn: parent
                                         text: slot.line ? slot.line.label : ""
-                                        color: Theme.colBorder
-                                        font.family: Theme.fontFamily
+                                        color: mt.colBorder
+                                        font.family: mt.fontFamily
                                         font.pixelSize: 11
                                         font.weight: Font.ExtraBold
-                                        font.styleName: Theme.fontStyleBold
+                                        font.styleName: mt.fontStyleBold
                                         font.letterSpacing: 0.8
                                     }
                                 }

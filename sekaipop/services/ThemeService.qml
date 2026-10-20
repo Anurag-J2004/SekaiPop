@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import qs.services
 import qs.modules.common
 import "../modules/common/functions/PaletteMath.js" as PM
+import "../modules/common/functions/ScreenThemes.js" as ST
 import "../modules/common/functions/MatugenMath.js" as MG
 
 // Which Project Sekai group's colours the shell wears. One value for the
@@ -369,6 +370,148 @@ Singleton {
         root.current = id
         saver.save(id)
     }
+
+    // ===== one theme per monitor (Theme.of(), setting theme.perMonitor) =====
+    // With it on, a monitor can wear a theme of its own on what sits on it (the bar, the dock,
+    // the desktop widgets, the Quick Panel when it opens there). The main monitor (the first,
+    // WallpaperService.themeScreen) wears the shell's theme, `current`, which is also what apps,
+    // Settings and the popups wear; the others follow it until they pick their own. The rules
+    // are ScreenThemes.js; the choices are the setting theme.screens.
+    readonly property bool perMonitor: SettingsService.flag("theme.perMonitor")
+    readonly property string mainScreen: WallpaperService.themeScreen
+    readonly property var screenGroups: ST.parse(SettingsService.get("theme.screens"))
+    readonly property var groupIds: root.groups.map(g => g.id)
+
+    // The theme monitor `name` wears.
+    function themeFor(name) {
+        return ST.themeFor(root.screenGroups, root.perMonitor, name, root.mainScreen, root.current, root.groupIds)
+    }
+
+    // Does monitor `name` wear anything but the shell's own palette? (Theme.of() makes it a
+    // ThemeSet of its own only then.) A monitor on Matugen counts once its own wallpaper's
+    // colours are in, as long as that wallpaper isn't the main monitor's.
+    function hasScreenTheme(name) {
+        const id = root.themeFor(name)
+        if (id === "matugen")
+            return root.screenMatugen[name] !== undefined
+        return id !== root.current
+    }
+
+    function paletteFor(name) {
+        const id = root.themeFor(name)
+        // A monitor's own matugen colours wear the pinned accents too (matugen.pinA / pinB),
+        // put on here so a pin change reaches every monitor at once.
+        if (id === "matugen")
+            return root.screenMatugen[name] ? MG.applyPins(root.screenMatugen[name], root.matugenPinA, root.matugenPinB) : root.palette
+        if (id === root.current)
+            return root.palette
+        const g = root.groups.find(x => x.id === id)
+        return g ? g.c : root.palette
+    }
+
+    // A theme picker on monitor `name` (Edit Desktop's THEME tab, Settings > Quick > Colours):
+    // the shell's theme from the main monitor (or with the setting off), that monitor's own
+    // from any other.
+    function pickTheme(name, id) {
+        if (ST.target(root.perMonitor, name, root.mainScreen) === "screen")
+            root.setScreenTheme(name, id)
+        else
+            root.setTheme(id)
+    }
+
+    // Monitor `name` wears `id` from now on; the main monitor's theme (or "") makes it follow
+    // the main monitor again.
+    function setScreenTheme(name, id) {
+        const next = ST.pick(root.screenGroups, name, id, root.mainScreen, root.current, root.groupIds)
+        SettingsService.set("theme.screens", Object.keys(next).length > 0 ? JSON.stringify(next) : "")
+    }
+
+    // ===== matugen, per monitor =====
+    // Each monitor other than the main one that wears Matugen gets matugen run on ITS
+    // wallpaper (written to screen-<name>.json); one showing the main monitor's picture just
+    // wears the main colours. { monitor name: shell palette }, filled as the runs finish.
+    property var screenMatugen: ({})
+    // { monitor name: the image it was last run for }
+    property var screenMatugenFor: ({})
+    property var screenMatugenQueue: []
+
+    function refreshScreenMatugen() {
+        const names = Quickshell.screens.map(sc => sc.name)
+        const want = ST.matugenScreens(root.screenGroups, root.perMonitor, names, root.mainScreen, root.current, root.groupIds)
+        const mainImg = WallpaperService.imageFor(WallpaperService.pathFor(root.mainScreen))
+        const keep = {}
+        const queue = []
+        for (const n of want) {
+            const img = WallpaperService.imageFor(WallpaperService.pathFor(n))
+            if (img === "" || img === mainImg)
+                continue
+            if (root.screenMatugen[n] !== undefined && root.screenMatugenFor[n] === img + "|" + root.matugenType + "|" + root.matugenContrast)
+                keep[n] = root.screenMatugen[n]
+            else
+                queue.push({ name: n, img: img })
+        }
+        root.screenMatugen = keep
+        root.screenMatugenQueue = queue
+        root.pumpScreenMatugen()
+    }
+
+    function pumpScreenMatugen() {
+        if (screenMatugenProc.running || root.screenMatugenQueue.length === 0)
+            return
+        const job = root.screenMatugenQueue[0]
+        root.screenMatugenQueue = root.screenMatugenQueue.slice(1)
+        screenMatugenProc.job = job
+        const out = root.matugenPath.replace(/colors\.json$/, "screen-" + job.name + ".json")
+        // The same scheme and contrast as the main monitor (Edit Desktop > THEME > Matugen), but
+        // its own first colour: the seed is an index into the MAIN wallpaper's colours.
+        const extra = MG.applyArgs(-1, root.matugenContrast)
+        screenMatugenProc.exec(["sh", "-c", 'sh "$0" apply "$1" "$2" "$3" "$5" "$6" && cat "$4"',
+            root.matugenScript, job.img, root.matugenType, "screen-" + job.name, out, extra[0], extra[1]])
+    }
+
+    Process {
+        id: screenMatugenProc
+        property var job: null
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const job = screenMatugenProc.job
+                if (!job)
+                    return
+                try {
+                    const pal = root.buildMatugenPalette(JSON.parse(text))
+                    if (pal) {
+                        const next = Object.assign({}, root.screenMatugen)
+                        next[job.name] = pal
+                        root.screenMatugen = next
+                        const done = Object.assign({}, root.screenMatugenFor)
+                        done[job.name] = job.img + "|" + root.matugenType + "|" + root.matugenContrast
+                        root.screenMatugenFor = done
+                    }
+                } catch (e) {
+                    console.log("[ThemeService] matugen (" + job.name + "): couldn't read its colours", e)
+                }
+            }
+        }
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (text.trim().length > 0)
+                    console.log("[ThemeService] matugen (" + (screenMatugenProc.job ? screenMatugenProc.job.name : "?") + "):", text.trim())
+            }
+        }
+        onExited: Qt.callLater(root.pumpScreenMatugen)
+    }
+
+    // Anything that changes who needs a run, or on what picture.
+    Timer {
+        id: screenMatugenDebounce
+        interval: 250
+        onTriggered: root.refreshScreenMatugen()
+    }
+    readonly property string screenMatugenKey: [root.perMonitor, root.current, JSON.stringify(root.screenGroups),
+        JSON.stringify(WallpaperService.screenPaths), WallpaperService.defaultPath, root.matugenType, root.matugenContrast,
+        Quickshell.screens.map(sc => sc.name).join(",")].join("|")
+    onScreenMatugenKeyChanged: screenMatugenDebounce.restart()
 
     // ===== matugen =====
     // The knobs (Edit Desktop > THEME > Matugen's controls, EditMatugenControls.qml), each a
@@ -1201,6 +1344,17 @@ Singleton {
 
         function list(): string {
             return root.groups.map(g => g.id).join(" ")
+        }
+
+        // A monitor's own theme (needs theme.perMonitor on); "" (or the main monitor's) to
+        // follow the main monitor again.
+        function screen(name: string, id: string): void {
+            root.setScreenTheme(name, id)
+        }
+
+        // What each monitor wears: "DP-2=vs remote=mmj".
+        function screens(): string {
+            return Quickshell.screens.map(sc => sc.name + "=" + root.themeFor(sc.name)).join(" ")
         }
     }
 }

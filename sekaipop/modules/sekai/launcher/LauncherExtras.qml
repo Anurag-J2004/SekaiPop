@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import "Calc.js" as Calc
 import "../../common/functions/Extras.js" as X
@@ -27,6 +28,9 @@ import qs.modules.common.widgets
 // asks (`doneRequested`) and QuickPanel.qml does it.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // ===== given =====
     // The Apps search box's text.
@@ -513,7 +517,7 @@ Item {
                     width: parent.width - 4
                     height: parent.height - 4
                     radius: height / 2
-                    color: Theme.pLineShadow
+                    color: mt.pLineShadow
                     antialiasing: true
                 }
 
@@ -523,9 +527,9 @@ Item {
                     anchors.bottomMargin: 4
                     radius: height / 2
                     color: rowItem.confirming ? ScrapbookTheme.tapeCoral
-                        : (rowItem.picked || rowArea.containsMouse) ? Theme.accentMint : Theme.pSurface
+                        : (rowItem.picked || rowArea.containsMouse) ? mt.accentMint : mt.pSurface
                     border.width: rowItem.picked || rowItem.confirming ? 5 : 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                     antialiasing: true
 
                     MaterialIcon {
@@ -548,8 +552,8 @@ Item {
                             width: parent.width
                             text: rowItem.modelData.title
                             elide: Text.ElideRight
-                            color: Theme.pInk
-                            font.family: Theme.fontFamily
+                            color: mt.pInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 22
                             font.weight: Font.ExtraBold
                         }
@@ -559,8 +563,8 @@ Item {
                             text: rowItem.confirming ? "Press Enter again to confirm" : rowItem.modelData.sub
                             visible: text !== ""
                             elide: Text.ElideRight
-                            color: Theme.pInkSub
-                            font.family: Theme.fontFamily
+                            color: mt.pInkSub
+                            font.family: mt.fontFamily
                             font.pixelSize: 15
                             font.weight: Font.Bold
                         }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,9 @@ import qs.modules.common.widgets
 Item {
     id: key
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string icon: ""
     signal clicked()
 
@@ -21,8 +25,8 @@ Item {
         anchors.fill: parent
         shadowDy: 3
         cornerRadius: 11
-        ringWidth: Theme.borderWidth + Theme.whiteLine
-        fillColor: Theme.chipFill
+        ringWidth: mt.borderWidth + mt.whiteLine
+        fillColor: mt.chipFill
         pressed: keyArea.pressed
 
         MaterialIcon {
@@ -31,7 +35,7 @@ Item {
             fill: 0
             size: 18
             weight: 700
-            color: Theme.chipInk
+            color: mt.chipInk
         }
     }
 

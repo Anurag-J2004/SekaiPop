@@ -119,17 +119,17 @@ Pill {
 
     // The white face *is* the fill here: ringWidth matches the outline
     // so the fill sits just inside it.
-    cornerRadius: Theme.radiusOuter
-    ringWidth: Theme.borderWidth
-    innerRing: Theme.cardRing      // the same inner ring the other popups' cards have
-    fillColor: Theme.surface
+    cornerRadius: mt.radiusOuter
+    ringWidth: mt.borderWidth
+    innerRing: mt.cardRing      // the same inner ring the other popups' cards have
+    fillColor: mt.surface
 
     // Figma: 184px wide, rows inset 8px from the card edge (5px inside
     // the outline). Grows for longer labels.
     readonly property real innerWidth: Math.max(168, col.implicitWidth)
 
     implicitWidth: innerWidth + 10 + ringWidth * 2
-    implicitHeight: col.implicitHeight + 2 + ringWidth * 2 + Theme.shadowOffset
+    implicitHeight: col.implicitHeight + 2 + ringWidth * 2 + mt.shadowOffset
 
     // The widest a single row can ever get — icon + a full 240px label
     // (TrayMenuRow's own elide cap) + a submenu chevron — from
@@ -182,7 +182,7 @@ Pill {
                                                 Math.max(1, Math.ceil(height * root.texel)))
 
                     ShapePath {
-                        strokeColor: Theme.ink
+                        strokeColor: mt.ink
                         strokeWidth: 2
                         fillColor: "transparent"
                         capStyle: ShapePath.FlatCap
@@ -208,7 +208,7 @@ Pill {
                                             Math.max(1, Math.ceil(height * root.texel)))
 
                 ShapePath {
-                    strokeColor: Theme.ink
+                    strokeColor: mt.ink
                     strokeWidth: 2
                     fillColor: "transparent"
                     capStyle: ShapePath.RoundCap

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -40,8 +41,8 @@ Pill {
 
     cornerRadius: 26
     ringWidth: 6
-    fillColor: Theme.surface
-    borderWidth: Theme.borderWidth
+    fillColor: mt.surface
+    borderWidth: mt.borderWidth
     shadowDx: 6
     shadowDy: 6
 
@@ -86,6 +87,9 @@ Pill {
     component DialogButton: Item {
         id: btn
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string text: ""
         property bool primary: false
         signal clicked()
@@ -97,8 +101,8 @@ Pill {
         Gradient {
             id: primaryGradient
             orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: Theme.accentMint }
-            GradientStop { position: 1.0; color: Theme.accentCyan }
+            GradientStop { position: 0.0; color: mt.accentMint }
+            GradientStop { position: 1.0; color: mt.accentCyan }
         }
 
         Pill {
@@ -107,17 +111,17 @@ Pill {
             shadowDx: 3
             shadowDy: 3
             pressed: area.pressed && btn.enabled
-            fillColor: Theme.surface
+            fillColor: mt.surface
             fillGradient: btn.primary ? primaryGradient : null
 
             Text {
                 anchors.centerIn: parent
                 text: btn.text
-                color: btn.primary ? Theme.colBorder : Theme.ink
-                font.family: Theme.fontFamily
+                color: btn.primary ? mt.colBorder : mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -145,13 +149,13 @@ Pill {
                 width: 48
                 height: 48
                 radius: 24
-                color: Theme.accentMint
-                border.width: Theme.borderWidth
-                border.color: Theme.line
+                color: mt.accentMint
+                border.width: mt.borderWidth
+                border.color: mt.line
                 antialiasing: true
 
                 MaterialIcon {
-                    color: Theme.colBorder
+                    color: mt.colBorder
                     anchors.centerIn: parent
                     size: 26
                     name: "lock"
@@ -167,11 +171,11 @@ Pill {
                     width: parent.width
                     text: "Authentication Required"
                     elide: Text.ElideRight
-                    color: Theme.ink
-                    font.family: Theme.fontFamily
+                    color: mt.ink
+                    font.family: mt.fontFamily
                     font.pixelSize: 19
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -181,8 +185,8 @@ Pill {
                     wrapMode: Text.Wrap
                     maximumLineCount: 3
                     elide: Text.ElideRight
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                 }
             }
@@ -194,11 +198,11 @@ Pill {
             width: parent.width
             height: 46
             radius: 23
-            color: Theme.surface
+            color: mt.surface
             // A wrong password tints the outline pink instead of navy —
             // pink is the "Cute" attribute colour from Theme.
-            border.width: Theme.borderWidth
-            border.color: root.failed ? Theme.attributeColors[1] : Theme.line
+            border.width: mt.borderWidth
+            border.color: root.failed ? mt.attributeColors[1] : mt.line
             antialiasing: true
             opacity: root.interactionAvailable ? 1 : 0.6
 
@@ -212,8 +216,8 @@ Pill {
                 elide: Text.ElideRight
                 visible: input.text === ""
                 text: root.prompt
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 15
             }
 
@@ -226,15 +230,15 @@ Pill {
                 enabled: root.interactionAvailable
                 echoMode: root.passwordMode ? TextInput.Password : TextInput.Normal
                 passwordCharacter: "●"
-                color: Theme.ink
-                selectionColor: Theme.accentCyan
-                selectedTextColor: Theme.colBorder
-                font.family: Theme.fontFamily
+                color: mt.ink
+                selectionColor: mt.accentCyan
+                selectedTextColor: mt.colBorder
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.DemiBold
                 cursorDelegate: Rectangle {
                     width: 2
-                    color: Theme.line
+                    color: mt.line
                 }
 
                 onAccepted: root.trySubmit()
@@ -247,7 +251,7 @@ Pill {
             width: parent.width
             height: visible ? 34 : 0
             radius: 17
-            color: Theme.attributeColors[1]
+            color: mt.attributeColors[1]
             antialiasing: true
 
             Row {
@@ -255,7 +259,7 @@ Pill {
                 spacing: 8
 
                 MaterialIcon {
-                    color: Theme.colBorder
+                    color: mt.colBorder
                     anchors.verticalCenter: parent.verticalCenter
                     size: 18
                     name: "error"
@@ -264,11 +268,11 @@ Pill {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Sorry, that didn't work. Try again."
-                    color: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }

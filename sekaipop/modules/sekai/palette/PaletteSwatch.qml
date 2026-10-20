@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import "../../common/functions/PaletteMath.js" as PM
@@ -11,6 +12,9 @@ import "../../common/functions/PaletteMath.js" as PM
 //   PaletteSwatch { hex: "#04feee"; locked: false; onCopyRequested: ...; onLockToggled: ... }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string hex: "#000000"
     property bool locked: false
@@ -58,7 +62,7 @@ Item {
         width: root.width
         height: root.faceH
         radius: root.corner
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -71,7 +75,7 @@ Item {
         antialiasing: true
         color: root.hex
         border.width: 3
-        border.color: Theme.line
+        border.color: mt.line
         scale: mouse.pressed ? 0.98 : 1
 
         Behavior on color { ColorAnimation { duration: 340; easing.type: Easing.OutCubic } }
@@ -120,10 +124,10 @@ Item {
                 width: parent.width
                 text: root.mini ? root.hex.toUpperCase().replace("#", "") : root.hex.toUpperCase()
                 color: root.ink
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: root.mini ? 10 : (root.compact ? 12 : 17)
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 elide: Text.ElideRight
             }
 
@@ -137,7 +141,7 @@ Item {
                     text: root.locked ? "locked" : ((root.compact || root.mini) ? "copy" : "click to copy")
                     color: root.ink
                     opacity: root.copied ? 0 : (root.hovered || root.locked ? 0.8 : 0)
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: root.mini ? 9 : (root.compact ? 10 : 11)
                     font.weight: Font.Bold
                     Behavior on opacity { NumberAnimation { duration: 140 } }
@@ -155,7 +159,7 @@ Item {
                         visible: !root.mini
                         text: "Copied"
                         color: root.ink
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: root.mini ? 9 : (root.compact ? 10 : 11)
                         font.weight: Font.ExtraBold
                         anchors.verticalCenter: parent.verticalCenter

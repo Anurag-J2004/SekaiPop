@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -20,6 +21,9 @@ import qs.modules.sekai.phone
 // Pure UI (no Quickshell imports), like QuickPanelFace itself.
 Item {
     id: card
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var key
     property string app: ""
@@ -125,20 +129,20 @@ Item {
         // The card's slightly deeper edge tone, used by both the side
         // gradient and the bottom fade below. Derived from the card colour
         // itself, so the fades blend into the card.
-        readonly property color edgeTone: Theme.classic ? Qt.color("#e9e9e9") : Qt.darker(Theme.pSurfaceHover, 1.12)
+        readonly property color edgeTone: mt.classic ? Qt.color("#e9e9e9") : Qt.darker(mt.pSurfaceHover, 1.12)
 
         Rectangle {
             anchors.fill: parent
             radius: 16.5
-            color: Theme.pSurfaceHover
+            color: mt.pSurfaceHover
             opacity: card.pressed ? 0.7 : 1
             // A critical one gets the panel's outline.
             border.width: card.urgency === 2 ? 3 : 0
-            border.color: Theme.pLine
+            border.color: mt.pLine
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.pSurfaceHover }
-                GradientStop { position: 0.72; color: Theme.pSurfaceHover }
+                GradientStop { position: 0.0; color: mt.pSurfaceHover }
+                GradientStop { position: 0.72; color: mt.pSurfaceHover }
                 GradientStop { position: 1.0; color: slide.edgeTone }
             }
             antialiasing: true
@@ -168,7 +172,7 @@ Item {
                 visible: !card.materialIcon
                 anchors.fill: parent
                 radius: width / 2
-                color: Theme.pSurface
+                color: mt.pSurface
                 antialiasing: true
             }
 
@@ -212,8 +216,8 @@ Item {
                 width: Math.min(implicitWidth, card.cardWidth - 198 - (card.group ? 34 : 0))
                 elide: Text.ElideRight
                 text: card.app
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 14
                 font.weight: Font.Medium
             }
@@ -223,7 +227,7 @@ Item {
                 height: 18
                 width: Math.max(18, countText.implicitWidth + 12)
                 radius: 9
-                color: Theme.pLine
+                color: mt.pLine
                 antialiasing: true
                 anchors.verticalCenter: appText.verticalCenter
 
@@ -232,7 +236,7 @@ Item {
                     anchors.centerIn: parent
                     text: card.groupCount > 9 ? "9+" : card.groupCount
                     color: "white"
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
                 }
@@ -245,8 +249,8 @@ Item {
             width: 70
             horizontalAlignment: Text.AlignRight
             text: card.agoText
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 14
             font.weight: Font.Medium
         }
@@ -257,11 +261,11 @@ Item {
             width: card.cardWidth - 100 - (card.group ? 36 : 0)
             elide: Text.ElideRight
             text: card.title
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 20
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
@@ -274,8 +278,8 @@ Item {
             maximumLineCount: 2
             elide: Text.ElideRight
             lineHeight: 0.92
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 15
         }
 

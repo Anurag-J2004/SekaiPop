@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -19,6 +20,9 @@ import qs.modules.common.widgets
 // (`visible` is false once it has finished shrinking).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property bool vertical: false
     // Which edge the bar is on, so the tag opens towards the screen.
@@ -73,15 +77,15 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
+        cornerRadius: mt.radiusBadge
         ringWidth: vertical ? 6 : 8
         capKeepsFill: true   // Capsule bar: the warning colour is the point, keep it
         fillColor: root.warn
 
         implicitWidth: root.vertical ? pill.barVWidth
                                      : row.implicitWidth + 2 * ringWidth + 14
-        implicitHeight: root.vertical ? col.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + Theme.shadowOffset
-                                      : Theme.pillHeight + Theme.shadowOffset
+        implicitHeight: root.vertical ? col.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + mt.shadowOffset
+                                      : mt.pillHeight + mt.shadowOffset
 
         // A slow pulse so it is hard to miss without being annoying.
         SequentialAnimation on opacity {
@@ -103,7 +107,7 @@ Item {
                 name: "mic"
                 size: 16
                 fill: 1
-                color: Theme.colBorder
+                color: mt.colBorder
             }
             MaterialIcon {
                 visible: root.audioShown
@@ -111,7 +115,7 @@ Item {
                 name: "graphic_eq"
                 size: 16
                 fill: 1
-                color: Theme.colBorder
+                color: mt.colBorder
             }
             MaterialIcon {
                 visible: root.screenShown
@@ -119,7 +123,7 @@ Item {
                 name: "screen_record"
                 size: 16
                 fill: 1
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
 
@@ -135,7 +139,7 @@ Item {
                 name: "mic"
                 size: 16
                 fill: 1
-                color: Theme.colBorder
+                color: mt.colBorder
             }
             MaterialIcon {
                 visible: root.audioShown
@@ -143,7 +147,7 @@ Item {
                 name: "graphic_eq"
                 size: 16
                 fill: 1
-                color: Theme.colBorder
+                color: mt.colBorder
             }
             MaterialIcon {
                 visible: root.screenShown
@@ -151,7 +155,7 @@ Item {
                 name: "screen_record"
                 size: 16
                 fill: 1
-                color: Theme.colBorder
+                color: mt.colBorder
             }
         }
     }

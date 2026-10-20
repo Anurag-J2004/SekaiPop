@@ -81,7 +81,7 @@ Pill {
     // The padding is 2 more than it was with the old ring of 8 wherever that
     // ring was, so the sizes (the dropdown's 115 x 50 capsule, a standing bar's
     // width) stay what they were.)
-    readonly property int padX: vertical ? (root.capsule ? Math.max(8, (Theme.capVChip - iconSize) / 2) : 8) : (compact ? (root.capsule ? ((empty && showToggle) ? 3 : 8) : ((empty && showToggle) ? 2 : 12)) : 21)
+    readonly property int padX: vertical ? (root.capsule ? Math.max(8, (mt.capVChip - iconSize) / 2) : 8) : (compact ? (root.capsule ? ((empty && showToggle) ? 3 : 8) : ((empty && showToggle) ? 2 : 12)) : 21)
     readonly property int padY: vertical ? 8 : (compact ? 3 : 8)
     readonly property int maxPerRow: 6
 
@@ -90,7 +90,7 @@ Pill {
 
     // (Capsule bar: a flat chip, no ring to leave room for.)
     ringWidth: root.capsule ? 0 : 6
-    fillColor: Theme.chipFill
+    fillColor: mt.chipFill
 
     // The tray toggle: with `showToggle` the capsule also holds the
     // dropdown's arrow button as its last cell, so the pinned icons and
@@ -125,11 +125,11 @@ Pill {
     readonly property real fullWidth: contentWidth + padX * 2 + ringWidth * 2
     // ...the narrowest it gets with one icon in it...
     readonly property real minWidth: iconSize + padX * 2 + ringWidth * 2
-    readonly property real minHeight: iconSize + padY * 2 + ringWidth * 2 + Theme.shadowOffset
+    readonly property real minHeight: iconSize + padY * 2 + ringWidth * 2 + mt.shadowOffset
 
     implicitWidth: fullWidth
-    implicitHeight: Math.max(contentHeight + padY * 2, Theme.pillHeight - ringWidth * 2)
-        + ringWidth * 2 + Theme.shadowOffset
+    implicitHeight: Math.max(contentHeight + padY * 2, mt.pillHeight - ringWidth * 2)
+        + ringWidth * 2 + mt.shadowOffset
 
     // The capsule appears and goes in two steps, so it never sweeps
     // open or shut while it is visible:
@@ -227,7 +227,7 @@ Pill {
     opacity: Math.min(1, popT * 2)
     scale: (0.8 + 0.2 * popT) * bump
 
-    cornerRadius: Math.min(compact ? Theme.radiusBadge : 25, (height - Theme.shadowOffset) / 2)
+    cornerRadius: Math.min(compact ? mt.radiusBadge : 25, (height - mt.shadowOffset) / 2)
 
     // "The wheel works on these icons" (pinned capsule in the bar only: the
     // dropdown is a popup, and the bar's hints are for the bar).
@@ -254,11 +254,11 @@ Pill {
             // arrow button.)
             visible: root.empty && !root.showToggle && (!root.compact || root.present)
             text: "Nothing here"
-            color: Theme.chipInk
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeInfo
+            color: mt.chipInk
+            font.family: mt.fontFamily
+            font.pixelSize: mt.fontSizeInfo
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         // Left-aligned by the padding (not centered) so icons already
@@ -337,7 +337,7 @@ Pill {
                         y: -3
                         color: "#ff5c7a"
                         border.width: 2
-                        border.color: Theme.chipFill
+                        border.color: mt.chipFill
                         antialiasing: true
 
                         SequentialAnimation on scale {
@@ -411,7 +411,7 @@ Pill {
                     name: "arrow_drop_down"
                     size: 28
                     fill: 1
-                    color: Theme.chipInk
+                    color: mt.chipInk
                     rotation: root.toggleOpen ? 180 : 0
                     Behavior on rotation {
                         enabled: root.animated
@@ -430,7 +430,7 @@ Pill {
                 y: -3
                 color: "#ff5c7a"
                 border.width: 2
-                border.color: Theme.chipFill
+                border.color: mt.chipFill
                 antialiasing: true
 
                 SequentialAnimation on scale {

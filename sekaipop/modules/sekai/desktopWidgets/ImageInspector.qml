@@ -25,6 +25,9 @@ import "../../common/functions/ImageMath.js" as IM
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string imageId: ""
     property real uiScale: 1
 
@@ -36,39 +39,45 @@ Item {
     readonly property bool classicPanel: true
 
     readonly property var rec: ImageService.byId[root.imageId] ?? null
-    readonly property int inset: Theme.borderWidth + Theme.outerRingWidth + 12
+    readonly property int inset: mt.borderWidth + mt.outerRingWidth + 12
 
     function set(patch) {
         ImageService.update(root.imageId, patch)
     }
 
     function swatch(id) {
-        return id === "navy" ? Theme.colBorder
-            : id === "mint" ? Theme.accentMint
-            : id === "cyan" ? Theme.accentCyan
-            : id === "pink" ? Theme.irisColorPink
+        return id === "navy" ? mt.colBorder
+            : id === "mint" ? mt.accentMint
+            : id === "cyan" ? mt.accentCyan
+            : id === "pink" ? mt.irisColorPink
             : id === "black" ? "#000000"
             : "#ffffff"
     }
 
-    readonly property color trackColor: Qt.rgba(Theme.pInk.r, Theme.pInk.g, Theme.pInk.b, 0.14)
+    readonly property color trackColor: Qt.rgba(mt.pInk.r, mt.pInk.g, mt.pInk.b, 0.14)
 
     width: 304
-    height: body.implicitHeight + root.inset * 2 + Theme.shadowOffset
+    height: body.implicitHeight + root.inset * 2 + mt.shadowOffset
 
     // ===== parts =====
     component Cap: Text {
-        color: Theme.pInkSub
-        font.family: Theme.fontFamily
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+        color: mt.pInkSub
+        font.family: mt.fontFamily
         font.pixelSize: 11
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
         font.letterSpacing: 1
     }
 
     // A small keycap with an icon (and a label, when it has room).
     component KeyBtn: Item {
         id: kb
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string icon: ""
         property string label: ""
@@ -87,7 +96,7 @@ Item {
             shadowDx: 2
             shadowDy: 3
             pressed: kbArea.pressed
-            fillColor: kbArea.containsMouse ? (kb.danger ? "#ff7a8c" : Theme.accentMint) : Theme.chipFill
+            fillColor: kbArea.containsMouse ? (kb.danger ? "#ff7a8c" : mt.accentMint) : mt.chipFill
 
             Row {
                 id: kbRow
@@ -99,18 +108,18 @@ Item {
                     name: kb.icon
                     size: 17
                     weight: 700
-                    color: kbArea.containsMouse ? Theme.colBorder : Theme.chipInk
+                    color: kbArea.containsMouse ? mt.colBorder : mt.chipInk
                 }
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: kb.label !== ""
                     text: kb.label
-                    color: kbArea.containsMouse ? Theme.colBorder : Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: kbArea.containsMouse ? mt.colBorder : mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.8
                 }
             }
@@ -128,6 +137,9 @@ Item {
     // label . track . value. `display` turns the stored number into the shown one.
     component Slide: Item {
         id: sl
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string label: ""
         property real value: 0
@@ -162,7 +174,7 @@ Item {
                 radius: 4.5
                 color: root.trackColor
                 border.width: 2
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
             }
 
@@ -171,9 +183,9 @@ Item {
                 width: Math.max(9, sl.ratio * track.width)
                 height: 9
                 radius: 4.5
-                color: Theme.accentMint
+                color: mt.accentMint
                 border.width: 2
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
             }
 
@@ -185,7 +197,7 @@ Item {
                 radius: width / 2
                 color: "#ffffff"
                 border.width: 3
-                border.color: Theme.pLine
+                border.color: mt.pLine
                 antialiasing: true
 
                 Behavior on width {
@@ -219,16 +231,19 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             x: sl.width - width
             text: Math.round(sl.value * sl.display) + sl.suffix
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
     component ToggleRow: Item {
         id: sw
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
 
         property string label: ""
         property bool checked: false
@@ -240,7 +255,7 @@ Item {
         Cap {
             anchors.verticalCenter: parent.verticalCenter
             text: sw.label
-            color: Theme.pInk
+            color: mt.pInk
         }
 
         Rectangle {
@@ -249,9 +264,9 @@ Item {
             width: 44
             height: 24
             radius: 12
-            color: sw.checked ? Theme.accentMint : root.trackColor
+            color: sw.checked ? mt.accentMint : root.trackColor
             border.width: 3
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             Behavior on color { ColorAnimation { duration: 140 } }
@@ -262,7 +277,7 @@ Item {
                 width: 14
                 height: 14
                 radius: 7
-                color: sw.checked ? Theme.colBorder : Theme.pInkSub
+                color: sw.checked ? mt.colBorder : mt.pInkSub
                 antialiasing: true
 
                 Behavior on x {
@@ -279,6 +294,9 @@ Item {
     }
 
     component Rule: Rectangle {
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
         width: parent ? parent.width : 0
         height: 2
         radius: 1
@@ -288,11 +306,11 @@ Item {
     // ===== the housing =====
     Pill {
         anchors.fill: parent
-        cornerRadius: Theme.radiusOuter
-        ringWidth: Theme.borderWidth + Theme.outerRingWidth
-        ringColorTop: Theme.pSurfaceRing
+        cornerRadius: mt.radiusOuter
+        ringWidth: mt.borderWidth + mt.outerRingWidth
+        ringColorTop: mt.pSurfaceRing
         ringColorBottom: ringColorTop
-        fillColor: Theme.pSurface
+        fillColor: mt.pSurface
     }
 
     Column {
@@ -316,13 +334,13 @@ Item {
                     name: "image"
                     size: 18
                     weight: 700
-                    color: Theme.pInk
+                    color: mt.pInk
                 }
 
                 Cap {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "IMAGE"
-                    color: Theme.pInk
+                    color: mt.pInk
                     font.pixelSize: 12
                 }
             }
@@ -446,7 +464,7 @@ Item {
                         radius: 13
                         color: root.swatch(sw1.modelData)
                         border.width: sw1.on ? 4 : 2
-                        border.color: sw1.on ? Theme.accentCyan : Theme.pLine
+                        border.color: sw1.on ? mt.accentCyan : mt.pLine
                         antialiasing: true
                         scale: swArea.containsMouse || sw1.on ? 1.12 : 1
 

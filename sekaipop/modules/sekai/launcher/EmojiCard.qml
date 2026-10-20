@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "Emoji.js" as Emoji
 import qs.modules.common
 import qs.modules.common.widgets
@@ -21,13 +22,16 @@ import qs.modules.sekai.phone
 PhoneCard {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string arg: ""
     property var recent: []           // characters, newest first
 
     signal picked(string emoji, bool typeIt)
 
     readonly property bool searching: arg.trim() !== ""
-    readonly property color darkInk: Theme.colBorder
+    readonly property color darkInk: mt.colBorder
 
     // -1 = Recent, 0.. = Emoji.groups
     property int tab: recent.length > 0 ? -1 : 0
@@ -97,8 +101,8 @@ PhoneCard {
             elide: Text.ElideRight
             text: root.searching ? "Matching \u201c" + root.arg.trim() + "\u201d"
                 : (root.tab === -1 ? "Recent" : Emoji.groups[root.tab].name)
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 26
             font.weight: Font.ExtraBold
         }
@@ -113,14 +117,14 @@ PhoneCard {
             radius: (height - shadow) / 2
             borderW: 2.5
             shadow: 3
-            fill: Theme.accentCyan
+            fill: mt.accentCyan
 
             Text {
                 id: countText
                 anchors.centerIn: parent
                 text: root.items.length
                 color: root.darkInk
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
             }
@@ -163,7 +167,7 @@ PhoneCard {
                     radius: (height - shadow) / 2
                     borderW: tabItem.on ? 5 : 3
                     shadow: 3
-                    fill: tabItem.on ? Theme.accentCyan : (tabArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface)
+                    fill: tabItem.on ? mt.accentCyan : (tabArea.containsMouse ? mt.pSurfaceHover : mt.pSurface)
                     pressed: tabArea.pressed
 
                     MaterialIcon {
@@ -171,7 +175,7 @@ PhoneCard {
                         name: tabItem.modelData.icon
                         size: 26
                         weight: 600
-                        color: tabItem.on ? root.darkInk : Theme.pInkSub
+                        color: tabItem.on ? root.darkInk : mt.pInkSub
                     }
                 }
 
@@ -238,9 +242,9 @@ PhoneCard {
                         width: root.cell - 6
                         height: root.cell - 6
                         radius: 18
-                        color: cellItem.sel ? Theme.accentMint : (cellArea.containsMouse ? Theme.pSurfaceHover : "transparent")
+                        color: cellItem.sel ? mt.accentMint : (cellArea.containsMouse ? mt.pSurfaceHover : "transparent")
                         border.width: cellItem.sel ? 4 : 0
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
                     }
 
@@ -271,8 +275,8 @@ PhoneCard {
                 visible: root.items.length === 0
                 text: root.searching ? "No emoji match \u201c" + root.arg.trim() + "\u201d."
                     : "Nothing here yet.\nPick an emoji and it will show up here."
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 21
                 font.weight: Font.Bold
                 lineHeight: 1.25
@@ -289,7 +293,7 @@ PhoneCard {
         width: 6
         height: Math.max(30, grid.height * grid.height / Math.max(1, grid.contentHeight))
         radius: 3
-        color: Theme.pSurfaceRing
+        color: mt.pSurfaceRing
         antialiasing: true
     }
 
@@ -311,7 +315,7 @@ PhoneCard {
             width: 64
             height: 64
             radius: 32
-            color: Theme.pSurfaceHover
+            color: mt.pSurfaceHover
 
             Text {
                 anchors.centerIn: parent
@@ -333,8 +337,8 @@ PhoneCard {
                 width: parent.width
                 elide: Text.ElideRight
                 text: root.currentItem ? root.currentItem[1] : (root.searching ? "" : "Pick one")
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 21
                 font.weight: Font.ExtraBold
             }
@@ -343,8 +347,8 @@ PhoneCard {
                 width: parent.width
                 elide: Text.ElideRight
                 text: "Enter copies \u00b7 Shift types"
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.Bold
             }
@@ -378,7 +382,7 @@ PhoneCard {
             height: 56
             label: "Copy"
             fontSize: 22
-            fill: Theme.accentMint
+            fill: mt.accentMint
             ink: root.darkInk
             enabled: root.currentItem !== null
             onClicked: root.activate(false)

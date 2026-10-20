@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // The icon an app gets in the Apps screen when its .desktop entry has no icon (or names one
@@ -12,6 +13,9 @@ import qs.modules.common
 // The shadow is drawn outside the box (down-right, `size * 0.05`), like ShellBadge.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string name: ""
     property real size: 72
@@ -28,9 +32,9 @@ Item {
         let h = 0
         for (let i = 0; i < s.length; i++)
             h = (h * 31 + s.charCodeAt(i)) | 0
-        return Math.abs(h) % Theme.attributeColors.length
+        return Math.abs(h) % mt.attributeColors.length
     }
-    readonly property color ink: Theme.mono ? Theme.colBorder : "#555473"
+    readonly property color ink: mt.mono ? mt.colBorder : "#555473"
     readonly property real outline: Math.max(2, root.size * 0.055)
 
     width: root.size
@@ -51,7 +55,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: root.size * 0.30
-        color: Theme.attributeColors[root.kind]
+        color: mt.attributeColors[root.kind]
         border.width: root.outline
         border.color: root.ink
         antialiasing: true
@@ -75,9 +79,9 @@ Item {
         color: "#ffffff"
         style: Text.Outline
         styleColor: root.ink
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: Math.round(root.size * 0.5)
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,9 @@ import qs.modules.common.widgets
 Rectangle {
     id: field
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property alias input: ti
     property alias text: ti.text
     property string hint: ""
@@ -22,9 +26,9 @@ Rectangle {
 
     height: 34
     radius: 11
-    color: ti.activeFocus ? Theme.pSurface : Theme.pSurfaceHover
+    color: ti.activeFocus ? mt.pSurface : mt.pSurfaceHover
     border.width: 2.5
-    border.color: field.bad ? field.badInk : Theme.pLine
+    border.color: field.bad ? field.badInk : mt.pLine
 
     Behavior on color {
         ColorAnimation { duration: 120 }
@@ -47,7 +51,7 @@ Rectangle {
         size: 16
         weight: 600
         fill: 0
-        color: Theme.pInkSub
+        color: mt.pInkSub
     }
 
     TextInput {
@@ -59,10 +63,10 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         clip: true
         selectByMouse: true
-        color: Theme.pInk
-        selectionColor: Theme.accentCyan
-        selectedTextColor: Theme.colBorder
-        font.family: Theme.fontFamily
+        color: mt.pInk
+        selectionColor: mt.accentCyan
+        selectedTextColor: mt.colBorder
+        font.family: mt.fontFamily
         font.pixelSize: 13
         font.weight: Font.DemiBold
 
@@ -73,7 +77,7 @@ Rectangle {
             visible: ti.text === ""
             anchors.verticalCenter: parent.verticalCenter
             text: field.hint
-            color: Theme.pInkSub
+            color: mt.pInkSub
             font: ti.font
         }
     }

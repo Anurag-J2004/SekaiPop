@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -32,6 +33,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property int active: 1      // 1-based number of the active workspace
     property int count: 5
 
@@ -60,7 +64,7 @@ Item {
     // active one a wide pill: no numbers, no zoom, nothing shifts aside (see
     // `dotRow` below). On a standing bar the dots stack in a column and the active
     // one is a tall pill.
-    readonly property bool capsule: Theme.capsuleFor(root)
+    readonly property bool capsule: mt.capsuleFor(root)
 
     // True on a standing bar (left / right edge): the badges stack in a
     // column instead of sitting in a row. Everything else — the zoom, the
@@ -80,12 +84,12 @@ Item {
     // (never fewer than 3), and the window follows the active workspace as you
     // switch or scroll.
     property real maxLength: -1
-    readonly property real slotLen: root.capsule ? Theme.capDot + Theme.capGap : root.idleSize + Theme.shadowOffset + root.gap
+    readonly property real slotLen: root.capsule ? mt.capDot + mt.capGap : root.idleSize + mt.shadowOffset + root.gap
     readonly property int shown: {
         if (!root.vertical || root.maxLength < 0)
             return root.total
             // (Capsule: the active dot is longer than the rest by this much.)
-            const extra = root.capsule ? Theme.capDotActive - Theme.capDot : 0
+            const extra = root.capsule ? mt.capDotActive - mt.capDot : 0
             const fit = Math.floor((root.maxLength - extra + root.gap) / root.slotLen)
             return Math.max(Math.min(3, root.total), Math.min(root.total, fit))
     }
@@ -110,14 +114,14 @@ Item {
 
     // The five attribute pastels (Theme.attributeColors: the same five colours in
     // every theme but Monochrome, where they are greys).
-    readonly property var activeColors: Theme.attributeColors
+    readonly property var activeColors: mt.attributeColors
 
     // Flat bar: as wide as the row, activeSize + shadow tall.
     // Standing bar: activeSize wide, as tall as the column.
     // Capsule: a column of dots, with the 4 px of shadow room every pill of a standing bar has.
-    height: root.capsule ? (root.vertical ? dotRow.height + Theme.shadowOffset : Theme.capDot)
-    : (root.vertical ? row.height : activeSize + Theme.shadowOffset)
-    width: root.capsule ? (root.vertical ? Theme.capDot : dotRow.width) : (root.vertical ? activeSize : row.width)
+    height: root.capsule ? (root.vertical ? dotRow.height + mt.shadowOffset : mt.capDot)
+    : (root.vertical ? row.height : activeSize + mt.shadowOffset)
+    width: root.capsule ? (root.vertical ? mt.capDot : dotRow.width) : (root.vertical ? activeSize : row.width)
     implicitHeight: height
     implicitWidth: width
 
@@ -127,8 +131,8 @@ Item {
         id: row
         width: root.vertical ? root.idleSize : root.total * root.idleSize + (root.total - 1) * root.gap
         height: root.vertical
-        ? root.shown * (root.idleSize + Theme.shadowOffset) + (root.shown - 1) * root.gap
-        : root.idleSize + Theme.shadowOffset
+        ? root.shown * (root.idleSize + mt.shadowOffset) + (root.shown - 1) * root.gap
+        : root.idleSize + mt.shadowOffset
         x: root.vertical ? (root.width - width) / 2 : 0
         // Flat bar: the row's bottom sits 6 above the bottom of this
         // item. Nudged up a touch so the badges line up with the other
@@ -204,9 +208,9 @@ Item {
                 visible: !root.vertical || (slot >= 0 && slot < root.shown)
 
                 width: root.idleSize
-                height: root.idleSize + Theme.shadowOffset
+                height: root.idleSize + mt.shadowOffset
                 x: root.vertical ? 0 : index * (root.idleSize + root.gap)
-                y: root.vertical ? slot * (root.idleSize + Theme.shadowOffset + root.gap) : 0
+                y: root.vertical ? slot * (root.idleSize + mt.shadowOffset + root.gap) : 0
 
                 Pill {
                     id: badge
@@ -215,17 +219,17 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: wrap.yOffset
 
-                    cornerRadius: Theme.radiusBadge
+                    cornerRadius: mt.radiusBadge
                     ringWidth: 8
                     fillColor: wrap.isActive
                     ? root.activeColors[(wrap.number - 1) % root.activeColors.length]
-                    : Theme.accentCyan
+                    : mt.accentCyan
 
                     // Always the original 36px box — the "grows to
                     // 42px when selected" look comes entirely from
                     // the scale below, never from resizing this.
                     width: root.idleSize
-                    height: root.idleSize + Theme.shadowOffset
+                    height: root.idleSize + mt.shadowOffset
 
                     scale: wrap.isActive ? root.activeZoom : 1.0
 
@@ -253,12 +257,12 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        anchors.verticalCenterOffset: -Theme.shadowOffset / 2 + root.numberNudge
-                        color: Theme.colBorder
-                        font.family: Theme.fontFamily
+                        anchors.verticalCenterOffset: -mt.shadowOffset / 2 + root.numberNudge
+                        color: mt.colBorder
+                        font.family: mt.fontFamily
                         font.pixelSize: 16
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         text: wrap.number
                     }
                 }
@@ -288,7 +292,7 @@ Item {
                     anchors.horizontalCenterOffset: wrap.xOffset
                     anchors.verticalCenterOffset: wrap.yOffset
                     width: root.activeSize
-                    height: root.activeSize + Theme.shadowOffset
+                    height: root.activeSize + mt.shadowOffset
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.requested(wrap.number)
                     onPressed: wrap.suppressPulse = true
@@ -311,7 +315,7 @@ Item {
         columns: root.vertical ? 1 : Math.max(1, root.total)
         anchors.verticalCenter: root.vertical ? undefined : parent.verticalCenter
         anchors.horizontalCenter: root.vertical ? parent.horizontalCenter : undefined
-        spacing: Theme.capGap
+        spacing: mt.capGap
 
         Repeater {
             model: root.capsule ? root.total : 0
@@ -327,8 +331,8 @@ Item {
                 readonly property int slot: index - root.first
                 visible: !root.vertical || (slot >= 0 && slot < root.shown)
 
-                width: dot.isActive && !root.vertical ? Theme.capDotActive : Theme.capDot
-                height: dot.isActive && root.vertical ? Theme.capDotActive : Theme.capDot
+                width: dot.isActive && !root.vertical ? mt.capDotActive : mt.capDot
+                height: dot.isActive && root.vertical ? mt.capDotActive : mt.capDot
 
                 Behavior on width {
                     NumberAnimation { duration: 240; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
@@ -346,15 +350,15 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: height / 2
-                    color: Theme.capRim
+                    color: mt.capRim
                     antialiasing: true
                 }
 
                 Rectangle {
                     anchors.fill: parent
-                    anchors.margins: Theme.capDotRing
+                    anchors.margins: mt.capDotRing
                     radius: height / 2
-                    color: Theme.capWsColors[(dot.number - 1) % Theme.capWsColors.length]
+                    color: mt.capWsColors[(dot.number - 1) % mt.capWsColors.length]
                     antialiasing: true
                 }
 
@@ -363,7 +367,7 @@ Item {
                 MouseArea {
                     id: dotArea
                     anchors.fill: parent
-                    anchors.margins: -Theme.capGap / 2
+                    anchors.margins: -mt.capGap / 2
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.requested(dot.number)
                 }

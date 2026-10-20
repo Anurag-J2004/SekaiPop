@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -21,6 +22,9 @@ import qs.modules.sekai.phone
 //   }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string title: ""
     property string icon: ""
@@ -51,7 +55,7 @@ Item {
         slot = n
     }
 
-    readonly property color accent: Theme.attributeColors[slot % Theme.attributeColors.length]
+    readonly property color accent: mt.attributeColors[slot % mt.attributeColors.length]
 
     readonly property var iconFor: ({
         "look": "palette", "shell": "widgets", "bar": "toast", "desktop widgets": "dashboard",
@@ -69,12 +73,12 @@ Item {
 
     // hard shadow
     Rectangle {
-        x: Theme.quickFlat ? 0 : 5
+        x: mt.quickFlat ? 0 : 5
         y: 4
         width: card.width
         height: card.height
         radius: 30
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -83,9 +87,9 @@ Item {
         width: root.width - 5
         height: root.height - 4
         radius: 30
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
 
         DotField {
@@ -96,7 +100,7 @@ Item {
             corner: "br"
             spacing: 16
             maxRadius: 3
-            dotColor: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.07)
+            dotColor: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.07)
         }
 
         Flow {
@@ -116,11 +120,11 @@ Item {
         y: -22
         capW: 18 + 36 + 10 + tagText.implicitWidth + 38
         capH: 44
-        skew: 0.3 * Theme.settingsLean
+        skew: 0.3 * mt.settingsLean
         radius: 15
         shadowBaseX: 3
         shadowBaseY: 3
-        flatShadow: Theme.quickFlat
+        flatShadow: mt.quickFlat
         idleColor: root.accent
 
         Rectangle {
@@ -130,9 +134,9 @@ Item {
             height: 28
             radius: 8
             rotation: 45
-            color: Theme.colBg
+            color: mt.colBg
             border.width: 2.5
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
         }
 
@@ -141,8 +145,8 @@ Item {
             y: (plate.capH - height) / 2
             size: 22
             name: root.shownIcon
-            weight: Theme.settingsIconWeight
-            color: Theme.colBorder
+            weight: mt.settingsIconWeight
+            color: mt.colBorder
         }
 
         Text {
@@ -150,11 +154,11 @@ Item {
             x: 40 + 28 + 14
             anchors.verticalCenter: parent.verticalCenter
             text: root.title
-            color: Theme.colBorder
-            font.family: Theme.fontFamily
+            color: mt.colBorder
+            font.family: mt.fontFamily
             font.pixelSize: 21
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -171,7 +175,7 @@ Item {
             height: 27
             skew: 0.55
             radius: 3
-            color: Theme.attributeColors[(root.slot + 1 + index) % Theme.attributeColors.length]
+            color: mt.attributeColors[(root.slot + 1 + index) % mt.attributeColors.length]
         }
     }
 }

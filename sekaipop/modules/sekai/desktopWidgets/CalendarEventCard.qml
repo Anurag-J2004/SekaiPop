@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../bar/CalendarMath.js" as CM
 import "../../common/functions/EventMath.js" as EM
 import qs.modules.common
@@ -23,6 +24,9 @@ import qs.modules.common.widgets
 Item {
     id: ec
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // The entry (a ListView over an array hands it over as `modelData`).
     required property var modelData
     readonly property var ev: ec.modelData
@@ -46,11 +50,11 @@ Item {
     readonly property string st: EM.dueState(ec.ev, ec.diff)
     readonly property bool deadline: ec.ev.kind === "deadline"
     readonly property bool done: ec.st === "done"
-    readonly property color accent: Qt.color(Theme.attributeColors[Math.max(0, Math.min(Theme.attributeColors.length - 1, ec.ev.color))])
+    readonly property color accent: Qt.color(mt.attributeColors[Math.max(0, Math.min(mt.attributeColors.length - 1, ec.ev.color))])
     readonly property real face: 56
 
     readonly property bool hot: ec.st === "overdue" || ec.st === "today"
-    readonly property color stateInk: ec.hot ? ec.alertInk : (ec.st === "soon" ? ec.soonInk : Theme.pInkSub)
+    readonly property color stateInk: ec.hot ? ec.alertInk : (ec.st === "soon" ? ec.soonInk : mt.pInkSub)
 
     // The chip's words: a deadline that is still ahead reads "Due ...".
     readonly property string chipText: {
@@ -61,11 +65,11 @@ Item {
     }
 
     // The accent washed over the surface (the event's own colour, softened).
-    readonly property color accentWash: Qt.tint(Theme.pSurface, Qt.rgba(ec.accent.r, ec.accent.g, ec.accent.b, 0.62))
+    readonly property color accentWash: Qt.tint(mt.pSurface, Qt.rgba(ec.accent.r, ec.accent.g, ec.accent.b, 0.62))
     readonly property color chipFill: ec.hot ? ec.alertInk
-        : (ec.st === "soon" ? ec.soonInk : (ec.done ? Theme.pSurfaceHover : ec.accentWash))
+        : (ec.st === "soon" ? ec.soonInk : (ec.done ? mt.pSurfaceHover : ec.accentWash))
     readonly property color chipInk: ec.hot ? ec.alertText
-        : (ec.st === "soon" ? Theme.colBorder : (ec.done ? Theme.pInkSub : Theme.pInk))
+        : (ec.st === "soon" ? mt.colBorder : (ec.done ? mt.pInkSub : mt.pInk))
 
     readonly property string weekdayText: ec.pdate
         ? CM.weekdayShort(new Date(ec.pdate.y, ec.pdate.m, ec.pdate.d).getDay()) : ""
@@ -84,7 +88,7 @@ Item {
         width: ec.width - 3
         height: ec.height - 3
         radius: 13
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -95,9 +99,9 @@ Item {
         radius: 13
         antialiasing: true
         clip: true
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: ec.expanded ? 3 : 2.5
-        border.color: ec.expanded ? ec.accent : Theme.pLine
+        border.color: ec.expanded ? ec.accent : mt.pLine
         opacity: ec.done ? 0.72 : 1
 
         // Click anywhere on the card (the buttons below sit on top of this).
@@ -118,7 +122,7 @@ Item {
             skew: 0.16
             radius: 8
             color: ec.accent
-            borderColor: Theme.pLine
+            borderColor: mt.pLine
             borderWidth: 2
         }
 
@@ -134,11 +138,11 @@ Item {
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: ec.weekdayText
-                color: Theme.colBorder
-                font.family: Theme.fontFamily
+                color: mt.colBorder
+                font.family: mt.fontFamily
                 font.pixelSize: 10
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             StickerText {
@@ -158,11 +162,11 @@ Item {
             width: Math.max(0, ec.width - 3 - 74 - chipShape.width - 16)
             text: ec.ev.title
             elide: Text.ElideRight
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 14
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
             font.strikeout: ec.done
         }
 
@@ -178,7 +182,7 @@ Item {
                 size: 14
                 weight: 700
                 fill: ec.deadline ? 1 : 0
-                color: ec.deadline ? ec.stateInk : Theme.pInkSub
+                color: ec.deadline ? ec.stateInk : mt.pInkSub
             }
 
             Text {
@@ -186,8 +190,8 @@ Item {
                 width: parent.width - 18
                 elide: Text.ElideRight
                 text: EM.timeText(ec.ev.time, ec.use24h) + (ec.ev.note !== "" ? "  \u00b7  " + ec.ev.note : "")
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.DemiBold
             }
@@ -203,7 +207,7 @@ Item {
             skew: 0.2
             radius: 8
             color: ec.chipFill
-            borderColor: Theme.pLine
+            borderColor: mt.pLine
             borderWidth: 2
         }
 
@@ -213,10 +217,10 @@ Item {
             y: chipShape.y + (chipShape.height - implicitHeight) / 2
             text: ec.chipText
             color: ec.chipInk
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: Math.round(10.5)
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         // ===== the opened card =====
@@ -246,11 +250,11 @@ Item {
                           + "  \u00b7  " + EM.timeText(ec.ev.time, ec.use24h)
                         : ""
                     elide: Text.ElideRight
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: Math.round(11.5)
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -260,8 +264,8 @@ Item {
                     wrapMode: Text.Wrap
                     maximumLineCount: 4
                     elide: Text.ElideRight
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }

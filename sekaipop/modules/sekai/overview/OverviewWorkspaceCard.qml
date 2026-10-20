@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -22,6 +23,9 @@ import qs.modules.common.widgets
 // the same numbers.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property int workspaceId
     property real areaWidth: 300
@@ -56,11 +60,11 @@ Item {
         verticalAlignment: Text.AlignVCenter
         text: "WORKSPACE " + root.workspaceId
         color: ScrapbookTheme.filmPrint
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 11
         font.letterSpacing: 1.2
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 
     // frame counter on the right: "▸ 3A"
@@ -72,11 +76,11 @@ Item {
         text: "\u25B8 " + root.workspaceId + "A"
         color: ScrapbookTheme.filmPrint
         opacity: 0.85
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 11
         font.letterSpacing: 1.2
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
     }
 
     // The picture area: the mock screen the tiles are laid out on.
@@ -97,10 +101,10 @@ Item {
             anchors.centerIn: parent
             text: root.workspaceId
             color: "#14f5eed8"
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: Math.round(screenArea.height * 0.6)
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
@@ -108,7 +112,7 @@ Item {
             visible: root.windowCount === 0
             text: "Empty"
             color: ScrapbookTheme.filmPrintSoft
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 12
         }
     }

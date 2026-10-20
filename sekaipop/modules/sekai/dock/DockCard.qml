@@ -43,11 +43,11 @@ Pill {
     readonly property bool hovered: hoverer.hovered
     signal hoverStateChanged(bool on)
 
-    cornerRadius: Theme.radiusOuter
-    ringWidth: Theme.borderWidth + Theme.outerRingWidth
-    ringColorTop: Theme.surfaceRing
-    ringColorBottom: Theme.surfaceRing
-    fillColor: Theme.surface
+    cornerRadius: mt.radiusOuter
+    ringWidth: mt.borderWidth + mt.outerRingWidth
+    ringColorTop: mt.surfaceRing
+    ringColorBottom: mt.surfaceRing
+    fillColor: mt.surface
 
     width: card.contentWidth + 2 * (card.ringWidth + card.pad) + card.shadowDx
     height: card.contentHeight + 2 * (card.ringWidth + card.pad) + card.shadowDy

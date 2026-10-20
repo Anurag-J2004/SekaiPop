@@ -5,7 +5,7 @@
 const fs = require("fs"), os = require("os"), path = require("path"), assert = require("assert")
 const { execFileSync } = require("child_process")
 const locate = require("../lib/locate")
-const read = f => fs.readFileSync(locate(f), "utf8")
+const read = f => require("../lib/themetext")(fs.readFileSync(locate(f), "utf8"))
 
 const images = read("modules/common/PanelImages.qml")
 const settings = read("services/SettingsService.qml")
@@ -54,7 +54,7 @@ assert.ok(/visible: PanelImages\.phoneMode === "picture"[\s\S]{0,400}PanelImages
 // ---------- the Quick screen ----------
 assert.ok(/wallpaperPath: PanelImages\.phoneWallpaperFor\(root\.targetScreen/.test(quick),
           "the Quick Panel feeds the Quick screen the same picture, for its monitor")
-assert.ok(!/import Quickshell|import qs\.services/.test(qpFace), "the face stays pure UI: it is handed the path")
+assert.ok(!/^[^/\n]*PanelImages\.|import qs\.services/m.test(qpFace), "the face is handed the path; it doesn't look it up")
 assert.ok(/LauncherLcd \{[\s\S]{0,60}z: -10[\s\S]{0,400}path: face\.wallpaperPath[\s\S]{0,120}active: face\.visible/.test(qpFace),
           "the same LCD under everything, only decoded while the screen shows")
 const fills = qpFace.match(/color: face\.wallOn \? Qt\.alpha\(/g) || []

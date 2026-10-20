@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // One diamond of the beat: the clock widget's BeatDiamond, as a part the
@@ -8,10 +9,13 @@ import qs.modules.common
 Rectangle {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property bool lit: false
-    property color litColor: Theme.accentMint
-    property color offColor: Theme.surfaceDivider
-    property color lineColor: Theme.line
+    property color litColor: mt.accentMint
+    property color offColor: mt.surfaceDivider
+    property color lineColor: mt.line
     property real size: 12
     property real pop: 1
 

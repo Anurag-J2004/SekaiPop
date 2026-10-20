@@ -45,7 +45,7 @@ DockCard {
                     width: parent.width
                     height: 2
                     radius: 1
-                    color: Theme.surfaceDivider
+                    color: mt.surfaceDivider
                 }
 
                 Text {
@@ -55,11 +55,11 @@ DockCard {
                     width: parent.width - 16
                     elide: Text.ElideRight
                     text: row.isHeader ? row.modelData.header : ""
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Rectangle {
@@ -67,7 +67,7 @@ DockCard {
                     anchors.fill: parent
                     radius: 10
                     color: rowArea.containsMouse
-                        ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, rowArea.pressed ? 0.34 : 0.2)
+                        ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, rowArea.pressed ? 0.34 : 0.2)
                         : "transparent"
                     antialiasing: true
 
@@ -80,7 +80,7 @@ DockCard {
                         anchors.verticalCenter: parent.verticalCenter
                         name: row.modelData.icon ?? ""
                         size: 20
-                        color: row.modelData.danger === true ? "#e0575b" : Theme.ink
+                        color: row.modelData.danger === true ? "#e0575b" : mt.ink
                     }
 
                     Text {
@@ -89,8 +89,8 @@ DockCard {
                         width: parent.width - 52
                         elide: Text.ElideRight
                         text: row.modelData.label ?? ""
-                        color: row.modelData.danger === true ? "#e0575b" : Theme.ink
-                        font.family: Theme.fontFamily
+                        color: row.modelData.danger === true ? "#e0575b" : mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.Bold
                     }

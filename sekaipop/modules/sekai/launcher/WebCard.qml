@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../../common/functions/Extras.js" as X
 import qs.modules.common
 import qs.modules.common.widgets
@@ -20,6 +21,9 @@ import qs.modules.sekai.phone
 PhoneCard {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string arg: ""
     property int engine: 0
     property var engines: X.ENGINES
@@ -36,7 +40,7 @@ PhoneCard {
     readonly property var eng: engines[engine]
     readonly property var accents: ["#de5833", "#4285f4", "#ff0033", "#24292f", "#555473", "#1793d1"]
     readonly property color accent: accents[engine % accents.length]
-    readonly property color darkInk: Theme.colBorder
+    readonly property color darkInk: mt.colBorder
 
     // ===== the room =====
     readonly property real addrH: 64
@@ -91,7 +95,7 @@ PhoneCard {
                 anchors.centerIn: parent
                 text: root.eng.name.charAt(0)
                 color: "#ffffff"
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 24
                 font.weight: Font.ExtraBold
             }
@@ -106,8 +110,8 @@ PhoneCard {
             anchors.verticalCenter: parent.verticalCenter
             elide: Text.ElideRight
             textFormat: Text.StyledText
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 22
             font.weight: Font.Bold
             text: {
@@ -116,7 +120,7 @@ PhoneCard {
                 const host = slash < 0 ? u : u.slice(0, slash)
                 const rest = slash < 0 ? "" : u.slice(slash)
                 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
-                return "<font color='" + Theme.pInk + "'>" + esc(host) + "</font>" + esc(rest)
+                return "<font color='" + mt.pInk + "'>" + esc(host) + "</font>" + esc(rest)
             }
         }
 
@@ -128,7 +132,7 @@ PhoneCard {
             name: "arrow_forward"
             size: 28
             weight: 700
-            color: Theme.pInk
+            color: mt.pInk
         }
 
         MouseArea {
@@ -165,7 +169,7 @@ PhoneCard {
                     anchors.fill: parent
                     radius: (height - shadow) / 2
                     borderW: resRow.on ? 5 : 3
-                    fill: resRow.on ? Theme.accentMint : (resArea.containsMouse ? Theme.pSurfaceHover : Theme.pSurface)
+                    fill: resRow.on ? mt.accentMint : (resArea.containsMouse ? mt.pSurfaceHover : mt.pSurface)
 
                     MaterialIcon {
                         id: rowIcon
@@ -174,7 +178,7 @@ PhoneCard {
                         name: resRow.modelData.main ? (root.isUrl ? "language" : "search") : "north_west"
                         size: 26
                         weight: 700
-                        color: resRow.modelData.main ? (resRow.on ? root.darkInk : root.accent) : (resRow.on ? root.darkInk : Theme.pInkSub)
+                        color: resRow.modelData.main ? (resRow.on ? root.darkInk : root.accent) : (resRow.on ? root.darkInk : mt.pInkSub)
                     }
 
                     Text {
@@ -185,8 +189,8 @@ PhoneCard {
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         textFormat: Text.StyledText
-                        color: resRow.on ? root.darkInk : Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: resRow.on ? root.darkInk : mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 20
                         font.weight: Font.Bold
                         text: {
@@ -227,13 +231,13 @@ PhoneCard {
             radius: 48
             color: root.accent
             border.width: 4
-            border.color: Theme.pLine
+            border.color: mt.pLine
 
             Text {
                 anchors.centerIn: parent
                 text: root.eng.name.charAt(0)
                 color: "#ffffff"
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 54
                 font.weight: Font.ExtraBold
             }
@@ -242,8 +246,8 @@ PhoneCard {
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             text: root.eng.name
-            color: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 36
             font.weight: Font.ExtraBold
         }
@@ -251,8 +255,8 @@ PhoneCard {
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 20
             font.weight: Font.Bold
             lineHeight: 1.3
@@ -311,7 +315,7 @@ PhoneCard {
                         width: 60
                         height: 60
                         radius: 30
-                        color: Theme.pLineShadow
+                        color: mt.pLineShadow
                         antialiasing: true
                     }
 
@@ -320,14 +324,14 @@ PhoneCard {
                         radius: 30
                         color: root.accents[fav.index % root.accents.length]
                         border.width: fav.on ? 5 : 3
-                        border.color: Theme.pLine
+                        border.color: mt.pLine
                         antialiasing: true
 
                         Text {
                             anchors.centerIn: parent
                             text: fav.modelData.name.charAt(0)
                             color: "#ffffff"
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: 30
                             font.weight: Font.ExtraBold
                         }
@@ -341,8 +345,8 @@ PhoneCard {
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                     text: fav.modelData.name
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 14
                     font.weight: fav.on ? Font.ExtraBold : Font.Bold
                     opacity: fav.on ? 1 : 0.75

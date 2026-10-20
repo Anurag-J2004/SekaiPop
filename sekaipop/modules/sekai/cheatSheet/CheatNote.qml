@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "CheatBinds.js" as CB
 import qs.modules.common
 import qs.modules.common.widgets
@@ -16,6 +17,9 @@ import qs.modules.common.widgets
 // Size comes from CheatBinds.js, which CheatSheet uses to lay the board out.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var note: ({ title: "", kind: "sticky", icon: "", rows: [] })
     property int slot: 0
@@ -143,7 +147,7 @@ Item {
             }
             Text {
                 text: root.note.title
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 16
                 font.bold: true
                 color: ScrapbookTheme.ink
@@ -200,7 +204,7 @@ Item {
                                 anchors.centerIn: parent
                                 anchors.verticalCenterOffset: capItem.dots ? 0 : -1
                                 text: capItem.modelData
-                                font.family: Theme.fontFamily
+                                font.family: mt.fontFamily
                                 font.pixelSize: capItem.dots ? 14 : 11
                                 font.bold: true
                                 color: ScrapbookTheme.ink
@@ -217,7 +221,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: rowItem.modelData.label
                     elide: Text.ElideRight
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 13
                     color: ScrapbookTheme.ink
                 }
@@ -235,7 +239,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: "DOUBLE!"
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: 10
                         font.bold: true
                         color: "#c0392b"

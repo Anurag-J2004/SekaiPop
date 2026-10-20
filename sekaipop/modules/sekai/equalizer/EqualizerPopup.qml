@@ -56,8 +56,8 @@ SekaiPopup {
     readonly property real marginR: 46       // the wall and the wheel
     readonly property real marginB: 40
 
-    contentWidth: root.d(root.bodyW + root.marginR) - 2 * Theme.borderWidth
-    contentHeight: root.d(root.marginT + root.bodyH + root.marginB) - 2 * Theme.borderWidth - Theme.shadowOffset
+    contentWidth: root.d(root.bodyW + root.marginR) - 2 * mt.borderWidth
+    contentHeight: root.d(root.marginT + root.bodyH + root.marginB) - 2 * mt.borderWidth - mt.shadowOffset
 
     // How many times denser than the screen every canvas is painted. They are
     // painted once (or rarely), then the scene graph shrinks them to size with
@@ -336,7 +336,7 @@ SekaiPopup {
                         anchors.centerIn: parent
                         text: "\u25C9  MEDIA"
                         color: PadPalette.keyText
-                        font.family: Theme.fontFamily
+                        font.family: mt.fontFamily
                         font.pixelSize: root.d(10)
                         font.weight: Font.Bold
                         font.letterSpacing: root.d(1.2)
@@ -372,7 +372,7 @@ SekaiPopup {
                 opacity: PadPalette.labelOpacity
                 style: Text.Raised
                 styleColor: PadPalette.labelEmboss
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: root.d(9)
                 font.weight: Font.Bold
                 font.letterSpacing: root.d(1.2)
@@ -446,7 +446,7 @@ SekaiPopup {
                 opacity: PadPalette.labelOpacity
                 style: Text.Raised
                 styleColor: PadPalette.labelEmboss
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: root.d(9)
                 font.weight: Font.Bold
                 font.letterSpacing: root.d(1.2)
@@ -493,7 +493,7 @@ SekaiPopup {
                 opacity: PadPalette.titleOpacity
                 style: Text.Raised
                 styleColor: PadPalette.labelEmboss
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: root.d(10)
                 font.weight: Font.Bold
                 font.letterSpacing: root.d(3.2)

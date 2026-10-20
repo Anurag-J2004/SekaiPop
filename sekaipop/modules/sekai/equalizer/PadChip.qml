@@ -1,10 +1,14 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A small pill on the console screen's glass pages (presets, setup). `lit` fills
 // it with the accent gradient.
 Item {
     id: chip
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real u: 1
     property string text: ""
@@ -38,7 +42,7 @@ Item {
         anchors.centerIn: parent
         text: chip.text
         color: chip.lit ? PadPalette.ink : "#ffffff"
-        font.family: Theme.fontFamily
+        font.family: mt.fontFamily
         font.pixelSize: 10.5 * chip.u
         font.weight: Font.Bold
     }

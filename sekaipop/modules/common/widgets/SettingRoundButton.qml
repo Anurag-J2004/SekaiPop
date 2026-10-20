@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A diamond icon button, the Settings Panel's small round key turned on its
@@ -10,6 +11,9 @@ import qs.modules.common
 // holding it repeat clicked(), for the steppers.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string icon: ""
     property real size: 50
@@ -29,7 +33,7 @@ Item {
         }
     }
 
-    readonly property color inkNow: Qt.tint(Theme.pInk, Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, litP))
+    readonly property color inkNow: Qt.tint(mt.pInk, Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, litP))
 
     // The side of the square that, turned 45 degrees, is `size` across.
     readonly property real side: size * 0.7
@@ -46,7 +50,7 @@ Item {
         height: root.side
         radius: root.side * 0.3
         rotation: 45
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -81,16 +85,16 @@ Item {
             height: root.side
             radius: root.side * 0.3
             rotation: 45
-            color: Theme.pRingWhite
+            color: mt.pRingWhite
             border.width: 3 + 1 * root.litP
-            border.color: Theme.pLine
+            border.color: mt.pLine
             antialiasing: true
 
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: outline.border.width + 3 * root.litP
                 radius: Math.max(0, outline.radius - anchors.margins)
-                color: root.hovered && !root.on ? Theme.pSurfaceHover : Theme.pSurface
+                color: root.hovered && !root.on ? mt.pSurfaceHover : mt.pSurface
                 antialiasing: true
             }
 
@@ -101,8 +105,8 @@ Item {
                 opacity: root.litP
                 antialiasing: true
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: Theme.accentMint }
-                    GradientStop { position: 1.0; color: Theme.accentCyan }
+                    GradientStop { position: 0.0; color: mt.accentMint }
+                    GradientStop { position: 1.0; color: mt.accentCyan }
                 }
             }
         }

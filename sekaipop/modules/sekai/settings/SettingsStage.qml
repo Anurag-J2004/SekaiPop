@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import "../../common/functions/FlipMath.js" as FM
@@ -29,6 +30,9 @@ import qs.modules.sekai.wallpaperSelector
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // ===== 2D =====
     // The Quick Panel's 2D look (Theme.quickFlat: Settings -> Quick -> Quick Panel -> Phone,
     // and always while Game Mode is on), worn by this phone too. In 2D the Settings face
@@ -37,7 +41,7 @@ Item {
     // screen drawn straight to the device pixels (`direct`), and the front's own middle
     // (not the tilted pose's) on the middle of the monitor. The buttons' shadows drop
     // straight down (SekaiKey `flatShadow`, set by the Settings' own keys).
-    readonly property bool flatLook: Theme.quickFlat
+    readonly property bool flatLook: mt.quickFlat
 
     // Where this window's top-left corner is on the monitor, in design pixels. Only the 2D
     // pixel snap reads it (QuickPanel.qml sets it in 2D), so the screen's top-left is put on

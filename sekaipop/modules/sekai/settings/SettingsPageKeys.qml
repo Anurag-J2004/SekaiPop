@@ -74,8 +74,8 @@ SettingsPage {
                 width: Math.min(parent.width, 820)
                 wrapMode: Text.WordWrap
                 text: KeybindService.niri ? "Keys are niri's here" : "One line in your Hyprland config, and keys are yours to change"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 28
                 font.weight: Font.Black
             }
@@ -86,8 +86,8 @@ SettingsPage {
                 text: KeybindService.niri
                     ? "This page changes Hyprland's binds, and the shell is running on niri. Set your keys in niri's own config, as `spawn \"qs\" \"-c\" \"sekaipop\" \"ipc\" \"call\" ...` binds."
                     : "Changes made here are saved in a file of SekaiPop's, and your config doesn't load that file yet. Until it does, a new key would never reach Hyprland, so there's nothing to change here."
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.Bold
             }
@@ -97,8 +97,8 @@ SettingsPage {
                 wrapMode: Text.WordWrap
                 textFormat: Text.StyledText
                 text: "Add this line to <b>" + (KeybindService.mode === "lua" ? "hyprland.lua" : "hyprland.conf") + "</b> once:"
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.Bold
             }
@@ -107,12 +107,12 @@ SettingsPage {
                 width: codeText.implicitWidth + 36
                 height: 40
                 radius: 20
-                color: Theme.pSurfaceDivider
+                color: mt.pSurfaceDivider
                 Text {
                     id: codeText
                     anchors.centerIn: parent
                     text: setupCard.line
-                    color: Theme.pInk
+                    color: mt.pInk
                     font.family: "monospace"
                     font.pixelSize: 16
                 }
@@ -126,8 +126,8 @@ SettingsPage {
                 text: KeybindService.mode === "lua"
                     ? "This page switches on by itself as soon as the line is there. Same line as the Hyprland page's setup, so you only add it once."
                     : "This page switches on by itself as soon as the line is there. Put it last, so your keys here win over the ones above it."
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.Bold
             }
@@ -160,8 +160,8 @@ SettingsPage {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Until then,"
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.Bold
                 }
@@ -172,8 +172,8 @@ SettingsPage {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "still shows every key on the cheat sheet."
-                    color: Theme.pInkSub
-                    font.family: Theme.fontFamily
+                    color: mt.pInkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 15
                     font.weight: Font.Bold
                 }
@@ -208,8 +208,8 @@ SettingsPage {
                         wrapMode: Text.WordWrap
                         lineHeight: 1.2
                         text: "Every shortcut that opens or does something in SekaiPop. Click one, press the new keys, and it works straight away."
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 17
                         font.weight: Font.Bold
                     }
@@ -221,8 +221,8 @@ SettingsPage {
                         text: "Window and workspace keys belong to Hyprland and stay in "
                               + (KeybindService.mode === "lua" ? "keybinds.lua" : "your Hyprland config")
                               + ". Volume and brightness keys aren't listed."
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 15
                         font.weight: Font.Bold
                     }
@@ -230,8 +230,8 @@ SettingsPage {
                     Text {
                         visible: page.confirmReset
                         text: "Put all " + KeybindService.changedCount + " changed keys back?"
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 20
                         font.weight: Font.Black
                     }
@@ -248,8 +248,8 @@ SettingsPage {
                                     anchors.verticalCenter: parent.verticalCenter
                                     elide: Text.ElideRight
                                     text: modelData.name
-                                    color: Theme.pInk
-                                    font.family: Theme.fontFamily
+                                    color: mt.pInk
+                                    font.family: mt.fontFamily
                                     font.pixelSize: 16
                                     font.weight: Font.ExtraBold
                                 }
@@ -261,7 +261,7 @@ SettingsPage {
                                     anchors.verticalCenter: parent.verticalCenter
                                     name: "arrow_forward"
                                     size: 22
-                                    color: Theme.pInkSub
+                                    color: mt.pInkSub
                                 }
                                 KeyCaps {
                                     anchors.verticalCenter: parent.verticalCenter
@@ -321,30 +321,30 @@ SettingsPage {
                     width: parent.width
                     height: 52
                     radius: 16
-                    color: Theme.pLineShadow
+                    color: mt.pLineShadow
                 }
                 Rectangle {
                     width: parent.width
                     height: 52
                     radius: 16
-                    color: Theme.pSurface
+                    color: mt.pSurface
                     border.width: 3
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
 
                     MaterialIcon {
                         x: 16
                         anchors.verticalCenter: parent.verticalCenter
                         name: "search"
                         size: 20
-                        color: Theme.pInkSub
+                        color: mt.pInkSub
                     }
                     TextInput {
                         id: findField
                         x: 48
                         width: parent.width - 64
                         anchors.verticalCenter: parent.verticalCenter
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: 17
                         font.weight: Font.Bold
                         clip: true
@@ -358,7 +358,7 @@ SettingsPage {
                             visible: findField.text === ""
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Find an action or a key, like “super v”"
-                            color: Theme.pInkSub
+                            color: mt.pInkSub
                             font: findField.font
                         }
                     }
@@ -405,7 +405,7 @@ SettingsPage {
             Rectangle {
                 anchors.fill: parent
                 radius: 30
-                color: Theme.scrim
+                color: mt.scrim
                 opacity: 0.55
                 MouseArea {
                     anchors.fill: parent
@@ -442,8 +442,8 @@ SettingsPage {
         Text {
             width: page.fullWidth
             text: "No action or key matches “" + page.query.trim() + "”."
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.Bold
         }

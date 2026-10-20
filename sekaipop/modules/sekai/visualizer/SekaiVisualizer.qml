@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import "KeyBedMath.js" as KB
 import qs.modules.common
@@ -47,6 +48,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     required property VisualizerEngine engine
     // The player behind the cover, the tag and the keys (MediaSource.qml), or null.
     property var media: null
@@ -63,7 +67,7 @@ Item {
     // 0 the cover's own colours (the Sekai pattern while there is none),
     // 1 the five card attributes, 2 the theme's two accents.
     readonly property int colorMode: VisualizerService.colorMode
-    readonly property var attr: Theme.attributeColors
+    readonly property var attr: mt.attributeColors
 
     readonly property var player: root.media ? root.media.player : null
     readonly property bool hasPlayer: root.media ? root.media.present : false
@@ -77,15 +81,15 @@ Item {
     readonly property color cVoice: "#3de085"
 
     // ===== colours of the screen =====
-    readonly property color well: Theme.colBorder
-    readonly property color wellDeep: Theme.colDeep
+    readonly property color well: mt.colBorder
+    readonly property color wellDeep: mt.colDeep
     readonly property color keyShadow: Qt.rgba(wellDeep.r, wellDeep.g, wellDeep.b, 0.92)
 
     // ===== geometry =====
     readonly property bool compact: width < 290
     // The same hard shadow as the To-Do card: straight down, Theme.shadowOffset.
     readonly property real shDx: 0
-    readonly property real shDy: Theme.shadowOffset
+    readonly property real shDy: mt.shadowOffset
     readonly property real pad: 14
     readonly property real deckH: compact ? 36 : 40
     readonly property real deckGap: 12
@@ -167,7 +171,7 @@ Item {
         const row = Math.floor(i / root.cols)
         if (root.colorMode === 2) {
             const t = Math.max(0, Math.min(1, col / Math.max(1, root.cols - 1) * 0.65 + row / Math.max(1, root.rows - 1) * 0.35))
-            const a = Theme.accentCyan, b = Theme.accentMint
+            const a = mt.accentCyan, b = mt.accentMint
             const k = ((col + row) % 2 === 0) ? 1.0 : 0.93
             return [(a.r + (b.r - a.r) * t) * k, (a.g + (b.g - a.g) * t) * k, (a.b + (b.b - a.b) * t) * k, 0]
         }
@@ -472,11 +476,11 @@ Item {
         anchors.fill: parent
         shadowDx: root.shDx
         shadowDy: root.shDy
-        cornerRadius: Theme.radiusOuter
-        ringWidth: Theme.borderWidth + Theme.outerRingWidth
-        ringColorTop: Theme.pSurfaceRing
+        cornerRadius: mt.radiusOuter
+        ringWidth: mt.borderWidth + mt.outerRingWidth
+        ringColorTop: mt.pSurfaceRing
         ringColorBottom: ringColorTop
-        fillColor: Theme.pSurface
+        fillColor: mt.pSurface
     }
 
     // ===== the screen =====
@@ -719,7 +723,7 @@ Item {
                 opacity: star.t < 0.55 ? 1 : Math.max(0, (1 - star.t) / 0.45)
 
                 MaterialIcon { x: -width / 2 + 2; y: -height / 2 + 3; name: "star"; fill: 1; weight: 700; size: star.sz + 10; color: root.wellDeep }
-                MaterialIcon { x: -width / 2; y: -height / 2; name: "star"; fill: 1; weight: 700; size: star.sz + 10; color: Theme.colBorder }
+                MaterialIcon { x: -width / 2; y: -height / 2; name: "star"; fill: 1; weight: 700; size: star.sz + 10; color: mt.colBorder }
                 MaterialIcon { x: -width / 2; y: -height / 2; name: "star"; fill: 1; weight: 700; size: star.sz + 5; color: "#ffffff" }
                 MaterialIcon { x: -width / 2; y: -height / 2; name: "star"; fill: 1; weight: 700; size: star.sz; color: root.cCrit }
             }
@@ -819,6 +823,9 @@ Item {
     component DeckKey: Item {
         id: dk
 
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+
         property string icon: "play_arrow"
         property bool lit: false
         property bool enabledKey: true
@@ -841,14 +848,14 @@ Item {
             shadowDx: dk.sdx
             shadowDy: dk.sdy
             pressed: area.pressed && dk.enabledKey
-            fillColor: area.containsMouse && dk.enabledKey ? Theme.pSurfaceHover : Theme.pSurface
+            fillColor: area.containsMouse && dk.enabledKey ? mt.pSurfaceHover : mt.pSurface
             fillGradient: dk.lit ? litGrad : null
 
             Gradient {
                 id: litGrad
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
 
             MaterialIcon {
@@ -856,7 +863,7 @@ Item {
                 name: dk.icon
                 size: dk.keyW > 44 ? 22 : 19
                 fill: 1
-                color: dk.lit ? Theme.colBorder : Theme.pInk
+                color: dk.lit ? mt.colBorder : mt.pInk
             }
         }
 
@@ -969,9 +976,9 @@ Item {
                 width: parent.width
                 height: 12
                 radius: 6
-                color: Theme.pSurfaceDivider
+                color: mt.pSurfaceDivider
                 border.width: 2
-                border.color: Theme.pLine
+                border.color: mt.pLine
             }
 
             Rectangle {
@@ -983,8 +990,8 @@ Item {
 
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: Theme.accentMint }
-                    GradientStop { position: 1.0; color: Theme.accentCyan }
+                    GradientStop { position: 0.0; color: mt.accentMint }
+                    GradientStop { position: 1.0; color: mt.accentCyan }
                 }
 
                 Behavior on width {
@@ -1003,7 +1010,7 @@ Item {
                     width: 3
                     height: 12
                     radius: 1.5
-                    color: Theme.pLine
+                    color: mt.pLine
                     opacity: 0.45
                 }
             }
@@ -1018,9 +1025,9 @@ Item {
                 radius: 3
                 rotation: 45
                 scale: lane.dragging ? 1.25 : 1
-                color: Theme.accentMint
+                color: mt.accentMint
                 border.width: 2
-                border.color: Theme.pLine
+                border.color: mt.pLine
 
                 Behavior on x {
                     enabled: !lane.dragging && root.perf === 0
@@ -1044,7 +1051,7 @@ Item {
                 borderWidth: 2
                 ringWidth: 2.5
                 shadowDy: 3
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
 
                 Behavior on opacity {
                     NumberAnimation { duration: 110 }
@@ -1055,11 +1062,11 @@ Item {
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: -1
                     text: lane.fmt(lane.dragFrac * lane.length)
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -1160,9 +1167,9 @@ Item {
             height: 10
             radius: 3
             rotation: 45
-            color: Theme.accentMint
+            color: mt.accentMint
             border.width: 2
-            border.color: Theme.pLine
+            border.color: mt.pLine
         }
 
         Column {
@@ -1182,11 +1189,11 @@ Item {
                 width: Math.min(implicitWidth, tag.maxText)
                 text: root.title
                 elide: Text.ElideRight
-                color: Theme.pInk
-                font.family: Theme.fontFamily
+                color: mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 13
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Text {
@@ -1195,8 +1202,8 @@ Item {
                 visible: root.artist !== ""
                 text: root.artist
                 elide: Text.ElideRight
-                color: Theme.pInkSub
-                font.family: Theme.fontFamily
+                color: mt.pInkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 10
                 font.weight: Font.Bold
             }

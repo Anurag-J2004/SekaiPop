@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A pill-shaped switch with a mint thumb that slides (and overshoots a
@@ -13,6 +14,9 @@ import qs.modules.common
 //   }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var options: []
     property string current: ""
@@ -33,9 +37,9 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: height / 2.4
-        color: Theme.surfaceHover
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        color: mt.surfaceHover
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
     }
 
@@ -45,7 +49,7 @@ Item {
         width: root.slot
         x: 3 + root.index * root.slot
         radius: (root.height - 6) / 2.4
-        color: Theme.accentMint
+        color: mt.accentMint
         antialiasing: true
 
         Behavior on x {
@@ -66,11 +70,11 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: modelData.label
-                color: index === root.index ? Theme.colBorder : Theme.inkSub
-                font.family: Theme.fontFamily
+                color: index === root.index ? mt.colBorder : mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 Behavior on color { ColorAnimation { duration: 140 } }
             }
 

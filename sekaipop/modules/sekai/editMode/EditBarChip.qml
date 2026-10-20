@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -18,6 +19,9 @@ import qs.modules.common.widgets
 Item {
     id: chip
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string moduleId: ""
     property bool ghost: false
     property bool lifted: false
@@ -30,7 +34,7 @@ Item {
 
     readonly property real chipH: 32
 
-    readonly property real padW: 2 * (Theme.borderWidth + 3) + 18
+    readonly property real padW: 2 * (mt.borderWidth + 3) + 18
     // Both widths are known whichever one is showing: the lanes size themselves by them.
     readonly property real iconWidth: Math.round(16 + chip.padW)
     readonly property real fullWidth: Math.round(16 + 6 + label.implicitWidth + chip.padW)
@@ -43,8 +47,8 @@ Item {
 
     Gradient {
         id: ghostFill
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     Pill {
@@ -53,7 +57,7 @@ Item {
         ringWidth: 3
         shadowDy: 3
         pressed: area.pressed && !chip.ghost
-        fillColor: area.containsMouse && !chip.ghost ? Theme.pSurfaceHover : Theme.pSurface
+        fillColor: area.containsMouse && !chip.ghost ? mt.pSurfaceHover : mt.pSurface
         fillGradient: chip.ghost ? ghostFill : null
 
         Row {
@@ -66,7 +70,7 @@ Item {
                 name: BarLayoutService.iconOf(chip.moduleId)
                 size: 16
                 weight: 600
-                color: chip.ghost ? Theme.colBorder : Theme.pInk
+                color: chip.ghost ? mt.colBorder : mt.pInk
             }
 
             Text {
@@ -74,11 +78,11 @@ Item {
                 visible: !chip.iconOnly
                 anchors.verticalCenter: parent.verticalCenter
                 text: BarLayoutService.labelOf(chip.moduleId)
-                color: chip.ghost ? Theme.colBorder : Theme.pInk
-                font.family: Theme.fontFamily
+                color: chip.ghost ? mt.colBorder : mt.pInk
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
     }

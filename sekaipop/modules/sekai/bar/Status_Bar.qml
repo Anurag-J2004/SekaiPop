@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.widgets
@@ -19,6 +20,9 @@ import qs.modules.common.widgets
 // is rarely exactly as wide as "Workspace 1").
 Item {
     id: status_Bar
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     // Which modules to show, by name: { weather: false, ... }. Anything not
     // named is shown. Bar.qml fills it from the Settings Panel's Bar page
@@ -59,7 +63,7 @@ Item {
     // Gap between stacked widgets on a standing bar. (Every pill has a 4px
     // hard shadow under it, so this reads as about 12 between the faces.)
     // (Capsule: the 4 px of shadow room under a pill plus this reads as the same 6 as between its dots.)
-    readonly property real vGap: status_Bar.capsule ? Theme.capGap - Theme.shadowOffset : 8
+    readonly property real vGap: status_Bar.capsule ? mt.capGap - mt.shadowOffset : 8
 
     // A standing bar has a lot to stack. On a short screen (this is the
     // bar's own length, in design pixels, so it already accounts for the
@@ -242,7 +246,7 @@ Item {
     // gap minus that; the badges get that much extra margin back (see below),
     // and every zone uses the same 7.
     // (Capsule: a plain 6 between neighbours, the same as between its dots.)
-    readonly property real zoneGap: status_Bar.capsule ? Theme.capGap : 10 - badges.neighborShift
+    readonly property real zoneGap: status_Bar.capsule ? mt.capGap : 10 - badges.neighborShift
 
     // The bar's look (BarStyleService.qml, fed by Bar.qml):
     //   0 Float        rounded, outlined, inset from the screen edges
@@ -469,17 +473,17 @@ Item {
     // Values now live on Theme (colOuterRing/outerRingWidth) so Dock.qml
     // can match this exact look; kept as local aliases here so nothing
     // else in this file has to change.
-    readonly property color bgRingColor: Theme.surfaceRing
-    readonly property real bgRingWidth: Theme.outerRingWidth
+    readonly property color bgRingColor: mt.surfaceRing
+    readonly property real bgRingWidth: mt.outerRingWidth
 
     // Corner radius and how far the background reaches past the left and
     // right edges, per style. Both glide between styles instead of
     // snapping. Straight: radius 0, and the background is pushed out by
     // outline + ring (+1 so no seam shows) so the side outline and ring
     // land off screen and only the top and bottom edges are seen.
-    property real bgRadius: status_Bar.barStyle === 0 ? Theme.radiusOuter : 0
+    property real bgRadius: status_Bar.barStyle === 0 ? mt.radiusOuter : 0
     property real bgBleed: status_Bar.barStyle === 1
-        ? Theme.borderWidth + status_Bar.bgRingWidth + 1 : 0
+        ? mt.borderWidth + status_Bar.bgRingWidth + 1 : 0
 
     Behavior on bgRadius {
         NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
@@ -506,12 +510,12 @@ Item {
         Rectangle {
             id: bgShadow
             anchors.fill: parent
-            anchors.topMargin: Theme.shadowOffset - (status_Bar.vertical ? status_Bar.bgBleed : 0)
+            anchors.topMargin: mt.shadowOffset - (status_Bar.vertical ? status_Bar.bgBleed : 0)
             anchors.bottomMargin: status_Bar.vertical ? -status_Bar.bgBleed : 0
             anchors.leftMargin: status_Bar.vertical ? 0 : -status_Bar.bgBleed
             anchors.rightMargin: status_Bar.vertical ? 0 : -status_Bar.bgBleed
             radius: status_Bar.bgRadius
-            color: Theme.lineShadow
+            color: mt.lineShadow
         }
 
         // The face: navy outline, then the pale ring, then white fill —
@@ -521,21 +525,21 @@ Item {
             id: bgFace
             anchors.fill: parent
             anchors.topMargin: status_Bar.vertical ? -status_Bar.bgBleed : 0
-            anchors.bottomMargin: Theme.shadowOffset - (status_Bar.vertical ? status_Bar.bgBleed : 0)
+            anchors.bottomMargin: mt.shadowOffset - (status_Bar.vertical ? status_Bar.bgBleed : 0)
             anchors.leftMargin: status_Bar.vertical ? 0 : -status_Bar.bgBleed
             anchors.rightMargin: status_Bar.vertical ? 0 : -status_Bar.bgBleed
             radius: status_Bar.bgRadius
             color: status_Bar.bgRingColor
-            border.width: Theme.borderWidth
-            border.color: Theme.line
+            border.width: mt.borderWidth
+            border.color: mt.line
         }
 
         Rectangle {
             id: bgFill
             anchors.fill: bgFace
-            anchors.margins: Theme.borderWidth + status_Bar.bgRingWidth
-            radius: Math.max(0, status_Bar.bgRadius - Theme.borderWidth - status_Bar.bgRingWidth)
-            color: Theme.surface
+            anchors.margins: mt.borderWidth + status_Bar.bgRingWidth
+            radius: Math.max(0, status_Bar.bgRadius - mt.borderWidth - status_Bar.bgRingWidth)
+            color: mt.surface
         }
     }
 
@@ -555,28 +559,28 @@ Item {
 
         Rectangle {
             x: 0
-            y: Theme.capShadowDy
+            y: mt.capShadowDy
             width: parent.width
-            height: parent.height - Theme.capShadowDy
+            height: parent.height - mt.capShadowDy
             radius: Math.min(width, height) / 2
-            color: Theme.capShade
+            color: mt.capShade
             antialiasing: true
         }
 
         Rectangle {
             id: capFace
             width: parent.width
-            height: parent.height - Theme.capShadowDy
+            height: parent.height - mt.capShadowDy
             radius: Math.min(width, height) / 2
-            color: Theme.capRim
+            color: mt.capRim
             antialiasing: true
         }
 
         Rectangle {
             anchors.fill: capFace
-            anchors.margins: Theme.capRimWidth
+            anchors.margins: mt.capRimWidth
             radius: Math.min(width, height) / 2
-            color: Theme.capBody
+            color: mt.capBody
             antialiasing: true
         }
     }
@@ -589,16 +593,16 @@ Item {
         // Capsule: the rim plus 7 each side, and the shadow's 3 px off the bottom so the
         // pills centre on the rimmed bar, not on bar + shadow.
         anchors.leftMargin: status_Bar.vertical ? 0
-            : (status_Bar.capsule ? Theme.capRimWidth + Theme.capPadX : Theme.barFloatInset)
+            : (status_Bar.capsule ? mt.capRimWidth + mt.capPadX : mt.barFloatInset)
         anchors.rightMargin: status_Bar.vertical ? 0
-            : (status_Bar.capsule ? Theme.capRimWidth + Theme.capPadX : Theme.barFloatInset)
+            : (status_Bar.capsule ? mt.capRimWidth + mt.capPadX : mt.barFloatInset)
         anchors.topMargin: status_Bar.vertical
-            ? (status_Bar.capsule ? Theme.capRimWidth + Theme.capVPadY : Theme.barFloatInset) : 0
+            ? (status_Bar.capsule ? mt.capRimWidth + mt.capVPadY : mt.barFloatInset) : 0
         // (Capsule, standing: the last pill brings 4 px of shadow room of its own, the bar's shadow is
         // 3, so the margin is one less than the top's.)
         anchors.bottomMargin: status_Bar.vertical
-            ? (status_Bar.capsule ? Theme.capRimWidth + Theme.capVPadY - 1 : Theme.barFloatInset)
-            : (status_Bar.capsule ? Theme.capShadowDy : 0)
+            ? (status_Bar.capsule ? mt.capRimWidth + mt.capVPadY - 1 : mt.barFloatInset)
+            : (status_Bar.capsule ? mt.capShadowDy : 0)
 
         // ===== the three zones =====
 
@@ -678,7 +682,7 @@ Item {
             // bar shows ActiveWindowKey (just below) instead.
             visible: !status_Bar.vertical && status_Bar.shows("activeWindow")
             Layout.alignment: status_Bar.crossAlign
-            cornerRadius: Theme.radiusBadge
+            cornerRadius: mt.radiusBadge
             ringWidth: 5
 
             // Nothing focused on this bar's workspace (empty
@@ -708,8 +712,8 @@ Item {
                     Math.max(awLine1.implicitWidth, awLine2.visible ? awLine2.implicitWidth : 0) + (status_Bar.capsule ? 20 : 30)))
             transform: Translate { y: status_Bar.liftY }
             fillGradient: Gradient {
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
 
             Behavior on implicitWidth {
@@ -741,12 +745,12 @@ Item {
                     lineHeightMode: Text.FixedHeight
                     lineHeight: Math.round(font.pixelSize * 1.25)
                     text: activeWindow.line1.replace(/\s+/g, " ")
-                    color: status_Bar.capsule ? Theme.capInk : Theme.colBorder
-                    font.family: Theme.fontFamily
-                    font.pixelSize: status_Bar.capsule ? Theme.fontSizeInfo
-                        : (activeWindow.hasWindow ? Theme.fontSizeTitle : Theme.fontSizeIdle)
+                    color: status_Bar.capsule ? mt.capInk : mt.colBorder
+                    font.family: mt.fontFamily
+                    font.pixelSize: status_Bar.capsule ? mt.fontSizeInfo
+                        : (activeWindow.hasWindow ? mt.fontSizeTitle : mt.fontSizeIdle)
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 Text {
@@ -764,9 +768,9 @@ Item {
                     // (Capsule: one line, the app; the title is in the media / window popups.)
                     visible: activeWindow.line2 !== "" && !status_Bar.capsule
                     text: activeWindow.line2.replace(/\s+/g, " ")
-                    color: Theme.colSubText
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSub
+                    color: mt.colSubText
+                    font.family: mt.fontFamily
+                    font.pixelSize: mt.fontSizeSub
                     font.weight: Font.Medium
                 }
             }
@@ -1100,12 +1104,12 @@ Item {
             Pill {
                 id: clockPill
                 anchors.fill: parent
-                cornerRadius: Theme.radiusBadge
-                fillColor: Theme.chipFill
+                cornerRadius: mt.radiusBadge
+                fillColor: mt.chipFill
                 ringWidth: 6   // the bar's pills all share the Utility pill's ring
                 // Standing bar: "09:05" over "PM", so it's two lines tall.
                 implicitWidth: status_Bar.vertical ? clockPill.barVWidth : cLabel.implicitWidth + (status_Bar.capsule ? 20 : 28)
-                implicitHeight: status_Bar.vertical ? clockColumn.implicitHeight + (clockPill.capsule ? 16 : 24) : Theme.pillHeight + Theme.shadowOffset
+                implicitHeight: status_Bar.vertical ? clockColumn.implicitHeight + (clockPill.capsule ? 16 : 24) : mt.pillHeight + mt.shadowOffset
 
                 Column {
                     id: clockColumn
@@ -1118,11 +1122,11 @@ Item {
                             required property string modelData
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: modelData
-                            color: Theme.chipInk
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeInfo
+                            color: mt.chipInk
+                            font.family: mt.fontFamily
+                            font.pixelSize: mt.fontSizeInfo
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }
@@ -1132,11 +1136,11 @@ Item {
                     visible: !status_Bar.vertical
                     anchors.centerIn: parent
                     text: status_Bar.clockText
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
-                    font.pixelSize: status_Bar.capsule ? Theme.capClockSize : Theme.fontSizeInfo
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
+                    font.pixelSize: status_Bar.capsule ? mt.capClockSize : mt.fontSizeInfo
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }

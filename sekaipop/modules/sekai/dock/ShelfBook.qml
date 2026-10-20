@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -7,6 +8,9 @@ import qs.modules.common.widgets
 // file's icon and the name running up the spine. Drawn by DockShelfCard.qml, which sets the size.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     required property var item
     required property string icon
@@ -20,7 +24,7 @@ Item {
         width: parent.width
         height: parent.height
         radius: 6
-        color: Theme.lineShadow
+        color: mt.lineShadow
         antialiasing: true
     }
 
@@ -29,8 +33,8 @@ Item {
         anchors.fill: parent
         radius: 6
         color: root.tint
-        border.width: Theme.borderWidth
-        border.color: Theme.line
+        border.width: mt.borderWidth
+        border.color: mt.line
         antialiasing: true
 
         // two bands near the top and one near the foot, like a real spine
@@ -76,9 +80,9 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 7
-                color: Theme.surface
+                color: mt.surface
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
             }
 
@@ -114,8 +118,8 @@ Item {
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 text: root.item.name
-                color: Theme.line
-                font.family: Theme.fontFamily
+                color: mt.line
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.ExtraBold
             }

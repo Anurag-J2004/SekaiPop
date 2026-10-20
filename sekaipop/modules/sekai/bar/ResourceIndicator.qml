@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.widgets
@@ -10,6 +11,9 @@ import qs.modules.common.widgets
 // Click opens ResourcePopup.qml with the fuller breakdown.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real cpuPercent: 0
     property real memPercent: 0
@@ -51,14 +55,14 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
-        fillColor: Theme.chipFill
+        cornerRadius: mt.radiusBadge
+        fillColor: mt.chipFill
         pressed: area.pressed
         ringWidth: 6   // the bar's pills all share the Utility pill's ring (it was 8 when lying flat)
         implicitWidth: root.vertical ? pill.barVWidth : row.implicitWidth + (pill.capsule ? 20 : 24)
         implicitHeight: root.vertical
-            ? vcol.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + Theme.shadowOffset
-            : Theme.pillHeight + Theme.shadowOffset
+            ? vcol.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 12 + mt.shadowOffset
+            : mt.pillHeight + mt.shadowOffset
 
         // Standing bar version: CPU, then RAM, each an icon over its number.
         Column {
@@ -74,16 +78,16 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     name: root.cpuGlyphName
                     size: 18
-                    color: root.cpuHot ? "#e0575b" : Theme.chipInk
+                    color: root.cpuHot ? "#e0575b" : mt.chipInk
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: root.cpuPercent + "%"
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeInfo
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
+                    font.pixelSize: mt.fontSizeInfo
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
 
@@ -94,16 +98,16 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     name: root.memGlyphName
                     size: 18
-                    color: root.memHot ? "#e0575b" : Theme.chipInk
+                    color: root.memHot ? "#e0575b" : mt.chipInk
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: root.memPercent + "%"
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeInfo
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
+                    font.pixelSize: mt.fontSizeInfo
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }
@@ -120,15 +124,15 @@ Item {
                     Layout.alignment: Qt.AlignVCenter
                     name: root.cpuGlyphName
                     size: 18
-                    color: root.cpuHot ? "#e0575b" : Theme.chipInk
+                    color: root.cpuHot ? "#e0575b" : mt.chipInk
                 }
                 Text {
                     text: root.cpuPercent + "%"
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeInfo
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
+                    font.pixelSize: mt.fontSizeInfo
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
 
@@ -138,15 +142,15 @@ Item {
                     Layout.alignment: Qt.AlignVCenter
                     name: root.memGlyphName
                     size: 18
-                    color: root.memHot ? "#e0575b" : Theme.chipInk
+                    color: root.memHot ? "#e0575b" : mt.chipInk
                 }
                 Text {
                     text: root.memPercent + "%"
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeInfo
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
+                    font.pixelSize: mt.fontSizeInfo
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }

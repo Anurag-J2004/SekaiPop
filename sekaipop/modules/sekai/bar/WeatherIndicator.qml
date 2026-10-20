@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -9,6 +10,9 @@ import qs.modules.common.widgets
 // presses like a physical button — a click opens WeatherPopup.qml.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string text: "--"
     property string iconName: "cloud"
@@ -24,14 +28,14 @@ Item {
     Pill {
         id: pill
         anchors.fill: parent
-        cornerRadius: Theme.radiusBadge
-        fillColor: Theme.chipFill
+        cornerRadius: mt.radiusBadge
+        fillColor: mt.chipFill
         pressed: area.pressed
         ringWidth: 6   // the bar's pills all share the Utility pill's ring
         implicitWidth: root.vertical ? pill.barVWidth : weatherIcon.width + label.implicitWidth + (pill.capsule ? 26 : 34)
         implicitHeight: root.vertical
-            ? vcol.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 8 + Theme.shadowOffset
-            : Theme.pillHeight + Theme.shadowOffset
+            ? vcol.implicitHeight + (pill.capsule ? 4 : 2 * ringWidth) + 8 + mt.shadowOffset
+            : mt.pillHeight + mt.shadowOffset
 
         Column {
             id: vcol
@@ -43,17 +47,17 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 name: root.iconName
                 size: 24
-                color: Theme.chipInk
+                color: mt.chipInk
             }
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: root.text
-                color: Theme.chipInk
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeInfo
+                color: mt.chipInk
+                font.family: mt.fontFamily
+                font.pixelSize: mt.fontSizeInfo
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -62,7 +66,7 @@ Item {
             visible: !root.vertical
             name: root.iconName
             size: 24
-            color: Theme.chipInk
+            color: mt.chipInk
             x: 10
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -74,11 +78,11 @@ Item {
             anchors.leftMargin: 6
             anchors.verticalCenter: parent.verticalCenter
             text: root.text
-            color: Theme.chipInk
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeInfo
+            color: mt.chipInk
+            font.family: mt.fontFamily
+            font.pixelSize: mt.fontSizeInfo
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 

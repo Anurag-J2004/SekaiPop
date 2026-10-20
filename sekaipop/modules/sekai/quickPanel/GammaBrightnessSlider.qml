@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.phone
@@ -20,6 +21,9 @@ import qs.modules.sekai.phone
 // back out through `gammaMoved` / `brightnessMoved`.
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property real gamma: 100        // 0-100 (100 = unchanged)
     property real brightness: 100   // 0-100
@@ -51,7 +55,7 @@ Item {
     readonly property real shownGamma: dragging && dragGamma >= 0 ? dragGamma : gamma
     readonly property real shownBrightness: dragging && dragBrightness >= 0 ? dragBrightness : brightness
 
-    readonly property color ink: Theme.pInk
+    readonly property color ink: mt.pInk
     readonly property color inkSub: Qt.rgba(ink.r, ink.g, ink.b, 0.667)
 
     // ===== headers =====
@@ -76,10 +80,10 @@ Item {
             y: (32 - height) / 2
             text: Math.round(root.shownGamma) + "%"
             color: root.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -104,10 +108,10 @@ Item {
             y: (32 - height) / 2
             text: Math.round(root.shownBrightness) + "%"
             color: root.ink
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 17
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 
@@ -119,7 +123,7 @@ Item {
         width: root.trackWidth
         height: 14
         radius: 7
-        color: Theme.pSurfaceDivider
+        color: mt.pSurfaceDivider
         antialiasing: true
 
         // gamma's stretch
@@ -130,8 +134,8 @@ Item {
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
             Behavior on width {
                 enabled: !root.dragging
@@ -148,8 +152,8 @@ Item {
             antialiasing: true
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.accentMint }
-                GradientStop { position: 1.0; color: Theme.accentCyan }
+                GradientStop { position: 0.0; color: mt.accentMint }
+                GradientStop { position: 1.0; color: mt.accentCyan }
             }
             Behavior on width {
                 enabled: !root.dragging

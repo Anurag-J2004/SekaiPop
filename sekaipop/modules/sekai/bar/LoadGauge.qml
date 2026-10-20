@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "BatteryMath.js" as BM
 import qs.modules.common
 import qs.modules.common.widgets
@@ -22,10 +23,13 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string title: ""
     property real pct: 0
     property string word: ""
-    property color tint: Theme.accentMint
+    property color tint: mt.accentMint
     property bool plain: false
     property bool hot: false
     property real wave: 1
@@ -36,8 +40,8 @@ Item {
 
     Gradient {
         id: accentGradient
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     onWordChanged: stampPop.restart()
@@ -62,10 +66,10 @@ Item {
                 id: stampProbe
                 visible: false
                 text: root.word
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
                 font.letterSpacing: 0.6
             }
 
@@ -82,7 +86,7 @@ Item {
                 rotation: 4
                 transformOrigin: Item.Center
                 scale: stampPopValue
-                fillColor: Theme.chipFill
+                fillColor: mt.chipFill
 
                 property real stampPopValue: 1
 
@@ -90,12 +94,12 @@ Item {
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: -1
                     text: root.word
-                    color: Theme.dark ? (root.hot ? "#ff8a92" : Theme.accentMint)
-                                      : (root.hot ? "#c93a40" : Theme.colBorder)
-                    font.family: Theme.fontFamily
+                    color: mt.dark ? (root.hot ? "#ff8a92" : mt.accentMint)
+                                      : (root.hot ? "#c93a40" : mt.colBorder)
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.6
                 }
             }
@@ -118,9 +122,9 @@ Item {
             width: root.width
             height: 68
             radius: 18
-            color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.28)
+            color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.28)
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
 
             Item {
@@ -161,8 +165,8 @@ Item {
                                 anchors.fill: parent
                                 skew: gauge.skew
                                 radius: 9
-                                color: Theme.surfaceHover
-                                borderColor: Theme.line
+                                color: mt.surfaceHover
+                                borderColor: mt.line
                                 borderWidth: 3
                             }
 
@@ -176,7 +180,7 @@ Item {
                                 radius: 9
                                 color: root.hot ? "#e0575b" : (root.plain ? root.tint : "transparent")
                                 gradient: (root.hot || root.plain) ? null : accentGradient
-                                borderColor: Theme.line
+                                borderColor: mt.line
                                 borderWidth: 3
                                 opacity: seg.f > 0 ? 1 : 0
                                 Behavior on opacity {
@@ -200,11 +204,11 @@ Item {
                     x: 10 + modelData.at * (track.width - 20) - width * modelData.at
                     y: 51
                     text: modelData.v
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
                     font.pixelSize: 9
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
         }

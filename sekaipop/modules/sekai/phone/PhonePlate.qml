@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 
 // A rounded plate in the phone's own look: the fill, the outline and the hard
@@ -13,16 +14,19 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     default property alias content: inner.data
 
     property real radius: 28
-    property color fill: Theme.pSurface
+    property color fill: mt.pSurface
     property Gradient fillGradient: null
     property real borderW: 3
     // How far the hard shadow reaches (right and down).
     property real shadow: 4
-    property color line: Theme.pLine
-    property color shadowColor: Theme.pLineShadow
+    property color line: mt.pLine
+    property color shadowColor: mt.pLineShadow
     // Sinks the face onto its shadow (a pressed key).
     property bool pressed: false
 

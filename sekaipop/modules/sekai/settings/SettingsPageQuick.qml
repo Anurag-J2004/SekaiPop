@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 
 // Quick: the things you reach for most, so they're a tap away instead of a
@@ -9,6 +10,9 @@ SettingsPage {
     id: page
 
     readonly property var src: host ? host.source : null
+    // The monitor the phone is on: with one theme per monitor, Colours picks for it
+    // (ThemeService.pickTheme; the main monitor's is the shell's theme).
+    readonly property string screenName: QsWindow.window && QsWindow.window.screen ? String(QsWindow.window.screen.name) : ""
 
     SectionCard {
         title: "Look"
@@ -28,13 +32,13 @@ SettingsPage {
         SettingChoice {
             label: "Colours"
             sublabel: "Whose colours the shell wears"
-            current: ThemeService.current
+            current: ThemeService.themeFor(page.screenName)
             options: ThemeService.groups.map(g => ({
                 id: g.id,
                 label: g.name,
                 swatch: [g.c.border, g.c.A, g.c.B]
             }))
-            onPicked: id => ThemeService.setTheme(id)
+            onPicked: id => ThemeService.pickTheme(page.screenName, id)
         }
 
         SettingAction {

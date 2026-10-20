@@ -67,20 +67,20 @@ DockCard {
                 height: 13
                 radius: 4
                 rotation: 45
-                color: Theme.accentMint
+                color: mt.accentMint
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
             }
 
             Text {
                 visible: !root.editing
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.title
-                color: Theme.ink
-                font.family: Theme.fontFamily
+                color: mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Rectangle {
@@ -89,9 +89,9 @@ DockCard {
                 width: 150
                 height: 30
                 radius: 9
-                color: Theme.surface
+                color: mt.surface
                 border.width: 2.5
-                border.color: Theme.accentCyan
+                border.color: mt.accentCyan
                 antialiasing: true
 
                 TextInput {
@@ -103,10 +103,10 @@ DockCard {
                     clip: true
                     selectByMouse: true
                     maximumLength: 24
-                    color: Theme.ink
-                    selectionColor: Theme.accentCyan
-                    selectedTextColor: Theme.colBorder
-                    font.family: Theme.fontFamily
+                    color: mt.ink
+                    selectionColor: mt.accentCyan
+                    selectedTextColor: mt.colBorder
+                    font.family: mt.fontFamily
                     font.pixelSize: 16
                     font.weight: Font.ExtraBold
                     onAccepted: root.commitEdit()
@@ -159,7 +159,7 @@ DockCard {
                     anchors.fill: parent
                     radius: 14
                     color: area.containsMouse
-                        ? Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, area.pressed ? 0.34 : 0.2)
+                        ? Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, area.pressed ? 0.34 : 0.2)
                         : "transparent"
                     antialiasing: true
 
@@ -193,8 +193,8 @@ DockCard {
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                     text: tile.modelData.displayName
-                    color: Theme.ink
-                    font.family: Theme.fontFamily
+                    color: mt.ink
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.Bold
                 }
@@ -222,9 +222,9 @@ DockCard {
                     width: 22
                     height: 22
                     radius: 7
-                    color: Theme.surface
+                    color: mt.surface
                     border.width: 2
-                    border.color: outArea.containsMouse ? Theme.accentMint : Theme.line
+                    border.color: outArea.containsMouse ? mt.accentMint : mt.line
                     opacity: area.containsMouse || outArea.containsMouse ? 1 : 0
                     visible: opacity > 0.01
                     antialiasing: true

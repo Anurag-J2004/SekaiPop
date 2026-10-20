@@ -80,7 +80,7 @@ SekaiPopup {
         const s = String(id || "")
         for (let i = 0; i < s.length; i++)
             h = (h * 31 + s.charCodeAt(i)) >>> 0
-        const colors = Theme.attributeColors
+        const colors = mt.attributeColors
         return colors[h % colors.length]
     }
 
@@ -119,7 +119,7 @@ SekaiPopup {
         SekaiPlate {
             id: head
             width: col.width
-            height: 82 + Theme.shadowOffset
+            height: 82 + mt.shadowOffset
             cornerRadius: 16
             ringWidth: 5
             colorTop: Qt.lighter(root.blurple, 1.16)
@@ -141,9 +141,9 @@ SekaiPopup {
                 Rectangle {
                     anchors.fill: parent
                     radius: width / 2
-                    color: Theme.textWhite
+                    color: mt.textWhite
                     border.width: 2
-                    border.color: badge.talking ? Theme.accentMint : Theme.colBorder
+                    border.color: badge.talking ? mt.accentMint : mt.colBorder
                     antialiasing: true
                     Behavior on border.color { ColorAnimation { duration: 140 } }
                 }
@@ -160,11 +160,11 @@ SekaiPopup {
                         anchors.centerIn: parent
                         visible: headImg.status !== Image.Ready
                         text: root.featured ? String(root.featured.nick || root.featured.username || "?").charAt(0).toUpperCase() : "?"
-                        color: Theme.textWhite
-                        font.family: Theme.fontFamily
+                        color: mt.textWhite
+                        font.family: mt.fontFamily
                         font.pixelSize: 18
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     Image {
@@ -192,9 +192,9 @@ SekaiPopup {
                     Rectangle {
                         anchors.fill: parent
                         radius: 9
-                        color: Theme.textWhite
+                        color: mt.textWhite
                         border.width: 2
-                        border.color: Theme.colBorder
+                        border.color: mt.colBorder
                         antialiasing: true
                     }
                     ClippingRectangle {
@@ -208,11 +208,11 @@ SekaiPopup {
                             anchors.centerIn: parent
                             visible: guildImg.status !== Image.Ready
                             text: root.guildName.charAt(0).toUpperCase()
-                            color: Theme.textWhite
-                            font.family: Theme.fontFamily
+                            color: mt.textWhite
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                         Image {
                             id: guildImg
@@ -237,9 +237,9 @@ SekaiPopup {
                     width: 13
                     height: 13
                     radius: 6.5
-                    color: Theme.accentMint
+                    color: mt.accentMint
                     border.width: 2.5
-                    border.color: Theme.line
+                    border.color: mt.line
                     antialiasing: true
 
                     SequentialAnimation on opacity {
@@ -267,7 +267,7 @@ SekaiPopup {
                     elide: Text.ElideRight
                     text: "VOICE CONNECTED"
                     color: Qt.rgba(1, 1, 1, 0.78)
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 10
                     font.weight: Font.Bold
                     font.letterSpacing: 0.7
@@ -277,11 +277,11 @@ SekaiPopup {
                     width: parent.width
                     elide: Text.ElideRight
                     text: "# " + (root.channelName !== "" ? root.channelName : "Voice channel")
-                    color: Theme.textWhite
-                    font.family: Theme.fontFamily
+                    color: mt.textWhite
+                    font.family: mt.fontFamily
                     font.pixelSize: 18
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
 
                 // The server's name under the channel.
@@ -291,7 +291,7 @@ SekaiPopup {
                     elide: Text.ElideRight
                     text: root.guildName
                     color: Qt.rgba(1, 1, 1, 0.78)
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -311,8 +311,8 @@ SekaiPopup {
                     anchors.fill: parent
                     skew: 0.22
                     radius: 7
-                    color: Theme.textWhite
-                    borderColor: Theme.colBorder
+                    color: mt.textWhite
+                    borderColor: mt.colBorder
                     borderWidth: 3
                 }
                 Text {
@@ -320,10 +320,10 @@ SekaiPopup {
                     anchors.centerIn: parent
                     text: root.members.length + " IN CALL"
                     color: root.blurple
-                    font.family: Theme.fontFamily
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                     font.letterSpacing: 0.4
                 }
             }
@@ -350,8 +350,8 @@ SekaiPopup {
                 anchors.rightMargin: 4
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.members.length === 1 ? "just you" : root.members.length + " people"
-                color: Theme.inkSub
-                font.family: Theme.fontFamily
+                color: mt.inkSub
+                font.family: mt.fontFamily
                 font.pixelSize: 11
                 font.weight: Font.DemiBold
             }
@@ -406,9 +406,9 @@ SekaiPopup {
                     x: (list.width - width) / 2
                     y: (list.height - height) / 2
                     text: "Waiting for people…"
-                    color: Theme.inkSub
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMenu
+                    color: mt.inkSub
+                    font.family: mt.fontFamily
+                    font.pixelSize: mt.fontSizeMenu
                     font.weight: Font.DemiBold
                 }
 
@@ -443,8 +443,8 @@ SekaiPopup {
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             text: root.hint
-            color: Theme.inkSub
-            font.family: Theme.fontFamily
+            color: mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 10
             font.weight: Font.DemiBold
             opacity: 0.85

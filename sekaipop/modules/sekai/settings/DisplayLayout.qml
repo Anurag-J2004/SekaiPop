@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import "../../common/functions/DisplayMath.js" as DM
@@ -12,6 +13,9 @@ import "../../common/functions/DisplayMath.js" as DM
 //   DisplayLayout { width: card.innerWidth }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     width: parent ? parent.width : 600
     height: 250
@@ -27,9 +31,9 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 22
-        color: Theme.pSurfaceHover
+        color: mt.pSurfaceHover
         border.width: 2
-        border.color: Theme.pSurfaceDivider
+        border.color: mt.pSurfaceDivider
         antialiasing: true
     }
 
@@ -37,8 +41,8 @@ Item {
         anchors.centerIn: parent
         visible: root.screens.length === 0
         text: "No screen is on"
-        color: Theme.pInkSub
-        font.family: Theme.fontFamily
+        color: mt.pInkSub
+        font.family: mt.fontFamily
         font.pixelSize: 16
     }
 
@@ -74,7 +78,7 @@ Item {
                 width: tile.width
                 height: tile.height
                 radius: 12
-                color: Theme.pLineShadow
+                color: mt.pLineShadow
                 antialiasing: true
             }
 
@@ -83,16 +87,16 @@ Item {
                 anchors.fill: parent
                 radius: 12
                 antialiasing: true
-                border.width: Theme.borderWidth
-                border.color: Theme.pLine
+                border.width: mt.borderWidth
+                border.color: mt.pLine
                 gradient: tile.isMain ? mainFill : null
-                color: tile.isMain ? Theme.accentCyan : (area.containsMouse || tile.dragging ? Theme.pSurfaceHover : Theme.pSurface)
+                color: tile.isMain ? mt.accentCyan : (area.containsMouse || tile.dragging ? mt.pSurfaceHover : mt.pSurface)
 
                 Gradient {
                     id: mainFill
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Theme.accentCyan }
-                    GradientStop { position: 1; color: Theme.accentMint }
+                    GradientStop { position: 0; color: mt.accentCyan }
+                    GradientStop { position: 1; color: mt.accentMint }
                 }
 
                 Column {
@@ -105,11 +109,11 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         elide: Text.ElideRight
                         text: tile.r.name
-                        color: Theme.pInk
-                        font.family: Theme.fontFamily
+                        color: mt.pInk
+                        font.family: mt.fontFamily
                         font.pixelSize: Math.max(10, Math.min(17, tile.height / 4.5))
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                     }
 
                     Text {
@@ -118,8 +122,8 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         elide: Text.ElideRight
                         text: Math.round(tile.r.w) + " \u00d7 " + Math.round(tile.r.h)
-                        color: Theme.pInkSub
-                        font.family: Theme.fontFamily
+                        color: mt.pInkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: Math.max(9, Math.min(13, tile.height / 6))
                     }
                 }

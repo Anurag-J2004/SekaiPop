@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 
@@ -7,6 +8,9 @@ import qs.modules.common
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property bool vertical: false
     property real iconSize: 35
     property real thickness: 4
@@ -14,7 +18,7 @@ Item {
     property bool capsule: false
 
     width: root.vertical ? root.iconSize : root.thickness
-    height: root.vertical ? root.thickness : root.iconSize + Theme.shadowOffset
+    height: root.vertical ? root.thickness : root.iconSize + mt.shadowOffset
 
     Rectangle {
         width: root.vertical ? root.iconSize * 0.7 : parent.width
@@ -22,6 +26,6 @@ Item {
         x: root.vertical ? (parent.width - width) / 2 : 0
         y: root.vertical ? 0 : (root.iconSize - height) / 2
         radius: Math.min(width, height) / 2
-        color: root.capsule ? Theme.capRim : Theme.surfaceDivider
+        color: root.capsule ? mt.capRim : mt.surfaceDivider
     }
 }

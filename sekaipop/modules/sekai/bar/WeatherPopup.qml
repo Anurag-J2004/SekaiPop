@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../../common/functions/WeatherMath.js" as WM
 import qs.services
 import qs.modules.common
@@ -49,7 +50,7 @@ SekaiPopup {
 
     // The accent as INK (icons, curve, arrow): the peach is right on the dark
     // looks but washes out on Light's pale surfaces, so it is darkened there.
-    readonly property color iconInk: Theme.dark ? Theme.accentMint : Qt.darker(Theme.accentMint, 1.5)
+    readonly property color iconInk: mt.dark ? mt.accentMint : Qt.darker(mt.accentMint, 1.5)
 
     contentWidth: root.innerW + 2 * root.pad
     contentHeight: stack.implicitHeight + 2 * root.pad - 2
@@ -135,8 +136,8 @@ SekaiPopup {
 
     Gradient {
         id: accentGradient
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     // Water in a tank: a body that thins out towards the bottom (so the ink
@@ -145,6 +146,9 @@ SekaiPopup {
     // (already eased), `corner` is the Pill's inner radius.
     component Water: Rectangle {
         id: water
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
         property real level: 0
         property real corner: 10
 
@@ -155,8 +159,8 @@ SekaiPopup {
         radius: water.corner
         antialiasing: true
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.36) }
-            GradientStop { position: 1.0; color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.12) }
+            GradientStop { position: 0.0; color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.36) }
+            GradientStop { position: 1.0; color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.12) }
         }
 
         Rectangle {
@@ -166,17 +170,20 @@ SekaiPopup {
             width: Math.max(0, water.width - water.corner * 1.4)
             height: 2
             radius: 1
-            color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.85)
+            color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.85)
         }
     }
 
     // The small caps label every gauge tile carries.
     component TileLabel: Text {
-        color: Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.78)
-        font.family: Theme.fontFamily
+
+        // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+        readonly property var mt: Theme.of(QsWindow.window)
+        color: Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.78)
+        font.family: mt.fontFamily
         font.pixelSize: 9
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
         font.letterSpacing: 0.8
         elide: Text.ElideRight
     }
@@ -204,7 +211,7 @@ SekaiPopup {
                     y: 11
                     width: 170
                     text: condLabel.toUpperCase()
-                    color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.82)
+                    color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.82)
                     font.pixelSize: 11
                     font.letterSpacing: 1.4
 
@@ -243,29 +250,29 @@ SekaiPopup {
 
                     Row {
                         spacing: 0
-                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_upward"; size: 14; weight: 700; color: Theme.colBorder; fill: 0 }
+                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_upward"; size: 14; weight: 700; color: mt.colBorder; fill: 0 }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.today ? root.today.high : ""
-                            color: Theme.colBorder
-                            font.family: Theme.fontFamily
+                            color: mt.colBorder
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                     Row {
                         spacing: 0
-                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_downward"; size: 14; weight: 700; color: Theme.colBorder; fill: 0 }
+                        MaterialIcon { anchors.verticalCenter: parent.verticalCenter; name: "arrow_downward"; size: 14; weight: 700; color: mt.colBorder; fill: 0 }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.today ? root.today.low : ""
-                            color: Theme.colBorder
+                            color: mt.colBorder
                             opacity: 0.8
-                            font.family: Theme.fontFamily
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }
@@ -283,7 +290,7 @@ SekaiPopup {
                     rotation: 6
                     transformOrigin: Item.Center
                     pressed: discArea.pressed
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
 
                     property real sx: 1
                     property real sy: 1
@@ -299,7 +306,7 @@ SekaiPopup {
                         anchors.centerIn: parent
                         name: root.source ? root.source.iconName : "cloud"
                         size: 52
-                        color: Theme.dark ? (root.night ? Theme.accentCyan : Theme.accentMint) : Theme.colBorder
+                        color: mt.dark ? (root.night ? mt.accentCyan : mt.accentMint) : mt.colBorder
                         scale: 0.5 + 0.5 * Math.min(root.reveal, 1.15)
                     }
                 }
@@ -343,10 +350,10 @@ SekaiPopup {
                 id: placeProbe
                 visible: false
                 text: placeTab.label
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 12
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             Slant {
@@ -358,8 +365,8 @@ SekaiPopup {
                 height: 30
                 skew: 0.2
                 radius: 10
-                color: Theme.chipFill
-                borderColor: Theme.line
+                color: mt.chipFill
+                borderColor: mt.line
                 borderWidth: 3
             }
 
@@ -376,18 +383,18 @@ SekaiPopup {
                     fill: 0
                     size: 16
                     weight: 700
-                    color: Theme.dark ? Theme.accentMint : Theme.colBorder
+                    color: mt.dark ? mt.accentMint : mt.colBorder
                 }
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     width: Math.max(0, placeTab.width - placeTab.lean - 40)
                     elide: Text.ElideRight
                     text: placeTab.label
-                    color: Theme.chipInk
-                    font.family: Theme.fontFamily
+                    color: mt.chipInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 12
                     font.weight: Font.ExtraBold
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
             }
 
@@ -403,7 +410,7 @@ SekaiPopup {
                     shadowDy: 3
                     cornerRadius: 12
                     ringWidth: 4
-                    fillColor: Theme.chipFill
+                    fillColor: mt.chipFill
                     pressed: refreshArea.pressed
 
                     MaterialIcon {
@@ -413,7 +420,7 @@ SekaiPopup {
                         fill: 0
                         size: 20
                         weight: 600
-                        color: Theme.chipInk
+                        color: mt.chipInk
 
                         RotationAnimator on rotation {
                             from: 0
@@ -468,7 +475,7 @@ SekaiPopup {
                         shadowDy: 4
                         cornerRadius: 14
                         ringWidth: 3
-                        fillColor: Theme.surfaceHover
+                        fillColor: mt.surfaceHover
                         pressed: humArea.pressed
 
                         Water {
@@ -482,11 +489,11 @@ SekaiPopup {
                             width: parent.width - 14
                             elide: Text.ElideRight
                             text: root.hasData ? root.source.humidityText : ""
-                            color: Theme.ink
-                            font.family: Theme.fontFamily
+                            color: mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 22
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
                 }
@@ -513,7 +520,7 @@ SekaiPopup {
                         shadowDy: 4
                         cornerRadius: 14
                         ringWidth: 3
-                        fillColor: Theme.surfaceHover
+                        fillColor: mt.surfaceHover
                         pressed: windArea.pressed
 
                         TileLabel {
@@ -530,17 +537,17 @@ SekaiPopup {
                             Text {
                                 id: windBig
                                 text: root.hasData ? String(root.windNum) : ""
-                                color: Theme.ink
-                                font.family: Theme.fontFamily
+                                color: mt.ink
+                                font.family: mt.fontFamily
                                 font.pixelSize: 22
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
                             Text {
                                 anchors.baseline: windBig.baseline
                                 text: root.windUnit
-                                color: Theme.inkSub
-                                font.family: Theme.fontFamily
+                                color: mt.inkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 10
                                 font.weight: Font.Bold
                             }
@@ -557,9 +564,9 @@ SekaiPopup {
                             Rectangle {
                                 anchors.fill: parent
                                 radius: width / 2
-                                color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.35)
+                                color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.35)
                                 border.width: 2
-                                border.color: Theme.line
+                                border.color: mt.line
                                 antialiasing: true
                             }
                             DiamondDot {
@@ -567,8 +574,8 @@ SekaiPopup {
                                 y: -3
                                 size: 6
                                 lit: true
-                                litColor: Theme.accentMint
-                                lineColor: Theme.line
+                                litColor: mt.accentMint
+                                lineColor: mt.line
                             }
                             MaterialIcon {
                                 anchors.centerIn: parent
@@ -605,7 +612,7 @@ SekaiPopup {
                         shadowDy: 4
                         cornerRadius: 14
                         ringWidth: 3
-                        fillColor: Theme.surfaceHover
+                        fillColor: mt.surfaceHover
                         pressed: uvArea.pressed
 
                         TileLabel { x: 9; y: 10; width: parent.width - 14; text: "UV INDEX" }
@@ -613,11 +620,11 @@ SekaiPopup {
                             x: 9
                             y: 24
                             text: root.hasData ? root.source.uvText : ""
-                            color: Theme.ink
-                            font.family: Theme.fontFamily
+                            color: mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 22
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                         Row {
                             x: 10
@@ -628,9 +635,9 @@ SekaiPopup {
                                 delegate: DiamondDot {
                                     required property int index
                                     size: 7
-                                    offColor: Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.2)
+                                    offColor: Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.2)
                                     lit: index < WM.uvLit(root.uv)
-                                    litColor: index < 2 ? Theme.accentMint : (index < 4 ? "#FFE066" : "#ff6f78")
+                                    litColor: index < 2 ? mt.accentMint : (index < 4 ? "#FFE066" : "#ff6f78")
                                 }
                             }
                         }
@@ -647,9 +654,9 @@ SekaiPopup {
             width: root.innerW
             height: 42
             radius: 14
-            color: Theme.surfaceHover
+            color: mt.surfaceHover
             border.width: 2
-            border.color: Theme.line
+            border.color: mt.line
             antialiasing: true
             opacity: Math.min(1, WM.clamp01((root.wave * root.waveMs - 160) / 250) * 2)
 
@@ -682,11 +689,11 @@ SekaiPopup {
                             width: parent.width
                             elide: Text.ElideRight
                             text: parent.parent.modelData.value
-                            color: Theme.ink
-                            font.family: Theme.fontFamily
+                            color: mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 13
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
 
@@ -699,7 +706,7 @@ SekaiPopup {
                         height: strip.height - 18
                         skew: 0.4
                         radius: 1
-                        color: Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.22)
+                        color: Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.22)
                     }
                 }
             }
@@ -745,9 +752,9 @@ SekaiPopup {
             Rectangle {
                 anchors.fill: parent
                 radius: 14
-                color: Qt.rgba(Theme.colBorder.r, Theme.colBorder.g, Theme.colBorder.b, 0.28)
+                color: Qt.rgba(mt.colBorder.r, mt.colBorder.g, mt.colBorder.b, 0.28)
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
                 antialiasing: true
             }
 
@@ -756,7 +763,7 @@ SekaiPopup {
                 id: curve
                 anchors.fill: parent
                 opacity: Math.min(1, root.wave * 2)
-                property color edge: Theme.line
+                property color edge: mt.line
                 property color core: root.iconInk
                 property var pts: hourly.pts
                 onEdgeChanged: requestPaint()
@@ -815,7 +822,7 @@ SekaiPopup {
                         anchors.fill: parent
                         anchors.margins: 3
                         radius: 11
-                        color: Theme.surfaceHover
+                        color: mt.surfaceHover
                         opacity: note.hovered ? 1 : 0
                         Behavior on opacity {
                             NumberAnimation { duration: 120 }
@@ -836,11 +843,11 @@ SekaiPopup {
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: note.pt.y - 25
                         text: note.modelData.temp
-                        color: Theme.ink
-                        font.family: Theme.fontFamily
+                        color: mt.ink
+                        font.family: mt.fontFamily
                         font.pixelSize: 12
                         font.weight: Font.ExtraBold
-                        font.styleName: Theme.fontStyleBold
+                        font.styleName: mt.fontStyleBold
                         opacity: Math.min(1, note.t * 2.5)
                     }
 
@@ -859,8 +866,8 @@ SekaiPopup {
                             anchors.centerIn: parent
                             size: 12
                             lit: true
-                            litColor: note.index === 0 ? Theme.accentMint : Theme.surface
-                            lineColor: Theme.line
+                            litColor: note.index === 0 ? mt.accentMint : mt.surface
+                            lineColor: mt.line
                         }
                     }
 
@@ -871,9 +878,9 @@ SekaiPopup {
                         width: 32
                         height: 15
                         radius: 7.5
-                        color: Theme.surfaceHover
+                        color: mt.surfaceHover
                         border.width: 2
-                        border.color: Theme.line
+                        border.color: mt.line
                         opacity: Math.min(1, note.t * 2.5)
 
                         Rectangle {
@@ -882,17 +889,17 @@ SekaiPopup {
                             height: parent.height - 4
                             width: (parent.width - 4) * Math.min(1, note.modelData.rain / 100)
                             radius: 5.5
-                            color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.55)
+                            color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.55)
                         }
 
                         Text {
                             anchors.centerIn: parent
                             text: note.modelData.rain + "%"
-                            color: Theme.ink
-                            font.family: Theme.fontFamily
+                            color: mt.ink
+                            font.family: mt.fontFamily
                             font.pixelSize: 9
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
                     }
 
@@ -900,8 +907,8 @@ SekaiPopup {
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: 110
                         text: note.modelData.label
-                        color: Theme.inkSub
-                        font.family: Theme.fontFamily
+                        color: mt.inkSub
+                        font.family: mt.fontFamily
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                     }
@@ -954,9 +961,9 @@ SekaiPopup {
                             id: rowBg
                             anchors.fill: parent
                             radius: 14
-                            color: Theme.surfaceHover
+                            color: mt.surfaceHover
                             border.width: 2
-                            border.color: dayRow.hovered ? Theme.accentMint : Theme.line
+                            border.color: dayRow.hovered ? mt.accentMint : mt.line
                             antialiasing: true
                             Behavior on border.color { ColorAnimation { duration: 120 } }
 
@@ -967,7 +974,7 @@ SekaiPopup {
                                 height: parent.height - 4
                                 width: Math.max(0, (parent.width - 4) * Math.min(1, dayRow.modelData.rain / 100) * WM.outBack(dayRow.t, 1.4))
                                 radius: 12
-                                color: Qt.rgba(Theme.accentCyan.r, Theme.accentCyan.g, Theme.accentCyan.b, 0.2)
+                                color: Qt.rgba(mt.accentCyan.r, mt.accentCyan.g, mt.accentCyan.b, 0.2)
                             }
                         }
 
@@ -979,9 +986,9 @@ SekaiPopup {
                             height: 26
                             skew: 0.2
                             radius: 8
-                            color: dayRow.isToday ? "transparent" : Theme.chipFill
+                            color: dayRow.isToday ? "transparent" : mt.chipFill
                             gradient: dayRow.isToday ? accentGradient : null
-                            borderColor: Theme.line
+                            borderColor: mt.line
                             borderWidth: 2
                         }
                         Text {
@@ -993,11 +1000,11 @@ SekaiPopup {
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             text: dayRow.modelData.label + (!dayRow.isToday && dayRow.modelData.date ? " " + dayRow.modelData.date : "")
-                            color: dayRow.isToday ? Theme.colBorder : Theme.chipInk
-                            font.family: Theme.fontFamily
+                            color: dayRow.isToday ? mt.colBorder : mt.chipInk
+                            font.family: mt.fontFamily
                             font.pixelSize: 11
                             font.weight: Font.ExtraBold
-                            font.styleName: Theme.fontStyleBold
+                            font.styleName: mt.fontStyleBold
                         }
 
                         WeatherGlyph {
@@ -1014,17 +1021,17 @@ SekaiPopup {
                             spacing: 5
                             Text {
                                 text: dayRow.modelData.high
-                                color: Theme.ink
-                                font.family: Theme.fontFamily
+                                color: mt.ink
+                                font.family: mt.fontFamily
                                 font.pixelSize: 16
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
                             Text {
                                 anchors.baseline: parent.children[0].baseline
                                 text: dayRow.modelData.low
-                                color: Theme.inkSub
-                                font.family: Theme.fontFamily
+                                color: mt.inkSub
+                                font.family: mt.fontFamily
                                 font.pixelSize: 12
                                 font.weight: Font.DemiBold
                             }
@@ -1038,7 +1045,7 @@ SekaiPopup {
                             width: 64
                             height: 6
                             radius: 3
-                            color: Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.16)
+                            color: Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.16)
 
                             Rectangle {
                                 x: (dayRow.lo - root.span.lo) / (root.span.hi - root.span.lo) * (track.width - width)
@@ -1061,16 +1068,16 @@ SekaiPopup {
                                 fill: 0
                                 size: 14
                                 weight: 700
-                                color: Theme.ink
+                                color: mt.ink
                             }
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: dayRow.modelData.rain + "%"
-                                color: Theme.ink
-                                font.family: Theme.fontFamily
+                                color: mt.ink
+                                font.family: mt.fontFamily
                                 font.pixelSize: 11
                                 font.weight: Font.ExtraBold
-                                font.styleName: Theme.fontStyleBold
+                                font.styleName: mt.fontStyleBold
                             }
                         }
                     }
@@ -1096,8 +1103,8 @@ SekaiPopup {
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             text: root.readoutText
-            color: root.showingError && root.hoverHour < 0 && root.hoverDay < 0 ? "#ff6f78" : Theme.inkSub
-            font.family: Theme.fontFamily
+            color: root.showingError && root.hoverHour < 0 && root.hoverDay < 0 ? "#ff6f78" : mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 11
             font.weight: Font.DemiBold
         }

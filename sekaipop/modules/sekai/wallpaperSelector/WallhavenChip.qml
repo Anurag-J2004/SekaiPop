@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -10,6 +11,9 @@ import qs.modules.common.widgets
 // cut whatever the font (the design drew some of these too narrow for their words).
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property string text: ""
     property string icon: ""
@@ -27,8 +31,8 @@ Item {
     Gradient {
         id: lit
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.0; color: Theme.accentCyan }
-        GradientStop { position: 1.0; color: Theme.accentMint }
+        GradientStop { position: 0.0; color: mt.accentCyan }
+        GradientStop { position: 1.0; color: mt.accentMint }
     }
 
     Pill {
@@ -39,7 +43,7 @@ Item {
         shadowDx: 0
         shadowDy: 3
         pressed: area.pressed
-        fillColor: area.containsMouse && !root.on ? Theme.pSurfaceHover : Theme.pSurface
+        fillColor: area.containsMouse && !root.on ? mt.pSurfaceHover : mt.pSurface
         fillGradient: root.on ? lit : null
     }
 
@@ -55,17 +59,17 @@ Item {
             name: root.icon
             size: 15
             weight: 700
-            color: root.on ? Theme.colBorder : Theme.pInk
+            color: root.on ? mt.colBorder : mt.pInk
         }
 
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: root.text
-            color: root.on ? Theme.colBorder : Theme.pInk
-            font.family: Theme.fontFamily
+            color: root.on ? mt.colBorder : mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: root.on ? Font.Black : Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
     }
 

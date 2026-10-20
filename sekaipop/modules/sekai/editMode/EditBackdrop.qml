@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 
@@ -15,6 +16,9 @@ import qs.modules.common
 //   EditBackdrop { screenObj: win.screen; uiScale: ...; anchors.fill: parent }
 Item {
     id: root
+
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
 
     property var screenObj: null
     property real uiScale: 1
@@ -41,8 +45,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.darker(Theme.colBorder, 2.1) }
-            GradientStop { position: 1.0; color: Qt.darker(Theme.colBorder, 2.9) }
+            GradientStop { position: 0.0; color: Qt.darker(mt.colBorder, 2.1) }
+            GradientStop { position: 1.0; color: Qt.darker(mt.colBorder, 2.9) }
         }
     }
 
@@ -71,7 +75,7 @@ Item {
                     const off = (row % 2) * step / 2
                     for (let x = off; x < w + step; x += step) {
                         ctx.globalAlpha = 0.07 + ((row * 7 + Math.round(x / step) * 3) % 5) * 0.012
-                        ctx.fillStyle = ((row + Math.round(x / step)) % 2 === 0) ? Theme.accentMint : Theme.accentCyan
+                        ctx.fillStyle = ((row + Math.round(x / step)) % 2 === 0) ? mt.accentMint : mt.accentCyan
                         ctx.beginPath()
                         ctx.moveTo(x, y - r)
                         ctx.lineTo(x + r, y)
@@ -99,7 +103,7 @@ Item {
         width: root.cardW + t * 2
         height: root.cardH + t * 2
         radius: EditMode.cardRadius * root.uiScale + t
-        color: Qt.darker(Theme.colBorder, 3.6)
+        color: Qt.darker(mt.colBorder, 3.6)
         antialiasing: true
     }
 }

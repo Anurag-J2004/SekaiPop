@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -27,9 +28,12 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property real capW: 200
     property real capH: 60
-    property real skew: 0.2 * Theme.settingsLean
+    property real skew: 0.2 * mt.settingsLean
     property real radius: 18
 
     property bool lit: false
@@ -64,12 +68,12 @@ Item {
     readonly property real shadowDy: shadowBaseY + 1 * litP
 
     // What the fill is when it is not lit.
-    property color idleColor: Theme.pSurface
-    property color hoverColor: Theme.pSurfaceHover
+    property color idleColor: mt.pSurface
+    property color hoverColor: mt.pSurfaceHover
     property Gradient litGradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.0; color: Theme.accentMint }
-        GradientStop { position: 1.0; color: Theme.accentCyan }
+        GradientStop { position: 0.0; color: mt.accentMint }
+        GradientStop { position: 1.0; color: mt.accentCyan }
     }
 
     // Icons and text inside lean with the plate. Turn off for upright content.
@@ -94,7 +98,7 @@ Item {
         height: root.capH
         skew: root.skew
         radius: root.radius
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
     }
 
     Item {
@@ -126,8 +130,8 @@ Item {
             anchors.fill: parent
             skew: root.skew
             radius: root.radius
-            color: Theme.pRingWhite
-            borderColor: Theme.pLine
+            color: mt.pRingWhite
+            borderColor: mt.pLine
             borderWidth: root.border
         }
 

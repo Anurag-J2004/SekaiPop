@@ -197,6 +197,8 @@ Singleton {
         "wallpaper.enabled": true,       // Show or hide the desktop wallpaper
       
         "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
+        "theme.perMonitor": false,      // a monitor can wear its own theme on the bar / dock / widgets (off = one theme everywhere)
+        "theme.screens": "",            // with theme.perMonitor: { monitor: theme id } as JSON (ScreenThemes.js); the main monitor has none
         "wallpaper.separateLock": false, // the lockscreen has a wallpaper of its own (off = it shows the desktop's)
         "wallpaper.folder": "",         // the folder the picker lists ("" = ~/Pictures/Wallpapers)
         "wallpaper.transition": "sekaiRing",

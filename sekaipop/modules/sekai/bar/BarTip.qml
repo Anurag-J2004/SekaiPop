@@ -22,6 +22,9 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property bool shown: false
     property string text: ""
     property string barPosition: "top"
@@ -95,14 +98,14 @@ Item {
                 width: label.implicitWidth + 16
                 height: label.implicitHeight + 10
                 radius: 8
-                color: Theme.colBorder
+                color: mt.colBorder
 
                 Text {
                     id: label
                     anchors.centerIn: parent
                     text: root.text
-                    color: Theme.textWhite
-                    font.family: Theme.fontFamily
+                    color: mt.textWhite
+                    font.family: mt.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }

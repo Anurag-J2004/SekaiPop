@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -10,6 +11,9 @@ import qs.modules.common.widgets
 Rectangle {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     readonly property var pins: [
         { k: "A", c: ThemeService.matugenPinA },
         { k: "B", c: ThemeService.matugenPinB }
@@ -19,9 +23,9 @@ Rectangle {
     width: row.width + 4 + 6
     height: 24
     radius: 12
-    color: Theme.pSurface
+    color: mt.pSurface
     border.width: 2
-    border.color: Theme.pLine
+    border.color: mt.pLine
     antialiasing: true
 
     Row {
@@ -35,7 +39,7 @@ Rectangle {
             name: "push_pin"
             size: 13
             weight: 700
-            color: Theme.pInk
+            color: mt.pInk
         }
 
         Repeater {
@@ -49,11 +53,11 @@ Rectangle {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: modelData.k
-                    color: Theme.pInk
-                    font.family: Theme.fontFamily
+                    color: mt.pInk
+                    font.family: mt.fontFamily
                     font.pixelSize: 10
                     font.weight: Font.Black
-                    font.styleName: Theme.fontStyleBold
+                    font.styleName: mt.fontStyleBold
                 }
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
@@ -62,7 +66,7 @@ Rectangle {
                     radius: 6
                     color: modelData.c
                     border.width: 1.5
-                    border.color: Theme.pLine
+                    border.color: mt.pLine
                 }
             }
         }

@@ -111,17 +111,17 @@ DockCard {
         corner: "tr"
         spacing: 18
         maxRadius: 2.6
-        dotColor: Qt.rgba(Theme.ink.r, Theme.ink.g, Theme.ink.b, 0.07)
+        dotColor: Qt.rgba(mt.ink.r, mt.ink.g, mt.ink.b, 0.07)
     }
 
     Rectangle {
         anchors.fill: parent
         anchors.margins: root.ringWidth + 4
         visible: cardDrop.containsDrag
-        radius: Theme.radiusOuter - 4
+        radius: mt.radiusOuter - 4
         color: "transparent"
         border.width: 3
-        border.color: Theme.accentCyan
+        border.color: mt.accentCyan
         z: 5
     }
 
@@ -142,19 +142,19 @@ DockCard {
                 height: 13
                 radius: 4
                 rotation: 45
-                color: Theme.accentMint
+                color: mt.accentMint
                 border.width: 2
-                border.color: Theme.line
+                border.color: mt.line
             }
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Shelf"
-                color: Theme.ink
-                font.family: Theme.fontFamily
+                color: mt.ink
+                font.family: mt.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -225,8 +225,8 @@ DockCard {
         width: root.listW
         wrapMode: Text.WordWrap
         text: "Drop files or text on the Shelf key, or press Paste."
-        color: Theme.inkSub
-        font.family: Theme.fontFamily
+        color: mt.inkSub
+        font.family: mt.fontFamily
         font.pixelSize: 14
         font.weight: Font.Bold
     }
@@ -245,8 +245,8 @@ DockCard {
             elide: Text.ElideMiddle
             maximumLineCount: 1
             text: root.hoverItem ? root.hoverItem.name : (root.hint !== "" ? root.hint : "Pick one to open it")
-            color: (root.hoverItem || root.hint !== "") ? Theme.ink : Theme.inkSub
-            font.family: Theme.fontFamily
+            color: (root.hoverItem || root.hint !== "") ? mt.ink : mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 14
             font.weight: Font.Bold
         }
@@ -257,8 +257,8 @@ DockCard {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             text: (shelves.currentIndex + 1) + " / " + root.shelfCount
-            color: Theme.inkSub
-            font.family: Theme.fontFamily
+            color: mt.inkSub
+            font.family: mt.fontFamily
             font.pixelSize: 12
             font.weight: Font.Bold
         }
@@ -317,7 +317,7 @@ DockCard {
                         readonly property string kind: row.modelData.kind
                         readonly property bool isFile: row.it.kind === "file"
                         readonly property int seed: row.modelData.seed
-                        readonly property color tint: Theme.attributeColors[Math.floor(row.seed / 4) % Theme.attributeColors.length]
+                        readonly property color tint: mt.attributeColors[Math.floor(row.seed / 4) % mt.attributeColors.length]
                         readonly property bool lifted: rowHover.hovered
                         // a thin tall thing has its buttons in a column; a wide one in a row along its foot
                         readonly property bool rowButtons: SM.specOf(row.kind).buttons === "row"
@@ -449,9 +449,9 @@ DockCard {
                                         width: row.btnS
                                         height: row.btnS
                                         radius: row.rowButtons ? 6 : 7
-                                        color: Theme.surface
+                                        color: mt.surface
                                         border.width: 2
-                                        border.color: ma.containsMouse ? (btn.modelData === "x" ? "#e0575b" : Theme.accentMint) : Theme.line
+                                        border.color: ma.containsMouse ? (btn.modelData === "x" ? "#e0575b" : mt.accentMint) : mt.line
                                         antialiasing: true
 
                                         MaterialIcon {
@@ -498,14 +498,14 @@ DockCard {
                 readonly property real fullW: root.listW + 16
 
                 width: ledge.fullW * ledge.grow
-                height: root.plankH + Theme.shadowOffset
+                height: root.plankH + mt.shadowOffset
                 x: root.vpMargin - 8 + (ledge.fullW - ledge.width) / 2
                 y: root.areaH + 8
 
                 Gradient {
                     id: plankFill
-                    GradientStop { position: 0.0; color: Theme.accentMint }
-                    GradientStop { position: 1.0; color: Theme.accentCyan }
+                    GradientStop { position: 0.0; color: mt.accentMint }
+                    GradientStop { position: 1.0; color: mt.accentCyan }
                 }
 
                 // The brackets: diamonds, half hidden behind the plank, so what shows is a triangle.
@@ -521,19 +521,19 @@ DockCard {
                         height: 12
                         radius: 3
                         rotation: 45
-                        color: Theme.surface
+                        color: mt.surface
                         border.width: 2
-                        border.color: Theme.line
+                        border.color: mt.line
                         antialiasing: true
                     }
                 }
 
                 Rectangle {
-                    y: Theme.shadowOffset
+                    y: mt.shadowOffset
                     width: ledge.width
                     height: root.plankH
                     radius: 7
-                    color: Theme.lineShadow
+                    color: mt.lineShadow
                     antialiasing: true
                 }
 
@@ -542,8 +542,8 @@ DockCard {
                     width: ledge.width
                     height: root.plankH
                     radius: 7
-                    border.width: Theme.borderWidth
-                    border.color: Theme.line
+                    border.width: mt.borderWidth
+                    border.color: mt.line
                     gradient: plankFill
                     antialiasing: true
 
@@ -571,9 +571,9 @@ DockCard {
                             height: 6
                             radius: 1.5
                             rotation: 45
-                            color: Theme.surface
+                            color: mt.surface
                             border.width: 1.5
-                            border.color: Theme.line
+                            border.color: mt.line
                             antialiasing: true
                         }
                     }
@@ -611,7 +611,7 @@ DockCard {
         WheelHandler {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
-                const d = Theme.wheelPx(event, false)
+                const d = mt.wheelPx(event, false)
                 if (d === 0 || wheelHost.cooling)
                     return
                 wheelHost.acc += d

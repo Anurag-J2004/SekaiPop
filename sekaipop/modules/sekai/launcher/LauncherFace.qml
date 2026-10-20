@@ -32,6 +32,9 @@ import qs.modules.common.widgets
 Item {
     id: face
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     // Keeps the classic (white) look in the first dark mode, like the Quick Panel,
     // Settings and Wallpapers screens; see Theme.classicFor. The tiles are Pills, and
     // Pill / MaterialIcon only use the phone's colours inside something that says so.
@@ -268,10 +271,10 @@ Item {
         id: lcdLayer
 
         z: -10
-        x: Theme.phoneScreenInset
-        y: Theme.phoneScreenInset
-        width: face.width - 2 * Theme.phoneScreenInset
-        height: face.height - 2 * Theme.phoneScreenInset
+        x: mt.phoneScreenInset
+        y: mt.phoneScreenInset
+        width: face.width - 2 * mt.phoneScreenInset
+        height: face.height - 2 * mt.phoneScreenInset
         path: face.lcdPath
         renderScale: face.renderScale
         // Only decoded while this screen is the one showing.
@@ -283,8 +286,8 @@ Item {
     // fonts, and the same ink rule. With the LCD wallpaper behind it the ink goes white
     // where the picture is dark and the usual navy where it is light (LauncherLcd.qml
     // measures it); without, it is the plain panel ink. No chip behind any of it.
-    readonly property color inkLeft: face.lcdOn ? (lcdLayer.darkLeft ? "#ffffff" : Theme.colBorder) : Theme.pInk
-    readonly property color inkRight: face.lcdOn ? (lcdLayer.darkRight ? "#ffffff" : Theme.colBorder) : Theme.pInk
+    readonly property color inkLeft: face.lcdOn ? (lcdLayer.darkLeft ? "#ffffff" : mt.colBorder) : mt.pInk
+    readonly property color inkRight: face.lcdOn ? (lcdLayer.darkRight ? "#ffffff" : mt.colBorder) : mt.pInk
 
     Column {
         x: 67
@@ -294,16 +297,16 @@ Item {
         Text {
             text: face.clockText
             color: face.inkLeft
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 24
             font.weight: Font.ExtraBold
-            font.styleName: Theme.fontStyleBold
+            font.styleName: mt.fontStyleBold
         }
 
         Text {
             text: face.dateText
             color: face.inkLeft
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 20
         }
     }
@@ -348,10 +351,10 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: face.formatRate(face.downloadBps)
                 color: face.inkRight
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 20
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
         }
 
@@ -378,7 +381,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: face.formatRate(face.uploadBps)
                 color: face.inkRight
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 20
             }
         }
@@ -391,7 +394,7 @@ Item {
         width: face.gridW
         height: 68
         radius: 34
-        color: Theme.pLineShadow
+        color: mt.pLineShadow
         antialiasing: true
     }
 
@@ -403,9 +406,9 @@ Item {
         width: face.gridW
         height: 68
         radius: 34
-        color: Theme.pSurface
+        color: mt.pSurface
         border.width: 3
-        border.color: Theme.pLine
+        border.color: mt.pLine
         antialiasing: true
 
         MaterialIcon {
@@ -420,8 +423,8 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             visible: input.text.length === 0
             text: "Search apps"
-            color: Theme.pInkSub
-            font.family: Theme.fontFamily
+            color: mt.pInkSub
+            font.family: mt.fontFamily
             font.pixelSize: 24
             font.weight: Font.Bold
         }
@@ -432,10 +435,10 @@ Item {
             x: 70
             width: parent.width - 70 - 64
             anchors.verticalCenter: parent.verticalCenter
-            color: Theme.pInk
-            selectionColor: Theme.accentCyan
-            selectedTextColor: Theme.pInk
-            font.family: Theme.fontFamily
+            color: mt.pInk
+            selectionColor: mt.accentCyan
+            selectedTextColor: mt.pInk
+            font.family: mt.fontFamily
             font.pixelSize: 24
             font.weight: Font.Bold
             clip: true
@@ -479,7 +482,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 20
-                color: clearArea.containsMouse ? Theme.accentMint : "transparent"
+                color: clearArea.containsMouse ? mt.accentMint : "transparent"
             }
 
             MaterialIcon {
@@ -562,10 +565,10 @@ Item {
             anchors.centerIn: parent
             visible: face.searching && drawerGrid.count === 0 && extrasLayer.rows.length === 0
             text: "No apps match"
-            color: face.lcdOn ? "#ffffff" : Theme.pInkSub
+            color: face.lcdOn ? "#ffffff" : mt.pInkSub
             style: face.lcdOn ? Text.Outline : Text.Normal
             styleColor: Qt.rgba(0.10, 0.10, 0.22, 0.85)
-            font.family: Theme.fontFamily
+            font.family: mt.fontFamily
             font.pixelSize: 24
             font.weight: Font.Bold
         }
@@ -696,13 +699,13 @@ Item {
                 text: tile.modelData.name
                 // Over the wallpaper there is no chip to read on any more, so the name
                 // goes white with a thin dark edge; on the plain screen it is the usual ink.
-                color: face.lcdOn ? "#ffffff" : Theme.pInk
+                color: face.lcdOn ? "#ffffff" : mt.pInk
                 style: face.lcdOn ? Text.Outline : Text.Normal
                 styleColor: Qt.rgba(0.10, 0.10, 0.22, 0.85)
-                font.family: Theme.fontFamily
+                font.family: mt.fontFamily
                 font.pixelSize: 18
                 font.weight: Font.ExtraBold
-                font.styleName: Theme.fontStyleBold
+                font.styleName: mt.fontStyleBold
             }
 
             // The whole cell is the click target.

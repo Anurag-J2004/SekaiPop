@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,8 +12,11 @@ import qs.modules.common.widgets
 Item {
     id: root
 
+    // This monitor's theme: Theme.of() gives the shell's own unless the monitor has one.
+    readonly property var mt: Theme.of(QsWindow.window)
+
     property string text: ""
-    property color tone: Theme.accentMint
+    property color tone: mt.accentMint
     property bool active: true
     property real maxLabel: 90
 
@@ -35,8 +39,8 @@ Item {
         anchors.fill: parent
         skew: root.skew
         radius: 8
-        color: root.active ? root.tone : (area.containsMouse ? Theme.surfaceHover : Theme.surface)
-        borderColor: Theme.line
+        color: root.active ? root.tone : (area.containsMouse ? mt.surfaceHover : mt.surface)
+        borderColor: mt.line
         borderWidth: 2
         Behavior on color {
             ColorAnimation { duration: 140 }
@@ -48,8 +52,8 @@ Item {
         y: (root.height - height) / 2
         size: 7
         lit: true
-        litColor: root.active ? Theme.textWhite : root.tone
-        lineColor: root.active ? Theme.colBorder : Theme.line
+        litColor: root.active ? mt.textWhite : root.tone
+        lineColor: root.active ? mt.colBorder : mt.line
     }
 
     Text {
@@ -60,11 +64,11 @@ Item {
         width: Math.min(implicitWidth, root.maxLabel)
         elide: Text.ElideRight
         text: root.text.toUpperCase()
-        color: Theme.colBorder
-        font.family: Theme.fontFamily
+        color: mt.colBorder
+        font.family: mt.fontFamily
         font.pixelSize: 10
         font.weight: Font.ExtraBold
-        font.styleName: Theme.fontStyleBold
+        font.styleName: mt.fontStyleBold
         font.letterSpacing: 1.2
     }
 
