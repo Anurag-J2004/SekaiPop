@@ -6,7 +6,7 @@ and what was only read through, and how to check it. The short release notes are
 
 ## Unreleased — Auto-hide for the bar, and a key to show or hide it (issue #61)
 
-**Not run on a live Quickshell yet** (no test shell instance beside the real desktop). Checked: `qmllint` reports no errors on the changed files; `tests/keys-test/keys_unit.js` and `keys_script_test.js` pass with the new action; the other JS tests give the same results as `main` (81 pass, the same 9 fail). **Not checked:** everything by eye, below.
+**Run on the live shell** by the owner of the desktop it runs on, who reported it working (Hyprland, NVIDIA). Checked: `qmllint` reports no errors on the changed files; `tests/keys-test/keys_unit.js` and `keys_script_test.js` pass with the new action; the other JS tests give the same results as `main` (81 pass, the same 9 fail). Which of the cases below were each tried by eye was not itemised.
 
 - What it is: `bar.hideMode` (`off` | `auto`, default `off`), Settings > Bar > Auto-hide. The bar slides off its edge (the preset slide, 220 ms) and comes back while the pointer is on it or on a 3 px line along the edge, while any of its popups is open, in Edit Desktop, and for 2 s on `ipc call bar peek`. It waits 0.45 s before going.
 - `Bar.qml`: `revealed`, `hideSlide`, `tucked`, `hotThick`, `peek()`; the mask shrinks to the edge line while tucked; `exclusiveZone` is 0 while it auto-hides; one HoverHandler on top of the contents. `TrayPopups.showing` (dropdown or menu on screen).
