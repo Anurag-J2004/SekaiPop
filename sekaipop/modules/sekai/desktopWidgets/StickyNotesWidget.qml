@@ -133,7 +133,7 @@ PanelWindow {
         : (WallpaperService.restacking ? WlrLayer.Bottom : WlrLayer.Background)
     WlrLayershell.namespace: win.pinnedLayer ? "sekaipop-notes-pinned" : "sekaipop-notes"
     // Not while editing the desktop: the shelf keeps the keyboard then (Esc).
-    WlrLayershell.keyboardFocus: EditMode.active ? WlrKeyboardFocus.None : WlrKeyboardFocus.OnDemand
+    WlrLayershell.keyboardFocus: EditMode.active || !keys.wanted ? WlrKeyboardFocus.None : WlrKeyboardFocus.OnDemand
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
 
@@ -262,5 +262,10 @@ PanelWindow {
                 }
             }
         }
+    }
+
+    // Asks for the keyboard only under the pointer or while typing (issue #72).
+    KeysOnPoint {
+        id: keys
     }
 }

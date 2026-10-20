@@ -4,6 +4,15 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Focus Mode widgets no longer take the keyboard as they come back (issue #72)
+
+**Not run on a live Quickshell before this entry** (the reporter confirmed the cause: with Desktop Focus Mode off, Rofi could be typed into at once). Checked: `qmllint` on the five files; `tests/focus-test/keys_on_point_test.js` (new); the other JS tests give the same results as `main` (81 pass, the same 9 fail).
+
+- Why: To-Do, Calendar, Palette and Sticky Notes kept `WlrKeyboardFocus.OnDemand` whenever Edit Desktop was closed. Hyprland hands the keyboard to an OnDemand layer as it is mapped, and Desktop Focus Mode maps the widgets again, one after another (`FocusMath.slotDelay`), each time an empty workspace comes up. A launcher opened in that second lost the keyboard to each widget as it popped in.
+- Changed: `desktopWidgets/KeysOnPoint.qml` (new), a passive HoverHandler over the window: `wanted` is true while the pointer is on the widget or its window has the keyboard (`Window.active`). The four windows are OnDemand only while it is; otherwise None. A window now maps as None, so it never takes the keyboard uninvited; the pointer arriving makes it OnDemand before the click that starts typing, and typing goes on after the pointer leaves.
+- Files: `TodoWidget.qml`, `CalendarCardWidget.qml`, `PaletteWidget.qml`, `StickyNotesWidget.qml`, `KeysOnPoint.qml` (new), `tests/focus-test/keys_on_point_test.js` (new).
+- **To check:** with Focus Mode on, switch to an empty workspace and open Rofi at once: typing works straight away. Then the widgets still take typing: add a task in the To-Do, an event in the Calendar, type in a sticky note, and keep typing after moving the pointer off them; clicking a window afterwards takes the keyboard back.
+
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), dark mode, Phone wallpaper on Desktop (the default through the old switch): the Quick screen draws the monitor's wallpaper behind see-through cards, the name under the avatar reads white with a dark edge, the empty card shows its line, the log stays clean. Checked: `tests/phone-test/phone_wallpaper_test.js` (new) and `tests/launcher-test/lcd_source_test.js`; the other JS tests give the same results as `main` (the same 8 fail). **Not checked live:** the Settings row itself (Off / Desktop / A picture, Change the phone's picture), picking a picture through the chooser, light mode, and the cards with a long notification list over the wallpaper.
