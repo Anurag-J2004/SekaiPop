@@ -430,21 +430,24 @@ Item {
                     height: root.workH
                     radii: [17, 17, 17, 17]
 
-                    // The whole picture, dimmed: what the slot crops out.
+                    // The whole picture, dimmed: what the slot crops out. The picture at 38 %
+                    // over the deep tone is the design's "deep at 62 % over it", drawn without
+                    // an overlay (one over a picture inside this clip did not show).
+                    Rectangle {
+                        width: root.workW
+                        height: root.workH
+                        color: root.mt.colDeep
+                    }
                     Image {
                         x: root.slotX + root.drawn.x
                         y: root.slotY + root.drawn.y
                         width: root.drawn.w
                         height: root.drawn.h
+                        opacity: 0.38
                         source: root.aspect > 0 ? root.source : ""
                         sourceSize.width: 2400
                         asynchronous: true
                         smooth: true
-                    }
-                    Rectangle {
-                        anchors.fill: parent
-                        color: root.mt.colDeep
-                        opacity: 0.62
                     }
 
                     // The slot's ring: white, then the border colour.

@@ -16,7 +16,7 @@ Item {
     // The monitor the board is on: pickers and the framer open there.
     property string screenName: ""
 
-    implicitWidth: 680
+    implicitWidth: 690
     implicitHeight: 170
 
     // A remove waiting for its second click ("" = none), forgotten after 3 s.
@@ -315,11 +315,12 @@ Item {
         Tile {
             id: avatarTile
             kind: "avatar"
-            width: 170
+            // A little wider than the canvas's 170, so "Avatar" fits beside its three keys.
+            width: 180
             readonly property string pic: PanelImages.avatar === "" ? "empty" : (avatarImg.status === Image.Error ? "missing" : "set")
 
             Column {
-                width: 152
+                width: 162
                 spacing: 8
                 Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
