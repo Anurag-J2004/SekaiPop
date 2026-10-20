@@ -45,8 +45,35 @@ Item {
     property real renderScale: 1
 
     // While open, PowerBusyService looks for a package manager or a download that
-    // a reboot / shutdown would interrupt (see below: a badge and a note).
-    onOpenChanged: PowerBusyService.watching = root.open
+    // a reboot / shutdown would interrupt (see below: a badge and a note).    // -1 = nothing selected yet; first Down lands on row 0, first Up on the last.
+    property int currentIndex: -1
+
+    function move(delta) {
+        const n = rows.length
+        if (n === 0) return
+            currentIndex = currentIndex < 0
+            ? (delta > 0 ? 0 : n - 1)
+            : (currentIndex + delta + n) % n
+    }
+
+    function trigger(i) {
+        switch (i) {
+            case 0: root.powerOffRequested(); break
+            case 1: root.rebootRequested(); break
+            case 2: root.logoutRequested(); break
+            case 3: root.lockRequested(); break
+            case 4: root.sleepRequested(); break
+            case 5: root.hibernateRequested(); break
+            case 6: root.firmwareRequested(); break
+            case 7: root.systemMonitorRequested(); break
+        }
+        root.dismissRequested()
+    }
+
+    onOpenChanged: {
+        PowerBusyService.watching = root.open
+        if (root.open) root.currentIndex = -1
+    }
     Component.onDestruction: PowerBusyService.watching = false
 
     signal powerOffRequested()
@@ -193,6 +220,8 @@ Item {
                     hoverLights: true
                     hoverElevates: true
                     anchorRight: true
+                    keyFocused: root.currentIndex === item.index
+                    onHoveredChanged: if (item.hovered) root.currentIndex = item.index
                     x: 0
                     y: index * root.rowSpacing
 
@@ -288,7 +317,7 @@ Item {
 
                     // The note: on the phone's side of the pill, while hovered.
                     Rectangle {
-                        visible: item.warned && item.hovered
+                        visible: item.warned && (item.hovered || item.keyFocused)
                         z: 6
                         anchors.right: parent.left
                         anchors.rightMargin: 12
@@ -312,20 +341,7 @@ Item {
                             font.styleName: mt.fontStyleBold
                         }
                     }
-
-                    onClicked: {
-                        switch (item.index) {
-                        case 0: root.powerOffRequested(); break
-                        case 1: root.rebootRequested(); break
-                        case 2: root.logoutRequested(); break
-                        case 3: root.lockRequested(); break
-                        case 4: root.sleepRequested(); break
-                        case 5: root.hibernateRequested(); break
-                        case 6: root.firmwareRequested(); break
-                        case 7: root.systemMonitorRequested(); break
-                        }
-                        root.dismissRequested()
-                    }
+                    onClicked: root.trigger(item.index)
                 } // QuickToggle delegate
             } // Repeater
         } // content

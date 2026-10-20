@@ -43,6 +43,7 @@ Item {
     property real roundWidth: 74
     property bool on: false
     property bool hoverLights: false
+    property bool keyFocused: false
     property string label: ""
     property string subtitle: ""
     // A Material Symbols Rounded name ("wifi", "lock", ...), not a file.
@@ -92,7 +93,7 @@ Item {
     signal rightClicked()
 
     readonly property bool hovered: area.containsMouse
-    readonly property bool lit: on || (hoverLights && hovered)
+    readonly property bool lit: on || (hoverLights && (hovered || keyFocused))
 
     // Text / glyph colour: the mode's ink when OFF, the fixed dark ink when
     // the tile is lit (the accent gradient behind it is bright in both modes).
@@ -135,7 +136,7 @@ Item {
     // 0 -> 1 while hoverElevates is on and the pointer is actually over
     // the pill; glides like litP so the extra shadow eases in rather
     // than snapping.
-    property real hoverBoostP: (hoverElevates && hovered) ? 1 : 0
+        property real hoverBoostP: (hoverElevates && (hovered || keyFocused)) ? 1 : 0
     Behavior on hoverBoostP {
         NumberAnimation {
             duration: 170

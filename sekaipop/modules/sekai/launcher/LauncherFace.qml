@@ -535,7 +535,15 @@ Item {
         // Behind a card (or fading behind one) it takes no clicks.
         enabled: extrasLayer.cardK < 0.5
 
-        WheelScroll { scroller: drawerGrid ; step: 60; pixelFactor: 6.5}
+             WheelScroll {
+            id: drawerWheel
+
+            scroller: drawerGrid
+            step: 60
+            pixelFactor: 6.5
+            smooth: true
+        }
+
         GridView {
             id: drawerGrid
 
@@ -546,14 +554,10 @@ Item {
             model: drawerModel
             currentIndex: -1
             boundsBehavior: Flickable.StopAtBounds
-            // One row built ahead (was two): fewer tiles alive, and a tile that
-            // scrolls out is kept and handed to the next app that scrolls in
-            // instead of being destroyed and built again.
-            cacheBuffer: face.cellH
+            cacheBuffer: face.cellH * 3
             reuseItems: true
+            pixelAligned: true
             delegate: tileDelegate
-            // Runs down to the monitor edge: the room the last row needs to come up
-            // clear of the edge is scroll margin, not a shorter grid.
             bottomMargin: Math.max(0, face.gridBottom - face.visibleBottom + 24)
 
             SekaiScrollBar {}
@@ -618,7 +622,7 @@ Item {
             required property int index
 
             readonly property bool picked: face.keyNav && GridView.isCurrentItem
-            readonly property bool lit: area.containsMouse || picked
+            readonly property bool lit: (area.containsMouse && !drawerWheel.gliding && !drawerGrid.moving) || picked
 
             // 0 = the resting look, 1 = the lit look; glides between them. Every frame
             // of it redraws the whole phone, so it is short.

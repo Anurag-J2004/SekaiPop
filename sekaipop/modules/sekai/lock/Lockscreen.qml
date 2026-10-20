@@ -104,7 +104,35 @@ Scope {
             }
         }
     }
+   Process {
+        id: logindWatcher
+        running: true
+        command: [
+            "dbus-monitor", "--system",
+            "type='signal',sender='org.freedesktop.login1',interface='org.freedesktop.login1.Session',member='Lock'"
+        ]
+        stdout: SplitParser {
+            onRead: line => {
+                // dbus-monitor prints: signal time=... sender=... member=Lock
+                if (line.startsWith("signal ") && line.includes("member=Lock"))
+                    LockState.lock()
+            }
+        }
+        onExited: {
+            if (restartTimer.attempts < 5)
+                restartTimer.start()
+        }
+    }
 
+    Timer {
+        id: restartTimer
+        property int attempts: 0
+        interval: 3000
+        onTriggered: {
+            attempts++
+            logindWatcher.running = true
+        }
+    }
     IpcHandler {
         target: "lock"
 
