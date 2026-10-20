@@ -19,6 +19,8 @@ let live = null, begun = null, worn = null, swapStarted = false
 // motionPlan reads the registry's `before` the same way wearing a preset does
 const PP = require("../lib/presetparts")
 const PresetWidgets = { list: require("../lib/registry").load({}) }
+// The service walks `all` (the list plus the desktop widget plugins); no plugins here.
+PresetWidgets.all = PresetWidgets.list
 const root = { keeps: k => k === "dock.filesCommand", capture: () => live }
 root.stable = eval("(" + grab("stable") + ")")
 root.motionPlan = eval("(" + grab("motionPlan") + ")")

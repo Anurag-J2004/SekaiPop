@@ -931,6 +931,45 @@ ShellRoot {
         }
     }
 
+    // The desktop widget plugins (services/PluginService.qml, docs/PLUGINS.md): one window per
+    // plugin found, built like the cards above, and its copies on the other monitors. `ids`
+    // only changes when a plugin comes or goes, so nothing is rebuilt by a rescan that finds
+    // the same ones.
+    Variants {
+        model: PluginService.ids
+
+        delegate: Scope {
+            id: plg
+            required property string modelData
+            readonly property var st: PluginService.stateFor(plg.modelData)
+            readonly property string wid: "plugin:" + plg.modelData
+            readonly property bool ready: !!plg.st && plg.st.loaded
+
+            FocusGate {
+                id: pluginGate
+                widgetId: plg.wid
+                unloads: true
+                screenName: EditMode.homeScreen(plg.st ? plg.st.screenName : "")
+            }
+
+            LazyLoader {
+                active: shellRoot.woke(10) && shellRoot.widgetsAllowed && plg.ready && ((plg.st.shown && !pluginGate.gone) || EditMode.active)
+                PluginWidgetHost { pluginId: plg.modelData }
+            }
+
+            Variants {
+                model: WidgetClones.screens[plg.wid] ?? []
+
+                delegate: LazyLoader {
+                    id: clPluginWidget
+                    required property string modelData
+                    active: shellRoot.woke(10) && shellRoot.widgetsAllowed && plg.ready && plg.st.shown
+                    PluginWidgetHost { pluginId: plg.modelData; clone: true; monitor: clPluginWidget.modelData }
+                }
+            }
+        }
+    }
+
     // The lyrics source picker (modules/sekai/desktopWidgets/LyricsSources.qml): built only while open.
     LazyLoader {
         active: LyricsService.pickerOpen
@@ -1157,6 +1196,8 @@ ShellRoot {
     //   qs -c sekaipop ipc call desktopedit toggle   (or: open / close)
     DesktopMenu {}
     EditTray {}
+    // A widget pulled up off the shelf follows the pointer in a window of its own.
+    EditDragGhost {}
 
     // Game Mode takes the widgets away, so Edit Desktop (which is about them)
     // cannot stay open: it is closed as Game Mode comes on, and EditMode.open

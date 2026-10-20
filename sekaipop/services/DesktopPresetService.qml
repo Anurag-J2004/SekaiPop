@@ -206,7 +206,7 @@ Singleton {
     }
 
     // ===== capture =====
-    // (The widgets are captured by PresetParts.capture(PresetWidgets.list); see capture().)
+    // (The widgets are captured by PresetParts.capture(PresetWidgets.all); see capture().)
 
     function baseName(path) {
         return String(path).slice(String(path).lastIndexOf("/") + 1)
@@ -334,7 +334,7 @@ Singleton {
                 position: BarPositionService.position,
                 layout: JSON.parse(JSON.stringify(BarLayoutService.payload()))
             },
-            widgets: PP.capture(PresetWidgets.list)
+            widgets: PP.capture(PresetWidgets.all)
         }
 
         // Not before PinnedAppsService has read the saved layout, or a preset
@@ -441,7 +441,7 @@ Singleton {
         // has no part for counts as "off" (that is what wearing it does), and a key the
         // preset could not have held keeps the widget's own value.
         if (c.widgets && typeof c.widgets === "object")
-            c.widgets = PP.digestWidgets(PresetWidgets.list, c.widgets)
+            c.widgets = PP.digestWidgets(PresetWidgets.all, c.widgets)
         return root.stable(c)
     }
 
@@ -868,7 +868,7 @@ Singleton {
 
     Component.onCompleted: {
         // A half-made widget entry is reported once here instead of failing quietly.
-        for (const msg of PP.problems(PresetWidgets.list))
+        for (const msg of PP.problems(PresetWidgets.all))
             console.warn("DesktopPresetService: " + msg)
         root.refresh()
     }
@@ -988,7 +988,7 @@ Singleton {
         const wmine = (d.widgets && typeof d.widgets === "object") ? Object.assign({}, d.widgets) : {}
         // An option a preset saved before it existed can't hold is what it was before (the
         // widget's `before` in PresetWidgets.qml), the same as when the preset is worn.
-        for (const e of PresetWidgets.list) {
+        for (const e of PresetWidgets.all) {
             if (wmine[e.id] && typeof wmine[e.id] === "object")
                 wmine[e.id] = PP.readPart(e, wmine[e.id])
         }
@@ -1117,7 +1117,7 @@ Singleton {
         // 4. The widgets, all through the registry (PresetWidgets.qml). A preset that holds
         // a widget wears it; one saved before the widget existed has no part for it, so the
         // widget is switched OFF instead of staying on from the look you had before.
-        PP.wear(PresetWidgets.list, d.widgets, {
+        PP.wear(PresetWidgets.all, d.widgets, {
             name: name,
             // The image frames' pictures come back out of the preset's folder first.
             wearFrames: items => root.wearFrames(name, items)

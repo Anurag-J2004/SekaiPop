@@ -36,7 +36,8 @@ import qs.modules.common.widgets
 // the old drawer keeps working.
 //
 // To put another widget on the shelf, add it to EditMode.widgetList (and to
-// widgetOn / addWidget / removeWidget there). Nothing changes in this file.
+// widgetOn / addWidget / removeWidget there). Nothing changes in this file. Desktop widget
+// plugins join the shelf by themselves (EditMode.shelfList, services/PluginService.qml).
 //
 // Six tabs, on the left of the shelf: WIDGETS (the slots above), BAR (the
 // bar's style and edge, then its left / center / right arrangement, EditBarLayout.qml),
@@ -152,6 +153,11 @@ PanelWindow {
         anchors.fill: parent
         focus: true
         Keys.onEscapePressed: {
+            // A widget being dragged off the shelf: put it back, and nothing else.
+            if (EditMode.dragId !== "") {
+                EditMode.endDrag(false)
+                return
+            }
             // The Matugen controls are up: back to the theme tiles first.
             if (win.tab === "theme" && themeBoard.tuning) {
                 themeBoard.tuning = false
@@ -165,7 +171,7 @@ PanelWindow {
     }
 
     function titleOf(id) {
-        for (const w of EditMode.widgetList) {
+        for (const w of EditMode.shelfList) {
             if (w.id === id)
                 return w.title
         }
@@ -787,7 +793,7 @@ PanelWindow {
                     spacing: 32
 
                     Repeater {
-                        model: EditMode.widgetList
+                        model: EditMode.shelfList
 
                         EditTraySlot {
                             required property var modelData
