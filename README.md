@@ -186,7 +186,7 @@ That is the whole install. It downloads SekaiPop, then does three jobs:
 Want to look first? Add `--dry-run`: it prints everything it would do and changes nothing.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh) | bash -s -- --dry-run
+curl -fsSL https://raw.githubusercontent.com/Blapples/SekaiPop/main/get.sh | bash -s -- --dry-run
 ```
 
 Options go after the command (see [Installer options](#installer-options)), for example `--yes` or `--hypr merge`.
