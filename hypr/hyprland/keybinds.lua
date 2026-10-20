@@ -36,6 +36,9 @@ shell("SUPER + G", "gamemode toggle", "Toggle game mode")
 shell("SUPER + SHIFT + E", "desktopedit toggle", "Edit desktop")
 shell("SUPER + SHIFT + F", "focus toggle", "Toggle focus mode")
 shell("SUPER + SHIFT + ALT + Slash", "welcome show", "Welcome tour", true)
+shell("SUPER + Escape", "phone go power", "Toggle power options")
+shell("SUPER + A", "quickpanel keepAwake", "Toggle keepAwake")
+
 
 -- Look
 shell("CTRL + SUPER + T", "wallpaperpicker toggle", "Change wallpaper")
