@@ -3,6 +3,7 @@ import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import "../../common/functions/ShelfDragMath.js" as SDM
 
 // One widget on Edit Desktop's shelf (EditTray.qml): a little framed "screen"
 // showing the widget exactly as it looks (the picture its own window takes of
@@ -14,6 +15,10 @@ import qs.modules.common.widgets
 //                 already on the desktop  -> edit it (select it; click again to
 //                                            let go) and flare it on the card
 //   right click   already on the desktop  -> remove it
+//   pull it UP    the widget comes off the shelf and follows the pointer (EditDragGhost.qml);
+//                 let go of it on the desktop and it is put there (EditMode.dropWidget), or
+//                 moved there if it was on the desktop already. Back on the shelf, out on the
+//                 dark stage, or Esc: nothing happens. Dragging sideways scrolls the shelf.
 //
 // The badge says which it is: a mint "+" (add me), a mint check (on the
 // desktop), a cyan pencil (being edited). The picture is dimmed while the
@@ -51,6 +56,14 @@ Item {
     readonly property real shownH: root.hasPreview ? Math.min(root.ph * root.fit, root.boxH) : 84
 
     readonly property real mountH: 130          // the framed screen, hard shadow included
+
+    // This slot's widget is being dragged off the shelf: the slot stays behind, faded.
+    readonly property bool dragging: EditMode.dragId !== "" && EditMode.dragId === root.widgetId
+    opacity: root.dragging ? 0.35 : 1
+
+    Behavior on opacity {
+        NumberAnimation { duration: 160 }
+    }
 
     width: Math.max(124, Math.round(root.shownW) + 28)
     height: root.mountH + 14
@@ -283,9 +296,70 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        cursorShape: root.dragging ? Qt.ClosedHandCursor : Qt.PointingHandCursor
+
+        // ===== pulling it off the shelf =====
+        // Where the press started, and what it turned into (SDM.gesture): "" still a click,
+        // "pull" a drag, "scroll" the shelf's. The shelf's Flickable only takes sideways
+        // movement, so a pull is never taken from us; once it is one, nothing may take it.
+        property point pressAt: Qt.point(0, 0)
+        property string gesture: ""
+        preventStealing: area.gesture === "pull"
+
+        // The pointer in real pixels from the edited screen's top-left, and what it is over.
+        // The shelf's window runs along the bottom edge and covers its full width, and while
+        // the button is down the pointer keeps coming here even above the window.
+        function report(mx, my) {
+            const w = QsWindow.window
+            if (!w || !w.screen)
+                return
+            const p = area.mapToItem(null, mx, my)
+            const sx = p.x
+            const sy = w.screen.height - w.height + p.y
+            const ui = ShellScale.forScreen(w.screen)
+            const onCard = SDM.toDesktop(sx, sy, w.screen.width, w.screen.height, ui,
+                EditMode.cardRect(w.screen.width, w.screen.height, ui)).inside
+            const shelfTop = w.screen.height - EditMode.trayHeight * ui
+            EditMode.moveDrag(sx, sy, sy >= shelfTop ? "shelf" : (onCard ? "card" : ""))
+        }
+
+        onPressed: mouse => {
+            area.pressAt = Qt.point(mouse.x, mouse.y)
+            area.gesture = ""
+        }
+
+        onPositionChanged: mouse => {
+            if (!area.pressed || !(area.pressedButtons & Qt.LeftButton))
+                return
+            if (area.gesture === "") {
+                area.gesture = SDM.gesture(mouse.x - area.pressAt.x, mouse.y - area.pressAt.y)
+                if (area.gesture === "pull" && !EditMode.beginDrag(root.widgetId))
+                    area.gesture = "scroll"
+            }
+            if (area.gesture === "pull" && root.dragging)
+                area.report(mouse.x, mouse.y)
+        }
+
+        onReleased: mouse => {
+            if (area.gesture === "pull" && root.dragging) {
+                area.report(mouse.x, mouse.y)
+                if (EditMode.endDrag(true))
+                    hopAnim.restart()
+            }
+        }
+
+        onCanceled: {
+            if (root.dragging)
+                EditMode.endDrag(false)
+            area.gesture = ""
+        }
 
         onClicked: mouse => {
+            // A press that became a drag (or the shelf's scroll) is not a click as well.
+            if (area.gesture !== "") {
+                area.gesture = ""
+                return
+            }
             if (mouse.button === Qt.RightButton) {
                 if (root.placed) {
                     hopAnim.restart()
