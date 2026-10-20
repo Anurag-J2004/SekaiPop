@@ -82,6 +82,16 @@ SettingsPage {
         }
 
         SettingToggle {
+            icon: "vertical_align_top"
+            label: "Auto-hide"
+            detail: SettingsService.get("bar.hideMode") === "auto"
+                ? "Away until the pointer touches the edge · windows use the whole screen"
+                : "Always shown"
+            checked: SettingsService.get("bar.hideMode") === "auto"
+            onToggled: SettingsService.set("bar.hideMode", checked ? "off" : "auto")
+        }
+
+        SettingToggle {
             icon: "monitor"
             label: "Separate bar per monitor"
             detail: BarLayoutService.perMonitor

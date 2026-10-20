@@ -538,6 +538,37 @@ ShellRoot {
         }
     }
 
+    // The bar's own IPC (one handler for every bar, like the dock's below).
+    //   qs -c sekaipop ipc call bar toggle | show | hide   (Settings -> Bar -> Show bar)
+    //                                  | peek               (an auto-hiding bar comes out for 2 s)
+    //                                  | hidemode off|auto  (Settings -> Bar -> Auto-hide)
+    // `toggle` is the "Toggle bar" action in Settings -> Keys (it ships without a key).
+    IpcHandler {
+        target: "bar"
+
+        function toggle(): void {
+            SettingsService.toggle("bar.visible")
+        }
+
+        function show(): void {
+            SettingsService.set("bar.visible", true)
+        }
+
+        function hide(): void {
+            SettingsService.set("bar.visible", false)
+        }
+
+        function peek(): void {
+            for (const b of bars.instances)
+                b.peek()
+        }
+
+        function hidemode(mode: string): void {
+            if (mode === "off" || mode === "auto")
+                SettingsService.set("bar.hideMode", mode)
+        }
+    }
+
     // The dock's own IPC (one handler for every dock; a handler inside Dock.qml
     // would be one per monitor with the same name).
     //   qs -c sekaipop ipc call dock peek | autohide true|false | hidemode off|auto|smart

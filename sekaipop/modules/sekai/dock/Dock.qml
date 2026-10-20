@@ -1593,9 +1593,9 @@ PanelWindow {
         ? dockWindow.lift - Math.round(dockWindow.innerGap * dockWindow.uiScale) : 0
     readonly property real originY: dockWindow.position === "top"
         ? dockWindow.edgeMargin + (dockWindow.dockPinned && BarPositionService.position === "top"
-            ? Math.round(BarPositionService.thickness * dockWindow.uiScale) : 0)
+            ? Math.round(BarPositionService.reserved * dockWindow.uiScale) : 0)
         : (dockWindow.vertical && dockWindow.dockPinned && BarPositionService.position === "top"
-            ? Math.round(BarPositionService.thickness * dockWindow.uiScale) : 0)
+            ? Math.round(BarPositionService.reserved * dockWindow.uiScale) : 0)
 
     // Tell the screen-region picker (RegionSelector.qml) where the dock is, so its
     // toolbar can sit above it. 0 while the dock is hidden, tucked away or being

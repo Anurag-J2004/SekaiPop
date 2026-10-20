@@ -148,7 +148,9 @@ PanelWindow {
     : (win.barStyle === 3
     ? Math.min(Math.max(0, HyprlandSettings.num("general.gaps_out")), Math.round(win.stripSize * 0.6))
     : 0)
-    exclusiveZone: win.stripSize - win.transparentTrim
+    // An auto-hiding bar reserves nothing: the windows use the whole screen and the bar
+    // slides in over them.
+    exclusiveZone: win.autoHide ? 0 : win.stripSize - win.transparentTrim
     color: "transparent"
 
     // Game Mode (GameModeService.qml): the bar is a fixed strip of date / clock /
@@ -179,12 +181,65 @@ PanelWindow {
         x: (win.width - width) / 2
         y: win.height - height
     }
+    // Tucked away (auto-hide), only a thin line on the very edge takes input: the pointer
+    // touching it brings the bar out.
     Item {
         id: barMask
-        x: win.passive ? 0 : (win.barPosition === "right" ? win.width - win.stripSize : 0)
-        y: win.passive ? 0 : (win.barPosition === "bottom" ? win.height - win.stripSize : 0)
-        width: win.passive ? 1 : (win.vertical ? win.stripSize : win.width)
-        height: win.passive ? 1 : (win.vertical ? win.height : win.stripSize)
+        readonly property real across: win.tucked ? win.hotThick : win.stripSize
+        x: win.passive ? 0 : (win.barPosition === "right" ? win.width - across : 0)
+        y: win.passive ? 0 : (win.barPosition === "bottom" ? win.height - across : 0)
+        width: win.passive ? 1 : (win.vertical ? across : win.width)
+        height: win.passive ? 1 : (win.vertical ? win.height : across)
+    }
+
+    // ===== auto-hide (issue #61) =====
+    // Settings -> Bar -> Auto-hide ("bar.hideMode": off | auto). The bar slides off its
+    // edge and comes back while the pointer is on the edge or on the bar, while one of its
+    // popups is open, in Edit Desktop, and for a moment on `ipc call bar peek`.
+    readonly property bool autoHide: SettingsService.get("bar.hideMode") === "auto"
+    property bool hoverWin: false
+    readonly property bool popupOpen: win.trayOpen || trayPopups.showing || win.batteryPopupOpen
+        || win.utilPopupOpen || win.resourcePopupOpen || win.calendarPopupOpen || win.weatherPopupOpen
+        || win.mediaPopupOpen || win.eqPopupOpen || win.discordPopupOpen
+    readonly property bool revealed: !win.autoHide || win.editing || win.hoverWin || win.popupOpen
+        || hideGrace.running || peekHold.running
+    // How deep the line on the edge is, real pixels.
+    readonly property real hotThick: Math.max(2, Math.round(3 * win.uiScale))
+    // 0 = out, 1 = away; drawn as "whichever pushes it further" with a preset's slide.
+    property real hideSlide: win.revealed ? 0 : 1
+    Behavior on hideSlide {
+        enabled: win.animReady
+        NumberAnimation { duration: 220; easing.type: win.revealed ? Easing.OutCubic : Easing.InCubic }
+    }
+    readonly property bool tucked: win.autoHide && !win.revealed && win.hideSlide > 0.99
+    // A bar built hidden (a shell start, a new monitor) is simply away; the slide starts
+    // to animate once it is on screen.
+    property bool animReady: false
+    Timer {
+        interval: 600
+        running: win.visible && !win.animReady
+        onTriggered: win.animReady = true
+    }
+    // So moving the pointer off the bar toward a window doesn't flick it away at once.
+    Timer {
+        id: hideGrace
+        interval: 450
+    }
+    onHoverWinChanged: {
+        if (!win.hoverWin && win.autoHide)
+            hideGrace.restart()
+    }
+    onPopupOpenChanged: {
+        if (!win.popupOpen && win.autoHide)
+            hideGrace.restart()
+    }
+    Timer {
+        id: peekHold
+        interval: 2000
+    }
+    // Bring the bar out for a moment (`ipc call bar peek`); it hides again by itself.
+    function peek() {
+        peekHold.restart()
     }
 
     // Going into Game Mode puts every open popup away (nothing on the bar can
@@ -924,7 +979,7 @@ PanelWindow {
                 // (geometry.slide, 0..1): its own thickness, the gap and room
                 // for the shadow.
                 readonly property real slideDist: (win.vertical ? width : height) + edgeGap + 20
-                readonly property real slideBy: geometry.slide * statusBar.slideDist
+                readonly property real slideBy: Math.max(geometry.slide, win.hideSlide) * statusBar.slideDist
                 x: win.vertical
                 ? (win.barPosition === "right" ? parent.width - width - edgeGap + slideBy : edgeGap - slideBy)
                 : geometry.sideInset
@@ -1098,6 +1153,16 @@ PanelWindow {
                     : "workspace " + workspace)
                 }
             }
+        }
+    }
+
+    // Sees the pointer on the bar and on the line at the edge, for auto-hide (only the
+    // masked parts get pointer events). Last, so it is on top: a mouse area above it
+    // could take the pointer away. A HoverHandler is passive, so clicks still go through.
+    Item {
+        anchors.fill: parent
+        HoverHandler {
+            onHoveredChanged: win.hoverWin = hovered
         }
     }
 }

@@ -325,3 +325,4 @@ hl.bind("CTRL + SHIFT + Escape", hl.dsp.exec_cmd(taskManager), { description = "
 --   hl.bind("SUPER + ALT + W", hl.dsp.exec_cmd(QS_IPC .. "weathercard toggle"), { description = "Shell: Toggle weather card" })
 --   hl.bind("SUPER + ALT + D", hl.dsp.exec_cmd(QS_IPC .. "discord mute"), { description = "Shell: Discord mute" })
 --   hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd(QS_IPC .. "presets toggle"), { description = "Shell: Desktop presets" })
+--   hl.bind("SUPER + B", hl.dsp.exec_cmd(QS_IPC .. "bar toggle"), { description = "Shell: Toggle bar" })

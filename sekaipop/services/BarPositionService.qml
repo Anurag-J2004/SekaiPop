@@ -42,6 +42,10 @@ Singleton {
     // OSD keep clear of it.
     readonly property int thickness: root.thicknessFor(root.position)
 
+    // The space the bar reserves on its edge (what the compositor keeps windows and
+    // pinned layers out of): none while it auto-hides.
+    readonly property int reserved: SettingsService.get("bar.hideMode") === "auto" ? 0 : root.thickness
+
     // True once the saved edge has been read (or there is nothing saved,
     // or reading it failed). shell.qml doesn't create any bar before
     // this, so the bar is built once on the right edge instead of being

@@ -4,6 +4,17 @@ The detailed notes written while SekaiPop was built: what each change touched, w
 and what was only read through, and how to check it. The short release notes are in
 `sekaipop/CHANGELOG.md`.
 
+## Unreleased — Auto-hide for the bar, and a key to show or hide it (issue #61)
+
+**Not run on a live Quickshell yet** (no test shell instance beside the real desktop). Checked: `qmllint` reports no errors on the changed files; `tests/keys-test/keys_unit.js` and `keys_script_test.js` pass with the new action; the other JS tests give the same results as `main` (81 pass, the same 9 fail). **Not checked:** everything by eye, below.
+
+- What it is: `bar.hideMode` (`off` | `auto`, default `off`), Settings > Bar > Auto-hide. The bar slides off its edge (the preset slide, 220 ms) and comes back while the pointer is on it or on a 3 px line along the edge, while any of its popups is open, in Edit Desktop, and for 2 s on `ipc call bar peek`. It waits 0.45 s before going.
+- `Bar.qml`: `revealed`, `hideSlide`, `tucked`, `hotThick`, `peek()`; the mask shrinks to the edge line while tucked; `exclusiveZone` is 0 while it auto-hides; one HoverHandler on top of the contents. `TrayPopups.showing` (dropdown or menu on screen).
+- `BarPositionService.reserved` (0 while the bar auto-hides); the pinned dock's Edit Desktop origin uses it.
+- `shell.qml`: `ipc call bar toggle | show | hide | peek | hidemode off|auto`. `KeyBinds.js`: the "Toggle bar" action (`bar toggle`, ships without a key); `hypr/hyprland/keybinds.lua` lists it with the other keyless ones (SUPER + B in the example).
+- Not done: a smart mode, Game Mode (the bar takes no input, so an auto-hiding one stays away), and the popups that keep clear of the bar (they still do). docs/BAR-AUTOHIDE.md.
+- **To check:** Auto-hide on with the bar on each edge and in each style: it slides away, the windows grow into its space, touching the edge brings it out, it stays out with a popup open (the tray menu too) and goes 0.45 s after the pointer leaves; a bottom bar leaves the Quick Panel's hot edge working; Edit Desktop shows it; a shell restart with it on starts it away without a flash; `ipc call bar peek`; Settings > Keys > Toggle bar given SUPER + B shows and hides it.
+
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), dark mode, Phone wallpaper on Desktop (the default through the old switch): the Quick screen draws the monitor's wallpaper behind see-through cards, the name under the avatar reads white with a dark edge, the empty card shows its line, the log stays clean. Checked: `tests/phone-test/phone_wallpaper_test.js` (new) and `tests/launcher-test/lcd_source_test.js`; the other JS tests give the same results as `main` (the same 8 fail). **Not checked live:** the Settings row itself (Off / Desktop / A picture, Change the phone's picture), picking a picture through the chooser, light mode, and the cards with a long notification list over the wallpaper.

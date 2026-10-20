@@ -34,6 +34,7 @@ Singleton {
     readonly property var defaults: ({
         // ===== Bar =====
         "bar.visible": true,
+        "bar.hideMode": "off",          // off | auto (slides off its edge until the pointer touches that edge; reserves no space)
         "bar.compactWindow": true,     // the bar window is the strip (+ room) instead of the whole screen; off = whole screen
         "bar.perMonitor": false,        // each monitor keeps its own bar layout (off = one layout on all of them)
         "bar.workspaces": true,

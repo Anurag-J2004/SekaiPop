@@ -430,6 +430,8 @@ Scope {
     // doesn't know about the popup treats clicks *on* it as clicking
     // away, and closes it before the click lands).
     readonly property bool grabWanted: useFocusGrab && (popup.visible || menuPopup.visible)
+    // The dropdown or the right-click menu is on screen (an auto-hiding bar stays out for it).
+    readonly property bool showing: popup.visible || menuPopup.visible
 
     onGrabWantedChanged: {
         if (grabWanted) {

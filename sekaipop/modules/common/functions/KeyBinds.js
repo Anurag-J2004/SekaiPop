@@ -141,6 +141,7 @@ var ACTIONS = [
     { id: "weathercard", group: "Shell", name: "Toggle weather card", call: "weathercard toggle", bare: true },
     { id: "discord", group: "Shell", name: "Discord mute", call: "discord mute", bare: true },
     { id: "presets", group: "Shell", name: "Desktop presets", call: "presets toggle", bare: true },
+    { id: "bar", group: "Shell", name: "Toggle bar", call: "bar toggle", bare: true },
     { id: "snip", group: "Utilities", name: "Screen snip", call: "region screenshot",
       cmd: QS + "region screenshot || grim -g \"$(slurp)\" - | wl-copy" },
     { id: "snipfile", group: "Utilities", name: "Screen snip >> file", call: "region save" },
