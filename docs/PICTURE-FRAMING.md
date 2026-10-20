@@ -19,12 +19,16 @@ one place now: Edit Desktop › THEME.
 - **Settings › General › Quick Panel**: "Frame the phone's picture", beside "Change the phone's
   picture".
 - **A picture you have just picked** opens the framer straight away, centred, so Done at once
-  is what the shell always showed.
+  is what the shell always showed. Until you press Done the new picture is only tried on:
+  **Cancel** puts the one it replaced back (and the phone's mode, if picking turned "A picture"
+  on), and the new copy is deleted.
+- **Change / Pick in Edit Desktop** close Edit Desktop first: the chooser is a normal window, and
+  Edit Desktop parks the windows and draws over them. The framer follows the pick.
 
 **The framer** is one card for all three. Drag the picture to move it, scroll (or + / -, or the
 slider) to zoom up to 6x, arrow keys to nudge it. Outside the slot the whole picture is shown
 dimmed, so you see what you are cropping out. **Reset** centres it, **Cancel** or **Esc** leaves
-it as it was, **Done** (or Enter) saves it. What it shows while you frame:
+everything as it was, **Done** (or Enter) saves it. What it shows while you frame:
 
 | Picture | Shown in the slot |
 | --- | --- |
@@ -61,6 +65,13 @@ qs -c sekaipop ipc call pictures close                         # close the frame
   the Quick Panel's banner and avatar, the user card's `MaskedPhoto`, and the phone's
   `LauncherLcd` (which keeps its 2400 px ceiling). The banner's and the phone's ink samplers
   measure the framed part, so the text colour follows the framing.
+- **A new pick is pending** until the framer closes (`PanelImages.pending`): `pick-image.sh`
+  keeps the copy it replaces (`SEKAIPOP_PICK_KEEP=1`), Done drops that one, Cancel drops the new
+  one (`pick-image.sh drop <path>`, only ever a `<kind>-*` file in the data folder). A pick left
+  unsettled by a shell stopping mid-framer is tidied at the next start (`load` keeps the newest).
+- **Rounded clips** are `modules/common/widgets/RoundClip.qml`, a Quickshell `ClippingRectangle`
+  with per-corner radii. A masked layer (MultiEffect) was tried first: one inside another (the
+  slot in the work area, the thumbnails in the tray) drew square.
 - **The UI**: `modules/sekai/framing/FramerCard.qml` (the card), `FramerWindow.qml` (one per
   monitor, built only while framing: over the stage in Edit Desktop, full screen otherwise),
   `modules/sekai/editMode/PicturesRow.qml` (the THEME board's pictures), the hover keys in
@@ -76,7 +87,10 @@ qs -c sekaipop ipc call pictures close                         # close the frame
   rates.
 - The avatar's Frame key sits at its bottom left: its bottom right already holds the remove
   badge.
-- The THEME board's picture tiles leave out the sample clock on the banner thumbnail.
+- The THEME board's picture tiles leave out the sample clock on the banner thumbnail, the phone
+  tile's keys are icons only, and the avatar tile is 180 wide (the canvas's 170 cut its label).
+- The canvas kept a new pick on Cancel ("a new pick stays, centred"); here Cancel puts the old
+  picture back, which is what Cancel reads as.
 
 ## Tests
 
