@@ -2661,7 +2661,7 @@ PanelWindow {
                                 width: parent.width * zoom
                                 height: parent.height * zoom
                                 anchors.centerIn: parent
-                                source: IconCursorService.path(slot.modelData.iconName, "application-x-executable")
+                        source: IconCursorService.path(slot.modelData.iconName, true)|| IconCursorService.path("application-x-executable")
                                 fillMode: Image.PreserveAspectFit
                                 smooth: true
                                 mipmap: true
@@ -2730,7 +2730,7 @@ PanelWindow {
                                 mipmap: true
                                 fillMode: Image.PreserveAspectFit
                                 sourceSize: Qt.size(Math.ceil(cell * 2 * dockWindow.uiScale), Math.ceil(cell * 2 * dockWindow.uiScale))
-                                source: IconCursorService.path(modelData.iconName, "application-x-executable")
+                               source: IconCursorService.path(modelData.iconName, true)|| IconCursorService.path("application-x-executable")
                             }
                         }
                     }

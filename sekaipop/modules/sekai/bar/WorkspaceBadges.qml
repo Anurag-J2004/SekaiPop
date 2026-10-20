@@ -380,36 +380,74 @@ Item {
     // hoverEnabled to do. acceptedButtons: NoButton means it never
     // intercepts a press, so clicks fall straight through to each
     // badge's own MouseArea.
-    MouseArea {
+ MouseArea {
         id: hoverArea
         anchors.fill: parent
         acceptedButtons: Qt.NoButton
 
+        // Mouse wheel: movement needed per workspace (a notch is 120) and the
+        // minimum time between two switches (ms).
+        property real notchThreshold: 120
+        property int notchCooldownMs: 140
+        // Touchpad: much more movement per workspace, and a longer pause after
+        // each switch. Raise these if it is still too fast, lower if too slow.
+        property real padThreshold: 250
+        property int padCooldownMs: 200
+
+        property real acc: 0
         property bool ready: true
+        property bool pad: false
+
         Timer {
             id: cooldown
-            interval: 140
+            interval: hoverArea.pad ? hoverArea.padCooldownMs : hoverArea.notchCooldownMs
             onTriggered: hoverArea.ready = true
         }
 
+        // A pause in scrolling forgets the movement counted so far.
+        Timer {
+            id: idle
+            interval: 250
+            onTriggered: hoverArea.acc = 0
+        }
+
         onWheel: wheel => {
-            if (!ready)
+            const ad = wheel.angleDelta
+            const pd = wheel.pixelDelta
+            let d = Math.abs(ad.y) >= Math.abs(ad.x) ? ad.y : ad.x
+            let fromPixels = false
+            if (d === 0) {
+                d = Math.abs(pd.y) >= Math.abs(pd.x) ? pd.y : pd.x
+                fromPixels = true
+            }
+            if (d === 0)
                 return
-                const dir = wheel.angleDelta.y < 0 ? 1 : -1
-                const i = root.ids.indexOf(root.active)
-                let next = -1
-                if (i >= 0 && i + dir >= 0 && i + dir < root.total) {
-                    next = root.ids[i + dir]
-                } else if (dir > 0 && (root.active <= root.count || root.occupied.indexOf(root.active) >= 0)) {
-                    // Past the last badge: open the next workspace, but only from a
-                    // real one, so scrolling can't pile up empty workspaces.
-                    next = root.active + 1
-                }
-                if (next >= 1) {
-                    root.requested(next)
-                    ready = false
-                    cooldown.restart()
-                }
+
+                // A mouse notch is a whole multiple of 120; touchpad events are small.
+                pad = fromPixels || Math.abs(d) % 120 !== 0
+
+                acc += d
+                idle.restart()
+                if (!ready || Math.abs(acc) < (pad ? padThreshold : notchThreshold))
+                    return
+
+                    const dir = acc < 0 ? 1 : -1
+                    acc = 0
+
+                    const i = root.ids.indexOf(root.active)
+                    let next = -1
+                    if (i >= 0 && i + dir >= 0 && i + dir < root.total) {
+                        next = root.ids[i + dir]
+                    } else if (dir > 0 && (root.active <= root.count || root.occupied.indexOf(root.active) >= 0)) {
+                        // Past the last badge: open the next workspace, but only from a
+                        // real one, so scrolling can't pile up empty workspaces.
+                        next = root.active + 1
+                    }
+                    if (next >= 1) {
+                        root.requested(next)
+                        ready = false
+                        cooldown.restart()
+                    }
         }
     }
 }
