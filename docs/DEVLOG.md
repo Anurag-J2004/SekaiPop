@@ -35,6 +35,12 @@ and what was only read through, and how to check it. The short release notes are
 
 - Why: the six `wallhaven.*` defaults were dropped from `SettingsService.qml` when main was merged into the per-monitor-theme branch (31316ef, in #39). `SettingsService.set()` ignores a key it has no default for, so every choice in the sort card and the Filters card was thrown away and the getters fell back to their own defaults: Top / Latest / the period "always went back".
 - Changed: the defaults are back, as #35 had them. The new test reads every literal key the code passes to `SettingsService.get / flag / set / toggle` and fails on one without a default, so a merge cannot silently drop one again. (It found no others.)
+## Unreleased — Framing the banner, the avatar and the phone wallpaper
+
+**Run on a live Quickshell**, partly: the framer opened on the banner (from `ipc call pictures frame banner`), at zoom 1 and with a saved 2x framing (the slider, the value, the dimmed picture round the slot and the masked slot all right), and the Quick Panel drew the banner at that framing. The log stays clean. Checked: `node tests/framing-test/framing_unit.js` (new, 25 checks); `tests/launcher-test/lcd_source_test.js` and `tests/phone-test/phone_wallpaper_test.js` updated for the framed drawing; the other JS tests give the same results as `main`. **Not seen by eye yet:** the THEME board's picture tiles, the framer in Edit Desktop over the stage, dragging and zooming by hand, the avatar and phone framers, the hover keys, a pick opening the framer, wearing a preset with a framed picture, Light / Dark modes.
+
+- How, in short: `Framing.js` (the numbers and how they are kept per file), `FramedImage.qml` (drawn by `ImageMath.drawRect`, centred = the old crop), `PanelImages` (`framingFor`, `setFraming`, `frame`, `framingSeq` so a framer already open starts over), `FramerCard` / `FramerWindow`, `PicturesRow` on the THEME board, the Quick Panel's hover keys, the tray's framing hints, Settings' "Frame the phone's picture", presets carrying `framing` in their `images` part, and the `pictures` IPC. docs/PICTURE-FRAMING.md has the rest and where it departs from the design.
+- Found while trying it: opening the framer again while it was up kept the old numbers (fixed with `framingSeq`); a mask applied as a separate MultiEffect left the slot's corners square (now `layer.effect`, as the user card's MaskedPhoto).
 
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 

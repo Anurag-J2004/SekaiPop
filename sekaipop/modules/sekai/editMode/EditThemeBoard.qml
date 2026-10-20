@@ -104,7 +104,9 @@ Item {
 
         width: root.tileW
         height: root.tileH
-        opacity: tile.missing ? 0.62 : 1
+        // Dimmed while matugen is missing, and while a picture is being framed (the themes
+        // step back).
+        opacity: (tile.missing ? 0.62 : 1) * (PanelImages.framing !== "" ? 0.4 : 1)
 
         Gradient {
             id: onFill
@@ -518,6 +520,21 @@ Item {
             x: Math.max(flick.edge, (flick.width - row.width) / 2)
             y: (flick.height - row.height) / 2
             spacing: 16
+
+            // The shell's own pictures first (banner, avatar, phone wallpaper): change,
+            // frame, remove (docs/PICTURE-FRAMING.md).
+            PicturesRow {
+                anchors.verticalCenter: parent.verticalCenter
+                screenName: root.screenName
+            }
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: 3
+                height: 120
+                radius: 2
+                color: mt.pSurfaceDivider
+            }
 
             Repeater {
                 model: ThemeService.groups

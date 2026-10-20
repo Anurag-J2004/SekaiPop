@@ -1,8 +1,10 @@
 pragma Singleton
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
 import qs.services
+import "functions/Framing.js" as FR
 
 // The avatar and banner pictures — picked by clicking them on the Quick
 // Panel (QuickPanelFace.qml -> QuickPanel.qml -> pick()) — and the phone's own
@@ -33,8 +35,19 @@ import qs.services
 //   phoneWallpaperFor(monitor)
 //                     the picture they show on that monitor, as a file path
 //                     ("" for none: off, or nothing picked / known yet)
-//   pick(kind)        open the chooser for "avatar", "banner" or "phone"
+//   pick(kind)        open the chooser for "avatar", "banner" or "phone"; a picture
+//                     picked opens the framer on it (`frame(kind, true)`)
 //   clear(kind)       forget the picked picture (right-click on it)
+//
+// Framing (docs/PICTURE-FRAMING.md): which part of each picture shows in its slot.
+//   framingFor(kind)  { zoom, panX, panY } for the picture shown now (centred if it was
+//                     never framed); bind to it, it changes when the framing does
+//   setFraming(kind, f)   save one (Done in the framer)
+//   frame(kind, fresh, screenName)
+//                     open the framer on that picture (`fresh`: it was just picked, so
+//                     the card says it starts centred); screenName "" = the focused monitor
+//   framing / framingFresh / framingScreen / closeFramer()
+//                     what the framer windows (FramerWindow.qml) show
 Singleton {
     id: root
 
@@ -78,6 +91,44 @@ Singleton {
 
     readonly property bool busy: picker.running
 
+    // ===== framing =====
+    readonly property var framings: FR.parse(SettingsService.get("pictures.framing"))
+
+    function pathOf(kind) {
+        return kind === "avatar" ? root.avatarPath : (kind === "banner" ? root.bannerPath : (kind === "phone" ? root.phonePath : ""))
+    }
+
+    function framingFor(kind) {
+        return FR.forPicture(root.framings, kind, root.pathOf(kind))
+    }
+
+    function setFraming(kind, f) {
+        const next = FR.withFraming(root.framings, kind, root.pathOf(kind), f)
+        SettingsService.set("pictures.framing", FR.stringify(next))
+    }
+
+    // The framer: "" while closed, else the kind it frames. One for the whole shell, shown
+    // on `framingScreen` (FramerWindow.qml, one per monitor, shows itself there).
+    property string framing: ""
+    property bool framingFresh: false
+    property string framingScreen: ""
+    // Counts every frame() call, so a framer already open starts over on the picture.
+    property int framingSeq: 0
+
+    function frame(kind, fresh, screenName) {
+        if (FR.KINDS.indexOf(kind) < 0 || root.pathOf(kind) === "")
+            return
+        root.framingScreen = screenName || (Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "")
+        root.framingFresh = fresh === true
+        root.framing = kind
+        root.framingSeq++
+    }
+
+    function closeFramer() {
+        root.framing = ""
+        root.framingFresh = false
+    }
+
     readonly property string script: Directories.script("images/pick-image.sh")
 
     // Settings > General > Quick Panel > Picture picker. "auto" (or anything
@@ -102,10 +153,11 @@ Singleton {
             phone = urlFor(path)
     }
 
-    function pick(kind) {
+    function pick(kind, screenName) {
         if (picker.running)
             return
         picker.kind = kind
+        picker.screenName = screenName || (Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "")
         picker.running = true
     }
 
@@ -116,6 +168,8 @@ Singleton {
     property var clearQueue: []
 
     function clear(kind) {
+        if (root.framing === kind)
+            root.closeFramer()
         assign(kind, "")
         root.clearQueue = root.clearQueue.concat([kind])
         root.pumpClear()
@@ -133,6 +187,7 @@ Singleton {
         id: picker
 
         property string kind: ""
+        property string screenName: ""
 
         command: root.chooser === ""
             ? ["sh", root.script, "pick", kind]
@@ -146,6 +201,9 @@ Singleton {
                 // Picking a phone wallpaper is asking to see it.
                 if (picker.kind === "phone")
                     SettingsService.set("phone.wallpaper", "picture")
+                // A new picture is framed straight away: it starts centred, so Done at once
+                // is what the shell always showed.
+                root.frame(picker.kind, true, picker.screenName)
             }
         }
     }

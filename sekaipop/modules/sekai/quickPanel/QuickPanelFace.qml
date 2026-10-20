@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import QtQuick.Effects
 import "../../common/functions/QuickTiles.js" as QT
+import "../../common/functions/ImageMath.js" as IM
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.sekai.launcher
@@ -71,6 +72,9 @@ Item {
     property string hostName: "host"
     property url bannerSource: ""
     property url avatarSource: ""
+    // Which part of each picture shows (Framing.js; centred = how it always looked).
+    property var bannerFraming: null
+    property var avatarFraming: null
 
     // "wifi" or "ethernet" — what the first tile is showing
     property string networkKind: "wifi"
@@ -311,6 +315,9 @@ Item {
     // QuickPanel.qml opens the file chooser.
     signal bannerPickRequested()
     signal avatarPickRequested()
+    // The Frame keys on the banner and avatar (hover): which part of the picture shows.
+    signal bannerFrameRequested()
+    signal avatarFrameRequested()
     signal bannerResetRequested()
     signal avatarResetRequested()
 
@@ -324,6 +331,8 @@ Item {
     // with a dark edge, like the Apps screen's app names. The clock, date and speed sit
     // on the banner, so they keep its ink rule.
     property string wallpaperPath: ""
+    // Its framing, for a picture of your own (null: the desktop's wallpaper, centred).
+    property var wallpaperFraming: null
     readonly property bool wallOn: face.wallpaperPath !== ""
     // How much of a card's own fill is kept over the wallpaper (1 = none of it shows).
     property real cardAlpha: 0.78
@@ -337,9 +346,77 @@ Item {
         width: face.width - 2 * mt.phoneScreenInset
         height: face.height - 2 * mt.phoneScreenInset
         path: face.wallpaperPath
+        framing: face.wallpaperFraming
         renderScale: face.renderScale
         // Only decoded while this screen is the one showing.
         active: face.visible
+    }
+
+
+    // ===== the keys a picture shows on hover: Change, Frame =====
+    component FaceKey: Item {
+        id: fk
+        property string icon: ""
+        property string text: ""
+        property real size: 50
+        readonly property bool hovered: fkArea.containsMouse
+        signal clicked()
+        implicitWidth: (fk.text === "" ? fk.size : fkRow.implicitWidth + 34) + 4
+        implicitHeight: fk.size + 4
+        Rectangle {
+            x: 4
+            y: 4
+            width: fk.width - 4
+            height: fk.height - 4
+            radius: height / 2
+            color: mt.pLineShadow
+        }
+        Rectangle {
+            width: fk.width - 4
+            height: fk.height - 4
+            x: fkArea.pressed ? 4 : 0
+            y: fkArea.pressed ? 4 : 0
+            radius: height / 2
+            color: fkArea.containsMouse ? mt.pSurfaceHover : mt.pSurface
+            border.width: 3
+            border.color: fkArea.containsMouse ? mt.colBorder : mt.pLine
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 3
+                radius: height / 2
+                color: "transparent"
+                border.width: 3
+                border.color: mt.pRingWhite
+            }
+            Row {
+                id: fkRow
+                anchors.centerIn: parent
+                spacing: 8
+                MaterialIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: fk.icon
+                    size: fk.text === "" ? 20 : 22
+                    color: mt.pInk
+                }
+                Text {
+                    visible: fk.text !== ""
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: fk.text
+                    color: mt.pInk
+                    font.family: mt.fontFamily
+                    font.pixelSize: 19
+                    font.weight: Font.ExtraBold
+                    font.styleName: mt.fontStyleBold
+                }
+            }
+        }
+        MouseArea {
+            id: fkArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: fk.clicked()
+        }
     }
 
     // ===== text colour over the banner =====
@@ -370,20 +447,21 @@ Item {
             visible: bannerImage.status !== Image.Ready
         }
 
-        // The picture, cropped into the same shape
-        Image {
+        // The picture, framed (PanelImages.framingFor: which part shows) and cropped
+        // into the same shape. Decoded at 2x the size it is drawn: this lives for the
+        // whole session (QuickPanel is made once in shell.qml), so it never holds the
+        // photo at its own size.
+        FramedImage {
             id: bannerImage
             anchors.fill: parent
             source: face.bannerSource
-            fillMode: Image.PreserveAspectCrop
-            asynchronous: true
-            // This Image lives for the whole session (QuickPanel is
-            // created once in shell.qml and never torn down), so an
-            // unbounded decode of whatever photo was picked stays
-            // resident the entire time. Cap it to the 602x240 banner
-            // slot at 2x for hidpi.
-            sourceSize: Qt.size(1204, 480)
+            framing: face.bannerFraming
+            decodeScale: 2
             visible: false
+            layer.enabled: true
+            layer.smooth: true
+            layer.textureSize: Qt.size(Math.ceil(width * face.renderScale * 2),
+                                       Math.ceil(height * face.renderScale * 2))
         }
 
         // Measures the banner's brightness under the clock/date and under the
@@ -399,11 +477,14 @@ Item {
             renderStrategy: Canvas.Immediate
 
             readonly property url src: bannerImage.status === Image.Ready ? bannerImage.source : ""
+            // Measured again when the framing moves what is under the text.
+            readonly property var framing: face.bannerFraming
 
             onSrcChanged: {
                 if (src.toString() !== "")
                     loadImage(src)
             }
+            onFramingChanged: requestPaint()
             onImageLoaded: requestPaint()
 
             // Average brightness (0 black .. 1 white, in linear light) of a
@@ -427,23 +508,18 @@ Item {
             onPaint: {
                 if (src.toString() === "" || !isImageLoaded(src))
                     return
-                const iw = bannerImage.implicitWidth
-                const ih = bannerImage.implicitHeight
-                if (iw <= 0 || ih <= 0)
+                if (!(bannerImage.aspect > 0))
                     return
 
                 const ctx = getContext("2d")
                 ctx.clearRect(0, 0, width, height)
 
-                // Draw it the way the banner does (PreserveAspectCrop): scaled
-                // to cover the thumbnail, centred, the overflow cut off.
-                let dw = width
-                let dh = width * ih / iw
-                if (dh < height) {
-                    dh = height
-                    dw = height * iw / ih
-                }
-                ctx.drawImage(src, (width - dw) / 2, (height - dh) / 2, dw, dh)
+                // Draw it the way the banner does: framed (zoomed and panned) to
+                // cover the thumbnail, the overflow cut off.
+                const f = face.bannerFraming || {}
+                const r = IM.drawRect(width, height, bannerImage.aspect * 1000, 1000, "crop",
+                                      f.zoom === undefined ? 1 : f.zoom, f.panX || 0, f.panY || 0)
+                ctx.drawImage(src, r.x, r.y, r.w, r.h)
 
                 // Under the clock + date: banner x 41..191, y 10..60.
                 // Under the speed readout: banner x 411..561, y 12..58.
@@ -501,7 +577,8 @@ Item {
             name: "stylus"
             size: 32
             anchors.centerIn: parent
-            opacity: bannerArea.containsMouse ? 1 : 0
+            // Only while there is no picture: with one, the Change / Frame keys say it.
+            opacity: bannerArea.containsMouse && bannerImage.status !== Image.Ready ? 1 : 0
 
             Behavior on opacity {
                 NumberAnimation {
@@ -521,6 +598,37 @@ Item {
             onClicked: {
                 face.bannerPickRequested()
                 face.panelCloseRequested()
+            }
+        }
+
+        // On hover, with a picture: Change it, or Frame it (which part shows). Declared
+        // after bannerArea so they take their own clicks; they keep the hover between them.
+        Row {
+            id: bannerKeys
+            readonly property bool hovered: changeKey.hovered || frameKey.hovered
+            visible: bannerImage.status === Image.Ready && (bannerArea.containsMouse || bannerKeys.hovered)
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 24
+            anchors.bottomMargin: 20
+            spacing: 10
+            FaceKey {
+                id: changeKey
+                icon: "image"
+                text: "Change"
+                onClicked: {
+                    face.bannerPickRequested()
+                    face.panelCloseRequested()
+                }
+            }
+            FaceKey {
+                id: frameKey
+                icon: "crop"
+                text: "Frame"
+                onClicked: {
+                    face.panelCloseRequested()
+                    face.bannerFrameRequested()
+                }
             }
         }
 
@@ -730,18 +838,19 @@ Item {
             visible: avatarImage.status !== Image.Ready && !avatarArea.containsMouse
         }
 
-        Image {
+        // Framed like the banner (PanelImages.framingFor("avatar")), decoded at 2x.
+        FramedImage {
             id: avatarImage
             anchors.fill: parent
             anchors.margins: avatar.imgInset
             source: face.avatarSource
-            fillMode: Image.PreserveAspectCrop
-            asynchronous: true
-            // Same reasoning as bannerImage above: permanently resident
-            // for the whole session, so cap the decode to the 120x120
-            // avatar slot at 2x for hidpi.
-            sourceSize: Qt.size(240, 240)
+            framing: face.avatarFraming
+            decodeScale: 2
             visible: false
+            layer.enabled: true
+            layer.smooth: true
+            layer.textureSize: Qt.size(Math.ceil(width * face.renderScale * 2),
+                                       Math.ceil(height * face.renderScale * 2))
         }
 
         Item {
@@ -824,6 +933,21 @@ Item {
         // Same clear badge as the banner's, sized down and tucked into
         // the bottom-right of the circle (a common "remove this avatar"
         // spot) so it doesn't cover the white ring's top edge.
+        // On hover, with a picture: Frame it (which part shows), bottom-left (the remove
+        // badge holds the bottom-right). A click on the avatar itself still changes it.
+        FaceKey {
+            id: avatarFrameKey
+            visible: avatarImage.status === Image.Ready && (avatarArea.containsMouse || avatarFrameKey.hovered)
+            x: -6
+            y: avatar.height - height + 2
+            size: 40
+            icon: "crop"
+            onClicked: {
+                face.panelCloseRequested()
+                face.avatarFrameRequested()
+            }
+        }
+
         Rectangle {
             id: avatarRemove
             // Same fix as ever: include avatarRemoveArea's own hover so the badge doesn't fight

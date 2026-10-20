@@ -96,6 +96,7 @@ Singleton {
         // What the phone's screens show behind them: "off", "desktop" or "picture";
         // "" = not chosen yet, launcher.lcdWallpaper decides (PanelImages.phoneMode).
         "phone.wallpaper": "",
+        "pictures.framing": "",         // JSON: which part of the banner / avatar / phone picture shows (PanelImages, Framing.js)
         "lock.blur": false,
         // The gacha lockscreen's endless sparkle animations. Off = they are not built, which saves GPU while locked.
         "lock.animations": true,

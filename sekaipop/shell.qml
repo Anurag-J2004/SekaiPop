@@ -12,6 +12,7 @@ import qs.modules.sekai.desktopMenu
 import qs.modules.sekai.desktopWidgets
 import qs.modules.sekai.dock
 import qs.modules.sekai.editMode
+import qs.modules.sekai.framing
 import qs.modules.sekai.keyboard
 import qs.modules.sekai.launcher
 import qs.modules.sekai.lock
@@ -45,6 +46,20 @@ ShellRoot {
         id: wallpaperLayers
         model: Quickshell.screens
         WallpaperLayer {}
+    }
+
+    // The framer (PanelImages.frame(): which part of the banner, avatar or phone picture
+    // shows). Built only while a picture is being framed, on the monitor it was opened for.
+    Variants {
+        model: Quickshell.screens
+
+        delegate: LazyLoader {
+            id: framerLoader
+            required property var modelData
+            active: PanelImages.framing !== ""
+                && (PanelImages.framingScreen === "" || framerLoader.modelData.name === PanelImages.framingScreen)
+            FramerWindow { modelData: framerLoader.modelData }
+        }
     }
 
     // (The old wallpaper picker board is gone: the Wallpapers are a screen of the
@@ -616,6 +631,33 @@ ShellRoot {
         function hidemode(mode: string): void {
             if (mode === "off" || mode === "auto")
                 SettingsService.set("bar.hideMode", mode)
+        }
+    }
+
+    // The shell's own pictures (PanelImages.qml, docs/PICTURE-FRAMING.md).
+    //   qs -c sekaipop ipc call pictures pick banner|avatar|phone     open the chooser
+    //                                  | frame banner|avatar|phone    open the framer
+    //                                  | unframe banner|avatar|phone  back to centred
+    //                                  | close                        close the framer (as Cancel)
+    IpcHandler {
+        target: "pictures"
+
+        function pick(kind: string): void {
+            if (kind === "banner" || kind === "avatar" || kind === "phone")
+                PanelImages.pick(kind, "")
+        }
+
+        function frame(kind: string): void {
+            PanelImages.frame(kind, false, "")
+        }
+
+        function close(): void {
+            PanelImages.closeFramer()
+        }
+
+        function unframe(kind: string): void {
+            if (kind === "banner" || kind === "avatar" || kind === "phone")
+                PanelImages.setFraming(kind, null)
         }
     }
 
