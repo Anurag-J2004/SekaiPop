@@ -542,6 +542,8 @@ Item {
                 delegate: ThemeTile {
                     required property var modelData
 
+                    // Centred in the row, beside the (taller) picture tiles.
+                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                     group: modelData
                 }
             }

@@ -253,42 +253,6 @@ Item {
         }
     }
 
-    // A rectangle with its own corner radii, clipping what is in it (an Item can only clip
-    // square, so it is masked).
-    // (The layer.effect form the user card's MaskedPhoto uses: the content is drawn into a
-    // layer and the mask applied as that layer's effect.)
-    component RoundClip: Item {
-        id: rc
-        property var radii: [0, 0, 0, 0]
-        default property alias content: inner.data
-        Item {
-            id: inner
-            anchors.fill: parent
-            layer.enabled: true
-            layer.smooth: true
-            layer.effect: MultiEffect {
-                maskEnabled: true
-                maskSource: rcMask
-            }
-        }
-        Item {
-            id: rcMask
-            anchors.fill: parent
-            visible: false
-            layer.enabled: true
-            layer.smooth: true
-            Rectangle {
-                anchors.fill: parent
-                color: "black"
-                topLeftRadius: rc.radii[0]
-                topRightRadius: rc.radii[1]
-                bottomLeftRadius: rc.radii[2]
-                bottomRightRadius: rc.radii[3]
-                antialiasing: true
-            }
-        }
-    }
-
     // ===== the banner's ink, as the Quick Panel picks it =====
     property bool inkDark: false
     Canvas {

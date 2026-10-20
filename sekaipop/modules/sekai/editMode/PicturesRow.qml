@@ -30,6 +30,13 @@ Item {
         root.asking = kind
         askTimer.restart()
     }
+    // The chooser is a normal window: Edit Desktop (which parks the windows and draws over
+    // them) steps aside first, so it opens where you can use it. The framer follows the pick.
+    function pick(kind) {
+        EditMode.close()
+        PanelImages.pick(kind, root.screenName)
+    }
+
     function remove(kind) {
         root.asking = ""
         PanelImages.clear(kind)
@@ -211,6 +218,8 @@ Item {
 
         Text {
             anchors.verticalCenter: parent.verticalCenter
+            width: Math.max(0, keyRow.x - 6)
+            elide: Text.ElideRight
             text: foot.label
             color: foot.focused ? root.mt.colBorder : root.mt.pInk
             font.family: root.mt.fontFamily
@@ -219,6 +228,7 @@ Item {
             font.styleName: root.mt.fontStyleBold
         }
         Row {
+            id: keyRow
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             spacing: 6
@@ -233,8 +243,8 @@ Item {
             SmallKey {
                 visible: root.asking !== foot.kind
                 icon: "image"
-                text: foot.pic === "set" ? "" : "Pick"
-                onClicked: PanelImages.pick(foot.kind, root.screenName)
+                text: foot.pic === "set" || foot.kind === "phone" ? "" : "Pick"
+                onClicked: root.pick(foot.kind)
             }
             SmallKey {
                 visible: root.asking !== foot.kind && (foot.pic === "set" || foot.kind === "phone")
@@ -275,13 +285,16 @@ Item {
                     bottomRightRadius: 16
                     border.width: bannerTile.pic === "missing" ? 2 : (bannerTile.focused ? 3 : 0)
                     border.color: bannerTile.focused ? root.mt.colBorder : root.mt.pLine
-                    clip: true
-                    FramedImage {
-                        id: bannerImg
+                    RoundClip {
                         anchors.fill: parent
-                        source: PanelImages.banner
-                        framing: PanelImages.framingFor("banner")
+                        radii: [24, 24, 16, 16]
                         visible: bannerTile.pic === "set"
+                        FramedImage {
+                            id: bannerImg
+                            anchors.fill: parent
+                            source: PanelImages.banner
+                            framing: PanelImages.framingFor("banner")
+                        }
                     }
                     Empty {
                         visible: bannerTile.pic !== "set"
@@ -316,13 +329,16 @@ Item {
                     color: root.mt.pSurfaceDivider
                     border.width: avatarTile.pic === "missing" ? 2 : (avatarTile.focused ? 3 : 0)
                     border.color: avatarTile.focused ? root.mt.colBorder : root.mt.pLine
-                    clip: true
-                    FramedImage {
-                        id: avatarImg
+                    RoundClip {
                         anchors.fill: parent
-                        source: PanelImages.avatar
-                        framing: PanelImages.framingFor("avatar")
+                        radii: [38.5, 38.5, 38.5, 38.5]
                         visible: avatarTile.pic === "set"
+                        FramedImage {
+                            id: avatarImg
+                            anchors.fill: parent
+                            source: PanelImages.avatar
+                            framing: PanelImages.framingFor("avatar")
+                        }
                     }
                     Empty {
                         visible: avatarTile.pic !== "set"
@@ -362,14 +378,18 @@ Item {
                         color: root.mt.pSurfaceDivider
                         border.width: 3
                         border.color: root.mt.darker ? root.mt.pLine : root.mt.colBorder
-                        clip: true
-                        FramedImage {
+                        RoundClip {
                             anchors.fill: parent
                             anchors.margins: 3
-                            visible: phoneTile.mode !== "off" && source.toString() !== ""
-                            source: phoneTile.mode === "picture" ? PanelImages.phone
-                                : (phoneTile.mode === "desktop" && phoneTile.desktopPath !== "" ? "file://" + phoneTile.desktopPath : "")
-                            framing: phoneTile.mode === "picture" ? PanelImages.framingFor("phone") : null
+                            radii: [7, 7, 7, 7]
+                            visible: phoneTile.mode !== "off" && phoneImg.source.toString() !== ""
+                            FramedImage {
+                                id: phoneImg
+                                anchors.fill: parent
+                                source: phoneTile.mode === "picture" ? PanelImages.phone
+                                    : (phoneTile.mode === "desktop" && phoneTile.desktopPath !== "" ? "file://" + phoneTile.desktopPath : "")
+                                framing: phoneTile.mode === "picture" ? PanelImages.framingFor("phone") : null
+                            }
                         }
                         Empty {
                             visible: phoneTile.mode === "picture" && !phoneTile.picked
@@ -424,7 +444,7 @@ Item {
                                         // "A picture" with none picked opens the chooser first;
                                         // cancelling it leaves the mode as it was.
                                         if (modelData[0] === "picture" && !phoneTile.picked)
-                                            PanelImages.pick("phone", root.screenName)
+                                            root.pick("phone")
                                         else
                                             SettingsService.set("phone.wallpaper", modelData[0])
                                     }
