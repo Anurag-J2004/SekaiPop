@@ -2499,13 +2499,14 @@ Item {
             font.pixelSize: 17
         }
 
-        // Hovering the card brings the whole phone up (the same as clicking
-        // it: alertActivated() -> QuickPanel.claim()). A short beat first,
-        // so the pointer just crossing the spot where a card happens to
-        // drop in doesn't throw the phone open.
+        // Resting the pointer on the card brings the whole phone up (the same as
+        // clicking it: alertActivated() -> QuickPanel.claim()). After a second, not a
+        // beat: the pointer on its way to swipe the phone away or right-click it
+        // (QuickPanel.qml, alertTouch) must have time to do that first; it used to be
+        // 180 ms, which opened the phone under almost anyone aiming at it.
         Timer {
             id: hoverOpen
-            interval: 180
+            interval: 1000
             onTriggered: {
                 if (face.alertShown)
                     face.alertActivated()

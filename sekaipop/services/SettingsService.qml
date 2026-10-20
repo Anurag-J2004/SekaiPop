@@ -194,14 +194,8 @@ Singleton {
         "timer.pomLong": 15,            // minutes of long break
         "timer.pomRounds": 4,           // focus rounds before the long break
         "dock.pinOnStartup": false,     // start every session with the dock pinned (kept shown)
-        // ===== Wallhaven in the Wallpapers picker (WallhavenService.qml, WallhavenMath.js) =====
-        // Remembered between visits; not part of a desktop preset (browsing, not the look).
-        "wallhaven.sort": "",           // "" = relevance for a search, the month's top without one
-        "wallhaven.topRange": "1M",
-        "wallhaven.categories": "general,anime,people",
-        "wallhaven.shape": "landscape",
-        "wallhaven.atLeast": "screen",  // "screen" = the monitor the picker is on
-        "wallhaven.colour": "",
+        "wallpaper.enabled": true,       // Show or hide the desktop wallpaper
+      
         "wallpaper.perMonitor": false,  // each monitor keeps its own wallpaper (off = one wallpaper on all of them)
         "wallpaper.separateLock": false, // the lockscreen has a wallpaper of its own (off = it shows the desktop's)
         "wallpaper.folder": "",         // the folder the picker lists ("" = ~/Pictures/Wallpapers)
