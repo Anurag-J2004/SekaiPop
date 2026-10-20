@@ -837,6 +837,25 @@ Scope {
             }
             return
         }
+     if (panelFace.powerMenuOpen) {
+            if (event.key === Qt.Key_Up || event.key === Qt.Key_Backtab) {
+                powerRail.move(-1)
+                event.accepted = true
+                return
+            }
+            if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) {
+                powerRail.move(1)
+                event.accepted = true
+                return
+            }
+            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter
+                    || event.key === Qt.Key_Space) {
+                if (powerRail.currentIndex >= 0)
+                    powerRail.trigger(powerRail.currentIndex)
+                event.accepted = true
+                return
+            }
+        }
         if (event.key === Qt.Key_Escape) {
             if (panelFace.powerMenuOpen || panelFace.networkDialogOpen || panelFace.bluetoothDialogOpen
                     || panelFace.nightLightDialogOpen || panelFace.audioDialogKind !== "")
@@ -865,7 +884,7 @@ Scope {
     // The window takes the keyboard (on demand) while it is open and has
     // something to do with it: the Apps search box, or typing from Quick.
     readonly property bool phoneKeysWanted: open && !settingsShown
-        && (faceScreen === "apps" || SettingsService.flag("panel.typeToSearch"))
+        && (faceScreen === "apps"|| panelFace.powerMenuOpen || SettingsService.flag("panel.typeToSearch")) 
 
     Timer {
         id: focusTimer
