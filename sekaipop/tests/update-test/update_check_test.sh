@@ -1,7 +1,7 @@
 #!/bin/sh
 # Runs scripts/system/update-check.sh against a throw-away local "GitHub":
 # installed copy (no marker / marker / behind / apply / failures), the repo layout
-# (shell folder = <clone>/sekaipop), and a symlinked folder. Needs git only.
+# (shell folder = <clone>/sekaipop), and symlinks on the way (followed). Needs git only.
 #   sh tests/update-test/update_check_test.sh
 here=$(cd "$(dirname "$0")/../.." && pwd)
 t=$(mktemp -d) && trap 'rm -rf "$t"' EXIT
@@ -34,8 +34,17 @@ $S apply >/dev/null; rc=$?
 [ -d "$inst.previous" ] && ok "previous copy kept" || bad "no previous copy"
 expect "after apply: current" "$($S check)" "status=current"
 SEKAIPOP_REPO=/nonexistent $S apply >/dev/null; [ $? != 0 ] && [ -f "$inst/shell.qml" ] && ok "bad repo: fails, install untouched" || bad "bad repo"
-mkdir -p "$t/real" && cp -a "$inst" "$t/real/s" && ln -s "$t/real/s" "$HOME/.config/quickshell/lnk"
-sh "$HOME/.config/quickshell/lnk/scripts/system/update-check.sh" apply >/dev/null; [ $? != 0 ] && ok "symlinked folder: refuses" || bad "symlink"
+# A link on the way is followed (issue #21): the folder itself kept in a dotfiles
+# repo, or ~/.config linked somewhere else. The real folder is replaced, the link stays.
+mkdir -p "$t/real" "$t/dots/cfg" && cp -a "$inst" "$t/real/s" && ln -s "$t/real/s" "$HOME/.config/quickshell/lnk"
+cp -a "$inst" "$t/dots/cfg/sekaipop" && ln -s "$t/dots/cfg" "$t/cfglink"
+(cd "$t/work" && echo 1.0.2 > sekaipop/VERSION && git commit -qam third && git push -q origin main)
+sh "$HOME/.config/quickshell/lnk/scripts/system/update-check.sh" apply >/dev/null; rc=$?
+[ "$rc" = 0 ] && [ "$(cat "$t/real/s/VERSION")" = 1.0.2 ] && ok "symlinked folder: the real folder is updated" || bad "symlinked folder (exit $rc)"
+[ -L "$HOME/.config/quickshell/lnk" ] && [ "$(cat "$HOME/.config/quickshell/lnk/VERSION")" = 1.0.2 ] && ok "symlinked folder: the link still points at it" || bad "link lost"
+[ -d "$t/real/s.previous" ] && ok "symlinked folder: previous copy beside the real one" || bad "no previous copy beside the real folder"
+sh "$t/cfglink/sekaipop/scripts/system/update-check.sh" apply >/dev/null; rc=$?
+[ "$rc" = 0 ] && [ "$(cat "$t/dots/cfg/sekaipop/VERSION")" = 1.0.2 ] && ok "linked parent folder: updated" || bad "linked parent folder (exit $rc)"
 G="sh $t/work/sekaipop/scripts/system/update-check.sh"
 expect "repo layout: git mode" "$($G info)" "git=yes"
 expect "repo layout: rev is the upstream head" "$($G check)" "rev="
