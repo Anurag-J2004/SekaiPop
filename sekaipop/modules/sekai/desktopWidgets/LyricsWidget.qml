@@ -66,6 +66,7 @@ import "../../common/functions/LyricsMath.js" as LM
 //   qs -c sekaipop ipc call lyrics toggle          (show / hide)
 //   qs -c sekaipop ipc call lyrics nudge 250       (lyrics 250 ms earlier; -250 for later)
 //   qs -c sekaipop ipc call lyrics lineMode on     (light the whole line at once, no word hops; off = word by word)
+//   qs -c sekaipop ipc call lyrics hideNotes on    (no "no synced lyrics" / "instrumental" text in the middle; the title stays)
 //   qs -c sekaipop ipc call lyrics refresh         (look for this track's lyrics again)
 //   qs -c sekaipop ipc call lyrics picker          (the source picker: where the words come from)
 //   qs -c sekaipop ipc call lyrics debug           (show the clock's numbers under the lyrics)
@@ -482,8 +483,10 @@ PanelWindow {
             return ""
         switch (LyricsService.status) {
         case "loading": return "looking for the words...";
-        case "none": return "no synced lyrics for this one";
-        case "instrumental": return "instrumental";
+        // Both can be switched off (Settings > Desktop, or ipc lyrics hideNotes on); the
+        // title tag under the card stays either way.
+        case "none": return LyricsService.hideNotes ? "" : "no synced lyrics for this one";
+        case "instrumental": return LyricsService.hideNotes ? "" : "instrumental";
         case "offline": return "can't reach the lyrics service";
         default: return "";
         }

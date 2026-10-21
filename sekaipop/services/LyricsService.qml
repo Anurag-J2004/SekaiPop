@@ -55,6 +55,9 @@ Singleton {
     // bouncing diamond. Only the line starts are used, so a source whose word timing is a
     // little off cannot look off. ipc lyrics lineMode on|off
     property bool lineOnly: false
+    // Say nothing in the middle when a song has no synced lyrics or is an instrumental (the
+    // track title under the card stays). ipc lyrics hideNotes on|off
+    property bool hideNotes: false
     // "auto" (the best provider for each song) or one provider's id to use whenever it has the song.
     property string preferred: "auto"
     // The same, for single tracks: a lyrics file is made for one cut of a song, so one track
@@ -222,6 +225,10 @@ Singleton {
     }
     function setLineOnly(on) {
         root.lineOnly = on === true
+        root.persist()
+    }
+    function setHideNotes(on) {
+        root.hideNotes = on === true
         root.persist()
     }
     function setSync(ms) {
@@ -1178,6 +1185,7 @@ Singleton {
             syncMs: root.syncMs,
             wordsOn: root.wordsOn,
             lineOnly: root.lineOnly,
+            hideNotes: root.hideNotes,
             source: root.preferred,
             offsets: root.offsets
         })
@@ -1200,6 +1208,8 @@ Singleton {
                 root.wordsOn = s.wordsOn
             if (typeof s.lineOnly === "boolean")
                 root.lineOnly = s.lineOnly
+            if (typeof s.hideNotes === "boolean")
+                root.hideNotes = s.hideNotes
             if (typeof s.source === "string" && (s.source === "auto" || root.providerIds.indexOf(s.source) >= 0))
                 root.preferred = s.source
             if (typeof s.syncMs === "number")

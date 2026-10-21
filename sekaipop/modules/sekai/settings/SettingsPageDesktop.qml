@@ -363,6 +363,14 @@ SettingsPage {
         }
 
         SettingToggle {
+            icon: "comments_disabled"
+            label: "Hide no-lyrics messages"
+            detail: "Show nothing in the middle when a song has no synced lyrics or is an instrumental. The track title stays"
+            checked: LyricsService.hideNotes
+            onToggled: LyricsService.setHideNotes(!LyricsService.hideNotes)
+        }
+
+        SettingToggle {
             icon: "task_alt"
             label: "To-Do"
             checked: TodoService.shown

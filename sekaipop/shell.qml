@@ -1245,6 +1245,9 @@ ShellRoot {
         // Light the whole line when it starts and jump to the next one: no hopping words and no
         // bouncing diamond (`off`: the word by word singing again). Only the line starts are used.
         function lineMode(on: bool): void { LyricsService.setLineOnly(on) }
+        // Show nothing in the middle for "no synced lyrics" and "instrumental" songs; the title
+        // under the card stays (`off`: the messages again).
+        function hideNotes(on: bool): void { LyricsService.setHideNotes(on) }
         // Where lyrics come from: `auto` takes the best provider for each song (word by word over
         // synced, Boidu first); or a provider's name (boidu, lyricsplus, lrclib, youtubemusic,
         // simpmusic, netease, qq, kugou; "neteasecloudmusic", "qqmusic" and the like work too) to use that one
