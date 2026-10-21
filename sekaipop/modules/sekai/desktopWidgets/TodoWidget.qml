@@ -191,7 +191,7 @@ PanelWindow {
     // on a card must not take it away. The shield blocks typing anyway. The one
     // exception is the To-Do while it is selected for editing: then it is
     // used like on the desktop, so it can take the keyboard to type a task.
-    WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "todo")
+    WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "todo") || !keys.wanted
         ? WlrKeyboardFocus.None : WlrKeyboardFocus.OnDemand
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
@@ -1401,5 +1401,10 @@ PanelWindow {
             }
         }
     }
+    }
+
+    // Asks for the keyboard only under the pointer or while typing (issue #72).
+    KeysOnPoint {
+        id: keys
     }
 }

@@ -14,6 +14,14 @@ and what was only read through, and how to check it. The short release notes are
 - `shell.qml`: `ipc call bar toggle | show | hide | peek | hidemode off|auto`. `KeyBinds.js`: the "Toggle bar" action (`bar toggle`, ships without a key); `hypr/hyprland/keybinds.lua` lists it with the other keyless ones (SUPER + B in the example).
 - Not done: a smart mode, Game Mode (the bar takes no input, so an auto-hiding one stays away), and the popups that keep clear of the bar (they still do). docs/BAR-AUTOHIDE.md.
 - **To check:** Auto-hide on with the bar on each edge and in each style: it slides away, the windows grow into its space, touching the edge brings it out, it stays out with a popup open (the tray menu too) and goes 0.45 s after the pointer leaves; a bottom bar leaves the Quick Panel's hot edge working; Edit Desktop shows it; a shell restart with it on starts it away without a flash; `ipc call bar peek`; Settings > Hyprland > Keybinds > Toggle bar given SUPER + B shows and hides it.
+## Unreleased — Focus Mode widgets no longer take the keyboard as they come back (issue #72)
+
+**Not run on a live Quickshell before this entry** (the reporter confirmed the cause: with Desktop Focus Mode off, Rofi could be typed into at once). Checked: `qmllint` on the five files; `tests/focus-test/keys_on_point_test.js` (new); the other JS tests give the same results as `main` (81 pass, the same 9 fail).
+
+- Why: To-Do, Calendar, Palette and Sticky Notes kept `WlrKeyboardFocus.OnDemand` whenever Edit Desktop was closed. Hyprland hands the keyboard to an OnDemand layer as it is mapped, and Desktop Focus Mode maps the widgets again, one after another (`FocusMath.slotDelay`), each time an empty workspace comes up. A launcher opened in that second lost the keyboard to each widget as it popped in.
+- Changed: `desktopWidgets/KeysOnPoint.qml` (new), a passive HoverHandler over the window: `wanted` is true while the pointer is on the widget or its window has the keyboard (`Window.active`). The four windows are OnDemand only while it is; otherwise None. A window now maps as None, so it never takes the keyboard uninvited; the pointer arriving makes it OnDemand before the click that starts typing, and typing goes on after the pointer leaves.
+- Files: `TodoWidget.qml`, `CalendarCardWidget.qml`, `PaletteWidget.qml`, `StickyNotesWidget.qml`, `KeysOnPoint.qml` (new), `tests/focus-test/keys_on_point_test.js` (new).
+- **To check:** with Focus Mode on, switch to an empty workspace and open Rofi at once: typing works straight away. Then the widgets still take typing: add a task in the To-Do, an event in the Calendar, type in a sticky note, and keep typing after moving the pointer off them; clicking a window afterwards takes the keyboard back.
 
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 

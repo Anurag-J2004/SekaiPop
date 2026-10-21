@@ -216,7 +216,7 @@ PanelWindow {
     // Not while editing: the shelf keeps the keyboard then (Esc), and a click on a card must
     // not take it away. The exception is this card while it is selected for editing: then it
     // is used like on the desktop, so it can take the keyboard to type an event.
-    WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "calendarcard")
+    WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "calendarcard") || !keys.wanted
         ? WlrKeyboardFocus.None : WlrKeyboardFocus.OnDemand
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
@@ -1739,5 +1739,10 @@ PanelWindow {
             }
         }
     }
+    }
+
+    // Asks for the keyboard only under the pointer or while typing (issue #72).
+    KeysOnPoint {
+        id: keys
     }
 }

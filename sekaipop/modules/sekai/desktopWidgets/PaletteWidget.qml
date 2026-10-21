@@ -197,7 +197,7 @@ PanelWindow {
     WlrLayershell.namespace: "sekaipop-palettecard"
     // Not while editing: the shelf keeps the keyboard then (Esc), and a click on a card must
     // not take it away. The exception is this card while it is selected for editing.
-    WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "palettecard")
+    WlrLayershell.keyboardFocus: (EditMode.active && EditMode.editTarget !== "palettecard") || !keys.wanted
         ? WlrKeyboardFocus.None : WlrKeyboardFocus.OnDemand
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
@@ -845,5 +845,10 @@ PanelWindow {
             }
         }
     }
+    }
+
+    // Asks for the keyboard only under the pointer or while typing (issue #72).
+    KeysOnPoint {
+        id: keys
     }
 }
