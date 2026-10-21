@@ -1,5 +1,5 @@
 // node tests/keys-test/keys_unit.js   (run from the sekaipop folder)
-// Settings > Keys: reading `hyprctl -j binds` into rows (hyprland.conf binds by their
+// The keybinds panel: reading `hyprctl -j binds` into rows (hyprland.conf binds by their
 // ipc call, Lua binds by their description), conflicts, the saved state across
 // repeated changes, the lines written for both config formats, and key capture.
 const fs = require("fs")

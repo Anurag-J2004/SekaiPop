@@ -33,7 +33,11 @@ and what was only read through, and how to check it. The short release notes are
 - `QuickPanel.qml` `besidePhone`: a MouseArea over `hitRect`, z -100, on while the panel is open (Quick and Apps). A press nothing on the phone took reaches it: on the outline (3 units of slack) it lets go, beside it the panel closes.
 - Not done: letting the click through to the window below (a mask shaped like the phone would be strips of `Region`, moved every frame of the bounce). docs/PHONE-CLICK-AWAY.md.
 
-## Unreleased — Settings > Keys: change SekaiPop's shortcuts (issue #16)
+## Unreleased — Keybinds panel: change SekaiPop's shortcuts on a keyboard slab (issue #16)
+
+The Settings > Keys page became its own panel (modules/sekai/keybinds/): a keyboard slab with a display strip, Board and List views, modifier keys as layers. The logic is unchanged (KeybindService, KeyBinds.js); only the face is new. Opened from Settings > Hyprland > Keybinds (the phone closes first) or `ipc call keybinds toggle`. tests/keybinds-test covers the board maths.
+
+### Original notes (Settings > Keys)
 
 **Run on a live Quickshell** (Quickshell 0.3.1, Qt 6.11, Hyprland 0.56.2), with the shell on both of Hyprland's config formats: first `hyprland.conf`, then the Lua config. By hand: recording a combination, Set it by hand, taking keys over from another action and from a Hyprland bind, reset one, reset all, the panel closing while recording. Scripted against the live Hyprland: under `hyprland.conf`, a bind written, kept across a reload and removed; under Lua, Toggle equalizer moved from SUPER + M to SUPER + ALT + E (`hl.unbind` dropped the old key, `hyprctl configerrors` empty) and reset (SUPER + M back). Checked: `tests/keys-test/keys_unit.js` and `keys_script_test.js` (new); the other JS tests give the same results as `main` (the same 8 fail). **Not checked:** niri (the page only says keys are niri's there), a screen reader, and a VNC client sending Super (most viewers keep it; Set it by hand is the way round).
 

@@ -31,6 +31,9 @@ Singleton {
     // The keybind cheat sheet (modules/sekai/cheatSheet/CheatSheet.qml).
     property bool cheatSheetActive: false
 
+    // The keybinds panel (modules/sekai/keybinds/KeybindsPanel.qml).
+    property bool keybindsActive: false
+
     // The Palette tool (modules/sekai/palette/PaletteTool.qml), with the MediaSource and
     // the picture reader it owns.
     property bool paletteToolActive: false
@@ -40,7 +43,7 @@ Singleton {
     property bool overviewActive: false
 
     // Everything the registry governs, for tests and for `ipc call` diagnostics.
-    readonly property var names: ["cheatSheet", "paletteTool", "overview"]
+    readonly property var names: ["cheatSheet", "keybinds", "paletteTool", "overview"]
 
     function isActive(name) {
         return !!root[name + "Active"]

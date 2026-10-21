@@ -445,29 +445,35 @@ Item {
             focus: true
             selectByMouse: true
 
-            Keys.onPressed: event => {
+                  Keys.onPressed: event => {
                 if ((event.modifiers & Qt.ControlModifier) && event.key >= Qt.Key_1 && event.key <= Qt.Key_4) {
                     face.jumpRequested(event.key - Qt.Key_0)
-                } else if (event.key === Qt.Key_Escape) {
-                    face.back()
-                } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                    if (!extrasLayer.enter((event.modifiers & Qt.ShiftModifier) !== 0))
-                        face.activateCurrent()
-                } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Down
-                           || event.key === Qt.Key_Left && (input.text.length === 0 || extrasLayer.cardMode === "emoji")
-                           || event.key === Qt.Key_Right && (input.text.length === 0 || extrasLayer.cardMode === "emoji")) {
-                    face.moveKey(event.key)
-                } else if (event.key === Qt.Key_Tab) {
-                    // Tab picks the next search engine on the web card.
-                    if (!extrasLayer.tab(1))
-                        face.moveKey(Qt.Key_Right)
-                } else if (event.key === Qt.Key_Backtab) {
-                    if (!extrasLayer.tab(-1))
-                        face.moveKey(Qt.Key_Left)
-                } else {
-                    return
-                }
-                event.accepted = true
+                } else if ((event.modifiers & Qt.ControlModifier)
+                    && (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
+                    && extrasLayer.cycleCardTab(event.key === Qt.Key_Left ? -1 : 1)) {
+                    // Ctrl+Left / Ctrl+Right on the emoji card: the call in the
+                    // condition does the work. Any other mode falls through.
+                    } else if (event.key === Qt.Key_Escape) {
+                        face.back()
+                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        if (!extrasLayer.enter((event.modifiers & Qt.ShiftModifier) !== 0))
+                            face.activateCurrent()
+                    } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Down
+                        || event.key === Qt.Key_Left && (input.text.length === 0 || extrasLayer.cardMode === "emoji")
+                        || event.key === Qt.Key_Right && (input.text.length === 0 || extrasLayer.cardMode === "emoji")
+                    ) {
+                        face.moveKey(event.key)
+                    } else if (event.key === Qt.Key_Tab) {
+                        // Tab picks the next search engine on the web card.
+                        if (!extrasLayer.tab(1))
+                            face.moveKey(Qt.Key_Right)
+                    } else if (event.key === Qt.Key_Backtab) {
+                        if (!extrasLayer.tab(-1))
+                            face.moveKey(Qt.Key_Left)
+                    } else {
+                        return
+                    }
+                    event.accepted = true
             }
         }
 

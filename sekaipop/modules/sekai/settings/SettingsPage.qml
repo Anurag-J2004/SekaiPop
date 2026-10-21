@@ -31,7 +31,7 @@ Item {
 
     default property alias content: column.data
         // Things that sit over the page instead of scrolling with it (a page's own
-        // modal, like the Keys page's editor): `overlay: [ Item { ... } ]`.
+        // modal): `overlay: [ Item { ... } ]`.
         property alias overlay: overlayHost.data
 
         // Card width less its padding and shadow, split three ways with 16 between.

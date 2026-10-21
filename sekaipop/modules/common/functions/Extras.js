@@ -83,6 +83,7 @@ function route(text) {
     if (c === "?" ) return sym(t, "web");
     if (c === ":" && !/^:\s*$/.test(t) || t === ":") return sym(t, "emoji");
     if (c === "=") return sym(t, "calc");
+    if (c === ".") return sym(t, "clip");
 
     // word triggers
     var m = /^(\S+)(\s+)?([\s\S]*)$/.exec(t);

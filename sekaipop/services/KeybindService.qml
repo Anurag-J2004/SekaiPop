@@ -6,7 +6,7 @@ import Quickshell.Hyprland
 import qs.modules.common
 import "../modules/common/functions/KeyBinds.js" as KB
 
-// Settings > Keys: which key each SekaiPop action is on, and changing it.
+// The keybinds panel (modules/sekai/keybinds): which key each SekaiPop action is on, and changing it.
 //
 // Reads `hyprctl -j binds` (what Hyprland really has) and the saved state (the
 // block in the override file, KeyBinds.js), and turns both into `rows`. A change

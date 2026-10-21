@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# The file side of Settings > Keys (services/KeybindService.qml). Everything about
+# The file side of the keybinds panel (services/KeybindService.qml). Everything about
 # what to write is worked out in modules/sekai/settings/KeyBinds.js; this only puts
 # its block in the right file and hands its calls to hyprctl.
 #

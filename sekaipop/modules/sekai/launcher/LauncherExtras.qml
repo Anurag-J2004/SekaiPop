@@ -196,7 +196,16 @@ Item {
         }
         return false
     }
-
+   // Ctrl+Left / Ctrl+Right on the emoji card: previous / next category.
+    // true = handled.
+    function cycleCardTab(step) {
+        if (root.cardMode !== "emoji")
+            return false
+            const it = cardLoader.item
+            if (it && it.cycleTab)
+                it.cycleTab(step)
+                return true
+    }
     // Down or Up while the rows are showing. `gridHasPick` / `gridOnFirstRow` come from
     // the face. Returns "grid" when the pick should go to the first app, "rows" when
     // it moved among the rows (or stayed), and "" when this has nothing to do with it.

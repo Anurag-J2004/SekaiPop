@@ -2,7 +2,7 @@
 
 <h1>SekaiPop</h1>
 
-<img src="docs/highlights.svg" alt="Phone control center, Sekai Pad equalizer, Edit Desktop, shader wallpaper transitions, two lockscreens, installs from a bare Arch" width="82%">
+<img src="assets/highlights.svg" alt="Phone control center, Sekai Pad equalizer, Edit Desktop, shader wallpaper transitions, two lockscreens, installs from a bare Arch" width="82%">
 
 <br>
 
@@ -20,46 +20,46 @@
 
 <br>
 
-<img src="docs/shot-desktop-widgets.png" alt="SekaiPop desktop with clock, weather, calendar, to-do, palette, user card, sticky notes and lyrics widgets" width="100%">
+<img src="assets/shot-desktop-widgets.png" alt="SekaiPop desktop with clock, weather, calendar, to-do, palette, user card, sticky notes and lyrics widgets" width="100%">
 
 <sub>Clock, weather, calendar, to-do, palette, user card, sticky notes, lyrics and custom images. Every widget is draggable, resizable and optional.</sub>
 
 </div>
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="showcase"><img src="docs/tag-showcase.svg" alt="Showcase" height="80"></h2>
+<h2 id="showcase"><img src="assets/tag-showcase.svg" alt="Showcase" height="80"></h2>
 
 <table>
 <tr>
 <td width="50%" valign="top">
-<img src="docs/shot-quick-panel-phone.png" alt="Quick Panel phone with Wi-Fi, Bluetooth, mic, speaker, brightness and notifications" width="100%">
+<img src="assets/shot-quick-panel-phone.png" alt="Quick Panel phone with Wi-Fi, Bluetooth, mic, speaker, brightness and notifications" width="100%">
 <br><b>Quick Panel: the control center is a phone</b><br>
 Wi-Fi, Bluetooth, mic, speaker, brightness, night light, easy effects and notifications sit on a 2.5D phone that bounces up from the bottom of the screen. A new notification makes it rise just far enough to show it.
 </td>
 <td width="50%" valign="top">
-<img src="docs/shot-settings-phone.png" alt="Settings as a landscape phone in the Monochrome theme" width="100%">
+<img src="assets/shot-settings-phone.png" alt="Settings as a landscape phone in the Monochrome theme" width="100%">
 <br><b>Settings: flip the phone sideways</b><br>
 Settings opens by rotating the Quick Panel phone into landscape. Six pages: Quick, General, Bar, Desktop, Hyprland and About / Update. Shown here in the Monochrome theme.
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<img src="docs/shot-sekai-pad-eq.png" alt="Sekai Pad: a ten-band equalizer drawn as a handheld game console" width="100%">
+<img src="assets/shot-sekai-pad-eq.png" alt="Sekai Pad: a ten-band equalizer drawn as a handheld game console" width="100%">
 <br><b>Sekai Pad: the equalizer is a handheld console</b><br>
 A 10-band EQ (EasyEffects) with a D-pad for picking a band, face buttons for save, undo and auto, and preset cartridges you slot in at the top.
 </td>
 <td width="50%" valign="top">
-<img src="docs/shot-edit-desktop.png" alt="Edit Desktop mode with a shelf of widgets, bar, dock, views, theme and presets" width="100%">
+<img src="assets/shot-edit-desktop.png" alt="Edit Desktop mode with a shelf of widgets, bar, dock, views, theme and presets" width="100%">
 <br><b>Edit Desktop: rearrange it like a scrapbook</b><br>
 Press <kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>. Left click adds or edits, right click removes, drag moves. Widgets, bar, dock, views, themes and presets all live here.
 </td>
 </tr>
 </table>
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="different"><img src="docs/tag-different.svg" alt="What makes it different" height="80"></h2>
+<h2 id="different"><img src="assets/tag-different.svg" alt="What makes it different" height="80"></h2>
 
 Most shells pick one look and theme it. SekaiPop starts from a single design language, applies it to everything, and adds a few ideas of its own.
 
@@ -94,9 +94,9 @@ Most shells pick one look and theme it. SekaiPop starts from a single design lan
 </tr>
 </table>
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="requirements"><img src="docs/tag-requirements.svg" alt="Requirements" height="80"></h2>
+<h2 id="requirements"><img src="assets/tag-requirements.svg" alt="Requirements" height="80"></h2>
 
 | Need | Notes |
 |---|---|
@@ -164,9 +164,9 @@ The portals are what make screen sharing work in Discord, browsers and OBS.
 
 </details>
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="installation"><img src="docs/tag-installation.svg" alt="Installation" height="80"></h2>
+<h2 id="installation"><img src="assets/tag-installation.svg" alt="Installation" height="80"></h2>
 
 ### 1. Install
 
@@ -260,15 +260,15 @@ Edit the files in `~/.config/hypr/custom/` (`keybinds.lua`, `rules.lua`, `variab
 
 ### Plugins
 
-Desktop widgets can come from their own folder, usually their own repo: put one in `~/.config/sekaipop/plugins/`, run `qs -c sekaipop ipc call plugins reload`, and add it from Edit Desktop like any other widget. A plugin runs with the shell's full rights, so install only what you would run as your own script. Writing one, and the interface it gets: [docs/PLUGINS.md](docs/PLUGINS.md); the smallest example is [examples/plugins/hello-clock](examples/plugins/hello-clock/).
+Desktop widgets can come from their own folder, usually their own repo: put one in `~/.config/sekaipop/plugins/`, run `qs -c sekaipop ipc call plugins reload`, and add it from Edit Desktop like any other widget. A plugin runs with the shell's full rights, so install only what you would run as your own script. Writing one, and the interface it gets: [Plugins](docs/PLUGINS.md); the smallest example is [hello clock](examples/plugins/hello-clock/).
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="keybinds"><img src="docs/tag-keybinds.svg" alt="Keybinds" height="80"></h2>
+<h2 id="keybinds"><img src="assets/tag-keybinds.svg" alt="Keybinds" height="80"></h2>
 
 Press <kbd>Super</kbd> + <kbd>/</kbd> any time for the full list, grouped.
 
-To change one, open **Settings > Keys**, click the action and press the new keys. It works straight away, and **Reset** puts it back.
+To change one, open **Settings > Hyprland > Keybinds** (or `qs -c sekaipop ipc call keybinds toggle`): a keyboard slab shows what is on every key. Pick an action, press **Press keys**, then press the new keys (or switch the modifiers on and click a key on the board). It works straight away, and **Reset** puts it back.
 
 | Keys | Action |
 |---|---|
@@ -296,9 +296,9 @@ To change one, open **Settings > Keys**, click the action and press the new keys
 
 Volume and brightness keys go through the shell's on-screen display.
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="troubleshooting"><img src="docs/tag-troubleshooting.svg" alt="Troubleshooting" height="80"></h2>
+<h2 id="troubleshooting"><img src="assets/tag-troubleshooting.svg" alt="Troubleshooting" height="80"></h2>
 
 | Problem | Try |
 |---|---|
@@ -309,9 +309,9 @@ Volume and brightness keys go through the shell's on-screen display.
 | Hyprland rejected part of the config | `hyprctl configerrors` shows what it refused to load |
 | Something is missing | Run `./check-deps.sh`; it lists every missing package and QML module |
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
 
-<h2 id="credits"><img src="docs/tag-credits.svg" alt="Credits and license" height="80"></h2>
+<h2 id="credits"><img src="assets/tag-credits.svg" alt="Credits and license" height="80"></h2>
 
 > [!CAUTION]
 > The region selector's **search** action uploads the cropped screenshot to `uguu.se` before opening Google Lens. Don't use it on anything private.
@@ -339,4 +339,4 @@ Because it includes GPL-3.0 code, **this repository is distributed under GPL-3.0
 
 Character themes and names are fan references to *Project SEKAI COLORFUL STAGE! feat. Hatsune Miku*. This is an unofficial fan project, not affiliated with SEGA, Colorful Palette or Crypton Future Media. Wallpapers shown in the screenshots belong to their original artists.
 
-<img src="docs/divider.svg" alt="" width="100%">
+<img src="assets/divider.svg" alt="" width="100%">
