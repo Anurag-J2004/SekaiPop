@@ -22,6 +22,13 @@ and what was only read through, and how to check it. The short release notes are
 - Changed: `desktopWidgets/KeysOnPoint.qml` (new), a passive HoverHandler over the window: `wanted` is true while the pointer is on the widget or its window has the keyboard (`Window.active`). The four windows are OnDemand only while it is; otherwise None. A window now maps as None, so it never takes the keyboard uninvited; the pointer arriving makes it OnDemand before the click that starts typing, and typing goes on after the pointer leaves.
 - Files: `TodoWidget.qml`, `CalendarCardWidget.qml`, `PaletteWidget.qml`, `StickyNotesWidget.qml`, `KeysOnPoint.qml` (new), `tests/focus-test/keys_on_point_test.js` (new).
 - **To check:** with Focus Mode on, switch to an empty workspace and open Rofi at once: typing works straight away. Then the widgets still take typing: add a task in the To-Do, an event in the Calendar, type in a sticky note, and keep typing after moving the pointer off them; clicking a window afterwards takes the keyboard back.
+## Unreleased — The banner and avatar remove badges ask first
+
+**Run on a live Quickshell:** only that the panel loads clean before this entry. Checked: `qmllint`; the JS tests give the same results as `main`.
+
+- Why: the small clear badge on the Quick Panel's banner and avatar removed the picture on one click, and the stored copy is deleted (`PanelImages.clear`), so a misclick lost it for good.
+- Changed (`quickPanel/QuickPanelFace.qml`, both badges): `armed`. The first click arms the badge: it widens leftwards into a pill in the theme's accent (`accentCyan`, `colBorder` ink) with a bin icon and "Remove?"; the second click removes. It disarms when it hides (the pointer left the picture) or after 3 s.
+- **To check:** hover the banner, click the badge once: "Remove?", nothing removed; move away: back to the x, picture kept; click twice: removed. Same on the avatar.
 
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
