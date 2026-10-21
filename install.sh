@@ -27,7 +27,7 @@
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
 
-DRY=0; YES=0; RICE=""; HYPR=auto; NODEPS=0; WITH_TESTS=0; RESTORE=0; DEPS_ARGS=()
+REPLACED=0; DRY=0; YES=0; RICE=""; HYPR=auto; NODEPS=0; WITH_TESTS=0; RESTORE=0; DEPS_ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --dry-run) DRY=1 ;;
@@ -208,7 +208,7 @@ else
         run mv "$QS_DEST" "$QS_DEST.bak-$TS" || fail "could not back up the old rice"
     fi
     run mkdir -p "$(dirname "$QS_DEST")"
-    run cp -a "$RICE" "$QS_DEST" || fail "could not copy the rice"
+    run cp -a "$RICE" "$QS_DEST" && REPLACED=1 || fail "could not copy the rice"
     run rm -rf "$QS_DEST/.git"
     [ "$WITH_TESTS" = 1 ] || run rm -rf "$QS_DEST/tests"
     [ "$DRY" = 1 ] || ok "copied (tests folder $([ "$WITH_TESTS" = 1 ] && echo kept || echo left out))"
@@ -356,16 +356,26 @@ if [ "$DRY" = 0 ] && [ -f "$HERE/check-deps.sh" ]; then
     printf '\n'; SEKAIPOP_DIR="$QS_DEST" bash "$HERE/check-deps.sh" --core
 fi
 
+# A shell that is already running keeps the old files: the folder it watches was moved
+# aside, and a reload inside the same process can fail on Qt state left from them
+# ("FaceKey is not a type", issue #79). So it is restarted, as a new process.
+shell_running() { have qs && ! qs list -p "$QS_DEST" 2>/dev/null | grep -q "No running instances"; }
+restart_shell() {
+    setsid -f sh "$QS_DEST/scripts/system/restart-shell.sh" "$QS_DEST" >/dev/null 2>&1 && ok "shell restarted on the new files"
+}
 if [ "$DRY" = 0 ] && [ "$HYPR" = full ] && hypr_running; then
     printf '\n'
     if ask "You are inside Hyprland now. Reload it and start the shell right away?"; then
         hyprctl reload >/dev/null 2>&1
-        if ! pgrep -x qs >/dev/null && ! pgrep -x quickshell >/dev/null; then
+        if [ "$REPLACED" = 1 ] && shell_running; then
+            restart_shell
+        elif ! pgrep -x qs >/dev/null && ! pgrep -x quickshell >/dev/null; then
             setsid -f qs -c sekaipop >/dev/null 2>&1 && ok "shell started"
-        else
-            info "the shell is already running; it reloads its files by itself"
         fi
     fi
+elif [ "$DRY" = 0 ] && [ "$REPLACED" = 1 ] && shell_running; then
+    printf '\n'
+    ask "The shell is running on the old files. Restart it now?" && restart_shell
 fi
 if [ "${#FAILED[@]}" -eq 0 ]; then
     [ "$DRY" = 1 ] && result ok "Dry run finished, nothing was changed" || result ok "SekaiPop is installed"
