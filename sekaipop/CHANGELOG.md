@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Updates restart the shell instead of reloading it. Update now, and install.sh when the shell is already running, start a new process on the new files; a reload inside the old one could keep failing with "Failed to load configuration ... FaceKey is not a type" until the shell was killed by hand (issue #79). install.sh used to say a running shell reloads its files by itself, which it doesn't once the old folder is moved aside. The reload error card has a **Restart shell** button for the same case (`scripts/system/restart-shell.sh`).
 - About / Update: Update now works when the shell folder, or a folder above it (a `~/.config` kept in a dotfiles repo), is a symlink. It updates the real folder, so the links keep pointing at the new files; it used to refuse with a message the button cut off. When an update doesn't apply, the reason is shown in full under the status (issue #21).
 - Plugins: the theme names a plugin may rely on now include what drawing a key like the shell's own takes: `pSurfaceDivider`, `pRingWhite`, `pSurfaceRing`, `pLineShadow` and `shadowOffset` (docs/PLUGINS.md).
 - Plugins: `host.reloadSecrets()` reads a plugin's secret files again, so a widget's own "check again" finds a token put in place while the shell runs; `ipc call plugins reload` reads them again too (docs/PLUGINS.md).
