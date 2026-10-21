@@ -774,14 +774,24 @@ Singleton {
     }
 
     function open(screen, tab) {
-        if (root.active || LockState.locked || GameModeService.enabled)
+        if (LockState.locked || GameModeService.enabled)
             return
         const name = (typeof screen === "string" && screen !== "") ? screen : root.focusedScreenName()
         if (name === "")
             return
+        // Already open there: nothing to do. Open on another monitor (one you may not even be
+        // looking at): it moves here, so asking for Edit Desktop always brings it to you.
+        if (root.active && root.screenName === name)
+            return
         if (root.appsOn(name)) {
             root.refuse()
             return
+        }
+        if (root.active) {
+            root.active = false
+            root.editTarget = ""
+            root.endDrag(false)
+            root.unpark()
         }
         root.requestedTab = (typeof tab === "string" && tab !== "") ? tab : "widgets"
         root.menuOpen = false
@@ -805,8 +815,9 @@ Singleton {
         exitAnim.restart()
     }
 
+    // Open or close on the monitor you are using: open on another one, it moves here.
     function toggle() {
-        if (root.active)
+        if (root.active && root.screenName === root.focusedScreenName())
             root.close()
         else
             root.open("")
