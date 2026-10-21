@@ -75,7 +75,15 @@ PhoneCard {
         if (currentItem)
             picked(currentItem[0], typeIt === true)
     }
-
+    // Ctrl+Left / Ctrl+Right: step through the category keys, wrapping round
+    function cycleTab(dir) {
+        if (searching)
+            return
+            const first = recent.length > 0 ? -1 : 0
+            const span = Emoji.groups.length - first
+            tab = first + ((tab - first + dir) % span + span) % span
+            current = 0
+    }
     // ===== head: what this is, and how many =====
     Item {
         id: head
@@ -211,7 +219,7 @@ PhoneCard {
             height: tray.faceH - 28
             clip: true
 
-            WheelScroll { scroller: grid }
+            WheelScroll { scroller: grid ; step: 60; pixelFactor: 6.5 ; smooth: true }
             GridView {
                 id: grid
 
