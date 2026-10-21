@@ -13,7 +13,7 @@ and what was only read through, and how to check it. The short release notes are
 - `BarPositionService.reserved` (0 while the bar auto-hides); the pinned dock's Edit Desktop origin uses it.
 - `shell.qml`: `ipc call bar toggle | show | hide | peek | hidemode off|auto`. `KeyBinds.js`: the "Toggle bar" action (`bar toggle`, ships without a key); `hypr/hyprland/keybinds.lua` lists it with the other keyless ones (SUPER + B in the example).
 - Not done: a smart mode, Game Mode (the bar takes no input, so an auto-hiding one stays away), and the popups that keep clear of the bar (they still do). docs/BAR-AUTOHIDE.md.
-- **To check:** Auto-hide on with the bar on each edge and in each style: it slides away, the windows grow into its space, touching the edge brings it out, it stays out with a popup open (the tray menu too) and goes 0.45 s after the pointer leaves; a bottom bar leaves the Quick Panel's hot edge working; Edit Desktop shows it; a shell restart with it on starts it away without a flash; `ipc call bar peek`; Settings > Keys > Toggle bar given SUPER + B shows and hides it.
+- **To check:** Auto-hide on with the bar on each edge and in each style: it slides away, the windows grow into its space, touching the edge brings it out, it stays out with a popup open (the tray menu too) and goes 0.45 s after the pointer leaves; a bottom bar leaves the Quick Panel's hot edge working; Edit Desktop shows it; a shell restart with it on starts it away without a flash; `ipc call bar peek`; Settings > Hyprland > Keybinds > Toggle bar given SUPER + B shows and hides it.
 
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 

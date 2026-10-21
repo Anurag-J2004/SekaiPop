@@ -8,7 +8,7 @@ can be shown or hidden with a key. Issue [#61](https://github.com/Blapples/Sekai
 - **Settings > Bar > Auto-hide.** On: the bar is away until the pointer touches the edge
   it sits on, and windows use the whole screen (the bar reserves no space and slides in
   over them). Off: always shown, as before. The setting is `bar.hideMode` (`off` | `auto`).
-- **A key to show / hide the bar:** Settings > Keys > Shell > *Toggle bar*. It ships
+- **A key to show / hide the bar:** Settings > Hyprland > Keybinds > Shell > *Toggle bar*. It ships
   without a key, so it can't take one you already use; pick one there (SUPER + B is free
   in the shipped config). It is the same switch as Settings > Bar > Show bar.
 - From a script or your own bind:
