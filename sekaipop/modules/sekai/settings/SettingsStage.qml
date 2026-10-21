@@ -209,6 +209,7 @@ Item {
     signal wallpapersRequested()
     signal lockWallpapersRequested()
     signal desktopEditRequested()
+    signal keybindsRequested()
     // The Settings' search field is done with the keyboard.
     signal searchLeft()
     // The Wallpapers' X, or Escape on their gallery.
@@ -372,6 +373,7 @@ Item {
                 onWallpapersRequested: root.wallpapersRequested()
                 onLockWallpapersRequested: root.lockWallpapersRequested()
                 onDesktopEditRequested: root.desktopEditRequested()
+                onKeybindsRequested: root.keybindsRequested()
                 onSearchLeft: root.searchLeft()
             }
 

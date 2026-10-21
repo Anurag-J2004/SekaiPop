@@ -268,7 +268,7 @@ Desktop widgets can come from their own folder, usually their own repo: put one 
 
 Press <kbd>Super</kbd> + <kbd>/</kbd> any time for the full list, grouped.
 
-To change one, open **Settings > Keys**, click the action and press the new keys. It works straight away, and **Reset** puts it back.
+To change one, open **Settings > Hyprland > Keybinds** (or `qs -c sekaipop ipc call keybinds toggle`): a keyboard slab shows what is on every key. Pick an action, press **Press keys**, then press the new keys (or switch the modifiers on and click a key on the board). It works straight away, and **Reset** puts it back.
 
 | Keys | Action |
 |---|---|

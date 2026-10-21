@@ -8,7 +8,7 @@
 -- Binds with the same group, modifiers and sentence fold into one row (the four arrows, 1..0).
 -- Hardware keys (XF86...) need no description: the cheat sheet names them by the key.
 -- Add or change binds in custom/keybinds.lua, not here. SekaiPop's own binds can also be
--- changed in Settings > Keys, which writes its changes to sekaipop_overrides.lua; it finds
+-- changed in the keybinds panel (Settings > Hyprland > Keybinds), which writes its changes to sekaipop_overrides.lua; it finds
 -- them by these descriptions, so keep the sentences as they are.
 
 local ipcCall = QS_IPC

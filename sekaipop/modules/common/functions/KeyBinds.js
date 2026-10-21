@@ -1,6 +1,6 @@
 .pragma library
 
-// Pure logic for Settings > Keys (no Quickshell imports; tests/keys-test runs it in node).
+// Pure logic for the keybinds panel (no Quickshell imports; tests/keys-test runs it in node).
 // Top-level values use `var` on purpose: QML JS libraries don't reliably export
 // top-level const/let.
 //
@@ -77,6 +77,11 @@ function showKey(key) {
 
 // Keycaps for a combination: [{ k: "SUPER", mod: true }, { k: "E", mod: false }]
 function caps(combo) {
+    var tap = /^(super|alt|control|ctrl|shift)_[lr]$/i.exec(String(combo.key))
+    if (tap) {
+        var n = tap[1].toUpperCase()
+        return [{ k: (n === "CONTROL" ? "CTRL" : n) + " tap", mod: true }]
+    }
     var out = []
     var m = modNames(combo.mods)
     for (var i = 0; i < m.length; i++) out.push({ k: m[i], mod: true })
@@ -118,6 +123,10 @@ function isHardware(combo) {
 var QS = "qs -c sekaipop ipc call "
 var ACTIONS = [
     { id: "launcherphone", group: "Shell", name: "Toggle apps", call: "launcherphone toggle" },
+    // The bare modifier tap that opens Apps. Hyprland's global-shortcut protocol, not an
+    // `ipc call`, so `global` stands where `call` does; `tap` = its keys are a modifier
+    // tapped on its own (Super by default). The shipped description says "Apps".
+    { id: "appstap", group: "Shell", name: "Open apps", alias: "Apps", global: "quickshell:searchToggleRelease", tap: true },
     { id: "quickpanel", group: "Shell", name: "Toggle quick panel", call: "quickpanel toggle" },
     { id: "overview", group: "Shell", name: "Toggle overview", call: "overview toggle" },
     { id: "settings", group: "Shell", name: "Toggle settings", call: "settings toggle" },
@@ -184,9 +193,10 @@ function sentence(desc) {
 function runs(bind, a) {
     if (bind.submap) return false
     var arg = String(bind.arg || "")
+    if (a.global !== undefined && bind.dispatcher === "global") return arg === a.global
     if (bind.dispatcher === "exec") {
         if (a.match) return a.match.test(arg)
-        if (a.call === "") return false
+        if (a.call === undefined || a.call === "") return false
         var at = arg.indexOf("ipc call ")
         while (at >= 0) {
             var rest = arg.slice(at + 9).replace(/^\s+/, "")
@@ -197,7 +207,9 @@ function runs(bind, a) {
         }
         return false
     }
-    return bind.has_description === true && sentence(bind.description) === a.name
+    if (bind.has_description !== true) return false
+    var said = sentence(bind.description)
+    return said === a.name || (a.alias !== undefined && said === a.alias)
 }
 
 // ===== reading =====
@@ -222,7 +234,7 @@ function rows(binds, state) {
         }
         var saved = st[a.id]
         out.push({
-            id: a.id, group: a.group, name: a.name, more: a.more === true, bare: a.bare === true,
+            id: a.id, group: a.group, name: a.name, more: a.more === true, bare: a.bare === true, tap: a.tap === true,
             combos: combos, cmd: cmd, locked: a.locked === true,
             changed: saved !== undefined,
             before: saved !== undefined ? saved.unbind.filter(function (u) { return !u.took }) : combos,
@@ -285,7 +297,8 @@ function edit(state, rowList, id, combo, taken) {
     var entry = st[id] || { unbind: [], bind: [], cmd: "", locked: a.locked === true }
     if (st[id] === undefined)
         for (var j = 0; j < row.combos.length; j++) addUnbind(entry.unbind, row.combos[j], false)
-    if (entry.cmd === "") entry.cmd = row.cmd !== "" ? row.cmd : defaultCmd(a)
+    if (a.global !== undefined) entry.global = a.global
+    else if (entry.cmd === "") entry.cmd = row.cmd !== "" ? row.cmd : defaultCmd(a)
     // A Hyprland bind taken over for the previous keys gets them back once the
     // action moves on to other keys.
     entry.unbind = entry.unbind.filter(function (u) { return !u.took || (combo && sameKeys(u, combo)) })
@@ -343,7 +356,8 @@ function luaLine(op) {
     if (op.op === "unbind")
         return "pcall(hl.unbind, " + luaStr(luaCombo(op.combo)) + ")"
     var opts = "{ description = " + luaStr(op.desc) + (op.locked ? ", locked = true" : "") + " }"
-    return "pcall(hl.bind, " + luaStr(luaCombo(op.combo)) + ", hl.dsp.exec_cmd(" + luaStr(op.cmd) + "), " + opts + ")"
+    var act = op.global ? "hl.dsp.global(" + luaStr(op.global) + ")" : "hl.dsp.exec_cmd(" + luaStr(op.cmd) + ")"
+    return "pcall(hl.bind, " + luaStr(luaCombo(op.combo)) + ", " + act + ", " + opts + ")"
 }
 
 // hyprland.conf: a comma ends a field and `#` starts a comment, so neither may
@@ -355,8 +369,9 @@ function confValue(s) {
 function confLine(op) {
     if (op.op === "unbind")
         return "unbind = " + confMods(op.combo) + ", " + op.combo.key
+    var tail = op.global ? ", global, " + confValue(op.global) : ", exec, " + confValue(op.cmd)
     return "bind" + (op.locked ? "l" : "") + "d = " + confMods(op.combo) + ", " + op.combo.key + ", "
-        + String(op.desc).replace(/,/g, " ") + ", exec, " + confValue(op.cmd)
+        + String(op.desc).replace(/,/g, " ") + tail
 }
 
 // The operations the saved state stands for: every unbind first, then the binds.
@@ -371,7 +386,7 @@ function savedOps(state) {
         var a = action(ids[k])
         if (!a) continue
         for (var m = 0; m < e.bind.length; m++)
-            ops.push({ op: "bind", combo: e.bind[m], desc: description(a), cmd: e.cmd, locked: e.locked })
+            ops.push({ op: "bind", combo: e.bind[m], desc: description(a), cmd: e.cmd, locked: e.locked, global: e.global })
     }
     return ops
 }
@@ -381,7 +396,7 @@ function block(state, mode) {
     if (changedCount(state) === 0) return ""
     var c = mode === "lua" ? "-- " : "# "
     var line = mode === "lua" ? luaLine : confLine
-    var out = [c + BEGIN + "  (Settings > Keys writes this part; change keys there)",
+    var out = [c + BEGIN + "  (the keybinds panel writes this part; change keys there)",
                c + STATE + JSON.stringify(state)]
     var ops = savedOps(state)
     for (var i = 0; i < ops.length; i++) out.push(line(ops[i]))
@@ -461,6 +476,25 @@ function qtMods(modifiers) {
 // The modifier a modifier key stands for, or 0.
 function modOfKey(key) {
     return MODKEYS[key] || 0
+}
+
+// A modifier tapped on its own -> the combination Hyprland binds for it (the shipped Super
+// tap is "SUPER + SUPER_L"), or null for Shift and anything that is not a modifier. Qt
+// reports a Super key as Meta, left or right unknown: it is taken as the left one.
+var TAPS = {
+    0x01000022: [SUPER, "SUPER_L"], 0x01000053: [SUPER, "SUPER_L"], 0x01000054: [SUPER, "SUPER_R"],
+    0x01000023: [ALT, "ALT_L"], 0x01000021: [CTRL, "CONTROL_L"]
+}
+
+function tapCombo(qtKey) {
+    var t = TAPS[qtKey]
+    return t ? { mods: t[0], key: t[1] } : null
+}
+
+// The same for a modifier's bit (a click on the board's Super / Alt / Ctrl key).
+function tapForMod(mod) {
+    return mod === SUPER ? tapCombo(0x01000053) : mod === ALT ? tapCombo(0x01000023)
+         : mod === CTRL ? tapCombo(0x01000021) : null
 }
 
 // A pressed key -> { mods, key } (key "" for a modifier on its own).

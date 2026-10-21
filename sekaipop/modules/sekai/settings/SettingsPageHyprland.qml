@@ -941,6 +941,17 @@ SettingsPage {
     }
 
     SectionCard {
+        title: "Keybinds"
+
+        SettingAction {
+            icon: "keyboard"
+            label: "Keybinds"
+            detail: "See and change every shortcut"
+            onActivated: if (page.host) page.host.keybindsRequested()
+        }
+    }
+
+    SectionCard {
         title: "Hyprland"
 
         SettingAction {

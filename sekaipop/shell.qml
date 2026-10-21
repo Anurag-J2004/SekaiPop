@@ -7,6 +7,7 @@ import qs.modules.common
 import qs.modules.sekai.background
 import qs.modules.sekai.bar
 import qs.modules.sekai.cheatSheet
+import qs.modules.sekai.keybinds
 import qs.modules.sekai.desktopMenu
 import qs.modules.sekai.desktopWidgets
 import qs.modules.sekai.dock
@@ -403,6 +404,55 @@ ShellRoot {
 
         function hide(): void {
             cheatSheetEntry.close()
+        }
+    }
+
+    // The keybinds panel (modules/sekai/keybinds/KeybindsPanel.qml): a keyboard slab that
+    // shows what every shortcut is on and changes SekaiPop's own. Settings > Hyprland has a
+    // button for it, or bind a key:
+    //   bind = SUPER, F2, exec, qs -c sekaipop ipc call keybinds toggle
+    // (also `show` / `hide`). Built only while it is open, like the cheatsheet.
+    ActivationEntry {
+        id: keybindsEntry
+        name: "keybinds"
+    }
+
+    LazyLoader {
+        active: ComponentActivation.keybindsActive
+
+        KeybindsPanel {
+            id: keybindsSlab
+            quickPanel: panel
+            Component.onCompleted: keybindsEntry.attach(keybindsSlab)
+            Component.onDestruction: keybindsEntry.detach(keybindsSlab)
+        }
+    }
+
+    // Settings > Hyprland > Keybinds asks through the phone, not through `ipc call`.
+    Connections {
+        target: panel
+
+        function onKeybindsOpenRequested(screen) {
+            keybindsEntry.open(screen ? screen : keybindsEntry.focusedScreen())
+        }
+    }
+
+    IpcHandler {
+        target: "keybinds"
+
+        function toggle(): void {
+            console.log("[keybinds] ipc toggle")
+            keybindsEntry.toggle(keybindsEntry.focusedScreen())
+        }
+
+        function show(): void {
+            console.log("[keybinds] ipc show")
+            keybindsEntry.open(keybindsEntry.focusedScreen())
+        }
+
+        function hide(): void {
+            console.log("[keybinds] ipc hide")
+            keybindsEntry.close()
         }
     }
 

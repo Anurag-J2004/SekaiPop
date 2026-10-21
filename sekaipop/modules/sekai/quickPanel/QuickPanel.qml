@@ -943,7 +943,7 @@ Scope {
 
     // Once you've taken hold of it, it's a normal open panel.
     onOpenChanged: {
-        // Settings > Keys may have paused every shortcut to record one: a panel
+        // The keybinds panel may have paused every shortcut to record one: a panel
         // that goes away must never leave them paused.
         if (!open)
             KeybindService.resume()
@@ -1244,6 +1244,19 @@ Scope {
         id: editDelay
         interval: 300
         onTriggered: EditMode.open(root.targetScreen ? root.targetScreen.name : "")
+    }
+
+    // Settings > Hyprland > Keybinds: the phone goes away first, then shell.qml opens the
+    // keybinds panel on the same monitor (no `ipc call` in between: it is asked directly).
+    signal keybindsOpenRequested(var screen)
+
+    Timer {
+        id: keybindsDelay
+        interval: 300
+        onTriggered: {
+            console.log("[keybinds] the phone asks for the panel")
+            root.keybindsOpenRequested(root.targetScreen)
+        }
     }
 
     SystemClock {
@@ -1817,7 +1830,7 @@ Scope {
         // hands the keyboard over once the compositor focuses the window (pointer
         // over it / a click), so with the mouse elsewhere nothing could be typed.
         // While Apps is up it takes the keyboard Exclusive, like the Overview.
-        // (Settings > Keys records combinations without it: the focus grab already
+        // (The keybinds panel records combinations without it: the focus grab already
         // keeps the keyboard on the phone, and Exclusive would clear the grab,
         // which closes the phone.)
         WlrLayershell.keyboardFocus: (root.open && root.launching) ? WlrKeyboardFocus.Exclusive
@@ -2984,6 +2997,11 @@ Scope {
                 onDesktopEditRequested: {
                     root.close()
                     editDelay.restart()
+                }
+
+                onKeybindsRequested: {
+                    root.close()
+                    keybindsDelay.restart()
                 }
             }
         }

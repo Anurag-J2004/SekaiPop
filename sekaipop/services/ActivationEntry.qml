@@ -58,6 +58,7 @@ Scope {
     // built: the request is handed over one event-loop turn later, when every id and
     // binding of its tree is in place.
     function attach(it) {
+        console.log("[activation]", root.name, "attach", it)
         root.item = it
         Qt.callLater(root.deliver)
     }
@@ -69,6 +70,7 @@ Scope {
 
     // Open on `screen` (null = the screen it was last on / the first one).
     function open(screen) {
+        console.log("[activation]", root.name, "open on", screen ? screen.name : "(none)", "item:", root.item)
         root.wanted = { screen: screen }
         ComponentActivation.setActive(root.name, true)
         // Built already (or built by the line above): hand it over now.
@@ -95,6 +97,7 @@ Scope {
     function deliver() {
         const it = root.item
         const w = root.wanted
+        console.log("[activation]", root.name, "deliver; item:", it, "wanted:", w)
         if (!it || !w)
             return
         root.wanted = null
