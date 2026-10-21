@@ -229,6 +229,14 @@ PanelWindow {
             return hostApi.dir + "/" + rel
         }
 
+        // Read the secret files again (what Settings' Reload does), for a widget's own
+        // "check again" after the user put a token in place. `secrets` changes when they
+        // arrive. An environment variable is still the one the shell started with.
+        function reloadSecrets() {
+            if (win.st)
+                win.st.reloadSecrets()
+        }
+
         function setSetting(key, value) {
             return win.st ? win.st.setSetting(key, value) : false
         }
