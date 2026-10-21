@@ -29,6 +29,12 @@ and what was only read through, and how to check it. The short release notes are
 - Why: the small clear badge on the Quick Panel's banner and avatar removed the picture on one click, and the stored copy is deleted (`PanelImages.clear`), so a misclick lost it for good.
 - Changed (`quickPanel/QuickPanelFace.qml`, both badges): `armed`. The first click arms the badge: it widens leftwards into a pill in the theme's accent (`accentCyan`, `colBorder` ink) with a bin icon and "Remove?"; the second click removes. It disarms when it hides (the pointer left the picture) or after 3 s.
 - **To check:** hover the banner, click the badge once: "Remove?", nothing removed; move away: back to the x, picture kept; click twice: removed. Same on the avatar.
+## Unreleased — Wallhaven's sort and filters are kept again
+
+**Run on a live Quickshell:** `ipc call options set wallhaven.sort toplist` / `topRange 1y` now read back as set (before: `undefined`). Checked: `tests/settings-test/keys_have_defaults_test.js` (new); the other JS tests give the same results as `main`.
+
+- Why: the six `wallhaven.*` defaults were dropped from `SettingsService.qml` when main was merged into the per-monitor-theme branch (31316ef, in #39). `SettingsService.set()` ignores a key it has no default for, so every choice in the sort card and the Filters card was thrown away and the getters fell back to their own defaults: Top / Latest / the period "always went back".
+- Changed: the defaults are back, as #35 had them. The new test reads every literal key the code passes to `SettingsService.get / flag / set / toggle` and fails on one without a default, so a merge cannot silently drop one again. (It found no others.)
 
 ## Unreleased — Phone wallpaper on the home screen, and an empty notifications card that says so (issue #41)
 
