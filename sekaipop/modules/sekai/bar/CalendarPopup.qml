@@ -512,7 +512,17 @@ SekaiPopup {
 
             // The ribbon under the row you point at.
             Rectangle {
-                readonly property int row: root.hoverIndex >= 0 ? Math.floor(root.hoverIndex / 7) : 0
+                id: hoverRibbon
+                // The last row you pointed at. It stays put when the mouse is in
+                // a gap, so the ribbon fades out where it is, instead of
+                // sliding to the top row.
+                property int row: 0
+                Binding {
+                    target: hoverRibbon
+                    property: "row"
+                    value: Math.floor(root.hoverIndex / 7)
+                    when: root.hoverIndex >= 0
+                }
                 x: -4
                 width: parent.width + 8
                 height: root.cell + 4
@@ -520,11 +530,19 @@ SekaiPopup {
                 radius: 18
                 color: mt.surfaceHover
                 opacity: root.hoverIndex >= 0 ? 1 : 0
+                // Slide only while the ribbon is showing. If it is faded out,
+                // it jumps to the new row and fades in there.
                 Behavior on y {
+                    enabled: hoverRibbon.opacity > 0.9
                     NumberAnimation { duration: 130; easing.type: Easing.OutQuad }
                 }
+                // A short wait before fading out, so crossing the gap between
+                // two days in the same row does not flicker.
                 Behavior on opacity {
-                    NumberAnimation { duration: 120 }
+                    SequentialAnimation {
+                        PauseAnimation { duration: root.hoverIndex >= 0 ? 0 : 90 }
+                        NumberAnimation { duration: 120 }
+                    }
                 }
             }
 
