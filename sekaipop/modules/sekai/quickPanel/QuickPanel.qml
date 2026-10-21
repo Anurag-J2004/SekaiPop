@@ -2526,8 +2526,13 @@ Scope {
                         wallpaperPath: PanelImages.phoneWallpaperFor(root.targetScreen ? root.targetScreen.name : "")
                         bannerSource: PanelImages.banner !== "" ? PanelImages.banner : root.bannerSource
                         avatarSource: PanelImages.avatar !== "" ? PanelImages.avatar : root.avatarSource
-                        onBannerPickRequested: PanelImages.pick("banner")
-                        onAvatarPickRequested: PanelImages.pick("avatar")
+                        bannerFraming: PanelImages.banner !== "" ? PanelImages.framingFor("banner") : null
+                        avatarFraming: PanelImages.avatar !== "" ? PanelImages.framingFor("avatar") : null
+                        wallpaperFraming: PanelImages.phoneMode === "picture" ? PanelImages.framingFor("phone") : null
+                        onBannerPickRequested: PanelImages.pick("banner", root.targetScreen ? root.targetScreen.name : "")
+                        onAvatarPickRequested: PanelImages.pick("avatar", root.targetScreen ? root.targetScreen.name : "")
+                        onBannerFrameRequested: PanelImages.frame("banner", false, root.targetScreen ? root.targetScreen.name : "")
+                        onAvatarFrameRequested: PanelImages.frame("avatar", false, root.targetScreen ? root.targetScreen.name : "")
                         onBannerResetRequested: PanelImages.clear("banner")
                         onAvatarResetRequested: PanelImages.clear("avatar")
 

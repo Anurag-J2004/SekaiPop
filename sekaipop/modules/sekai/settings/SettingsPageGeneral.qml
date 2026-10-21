@@ -216,6 +216,19 @@ SettingsPage {
             onActivated: PanelImages.pick("phone")
         }
 
+        SettingAction {
+            visible: PanelImages.phoneMode === "picture" && PanelImages.phone !== ""
+            icon: "crop"
+            label: "Frame the phone's picture"
+            detail: "Choose which part of it shows"
+            onActivated: {
+                // The framer opens over the desktop; Settings (the phone) steps aside.
+                if (page.host)
+                    page.host.closeRequested()
+                PanelImages.frame("phone", false, "")
+            }
+        }
+
         SettingChoice {
             label: "Picture picker"
             sublabel: "The window that opens when you pick a picture (avatar, banner, phone wallpaper). Auto: KDE's if installed. GTK / system goes through the desktop portal and can be slow"
