@@ -32,9 +32,9 @@ Scope {
     // two failures in a row leave failureText unchanged.
     property int failureCount: 0
 
-    // True while fprintd-verify has claimed the sensor and is waiting for a finger.
-    // Only turns true after fprintd confirms a device and enrolled fingers exist
-    // ("Verify started!"), so machines without a reader show no fingerprint UI.
+    // True while the fingerprint PAM context is active and waiting for a scan.
+    // Only becomes true after pamFp is started (and the setting is on), so
+    // machines without fprintd or without the setting enabled show no fingerprint UI.
     property bool fprintListening: false
     property int fprintTries: 0
     readonly property int maxFprintTries: 3
@@ -90,8 +90,11 @@ Scope {
         if (LockState.phase !== "locked")
             return
         root.armed = ""
-        fprintRetryTimer.stop()
-        fprintProc.running = false
+        if (typeof pamFp !== "undefined")
+            pamFp.abort()
+        if (typeof fprintRetryTimer !== "undefined")
+            fprintRetryTimer.stop()
+        root.fprintListening = false
         root.clearText()
         sleepAction.running = true
     }
@@ -150,34 +153,45 @@ Scope {
     // the last session (or a failure message) is never shown.
     function reset() {
         pam.abort()
+        pamFp.abort()
         fprintRetryTimer.stop()
-        fprintProc.running = false
+        root.fprintListening = false
+        fprintTries = 0
         currentText = ""
         failureText = ""
         unlockInProgress = false
         ctrlHeld = false
         armed = ""
-        fprintTries = 0
         if (LockState.locked)
-            fprintProc.running = true
+            startFp()
     }
 
-    // Clean up or restart the fingerprint reader as the lock state changes,
-    // and re-arm the sensor after waking from suspend (when hypridle calls focus).
+    // Start fingerprint PAM if the setting is on and we are truly locked.
+    function startFp() {
+        if (!SettingsService.flag("lock.fingerprint"))
+            return
+        if (!LockState.locked || root.unlockInProgress || root.fprintListening)
+            return
+        root.fprintListening = true
+        pamFp.start()
+    }
+
+    // Clean up fingerprint PAM when the screen unlocks.
     Connections {
         target: LockState
         function onLockedChanged() {
             if (!LockState.locked) {
                 fprintRetryTimer.stop()
-                fprintProc.running = false
+                pamFp.abort()
+                root.fprintListening = false
             }
         }
     }
 
+    // Re-arm after waking from suspend (when hypridle signals focus).
     onFocusRequested: {
-        if (LockState.locked && !unlockInProgress && !fprintProc.running && fprintTries < maxFprintTries) {
-            fprintProc.running = true
-        }
+        if (LockState.locked && !unlockInProgress && !fprintListening)
+            startFp()
     }
 
     function tryUnlock() {
@@ -186,10 +200,11 @@ Scope {
         // nothing may unlock before the lock does.
         if (!LockState.locked || unlockInProgress || currentText.length === 0)
             return
-        // Release the sensor before starting PAM so pam_fprintd (if present in
-        // /etc/pam.d/login) does not collide with our standalone process.
+        // Abort fingerprint PAM before starting password PAM so they do not
+        // compete for the sensor / PAM stack simultaneously.
         fprintRetryTimer.stop()
-        fprintProc.running = false
+        pamFp.abort()
+        root.fprintListening = false
         failureText = ""
         unlockInProgress = true
         pam.start()
@@ -212,69 +227,60 @@ Scope {
         }
     }
 
-    // ===== fingerprint authentication (fprintd) =====
-    // Runs alongside password entry so the user can either type or scan a finger
-    // without PAM blocking on one before asking for the other. If fprintd is not
-    // installed or no fingers are enrolled, the process exits immediately and
-    // fprintListening stays false.
-    Process {
-        id: fprintProc
-        command: ["fprintd-verify"]
-
-        onRunningChanged: {
-            if (!fprintProc.running)
-                root.fprintListening = false
-        }
-
-        stdout: SplitParser {
-            onRead: line => {
-                if (!LockState.locked)
-                    return
-
-                // fprintd-verify only prints "Verify started!" after claiming a device
-                // and confirming enrolled prints exist.
-                if (line.includes("Verify started!")) {
-                    root.fprintListening = true
-                    return
-                }
-
-                if (line.includes("verify-match")) {
-                    root.fprintListening = false
-                    fprintRetryTimer.stop()
-                    fprintProc.running = false
-                    pam.abort()
-                    root.unlockInProgress = false
-                    root.currentText = ""
-                    root.failureText = ""
-                    root.unlocked()
-                    return
-                }
-
-                if (line.includes("verify-no-match")) {
-                    root.fprintTries++
-                    root.failureCount++
-                    root.failureText = "Fingerprint not recognized"
-                    // fprintd-verify exits after (done); restart it if under max tries.
-                    if (root.fprintTries < root.maxFprintTries)
-                        fprintRetryTimer.restart()
-                    return
-                }
-
-                if (line.includes("verify-retry-scan") || line.includes("verify-swipe-too-short")
-                    || line.includes("verify-finger-not-centered") || line.includes("verify-remove-and-retry")) {
-                    root.failureCount++
-                    root.failureText = "Scan again"
-                }
-            }
+    // ===== fingerprint authentication (PAM / pam_fprintd) =====
+    // A second PamContext pointed at a small local config that only loads
+    // pam_fprintd.so. This keeps fingerprint auth inside PAM (faillock,
+    // account checks) and avoids parsing fprintd-verify's stdout.
+    //
+    // If pam_fprintd is not installed or no fingers are enrolled, PAM
+    // returns an error immediately and fprintListening stays false.
+    Timer {
+        id: fprintRetryTimer
+        interval: 300
+        repeat: false
+        onTriggered: {
+            if (LockState.locked && !root.unlockInProgress && root.fprintTries < root.maxFprintTries)
+                root.startFp()
         }
     }
 
-    Timer {
-        id: fprintRetryTimer
-        interval: 600
-        onTriggered: {
-            if (LockState.locked && !root.unlockInProgress && root.fprintTries < root.maxFprintTries)
-                fprintProc.running = true
+    PamContext {
+        id: pamFp
+        configDirectory: decodeURIComponent(Qt.resolvedUrl("./pam").toString().replace("file://", ""))
+        config: "lock-fingerprint"
+
+        onPamMessage: {
+            if (this.responseRequired)
+                this.respond("")
+        }
+
+        onCompleted: result => {
+            root.fprintListening = false
+            if (!LockState.locked || root.unlockInProgress)
+                return
+
+            if (result === PamResult.Success) {
+                pam.abort()
+                fprintRetryTimer.stop()
+                root.unlockInProgress = false
+                root.currentText = ""
+                root.failureText = ""
+                root.unlocked()
+                return
+            }
+
+            if (result === PamResult.Error) {
+                // pam_fprintd is not available or no prints enrolled — stop silently.
+                return
+            }
+
+            root.fprintTries++
+            root.failureText = "Fingerprint not recognized"
+            if (root.fprintTries >= root.maxFprintTries) {
+                root.failureCount++
+            } else {
+                fprintRetryTimer.restart()
+            }
         }
     }
 
@@ -306,8 +312,7 @@ Scope {
                 root.failureText = "Wrong password"
 
             // Re-enable fingerprint scanning if password check failed.
-            if (LockState.locked && root.fprintTries < root.maxFprintTries)
-                fprintProc.running = true
+            startFp()
         }
     }
 }
