@@ -8,7 +8,10 @@ fi
 status=0
 for f in tide ribbons scope pulse; do
     [ -f "$f.frag" ] || continue
-    if "$QSB" --qt6 -o "$f.frag.qsb" "$f.frag"; then
+    # Same targets as the other visualizer shaders. Keep these sources free of int
+    # min/max/clamp: GLSL ES 1.00 has no int overloads, and NVIDIA's GLES driver (which Qt
+    # uses through the "100 es" variant) refuses them, leaving the visualizer blank.
+    if "$QSB" --glsl "100 es,120,150,300 es" --hlsl 50 --msl 12 -o "$f.frag.qsb" "$f.frag"; then
         echo "wrote $f.frag.qsb"
     else
         echo "FAILED: $f.frag" >&2
