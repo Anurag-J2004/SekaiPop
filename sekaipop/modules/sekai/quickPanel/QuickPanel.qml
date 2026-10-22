@@ -2590,6 +2590,7 @@ Scope {
                         notifications: root.notificationSource.entries
                         alertEntry: root.notificationSource.toast
                         alertShown: root.notificationSource.toastActive
+                        alertOnly: root.alertUp && !root.open
                         visibleBottomLeft: win.faceCutoffLeftY
                         visibleBottomRight: win.faceCutoffRightY
                         visibleExtra: win.faceRevealLeft
