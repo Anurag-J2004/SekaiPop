@@ -44,6 +44,9 @@ Item {
     // column, top to bottom in the same order.
     property bool vertical: false
 
+    // Which edge the bar is on, so the hover tags open towards the screen.
+    property string barPosition: "top"
+
     // True on a standing bar that is too short for the whole column (Status_Bar
     // `utilFlyout`): the pill is then one tools key, and the keys are in the flyout
     // card it opens (UtilPopup.qml; Bar.qml owns it). `popupOpen` lights the key while
@@ -224,6 +227,8 @@ Item {
             anchors.centerIn: parent
             visible: !root.compact
             src: root
+            tips: true
+            barPosition: root.barPosition
             columns: root.vertical ? 1 : 100
         }
 
@@ -233,6 +238,8 @@ Item {
             anchors.centerIn: parent
             visible: root.compact
             label: "Utility keys"
+            tip: true
+            barPosition: root.barPosition
             icon: "construction"
             active: root.popupOpen
             onClicked: root.toggleRequested()

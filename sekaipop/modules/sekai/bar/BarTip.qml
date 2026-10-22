@@ -86,16 +86,43 @@ Item {
         } catch (e) {
             return
         }
-        const scr = root.barWindow ? root.barWindow.screen : null
+        const win = root.barWindow
+        const scr = win ? win.screen : null
         if (!scr || p.x === undefined || p.y === undefined)
             return
-        // Hyprland gives the cursor in layout coordinates; the bar's window starts at its
-        // screen's own corner, so the module's box is the screen origin + its window box.
+        // Hyprland gives the cursor in layout coordinates. The bar's window sticks to its
+        // own edge, so its corner is the screen's corner only for a top or left bar: a
+        // bottom bar's window starts (screen height - window height) down, a right bar's
+        // (screen width - window width) across. Taking the screen corner for those hid the
+        // tag the moment it appeared.
+        let ox = scr.x
+        let oy = scr.y
+        if (root.barPosition === "bottom")
+            oy += scr.height - win.height
+        else if (root.barPosition === "right")
+            ox += scr.width - win.width
         const a = root.host.mapToItem(null, 0, 0)
         const b = root.host.mapToItem(null, root.host.width, root.host.height)
-        const m = 1
-        root.pointerOver = p.x >= scr.x + a.x - m && p.x <= scr.x + b.x + m
-                        && p.y >= scr.y + a.y - m && p.y <= scr.y + b.y + m
+        const m = 2
+        const inside = p.x >= ox + a.x - m && p.x <= ox + b.x + m
+                    && p.y >= oy + a.y - m && p.y <= oy + b.y + m
+        // The module's own hover area only gets moves while the pointer really is on it,
+        // so a move a moment ago beats this guess (which can be off by a pixel or two, or
+        // read just before the pointer arrived): the tag is never taken away from a
+        // pointer that is visibly moving over the module.
+        root.pointerOver = inside || (Date.now() - root.lastMove < 350)
+    }
+
+    // When the pointer last moved over the module (a hover-only area laid over it; it takes
+    // no clicks, so the module's own area underneath still gets every press).
+    property double lastMove: 0
+
+    MouseArea {
+        width: root.host ? root.host.width : 0
+        height: root.host ? root.host.height : 0
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+        onPositionChanged: root.lastMove = Date.now()
     }
 
     Timer {
