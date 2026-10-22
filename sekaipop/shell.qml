@@ -1281,12 +1281,12 @@ ShellRoot {
         // Look for the lyrics of what is playing again (skips the cache and the "nobody has
         // them" memory): after a wrong match, or once the network is back.
         function refresh(): void { LyricsService.refresh() }
-        // Word-by-word timing, like karaoke, where a source has it (on by default); `off` keeps
-        // the words of a line spread by their syllables.
+        // Word-by-word timing, like karaoke, where a source has it (on by default); `off`
+        // lights the whole line when it starts and jumps to the next one, no word hops.
         function words(on: bool): void { LyricsService.setWords(on) }
-        // Light the whole line when it starts and jump to the next one: no hopping words and no
-        // bouncing diamond (`off`: the word by word singing again). Only the line starts are used.
-        function lineMode(on: bool): void { LyricsService.setLineOnly(on) }
+        // Same switch as `words`, kept so an older keybind still works: `lineMode on` is
+        // Word by word off (the whole line lights at once), `lineMode off` is word by word.
+        function lineMode(on: bool): void { LyricsService.setWords(!on) }
         // Show nothing in the middle for "no synced lyrics" and "instrumental" songs; the title
         // under the card stays (`off`: the messages again).
         function hideNotes(on: bool): void { LyricsService.setHideNotes(on) }
