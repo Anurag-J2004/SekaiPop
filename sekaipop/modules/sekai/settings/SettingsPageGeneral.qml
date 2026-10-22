@@ -52,6 +52,14 @@ SettingsPage {
         }
 
         SettingToggle {
+            icon: "battery_alert"
+            label: "Low battery warnings"
+            detail: "A notification at 20, 15, 10 and 5 % on battery. The last two are urgent and break through do-not-disturb"
+            checked: SettingsService.flag("battery.alerts")
+            onToggled: SettingsService.toggle("battery.alerts")
+        }
+
+        SettingToggle {
             icon: "vibration"
             label: "Buzz on arrival"
             detail: SettingsService.get("notify.style") === "phone" ? "" : "Phone alert only"

@@ -134,6 +134,7 @@ Singleton {
         "pictures.framing",    // belongs to each picture: the `images` part carries it (imageEntry)
         "notify.on",           // do-not-disturb is the person's, not the look's
         "notify.quietFullscreen", // so is "quiet while a window is fullscreen"
+        "battery.alerts",      // and whether the low-battery warnings are on
         "weather.fahrenheit",
         "weather.location",
         "calendar.marks",

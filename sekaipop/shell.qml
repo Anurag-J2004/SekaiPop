@@ -247,6 +247,10 @@ ShellRoot {
         source: notificationState
     }
 
+    // Low-battery warnings (20 / 15 / 10 / 5 %), sent as notifications through the
+    // daemon above. Idle on a desktop with no battery. Settings > General > Time & alerts.
+    BatteryAlertService {}
+
     // The Quick Panel is the front door of the ONE phone (see QuickPanel.qml's
     // header): Quick, the Apps screen and the Settings live in it, behind one
     // router, and `ipc call phone ...` drives all of it. The Wallpapers share the
