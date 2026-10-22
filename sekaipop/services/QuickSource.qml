@@ -532,7 +532,7 @@ Scope {
     }
 
     Process {
-        command: ["hostname"]
+        command: ["uname", "-n"]   // `hostname` is not installed by default on Arch (inetutils)
         running: true
         stdout: StdioCollector {
             onStreamFinished: root.hostName = text.trim()
@@ -825,7 +825,7 @@ Scope {
     Process {
         id: easyEffectsAction
         command: ["sh", "-c", root.easyEffectsOn
-            ? "pgrep -x easyeffects >/dev/null && exit 0; if command -v easyeffects >/dev/null 2>&1; then setsid easyeffects --gapplication-service >/dev/null 2>&1 & else setsid flatpak run com.github.wwmm.easyeffects --gapplication-service >/dev/null 2>&1 & fi"
+            ? "pgrep -x easyeffects >/dev/null && exit 0; if command -v easyeffects >/dev/null 2>&1; then setsid easyeffects --hide-window --service-mode >/dev/null 2>&1 & else setsid flatpak run com.github.wwmm.easyeffects --gapplication-service >/dev/null 2>&1 & fi"
             : "pkill -x easyeffects"]
         onExited: root.refreshSoon()
     }
