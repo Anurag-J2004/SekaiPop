@@ -80,7 +80,7 @@ Item {
     Process {
         running: true
         command: [
-            "bash", "-c",
+            "setpriv", "--pdeathsig", "TERM", "bash", "-c",
             "gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null; "
             + "exec gsettings monitor org.gnome.desktop.interface color-scheme 2>/dev/null"
         ]

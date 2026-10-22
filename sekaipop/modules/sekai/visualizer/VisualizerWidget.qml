@@ -394,7 +394,7 @@ PanelWindow {
     Process {
         id: cava
         running: win.wantAudio && win.isSekai && !win.useAnalyzer
-        command: ["nice", "-n", "5", "cava", "-p", win.cavaConf]
+        command: ["setpriv", "--pdeathsig", "TERM", "nice", "-n", "5", "cava", "-p", win.cavaConf]
 
         stdout: SplitParser {
             onRead: data => levelEngine.raw = win.parseBands(data)

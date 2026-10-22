@@ -521,7 +521,7 @@ Scope {
     // deliberately skips sink-input / source-output, which chatter
     // whenever audio plays.
     Process {
-        command: ["pactl", "subscribe"]
+        command: ["setpriv", "--pdeathsig", "TERM", "pactl", "subscribe"]
         running: root.active
         stdout: SplitParser {
             onRead: line => {
