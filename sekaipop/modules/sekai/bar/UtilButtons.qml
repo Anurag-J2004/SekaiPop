@@ -80,7 +80,7 @@ Item {
     Process {
         running: true
         command: [
-            "bash", "-c",
+            "setpriv", "--pdeathsig", "TERM", "bash", "-c",
             "gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null; "
             + "exec gsettings monitor org.gnome.desktop.interface color-scheme 2>/dev/null"
         ]
@@ -183,7 +183,7 @@ Item {
         const dir = Quickshell.env("HOME") + "/Videos/Recordings"
         root.recordFile = dir + "/" + Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss") + ".mp4"
         recorder.command = ["bash", "-c",
-            "mkdir -p \"$(dirname \"$1\")\"; g=$(slurp) || exit 0; exec wf-recorder -g \"$g\" -f \"$1\"",
+            "mkdir -p \"$(dirname \"$1\")\"; g=$(slurp) || exit 0; enc=; [ -e /dev/nvidiactl ] && enc=\"-c h264_nvenc -p rc=vbr -p cq=21 -p b=0 -p preset=p5\"; exec wf-recorder $enc -g \"$g\" -f \"$1\"",
             "bash", root.recordFile]
         recorder.running = true
     }
