@@ -279,7 +279,7 @@ PanelWindow {
 
     Process {
         running: true
-        command: ["hostname"]
+        command: ["uname", "-n"]   // `hostname` is not installed by default on Arch (inetutils)
         stdout: StdioCollector {
             onStreamFinished: win.hostName = text.trim()
         }
