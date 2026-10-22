@@ -810,7 +810,7 @@ Item {
                         }
 
                         Text {
-                            anchors.horizontalCenter: parent.verticalCenter
+                            anchors.horizontalCenter: parent.horizontalCenter
                             text: (cell.modelData.day < 10 ? "0" : "") + cell.modelData.day
                             color: cell.isToday ? root.ink : (cell.modelData.weekend ? root.accent : root.ink)
                             font.family: Theme.fontFamily
