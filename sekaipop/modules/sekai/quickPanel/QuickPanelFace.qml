@@ -79,8 +79,11 @@ Item {
     // The pointer is on the banner, or on one of the keys / the badge sitting on it (each has
     // its own MouseArea, which takes the hover away from the picture's): one answer for the
     // tint, the keys and the badge, so moving onto a key doesn't flicker them.
-    readonly property bool bannerHovered: bannerArea.containsMouse || bannerKeys.hovered || bannerRemoveArea.containsMouse
-    readonly property bool avatarHovered: avatarArea.containsMouse || avatarFrameKey.hovered || avatarRemoveArea.containsMouse
+    // Not while the phone is only up for a notification (QuickPanel's alertUp without open):
+    // it sits low with the banner in reach, and passing over it to get at the card or to
+    // leave the phone brought up the Change / Frame keys and the clear badge.
+    readonly property bool bannerHovered: !alertOnly && (bannerArea.containsMouse || bannerKeys.hovered || bannerRemoveArea.containsMouse)
+    readonly property bool avatarHovered: !alertOnly && (avatarArea.containsMouse || avatarFrameKey.hovered || avatarRemoveArea.containsMouse)
 
     // "wifi" or "ethernet" — what the first tile is showing
     property string networkKind: "wifi"
@@ -232,6 +235,8 @@ Item {
     // keeps its text while it slides away.
     property var alertEntry: null
     property bool alertShown: false
+    // The phone came up only to show that card and hasn't been touched yet.
+    property bool alertOnly: false
 
     // The y (in this file's 654x1214 coordinates) where the bottom of the
     // monitor cuts the phone off — only part of it shows (QuickPanel's
