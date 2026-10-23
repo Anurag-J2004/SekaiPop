@@ -791,9 +791,13 @@ Item {
 
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width - root.px(48)
                         y: root.px(12)
-                        text: root.context.unlockInProgress ? "Checking…" : "Password"
-                        color: LockPalette.cBorder
+                        elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                        text: root.context.fprintListening ? root.context.fprintMessage
+                              : (root.context.unlockInProgress ? "Checking…" : "Password")
+                        color: root.context.fprintMessageIsError ? LockPalette.pink : LockPalette.cBorder
                         font.family: Theme.fontFamily
                         font.pixelSize: root.px(34)
                         font.weight: Font.ExtraBold
@@ -959,13 +963,32 @@ Item {
                         radius: height / 2
                         color: LockPalette.well
 
-                        MaterialIcon {
+                        Row {
                             anchors.centerIn: parent
                             visible: !root.context.unlockInProgress
-                            name: "arrow_forward"
-                            size: root.px(28)
-                            weight: 600
-                            color: LockPalette.mint
+                            spacing: root.px(10)
+
+                            // Shown alongside the arrow after PAM reports a fingerprint prompt.
+                            MaterialIcon {
+                                anchors.verticalCenter: parent.verticalCenter
+                                visible: root.context.fprintListening
+                                name: "fingerprint"
+                                size: root.px(26)
+                                weight: 600
+                                color: root.failed ? LockPalette.pink : LockPalette.mint
+
+                                Behavior on color {
+                                    ColorAnimation { duration: 120 }
+                                }
+                            }
+
+                            MaterialIcon {
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: "arrow_forward"
+                                size: root.px(28)
+                                weight: 600
+                                color: LockPalette.mint
+                            }
                         }
 
                         MaterialIcon {

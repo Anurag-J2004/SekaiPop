@@ -32,6 +32,17 @@ Scope {
     // two failures in a row leave failureText unchanged.
     property int failureCount: 0
 
+    // True after PAM has reported a fingerprint prompt, not merely while the
+    // authentication conversation is starting.
+    property bool fprintListening: false
+    // True from start() until the conversation completes or is aborted;
+    // also makes late signals from an aborted conversation harmless.
+    property bool fprintActive: false
+    // Set when pam_fprintd runs out of tries; cleared by a password attempt, a new lock, or a resume.
+    property bool fprintExhausted: false
+    property string fprintMessage: ""
+    property bool fprintMessageIsError: false
+
     signal unlocked()
     // Asks the surface(s) to grab keyboard focus again (see Lockscreen.qml).
     signal focusRequested()
@@ -83,6 +94,7 @@ Scope {
         if (LockState.phase !== "locked")
             return
         root.armed = ""
+        stopFp()
         root.clearText()
         sleepAction.running = true
     }
@@ -141,11 +153,65 @@ Scope {
     // the last session (or a failure message) is never shown.
     function reset() {
         pam.abort()
+        stopFp()
+        root.fprintExhausted = false
         currentText = ""
         failureText = ""
         unlockInProgress = false
         ctrlHeld = false
         armed = ""
+        if (LockState.locked)
+            startFp()
+    }
+
+    // Start one fingerprint PAM conversation if enabled and truly locked.
+    function startFp() {
+        if (!SettingsService.flag("lock.fingerprint"))
+            return
+        if (!LockState.locked || root.unlockInProgress || root.fprintActive || root.fprintExhausted)
+            return
+        root.fprintActive = true
+        root.fprintListening = false
+        pamFp.start()
+    }
+
+    function clearFpMessage() {
+        root.fprintMessage = ""
+        root.fprintMessageIsError = false
+    }
+
+    function stopFp() {
+        fprintResumeTimer.stop()
+        root.fprintActive = false
+        root.fprintListening = false
+        clearFpMessage()
+        pamFp.abort()
+    }
+
+    // fprintd may lose its reader while the machine sleeps. Abort any stale
+    // conversation before starting a fresh one after logind resumes.
+    function resumeFromSleep() {
+        if (!LockState.locked || !SettingsService.flag("lock.fingerprint"))
+            return
+        stopFp()
+        fprintResumeTimer.restart()
+    }
+
+    // Let the aborted PAM subprocess and the fingerprint device settle before
+    // asking fprintd to claim the reader again.
+    Timer {
+        id: fprintResumeTimer
+        interval: 600
+        onTriggered: root.startFp()
+    }
+
+    // Clean up fingerprint PAM when the screen unlocks.
+    Connections {
+        target: LockState
+        function onLockedChanged() {
+            if (!LockState.locked)
+                stopFp()
+        }
     }
 
     function tryUnlock() {
@@ -154,6 +220,10 @@ Scope {
         // nothing may unlock before the lock does.
         if (!LockState.locked || unlockInProgress || currentText.length === 0)
             return
+        // Abort fingerprint PAM before starting password PAM so they do not
+        // compete for the sensor / PAM stack simultaneously.
+        stopFp()
+        root.fprintExhausted = false
         failureText = ""
         unlockInProgress = true
         pam.start()
@@ -173,6 +243,53 @@ Scope {
         onTriggered: {
             if (!root.unlockInProgress)
                 root.clearText()
+        }
+    }
+
+    // ===== fingerprint authentication (PAM / pam_fprintd) =====
+    // A separate PAM authentication service lets pam_fprintd decide matches
+    // and report its own errors.
+    PamContext {
+        id: pamFp
+        configDirectory: Quickshell.shellDir + "/modules/sekai/lock/pam"
+        config: "lock-fingerprint"
+
+        onPamMessage: {
+            if (!root.fprintActive)
+                return
+            const message = this.message.trim()
+            if (message !== "") {
+                root.fprintListening = true
+                root.fprintMessage = message
+                root.fprintMessageIsError = this.messageIsError
+            }
+            if (this.responseRequired)
+                this.respond("")
+        }
+
+        onCompleted: result => {
+            if (!root.fprintActive)
+                return
+            root.fprintActive = false
+            root.fprintListening = false
+            root.clearFpMessage()
+            if (!LockState.locked || root.unlockInProgress)
+                return
+
+            if (result === PamResult.Success) {
+                root.currentText = ""
+                root.failureText = ""
+                root.unlocked()
+                return
+            }
+
+            if (result === PamResult.Error)
+                return
+
+            root.failureText = "Fingerprint not recognized"
+            root.failureCount++
+            if (result === PamResult.MaxTries)
+                root.fprintExhausted = true
         }
     }
 
@@ -202,6 +319,9 @@ Scope {
                 root.failureText = "Too many tries — wait a moment"
             else
                 root.failureText = "Wrong password"
+
+            // Re-enable fingerprint scanning if password check failed.
+            startFp()
         }
     }
 }
